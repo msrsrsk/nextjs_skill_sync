@@ -29,6 +29,8 @@ const TrendSectionWrapper = async () => {
     const { success, data, error } = await getAllCategoriesProductsSalesVolume({});
     // const { success, data, error } = { success: true, data: undefined, error: null };
 
+    console.log("TrendSectionWrapper: ", { success, data, error });
+
     if (!success) return <ErrorMessage message={error as string} />
     if (!data) return <ErrorMessage message={PRODUCT_ERROR.TREND_FETCH_FAILED} />
 
