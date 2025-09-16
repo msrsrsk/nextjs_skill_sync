@@ -6,7 +6,7 @@ import TrendSection from "@/components/sections/TrendSection"
 import CategorySection from "@/components/sections/CategorySection"
 import SyncLogSection from "@/components/sections/SyncLogSection"
 import AnotherWorldSection from "@/components/sections/AnotherWorldSection"
-// import ReviewSection from "@/components/sections/ReviewSection"
+import ReviewSection from "@/components/sections/ReviewSection"
 import { generatePageMetadata } from "@/lib/metadata/page"
 import { MAIN_METADATA } from "@/constants/metadata/main"
 
@@ -22,7 +22,7 @@ export default function Home() {
             <TrendSection />
             <CategorySection />
             <SyncLogSection />
-            {/* <ReviewSection /> */}
+            <ReviewSection />
             <AnotherWorldSection />
         </>
     );
