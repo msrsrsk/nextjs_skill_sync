@@ -11,7 +11,8 @@ const {
     SEARCH_PATH,
     TERMS_PATH,
     PRIVACY_PATH,
-    TOKUSHOHO_PATH
+    TOKUSHOHO_PATH,
+    NOT_FOUND_PATH
 } = SITE_MAP;
 
 export const MAIN_METADATA = {
@@ -92,6 +93,15 @@ export const MAIN_METADATA = {
         title: '特定商法取引法に基づく表記',
         description: '特定商法取引法に基づく表記に関するページです。',
         url: TOKUSHOHO_PATH,
+        robots: {
+            index: false,
+            follow: false,
+        }
+    },
+    NOT_FOUND: {
+        title: 'Not Found (404)',
+        description: '指定されたページが見つかりません',
+        url: NOT_FOUND_PATH,
         robots: {
             index: false,
             follow: false,
