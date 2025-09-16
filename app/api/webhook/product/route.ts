@@ -9,6 +9,8 @@ import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { PRODUCT_ERROR, SUBSCRIPTION_ERROR } = ERROR_MESSAGES;
 
+export const dynamic = "force-dynamic";
+
 export async function POST(request: NextRequest) {   
     try {
         const headersList = await headers();

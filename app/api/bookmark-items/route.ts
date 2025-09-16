@@ -6,6 +6,8 @@ import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { BOOKMARK_ERROR } = ERROR_MESSAGES;
 
+export const dynamic = "force-dynamic";
+
 // POST: お気に入り状態の変更
 export async function POST(request: NextRequest) {
     try {

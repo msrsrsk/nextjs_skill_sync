@@ -8,6 +8,8 @@ import { ERROR_MESSAGES } from "@/constants/errorMessages"
 const { SENDER_USER } = CHAT_SENDER_TYPES;
 const { CHAT_ERROR } = ERROR_MESSAGES;
 
+export const dynamic = "force-dynamic";
+
 export async function POST(request: NextRequest) {
     try {
         const { userId } = await requireApiAuth(
