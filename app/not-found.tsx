@@ -10,6 +10,8 @@ const { BUTTON_LARGE } = BUTTON_SIZES;
 const { BUTTON_JA } = BUTTON_TEXT_TYPES;
 const { HOME_PATH } = SITE_MAP;
 
+export const dynamic = "force-dynamic"
+
 export const metadata: Metadata = generatePageMetadata({
     ...MAIN_METADATA.NOT_FOUND
 })

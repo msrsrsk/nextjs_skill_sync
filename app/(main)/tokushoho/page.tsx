@@ -6,8 +6,6 @@ import { SUBSCRIPTION_CANCEL_THRESHOLD, SHIPPING_FEE_250 } from "@/constants/ind
 import { generatePageMetadata } from "@/lib/metadata/page"
 import { MAIN_METADATA } from "@/constants/metadata/main"
 
-export const dynamic = "force-dynamic"
-
 export const metadata: Metadata = generatePageMetadata({
     ...MAIN_METADATA.TOKUSHOHO
 })

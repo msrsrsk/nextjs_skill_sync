@@ -1,6 +1,8 @@
 import { auth } from "@/lib/auth"
 import { supabase, createAuthClient } from "@/lib/clients/supabase/client"
 
+export const dynamic = "force-dynamic"
+
 // Prisma ではなく Supabase クライアントを用いたデータ取得のテスト
 const TestPage = async () => {
     try {
