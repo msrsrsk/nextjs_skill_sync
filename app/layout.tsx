@@ -1,14 +1,16 @@
-import type { Metadata } from "next";
-import { Zen_Kaku_Gothic_New, Poppins } from "next/font/google";
-import { SessionProvider } from "next-auth/react";
-import { Toaster } from "react-hot-toast";
+import type { Metadata } from "next"
+import { Zen_Kaku_Gothic_New, Poppins } from "next/font/google"
+import { SessionProvider } from "next-auth/react"
+import { Toaster } from "react-hot-toast"
 
 import "./globals.css";
-import localFont from 'next/font/local'
+import localFont from "next/font/local"
 
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
-import ScrollToTop from "@/components/common/display/ScrollToTop";
+export const dynamic = "force-dynamic"
+
+import Header from "@/components/layout/Header"
+import Footer from "@/components/layout/Footer"
+import ScrollToTop from "@/components/common/display/ScrollToTop"
 
 const nasalization = localFont({
     variable: "--font-nasalization",
