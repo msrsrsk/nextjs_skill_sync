@@ -22,7 +22,7 @@ export default function Home() {
             <TrendSection />
             <CategorySection />
             <SyncLogSection />
-            <ReviewSection />
+            {/* <ReviewSection /> */}
             <AnotherWorldSection />
         </>
     );
