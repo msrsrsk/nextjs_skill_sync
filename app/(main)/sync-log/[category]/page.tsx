@@ -23,8 +23,6 @@ const { SYNC_ALL } = SYNC_LOG_CATEGORIES;
 const { SYNC_LOG_PATH } = SITE_MAP;
 const { LOG_ERROR } = ERROR_MESSAGES;
 
-export const dynamic = "force-dynamic";
-
 interface SyncLogCategoryPageProps {
     params: {
         category: string;

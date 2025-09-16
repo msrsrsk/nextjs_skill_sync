@@ -9,8 +9,6 @@ import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { SUBSCRIPTION_ERROR } = ERROR_MESSAGES;
 
-export const dynamic = "force-dynamic";
-
 export async function POST(request: NextRequest) {   
     const endpointSecret = process.env.STRIPE_SUBSCRIPTION_WEBHOOK_SECRET_KEY;
 

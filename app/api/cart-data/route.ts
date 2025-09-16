@@ -6,8 +6,6 @@ import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { USER_ERROR, CART_ITEM_ERROR } = ERROR_MESSAGES;
 
-export const dynamic = "force-dynamic";
-
 export async function GET(request: NextRequest) {
     try {
         // throw new Error('test error');

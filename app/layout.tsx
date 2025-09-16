@@ -41,8 +41,8 @@ export default function RootLayout({
             <body 
                 className={`${nasalization.variable} ${zenKakuGothicNew.variable} ${poppins.variable}`}
             >
-                {/* <SessionProvider> */}
-                    {/* <Header /> */}
+                <SessionProvider>
+                    <Header />
                     <main>
                         {children}
                         <Toaster 
@@ -50,9 +50,9 @@ export default function RootLayout({
                             containerClassName="toast"
                         />
                     </main>
-                    {/* <Footer /> */}
-                    {/* <ScrollToTop /> */}
-                {/* </SessionProvider> */}
+                    <Footer />
+                    <ScrollToTop />
+                </SessionProvider>
             </body>
         </html>
     );

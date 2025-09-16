@@ -5,8 +5,6 @@ import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { PRODUCT_ERROR } = ERROR_MESSAGES;
 
-export const dynamic = "force-dynamic";
-
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const idsParam = searchParams.get('ids');

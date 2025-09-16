@@ -10,8 +10,8 @@
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit",
     "postinstall": "prisma generate",
+    "typecheck": "tsc --noEmit",
     "db:migrate:name": "npx prisma migrate dev --name",
     "db:generate": "npx prisma generate"
   },

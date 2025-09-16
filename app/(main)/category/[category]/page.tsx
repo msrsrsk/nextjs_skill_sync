@@ -12,8 +12,6 @@ import { CATEGORY_SUBTITLES, DEFAULT_PAGE, SITE_MAP } from "@/constants/index"
 const { ALL_SUBTITLE } = CATEGORY_SUBTITLES;
 const { CATEGORY_PATH } = SITE_MAP;
 
-export const dynamic = "force-dynamic";
-
 export async function generateMetadata({ 
     params 
 }: { params: { category: string } }): Promise<Metadata> {

@@ -1,11 +1,18 @@
 import Breadcrumb from "@/components/ui/navigation/Breadcrumb"
 import PageTitle from "@/components/common/display/PageTitle"
+import { Metadata } from "next"
 import { LinkButtonPrimary } from "@/components/common/buttons/Button"
 import { BUTTON_SIZES, BUTTON_TEXT_TYPES, SITE_MAP } from "@/constants/index"
+import { generatePageMetadata } from "@/lib/metadata/page"
+import { MAIN_METADATA } from "@/constants/metadata/main"
 
 const { BUTTON_LARGE } = BUTTON_SIZES;
 const { BUTTON_JA } = BUTTON_TEXT_TYPES;
 const { HOME_PATH } = SITE_MAP;
+
+export const metadata: Metadata = generatePageMetadata({
+    ...MAIN_METADATA.NOT_FOUND
+})
 
 const NotFound = () => {
     return <>

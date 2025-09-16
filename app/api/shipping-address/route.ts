@@ -6,8 +6,6 @@ import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { SHIPPING_ADDRESS_ERROR } = ERROR_MESSAGES;
 
-export const dynamic = "force-dynamic";
-
 export async function DELETE(request: NextRequest) {
     try {
         // throw new Error('test');
