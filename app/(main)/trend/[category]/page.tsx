@@ -11,6 +11,8 @@ import { DEFAULT_PAGE, SITE_MAP } from "@/constants/index"
 
 const { TREND_PATH } = SITE_MAP;
 
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata({ 
     params 
 }: { params: { category: string } }): Promise<Metadata> {

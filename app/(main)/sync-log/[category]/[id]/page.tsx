@@ -34,6 +34,8 @@ const { TAG_MEDIUM } = SYNC_LOG_TAG_SIZES;
 const { SYNC_LOG_PATH, PRODUCT_PATH } = SITE_MAP;
 const { ARTICLE } = METADATA_TYPES;
 
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata({ 
     params 
 }: { params: { id: string } }): Promise<Metadata> {
