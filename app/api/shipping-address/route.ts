@@ -10,10 +10,14 @@ export async function DELETE(request: NextRequest) {
     try {
         // throw new Error('test');
 
-        await requireApiAuth(
+        const authResult = await requireApiAuth(
             request, 
             SHIPPING_ADDRESS_ERROR.DELETE_UNAUTHORIZED
         );
+
+        if (!authResult.isAuthorized) {
+            return authResult.response!;
+        }
 
         const { searchParams } = new URL(request.url);
         const addressId = searchParams.get('addressId');

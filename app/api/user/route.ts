@@ -11,16 +11,20 @@ export async function DELETE(request: NextRequest) {
     try {
         // throw new Error('test error');
 
-        const { userId } = await requireApiAuth(
+        const authResult = await requireApiAuth(
             request, 
             USER_ERROR.UNAUTHORIZED
         )
+
+        if (!authResult.isAuthorized) {
+            return authResult.response;
+        }
 
         // ユーザーのアイコン画像をストレージから削除
         const { 
             success: deleteUserImageSuccess, 
             error: deleteUserImageError 
-        } = await deleteUserImage({ userId: userId as UserId });
+        } = await deleteUserImage({ userId: authResult.userId! });
 
         if (!deleteUserImageSuccess) {
             return NextResponse.json(

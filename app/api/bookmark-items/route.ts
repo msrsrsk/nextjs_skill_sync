@@ -9,10 +9,14 @@ const { BOOKMARK_ERROR } = ERROR_MESSAGES;
 // POST: お気に入り状態の変更
 export async function POST(request: NextRequest) {
     try {
-        const { userId } = await requireApiAuth(
+        const authResult = await requireApiAuth(
             request, 
             BOOKMARK_ERROR.ADD_UNAUTHORIZED
         );
+
+        if (!authResult.isAuthorized) {
+            return authResult.response;
+        }
 
         const { productId } = await request.json();
 
@@ -24,7 +28,7 @@ export async function POST(request: NextRequest) {
         }
 
         const { success, error, isBookmarked } = await addBookmark({ 
-            userId: userId as UserId, 
+            userId: authResult.userId!, 
             productId 
         });
 

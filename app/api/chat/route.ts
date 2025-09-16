@@ -10,10 +10,14 @@ const { CHAT_ERROR } = ERROR_MESSAGES;
 
 export async function POST(request: NextRequest) {
     try {
-        const { userId } = await requireApiAuth(
+        const authResult = await requireApiAuth(
             request, 
             CHAT_ERROR.UNAUTHORIZED
         );
+
+        if (!authResult.isAuthorized) {
+            return authResult.response;
+        }
 
         const { 
             message, 
@@ -29,7 +33,7 @@ export async function POST(request: NextRequest) {
         }
         
         const { success, error, data } = await createChatMessageByUserId({
-            userId: userId as UserId, 
+            userId: authResult.userId!, 
             message, 
             senderType,
             source
