@@ -3,20 +3,13 @@ import { redirect } from "next/navigation"
 
 import { auth } from "@/lib/auth"
 import { SITE_MAP } from "@/constants/index"
-import { NextAuthUser } from "next-auth"
+import type { User } from "next-auth"
 
 const { LOGIN_PATH } = SITE_MAP;
 
-
-interface AuthResult {
-    isAuthorized: boolean;
-    userId?: UserId;
-    response?: NextResponse;
-}
-
 interface ServerAuthResult {
     session: Session;
-    user: NextAuthUser;
+    user: User;
     userId: UserId;
 }
 
@@ -25,30 +18,26 @@ interface ActionAuthResult<T> {
     error?: string;
     data?: T;
     timestamp?: number;
-    user?: NextAuthUser;
+    user?: User;
     userId?: UserId;
 }
 
 export async function requireApiAuth(
     request: NextRequest,
     message: string
-): Promise<AuthResult> {
+): Promise<{ userId: UserId }> {
     const session = await auth();
 
     if (!session?.user?.id) {
-        return {
-            isAuthorized: false,
-            response: NextResponse.json(
-                { message: message }, 
-                { status: 401 }
-            )
-        };
+        throw new NextResponse(
+            JSON.stringify({ message: message }), 
+            { status: 401 }
+        );
     }
 
     return {
-        isAuthorized: true,
         userId: session.user.id as UserId
-    };
+    }
 }
 
 export async function requireServerAuth(): Promise<ServerAuthResult> {
