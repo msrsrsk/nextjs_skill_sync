@@ -14,14 +14,10 @@ const { CART_ITEM_ERROR } = ERROR_MESSAGES;
 
 export async function POST(request: NextRequest) {
     try {
-        const authResult = await requireApiAuth(
+        const { userId } = await requireApiAuth(
             request, 
             CART_ITEM_ERROR.UNAUTHORIZED
         );
-
-        if (!authResult.isAuthorized) {
-            return authResult.response;
-        }
 
         const { productId, quantity } = await request.json();
 
@@ -34,7 +30,7 @@ export async function POST(request: NextRequest) {
 
         // カートに商品が既にあるか確認
         const checkCartItem = await getCartItemsByProductIdData({
-            userId: authResult.userId!,
+            userId: userId as UserId,
             productId: productId
         });
         

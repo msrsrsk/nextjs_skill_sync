@@ -8,14 +8,10 @@ const { CART_ITEM_ERROR } = ERROR_MESSAGES;
 
 export async function PUT(request: NextRequest) {
     try {
-        const authResult = await requireApiAuth(
+        const { userId } = await requireApiAuth(
             request, 
             CART_ITEM_ERROR.UNAUTHORIZED
         );
-
-        if (!authResult.isAuthorized) {
-            return authResult.response;
-        }
 
         const { productId, quantity } = await request.json();
 
@@ -27,7 +23,7 @@ export async function PUT(request: NextRequest) {
         }
 
         const { success, error } = await updateCartItemQuantity({
-            userId: authResult.userId!,
+            userId: userId as UserId,
             productId,
             quantity
         });

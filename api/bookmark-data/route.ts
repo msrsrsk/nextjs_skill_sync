@@ -11,17 +11,13 @@ export async function GET(request: NextRequest) {
     try {
         // throw new Error('test error');
 
-        const authResult = await requireApiAuth(
+        const { userId } = await requireApiAuth(
             request, 
             USER_ERROR.UNAUTHORIZED
-        );
-
-        if (!authResult.isAuthorized) {
-            return authResult.response;
-        }
+        )
 
         const bookmarkItemsResult = await getUserBookmarksData({
-            userId: authResult.userId!,
+            userId: userId as UserId,
             limit: BOOKMARK_PAGE_DISPLAY_LIMIT
         });
 

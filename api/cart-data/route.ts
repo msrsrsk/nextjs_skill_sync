@@ -10,17 +10,13 @@ export async function GET(request: NextRequest) {
     try {
         // throw new Error('test error');
 
-        const authResult = await requireApiAuth(
+        const { userId } = await requireApiAuth(
             request, 
             USER_ERROR.UNAUTHORIZED
         )
 
-        if (!authResult.isAuthorized) {
-            return authResult.response;
-        }
-
         const cartItemsResult = await getCartItemsData({
-            userId: authResult.userId!
+            userId: userId as UserId
         });
 
         if (!cartItemsResult) {
