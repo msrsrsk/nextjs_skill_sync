@@ -6,6 +6,8 @@ import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { CART_ITEM_ERROR } = ERROR_MESSAGES;
 
+export const dynamic = "force-dynamic"
+
 export async function PUT(request: NextRequest) {
     try {
         const { userId } = await requireApiAuth(

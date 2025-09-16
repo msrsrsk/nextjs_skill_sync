@@ -6,6 +6,8 @@ import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { CHECKOUT_ERROR } = ERROR_MESSAGES;
 
+export const dynamic = "force-dynamic"
+
 export async function POST(request: NextRequest) {
     const { user } = await requireServerAuth();
     const userId = user?.id as UserId;
