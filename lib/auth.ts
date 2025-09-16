@@ -16,6 +16,7 @@ const {
 } = SITE_MAP;
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+    secret: process.env.NEXTAUTH_SECRET,
     adapter: PrismaAdapter(prisma),
     providers: [
         Credentials({
