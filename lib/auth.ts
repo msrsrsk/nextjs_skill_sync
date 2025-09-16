@@ -1,7 +1,10 @@
 import NextAuth from "next-auth"
 import Credentials from "next-auth/providers/credentials"
+import prisma from "@/lib/database/prisma/client"
 import bcrypt from "bcryptjs"
+import { PrismaAdapter } from "@auth/prisma-adapter"
 
+import { checkExistingUserData } from "@/lib/database/prisma/actions/users"
 import { SITE_MAP, SESSION_MAX_AGE } from "@/constants/index"
 
 const { 
@@ -13,6 +16,7 @@ const {
 } = SITE_MAP;
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+    adapter: PrismaAdapter(prisma),
     providers: [
         Credentials({
             name: "credentials",
@@ -23,30 +27,23 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             async authorize(credentials) {
                 if (!credentials) return null;
         
-                try {
-                    const { checkExistingUserData } = await import("@/lib/database/prisma/actions/users")
-                    
-                    const user = await checkExistingUserData({
-                        email: credentials.email as string
-                    })
-            
-                    if (!user || !user.password) return null
+                const user = await checkExistingUserData({
+                    email: credentials.email as string
+                })
+        
+                if (!user || !user.password) return null
 
-                    const isPasswordValid = await bcrypt.compare(
-                        credentials.password as string, 
-                        user.password
-                    )
+                const isPasswordValid = await bcrypt.compare(
+                    credentials.password as string, 
+                    user.password
+                )
 
-                    if (!isPasswordValid) return null
-            
-                    return {
-                        id: user.id, 
-                        email: user.email,
-                        name: `${user.lastname} ${user.firstname}`,
-                    }
-                } catch (error) {
-                    console.error('Auth error:', error);
-                    return null;
+                if (!isPasswordValid) return null
+        
+                return {
+                    id: user.id, 
+                    email: user.email,
+                    name: `${user.lastname} ${user.firstname}`,
                 }
             }
         }),
