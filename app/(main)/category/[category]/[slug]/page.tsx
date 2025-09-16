@@ -16,6 +16,8 @@ import { SITE_MAP } from "@/constants/index"
 
 const { CATEGORY_PATH } = SITE_MAP;
 
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata({ 
     params 
 }: { params: { slug: string } }): Promise<Metadata> {
