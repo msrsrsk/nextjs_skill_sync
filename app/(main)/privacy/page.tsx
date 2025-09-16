@@ -5,6 +5,8 @@ import PageTitle from "@/components/common/display/PageTitle"
 import { generatePageMetadata } from "@/lib/metadata/page"
 import { MAIN_METADATA } from "@/constants/metadata/main"
 
+export const dynamic = "force-dynamic"
+
 export const metadata: Metadata = generatePageMetadata({
     ...MAIN_METADATA.PRIVACY_POLICY
 })

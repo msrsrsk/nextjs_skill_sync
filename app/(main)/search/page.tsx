@@ -9,6 +9,8 @@ import { generatePageMetadata } from "@/lib/metadata/page"
 import { DEFAULT_PAGE } from "@/constants/index"
 import { MAIN_METADATA } from "@/constants/metadata/main"
 
+export const dynamic = "force-dynamic"
+
 export const metadata: Metadata = generatePageMetadata({
     ...MAIN_METADATA.SEARCH
 })
