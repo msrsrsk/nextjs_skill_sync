@@ -8,15 +8,11 @@ const nextConfig = {
             },
             {
                 protocol: 'https',
-                hostname: process.env.SUPABASE_URL?.replace('https://', '').replace('http://', '') || '',
-            },
-            {
-                protocol: 'https',
                 hostname: '*.r2.cloudflarestorage.com',
                 port: '',
                 pathname: '/**',
             },
-        ],
+        ].filter(pattern => pattern.hostname && pattern.hostname.trim() !== ''),
     },
 };
 
