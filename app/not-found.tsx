@@ -1,5 +1,3 @@
-"use client"
-
 import Breadcrumb from "@/components/ui/navigation/Breadcrumb"
 import PageTitle from "@/components/common/display/PageTitle"
 import { Metadata } from "next"
