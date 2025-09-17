@@ -94,6 +94,9 @@ model User {
   user_images    UserImage[]
   cart_items CartItem[]
 
+  @@index([email])
+  @@index([stripe_customer_id])
+  @@index([created_at])
   @@map("users")
 }
 
@@ -141,6 +144,11 @@ model Product {
   @@index([category])
   @@index([stock]) 
   @@index([created_at])
+  @@index([category, price])
+  @@index([category, stock])
+  @@index([category, created_at])
+  @@index([sold_count])
+  @@index([stripe_product_id])
   @@map("products")
 }
 
@@ -178,6 +186,10 @@ model Notification {
 
   created_at  DateTime @default(now())
 
+  @@index([type])
+  @@index([product_id])
+  @@index([created_at])
+  @@index([type, created_at])
   @@map("notifications")
 }
 
@@ -202,6 +214,10 @@ model Review {
   @@index([is_approved])
   @@index([is_priority])
   @@index([created_at])
+  @@index([product_id, is_approved])
+  @@index([product_id, is_priority])
+  @@index([is_approved, is_priority])
+  @@index([rating])
   @@map("reviews")
 }
 
@@ -255,6 +271,10 @@ model Order {
   
   @@index([user_id])
   @@index([status])
+  @@index([user_id, status])
+  @@index([created_at])
+  @@index([stripe_session_id])
+  @@index([stripe_payment_intent_id])
   @@map("orders")
 }
 
@@ -280,6 +300,11 @@ model OrderItem {
   
   @@index([order_id])
   @@index([product_id])
+  @@index([product_id, subscription_id, subscription_status])
+  @@index([subscription_id])
+  @@index([subscription_status])
+  @@index([order_id, product_id])
+  @@index([created_at])
   @@map("order_items")
 }
 
@@ -295,6 +320,12 @@ model SubscriptionPayment {
   orderItem OrderItem? @relation("OrderItemSubscriptionPayment", fields: [subscription_id], references: [subscription_id], onDelete: Cascade)
 
   @@index([user_id])
+  @@index([subscription_id])
+  @@index([status])
+  @@index([payment_date])
+  @@index([created_at])
+  @@index([user_id, status])
+  @@index([subscription_id, status])
   @@map("subscription_payments")
 }
 
