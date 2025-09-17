@@ -110,12 +110,12 @@ const ReviewDetailModal = ({
                         >
                             <div className="overflow-y-auto md:overflow-y-visible flex-1 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-sub [&::-webkit-scrollbar-thumb]:rounded-full">
                                 <div className="md:flex md:justify-between md:items-center">
-                                    {hasImages && mainSlider && thumbsSlider && (
+                                    {hasImages && (
                                         <div className="mb-5 md:mb-0 w-full md:w-[53%] pr-3 md:pr-0">
                                             {/* メインスライド */}
                                             <Slider 
                                                 ref={mainSliderRef}
-                                                asNavFor={thumbsSlider}
+                                                asNavFor={thumbsSlider || undefined}
                                                 {...reviewMainSliderSettings}
                                             >
                                                 {image_urls.map((
@@ -130,7 +130,7 @@ const ReviewDetailModal = ({
                                             {hasMultipleImages && (
                                                 <Slider
                                                     ref={thumbsSliderRef}
-                                                    asNavFor={mainSlider}
+                                                    asNavFor={mainSlider || undefined}
                                                     {...reviewThumbsSliderSettings}
                                                     className="thumbs-slider mt-[7px] md:mt-[11px] ml-[-5px] mr-[-5px]"
                                                 >
