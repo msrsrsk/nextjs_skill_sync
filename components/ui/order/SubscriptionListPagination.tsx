@@ -48,12 +48,6 @@ const SubscriptionListPagination = ({
         hasPrevPage 
     } = subscriptionData;
 
-    console.log("subscriptionData:", subscriptionData);
-    console.log("orderItems:", orderItems);
-    console.log("totalCount:", totalCount);
-
-    if (totalCount === 0) return <NoDataText />
-
     return <>
         <PageCountText countText="契約数">
             <span className="page-numtext-num">
