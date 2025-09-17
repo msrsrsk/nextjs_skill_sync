@@ -19,6 +19,10 @@ const {
 export default auth((req) => {
     const { pathname, searchParams } = req.nextUrl;
 
+    if (pathname.startsWith('/api/webhook/')) {
+        return null;
+    }
+
     const country = req.geo?.country || req.headers.get('x-vercel-ip-country');
 
     if (country && country !== 'JP') {
