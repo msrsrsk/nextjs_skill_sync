@@ -74,8 +74,7 @@ const SubscriptionCancelButton = ({
                 size={BUTTON_LARGE}
                 text={BUTTON_JA}
                 onClick={() => setModalActive(true)}
-                // disabled={loading || isWithin}
-                disabled={loading || isCancelled}
+                disabled={loading || isWithin || isCancelled}
             >
                 <PendingContent 
                     pending={loading} 

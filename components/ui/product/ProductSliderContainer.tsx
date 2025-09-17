@@ -138,7 +138,7 @@ const ProductSliderContainer = <T extends boolean = false>({
     
             {!isSliderValid ? (
                 <div className="max-w-4xl mx-auto">
-                    <div className={`grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 xl-2xl:grid-cols-5 gap-[10px]${isOptimalSyncs ? ' xl:gap-5' : ' xl:gap-10'}`}>
+                    <div className={`grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl-3xl:grid-cols-5 gap-[10px]${isOptimalSyncs ? ' xl:gap-5' : ' xl:gap-10'}`}>
                         {isOptimalSyncs ? renderAllOptimalSyncCards(
                             products as OptimalSyncsProductIds, 
                             linksRef, 

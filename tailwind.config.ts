@@ -62,6 +62,7 @@ const config: Config = {
 			'md-2lg': '1200px',
 			'lg-xl': '1440px',
 			'xl-2xl': '1800px',
+			'2xl-3xl': '2100px',
 		},
 		dropShadow: {
   			"main": "0 56px 24px rgba(var(--shadow-rgba))",
