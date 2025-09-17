@@ -34,7 +34,7 @@ const ReviewSectionContent = ({
     const [detailModalActive, setDetailModalActive] = useState(false);
     const [selectedReviewIndex, setSelectedReviewIndex] = useState<number>(0);
 
-    const { reviews, totalCount } = reviewData;
+    const { reviews, totalCount } = reviewData || { reviews: [], totalCount: 0 };
 
     const { 
         isSliderInitialized, 
