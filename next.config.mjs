@@ -12,6 +12,12 @@ const nextConfig = {
                 port: '',
                 pathname: '/**',
             },
+            {
+                protocol: 'https',
+                hostname: process.env.CLOUDFLARE_R2_PUBLIC_DOMAIN,
+                port: '',
+                pathname: '/**',
+            },
         ].filter(pattern => pattern.hostname && pattern.hostname.trim() !== ''),
     },
 };
