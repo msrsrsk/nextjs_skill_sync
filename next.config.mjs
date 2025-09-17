@@ -14,7 +14,7 @@ const nextConfig = {
             },
             {
                 protocol: 'https',
-                hostname: process.env.CLOUDFLARE_R2_PUBLIC_DOMAIN,
+                hostname: 'images.skill-sync.site',
                 port: '',
                 pathname: '/**',
             },
