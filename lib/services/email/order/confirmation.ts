@@ -39,8 +39,13 @@ export async function sendOrderCompleteEmail({
 
     const formattedOrderDate = formatOrderDateTime(orderData.created, true);
     const shippingDetails = orderData.customer_details?.address as StripeCheckoutSessionCustomerDetails;
-    const shippingFee = formatNumber(subscriptionShippingFee || sessionShippingFee);
-    const subtotal = formatNumber((orderData.amount_subtotal ?? 0));
+
+    const shippingFeeAmount = subscriptionShippingFee || sessionShippingFee;
+    const shippingFee = formatNumber(shippingFeeAmount);
+    
+    const subtotal = orderData.mode === 'subscription' 
+        ? formatNumber((orderData.amount_subtotal ?? 0) - shippingFeeAmount)
+        : formatNumber(orderData.amount_subtotal ?? 0);
     const total = formatNumber((orderData.amount_total ?? 0));
     const paymentMethodType = orderData.payment_method_types[0];
     const cardType = formatPaymentMethodType(paymentMethodType);
