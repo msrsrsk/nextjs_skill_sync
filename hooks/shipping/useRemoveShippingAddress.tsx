@@ -43,7 +43,7 @@ const useRemoveShippingAddress = ({
                     .filter((address) => address.id !== removeAddressId));
                 setRemoveSuccess(true);
             } else {
-                setError(result.error);
+                setError(result.message);
                 setRemoveSuccess(false);
             }
         } catch (error) {

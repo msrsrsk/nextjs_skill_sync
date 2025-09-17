@@ -29,12 +29,11 @@ const useSubscriptionCancel = ({
             });
 
             const result = await response.json();
-            console.log("result:", result);
 
             if (result.success) {
                 setSuccess(true);
             } else {
-                setError(result.error);
+                setError(result.message);
                 setSuccess(false);
             }
         } catch (error) {
