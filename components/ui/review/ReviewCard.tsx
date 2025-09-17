@@ -28,7 +28,10 @@ const ReviewCard = ({ review, setModalActive }: ReviewCardProps) => {
     } = review;
 
     const overlayCount = image_urls.length - OVERLAY_DISPLAY_COUNT;
-    const displayImages = image_urls.slice(0, image_urls.length <= MAX_DISPLAY ? MAX_DISPLAY : OVERLAY_THRESHOLD);
+    const displayImages = image_urls.slice(
+        0, 
+        image_urls.length <= MAX_DISPLAY ? MAX_DISPLAY : OVERLAY_DISPLAY_COUNT
+    );
 
     return (
         <div className="review-list-card h-full">
