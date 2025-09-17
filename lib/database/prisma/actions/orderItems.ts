@@ -49,6 +49,9 @@ export const getUserSubscriptionByProductData = async ({
             subscription_id: {
                 not: null
             },
+            subscription_status: {
+                not: SUBS_CANCELLED as SubscriptionContractStatusType
+            },
             order: {
                 user_id: userId
             }
