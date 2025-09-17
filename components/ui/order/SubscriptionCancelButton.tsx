@@ -67,11 +67,11 @@ const SubscriptionCancelButton = ({
 
     return <>
         <div className="grid gap-1">
-            {isWithin && (
+            {/* {isWithin && ( */}
                 <p className="text-sm leading-7 text-error text-center">
                     {SUBSCRIPTION_CANCEL_THRESHOLD} ヶ月経過後に解約可能
                 </p>
-            )}
+            {/* )} */}
             <EventButtonPrimary
                 size={BUTTON_LARGE}
                 text={BUTTON_JA}
