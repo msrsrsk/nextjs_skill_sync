@@ -100,6 +100,7 @@ const SubscriptionHistoryDetailPage = async ({ params }: { params: { id: OrderId
                             <SubscriptionCancelButton 
                                 subscriptionId={subscriptionId}
                                 createdAt={created_at}
+                                isCancelled={isCancelled}
                             />
                         </div>
                     </div>
@@ -199,6 +200,7 @@ const SubscriptionHistoryDetailPage = async ({ params }: { params: { id: OrderId
                         <SubscriptionCancelButton 
                             subscriptionId={subscriptionId}
                             createdAt={created_at}
+                            isCancelled={isCancelled}
                         />
                     </div>
                 </div>

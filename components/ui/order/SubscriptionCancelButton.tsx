@@ -26,11 +26,13 @@ const { SUBSCRIPTION_ERROR } = ERROR_MESSAGES;
 interface SubscriptionCancelButtonProps {
     subscriptionId: OrderItemSubscriptionId;
     createdAt: OrderCreatedAt;
+    isCancelled: boolean;
 }
 
 const SubscriptionCancelButton = ({ 
     subscriptionId,
     createdAt,
+    isCancelled
 }: SubscriptionCancelButtonProps) => {
     const [modalActive, setModalActive] = useState(false);
 
@@ -63,7 +65,7 @@ const SubscriptionCancelButton = ({
 
     return <>
         <div className="grid gap-1">
-            {isWithin && (
+            {isWithin && !isCancelled &&  (
                 <p className="text-sm leading-7 text-error text-center">
                     {SUBSCRIPTION_CANCEL_THRESHOLD} ヶ月経過後に解約可能
                 </p>
@@ -73,9 +75,12 @@ const SubscriptionCancelButton = ({
                 text={BUTTON_JA}
                 onClick={() => setModalActive(true)}
                 // disabled={loading || isWithin}
-                disabled={loading}
+                disabled={loading || isCancelled}
             >
-                <PendingContent pending={loading} text="契約をキャンセル" />
+                <PendingContent 
+                    pending={loading} 
+                    text={isCancelled ? "解約済み" : "契約をキャンセル"} 
+                />
             </EventButtonPrimary>
         </div>
 
