@@ -112,7 +112,7 @@ const SubscriptionHistoryDetailPage = async ({ params }: { params: { id: OrderId
                                 customClass="grid gap-6" 
                             />
 
-                            <hr className="border-b border-foreground my-4 md:my-6" />
+                            <hr className="border-foreground my-4 md:my-6" />
 
                             <div className="w-full">
                                 <dl className="order-info-dl">

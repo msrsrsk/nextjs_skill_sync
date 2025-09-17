@@ -11,9 +11,9 @@ export async function POST(request: NextRequest) {
     try {
         const { subscriptionId } = await request.json();
 
-        const { success, error } = await cancelSubscription(
+        const { success, error } = await cancelSubscription({
             subscriptionId
-        );
+        });
 
         if (!success) {
             return NextResponse.json(
