@@ -47,10 +47,6 @@ const SubscriptionCancelButton = ({
         return isWithinThreshold(createdAt, SUBSCRIPTION_CANCEL_THRESHOLD);
     }, [createdAt]);
 
-    const handleCancelSubscription = async () => {
-        cancelSubscription();
-    }
-
     useToastNotifications({
         error: subscriptionError,
         successMessage: subscriptionError as string,
@@ -87,7 +83,7 @@ const SubscriptionCancelButton = ({
             text="契約をキャンセルしますか？"
             modalActive={modalActive}
             setModalActive={setModalActive}
-            onConfirm={handleCancelSubscription}
+            onConfirm={cancelSubscription}
         />
     </>
 }
