@@ -882,7 +882,6 @@ export const SUBSCRIPTION_STATUS = {
 
 // サブスクリプションの契約履歴のカテゴリー
 export const SUBSCRIPTION_HISTORY_CATEGORIES = {
-    CATEGORY_SUBS_ALL: '全て',
     CATEGORY_SUBS_ACTIVE: '契約中',
     CATEGORY_SUBS_CANCELLED: '解約済み',
 };

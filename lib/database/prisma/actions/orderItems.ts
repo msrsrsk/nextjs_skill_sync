@@ -9,7 +9,6 @@ import {
 const { SUBS_ACTIVE, SUBS_CANCELLED } = SUBSCRIPTION_STATUS;
 const {
     CATEGORY_SUBS_ACTIVE,
-    CATEGORY_SUBS_ALL,
     CATEGORY_SUBS_CANCELLED
 } = SUBSCRIPTION_HISTORY_CATEGORIES;
 const { INITIAL_PAGE, PAGE_OFFSET } = PAGINATION_CONFIG;
@@ -82,10 +81,8 @@ export const getUserPaginatedSubscriptionData = async ({
             whereCondition.subscription_status = SUBS_CANCELLED;
             break;
         case CATEGORY_SUBS_ACTIVE:
-            whereCondition.subscription_status = SUBS_ACTIVE;
-            break;
-        case CATEGORY_SUBS_ALL:
         default:
+            whereCondition.subscription_status = SUBS_ACTIVE;
             break;
     }
 
