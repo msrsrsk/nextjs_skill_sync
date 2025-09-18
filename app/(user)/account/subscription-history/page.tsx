@@ -11,11 +11,13 @@ import { requireServerAuth } from "@/lib/middleware/auth"
 import { getUserPaginatedSubscriptionData } from "@/lib/database/prisma/actions/orderItems"
 import { 
     SUBSCRIPTION_ORDER_HISTORY_PAGE_LIMIT, 
+    SUBSCRIPTION_HISTORY_CATEGORIES,
     DEFAULT_PAGE, 
 } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 import { USER_METADATA } from "@/constants/metadata/user"
 
+const { CATEGORY_SUBS_ACTIVE } = SUBSCRIPTION_HISTORY_CATEGORIES;
 const { ORDER_ERROR } = ERROR_MESSAGES;
 
 export const metadata: Metadata = generatePageMetadata({
@@ -24,7 +26,7 @@ export const metadata: Metadata = generatePageMetadata({
 
 const SubscriptionHistoryPage = ({ searchParams }: SearchParamsWithCategory) => {
     const page = parseInt(searchParams.page || DEFAULT_PAGE);
-    const category = searchParams.category;
+    const category = searchParams.category || CATEGORY_SUBS_ACTIVE;
 
     return <>
         <Breadcrumb />
@@ -38,7 +40,7 @@ const SubscriptionHistoryPage = ({ searchParams }: SearchParamsWithCategory) => 
             <Suspense fallback={<LoadingSpinner />}>
                 <SubscriptionWrapper 
                     page={page} 
-                    category={category as SubscriptionHistoryCategoryType} 
+                    category={category} 
                 />
             </Suspense>
         </div>
