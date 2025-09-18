@@ -17,8 +17,8 @@
 
 ## 📋 <a name="table">目次</a>
 
-1. 🔗 [アプリのURL](#link)
-2. 🤖 [アプリの概要](#about)
+1. 🔗 [サイトのURL](#link)
+2. 🤖 [サイトの概要](#about)
 3. 🌷 [制作のきっかけ](#opportunity)
 4. ⚙️ [主な機能](#features)
 5. 🔫 [使用技術](#tech)
@@ -28,7 +28,7 @@
   <br />
 </div>
 
-## <a name="link">🔗 アプリのURL</a>
+## <a name="link">🔗 サイトのURL</a>
 
 <a href="https://nextjs-skill-sync.vercel.app" target="_blank" rel="noopener noreferrer">
 SKILL SYNC（スキルシンク）
@@ -37,7 +37,7 @@ SKILL SYNC（スキルシンク）
   <br />
 </div>
 
-## <a name="about">🤖 アプリの概要</a>
+## <a name="about">🤖 サイトの概要</a>
 
 生体データに連動したスキルの学習支援を行うECサイトです。<br />
 <br />
