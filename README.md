@@ -1,6 +1,6 @@
 <div align="center">
   <br />
-    <img src="https://nextjs-skill-sync.vercel.app/social/github-banner.png" alt="Project Banner">
+    <img src="https://nextjs-skill-sync.vercel.app/assets/social/github-banner.png" alt="Project Banner">
   <br />
   
   <div>
