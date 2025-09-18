@@ -262,6 +262,7 @@ declare global {
     type TrendStatusSizeType = typeof TREND_STATUS_SIZES[keyof typeof TREND_STATUS_SIZES];
     type SubscriptionPurchaseType = typeof SUBSCRIPTION_PURCHASE_TYPES[keyof typeof SUBSCRIPTION_PURCHASE_TYPES];
     type SubscriptionContractStatusType = typeof SUBSCRIPTION_CONTRACT_STATUS_TYPES[keyof typeof SUBSCRIPTION_CONTRACT_STATUS_TYPES];
+    type SubscriptionHistoryCategoryType = typeof SUBSCRIPTION_HISTORY_CATEGORIES[keyof typeof SUBSCRIPTION_HISTORY_CATEGORIES];
 
     type Product = PrismaProduct;
     type ProductTitle = Product['title'];
