@@ -925,3 +925,6 @@ export const TEXTAREA_SCHEMA_TYPES = {
     TEXTAREA_TYPE: 'textarea',
     REVIEW_TYPE: 'review',
 };
+
+// ドロワーの閉じる時の遅延
+export const DRAWER_CLOSE_DELAY = 500;

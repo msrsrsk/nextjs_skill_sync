@@ -11,7 +11,7 @@ import SocialLinks from "@/components/common/icons/SocialLinks"
 import usePreventScroll from "@/hooks/utils/usePreventScroll"
 import { CircleX, Heart } from "lucide-react"
 import { AccountButton } from "@/components/common/display/AccountAuth"
-import { SITE_MAP } from "@/constants/index"
+import { DRAWER_CLOSE_DELAY, SITE_MAP } from "@/constants/index"
 
 const { HOME_PATH, IMAGE_PATH, BOOK_MARK_PATH } = SITE_MAP;
 
@@ -31,7 +31,7 @@ const Drawer = ({
     const handleCloseDrawer = () => {
         setTimeout(() => {
             setDrawerOpen(false);
-        }, 500)
+        }, DRAWER_CLOSE_DELAY)
     }
 
     return <>
