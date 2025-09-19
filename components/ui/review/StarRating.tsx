@@ -41,13 +41,13 @@ const StarRating = ({
 
     const sizeClass = getSizeClass(size);
 
-    const getStarIcon = (isFilled: boolean) => {
-        if (type === STAR_COLOR) {
-            return isFilled ? 
-                <StarColorFilledIcon customClass={sizeClass} /> : 
-                <StarColorEmptyIcon customClass={sizeClass} />;
-        }
-        
+    const getColorStarIcon = (isFilled: boolean) => {
+        return isFilled ? 
+            <StarColorFilledIcon customClass={sizeClass} /> : 
+            <StarColorEmptyIcon customClass={sizeClass} />;
+    }
+
+    const getMonoStarIcon = (isFilled: boolean) => {
         return isFilled ? 
             <StarMonoFilledIcon customClass={sizeClass} /> : 
             <StarMonoEmptyIcon customClass={sizeClass} />;
@@ -65,7 +65,9 @@ const StarRating = ({
                 
                 return (
                     <div key={index} aria-hidden="true" >
-                        {getStarIcon(isFilled)}
+                        {type === STAR_COLOR ? 
+                            getColorStarIcon(isFilled) : getMonoStarIcon(isFilled)
+                        }
                     </div>
                 )
             })}
