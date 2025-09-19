@@ -14,9 +14,7 @@ const IconBox = ({
     onClick
 }: IconBoxProps) => {
     const handleClick = () => {
-        if (onClick) {
-            onClick();
-        }
+        if (onClick) onClick();
         window.location.href = link;
     };
 

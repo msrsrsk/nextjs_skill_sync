@@ -29,7 +29,9 @@ const Drawer = ({
     usePreventScroll(drawerOpen);
 
     const handleCloseDrawer = () => {
-        setDrawerOpen(false);
+        setTimeout(() => {
+            setDrawerOpen(false);
+        }, 500)
     }
 
     return <>
