@@ -33,7 +33,7 @@ const TrendSectionContent = ({ productData }: TrendSectionContentProps) => {
             categories={TREND_CATEGORIES}
             activeTab={activeTab}
             setActiveTab={setActiveTab}
-            customClass="mb-10 justify-start sm:justify-center"
+            customClass="mb-10 justify-start sm:justify-center pr-5 sm:pr-0"
         />
 
         <AnimatePresence mode="wait">

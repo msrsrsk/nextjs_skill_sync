@@ -595,7 +595,7 @@
         @apply content-['・'] absolute top-0 right-[-40px];
     }
     .menu-linkbox {
-        @apply flex items-center gap-x-9 gap-y-2 min-w-max pr-5 sm:pr-0;
+        @apply flex items-center gap-x-9 gap-y-2 min-w-max;
     }
     .menu-link {
         @apply text-base md:text-lg leading-5 font-bold text-sub relative cursor-pointer flex-shrink-0 whitespace-nowrap;
