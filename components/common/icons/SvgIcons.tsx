@@ -1,3 +1,9 @@
+import Image from "next/image"
+
+import { SITE_MAP } from "@/constants/index"
+
+const { IMAGE_PATH } = SITE_MAP;
+
 interface IconColorProps {
     color?: string;
 }
@@ -95,83 +101,30 @@ const ToggleIcon = ({
 }
 
 const StarColorEmptyIcon = ({ 
-    color, 
     customClass 
-}: ColorCustomProps) => {
+}: { customClass?: string }) => {
     return(
-        <svg 
-            width="20"
-            height="19"
-            viewBox="0 0 20 19" 
-            fill="none" 
-            aria-hidden="true"
+        <Image
+            src={`${IMAGE_PATH}/star-empty.png`}
+            alt=""
+            width={20}
+            height={20}
             className={customClass}
-        >
-            <path 
-                d="M12.1133 7.12695L12.2295 7.43848L12.5615 7.45215L18.6309 7.70117L13.8682 11.4668L13.6064 11.6729L13.6963 11.9941L15.334 17.8369L10.2764 14.4746L10 14.291L9.72363 14.4746L4.66504 17.8369L6.30371 11.9941L6.39355 11.6729L6.13184 11.4668L1.36816 7.70117L7.43848 7.45215L7.77051 7.43848L7.88672 7.12695L10 1.43555L12.1133 7.12695Z" 
-                stroke="url(#paint0_linear_237_3379)"
-                strokeWidth="2"
-            />
-            <defs>
-                <linearGradient 
-                    id="paint0_linear_237_3379" 
-                    x1="0.714286" 
-                    y1="17.5385" 
-                    x2="20.3495" 
-                    y2="1.90031" 
-                    gradientUnits="userSpaceOnUse"
-                >
-                    <stop 
-                        stopColor={color ? color : '#F8BF06'}
-                    />
-                    <stop 
-                        offset="1" 
-                        stopColor={color ? color : '#F8BF06'} 
-                        stopOpacity="0.4"
-                    />
-                </linearGradient>
-            </defs>
-        </svg>
+        />
     );
 }
 
 const StarColorFilledIcon = ({ 
-    color, 
     customClass 
-}: ColorCustomProps) => {
+}: { customClass?: string }) => {
     return(
-        <svg 
-            width="20"
-            height="19"
-            viewBox="0 0 20 19" 
-            fill="none" 
-            aria-hidden="true"
+        <Image
+            src={`${IMAGE_PATH}/star.png`}
+            alt=""
+            width={20}
+            height={20}
             className={customClass}
-        >
-            <path 
-                d="M10 0L12.582 6.953L20 7.257L14.178 11.859L16.18 19L10 14.891L3.82 19L5.822 11.859L0 7.257L7.418 6.953L10 0Z" 
-                fill="url(#paint0_linear_237_3368)"
-            />
-            <defs>
-                <linearGradient 
-                    id="paint0_linear_237_3368" 
-                    x1="0.714286" 
-                    y1="17.5385" 
-                    x2="20.3495" 
-                    y2="1.90031" 
-                    gradientUnits="userSpaceOnUse"
-                >
-                <stop 
-                    stopColor={color ? color : '#F8BF06'}
-                />
-                <stop 
-                    offset="1" 
-                    stopColor={color ? color : '#F8BF06'}
-                    stopOpacity="0.4"
-                />
-                </linearGradient>
-            </defs>
-        </svg>
+        />
     );
 }
 

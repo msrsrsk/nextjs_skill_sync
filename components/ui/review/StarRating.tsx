@@ -41,13 +41,13 @@ const StarRating = ({
 
     const sizeClass = getSizeClass(size);
 
-    const getColorStarIcon = (isFilled: boolean) => {
-        return isFilled ? 
-            <StarColorFilledIcon customClass={sizeClass} /> : 
-            <StarColorEmptyIcon customClass={sizeClass} />;
-    }
-
-    const getMonoStarIcon = (isFilled: boolean) => {
+    const getStarIcon = (isFilled: boolean) => {
+        if (type === STAR_COLOR) {
+            return isFilled ? 
+                <StarColorFilledIcon customClass={sizeClass} /> : 
+                <StarColorEmptyIcon customClass={sizeClass} />;
+        }
+        
         return isFilled ? 
             <StarMonoFilledIcon customClass={sizeClass} /> : 
             <StarMonoEmptyIcon customClass={sizeClass} />;
@@ -59,29 +59,16 @@ const StarRating = ({
             role="img"
             aria-label={`評価：${STAR_MAX_RATING}星中${roundedRating}つ`}
         >
-            {type === STAR_COLOR ? <>
-                {Array.from({ length: STAR_MAX_RATING }, (_, index) => {
-                    const starNumber = index + 1;
-                    const isFilled = starNumber <= roundedRating;
-                    
-                    return (
-                        <div key={index} aria-hidden="true" >
-                            {getColorStarIcon(isFilled)}
-                        </div>
-                    )
-                })}
-            </> : <>
-                {Array.from({ length: STAR_MAX_RATING }, (_, index) => {
-                    const starNumber = index + 1;
-                    const isFilled = starNumber <= roundedRating;
-                    
-                    return (
-                        <div key={index} aria-hidden="true" >
-                            {getMonoStarIcon(isFilled)}
-                        </div>
-                    )
-                })}
-            </>}
+            {Array.from({ length: STAR_MAX_RATING }, (_, index) => {
+                const starNumber = index + 1;
+                const isFilled = starNumber <= roundedRating;
+                
+                return (
+                    <div key={index} aria-hidden="true" >
+                        {getStarIcon(isFilled)}
+                    </div>
+                )
+            })}
         </div>
     )
 }
