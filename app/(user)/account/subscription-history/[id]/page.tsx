@@ -134,6 +134,8 @@ const SubscriptionHistoryDetailPage = async ({ params }: { params: { id: OrderId
                                         customClass={`${
                                             isActive 
                                                 ? 'font-poppins' : ''
+                                        }${
+                                            isCancelled ? ' text-tag-default' : ''
                                         }`}
                                     >
                                         {isCancelled 

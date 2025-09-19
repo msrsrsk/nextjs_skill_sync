@@ -32,7 +32,7 @@ const SubscriptionCard = async ({ orderItem }: { orderItem: OrderItem }) => {
                 <div className="flex justify-center items-baseline flex-wrap gap-1">
                     <p className="text-sm leading-7 font-medium">次回のお支払い日：</p>
                     <p className={`text-sm leading-7 font-medium${
-                        isCanceled ? ' text-error' : ' font-poppins'
+                        isCanceled ? ' text-tag-default' : ' font-poppins'
                     }`}>
                         {formattedNextPaymentDate}
                     </p>
