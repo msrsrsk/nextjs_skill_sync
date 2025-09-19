@@ -59,18 +59,29 @@ const StarRating = ({
             role="img"
             aria-label={`評価：${STAR_MAX_RATING}星中${roundedRating}つ`}
         >
-            {Array.from({ length: STAR_MAX_RATING }, (_, index) => {
-                const starNumber = index + 1;
-                const isFilled = starNumber <= roundedRating;
-                
-                return (
-                    <div key={index} aria-hidden="true" >
-                        {type === STAR_COLOR ? 
-                            getColorStarIcon(isFilled) : getMonoStarIcon(isFilled)
-                        }
-                    </div>
-                )
-            })}
+            {type === STAR_COLOR ? <>
+                {Array.from({ length: STAR_MAX_RATING }, (_, index) => {
+                    const starNumber = index + 1;
+                    const isFilled = starNumber <= roundedRating;
+                    
+                    return (
+                        <div key={index} aria-hidden="true" >
+                            {getColorStarIcon(isFilled)}
+                        </div>
+                    )
+                })}
+            </> : <>
+                {Array.from({ length: STAR_MAX_RATING }, (_, index) => {
+                    const starNumber = index + 1;
+                    const isFilled = starNumber <= roundedRating;
+                    
+                    return (
+                        <div key={index} aria-hidden="true" >
+                            {getMonoStarIcon(isFilled)}
+                        </div>
+                    )
+                })}
+            </>}
         </div>
     )
 }
