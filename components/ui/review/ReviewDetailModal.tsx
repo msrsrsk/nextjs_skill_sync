@@ -21,12 +21,14 @@ import {
     BUTTON_SIZES, 
     BUTTON_TEXT_TYPES, 
     BUTTON_POSITIONS, 
+    STAR_RATING_TYPES,
     SITE_MAP 
 } from "@/constants/index"
 
 const { BUTTON_LARGE } = BUTTON_SIZES;
 const { BUTTON_JA } = BUTTON_TEXT_TYPES;
 const { POSITION_LEFT } = BUTTON_POSITIONS;
+const { STAR_COLOR } = STAR_RATING_TYPES;
 const { CATEGORY_PATH } = SITE_MAP;
 
 interface ReviewDetailModalProps extends ModalStateProps {
@@ -163,7 +165,10 @@ const ReviewDetailModal = ({
                                             </div>
                                         </div>
                                         <div className="review-list-metabox">
-                                            <StarRating rating={rating} />
+                                            <StarRating 
+                                                rating={rating} 
+                                                type={STAR_COLOR}
+                                            />
                                             {is_priority && 
                                                 <StatusBudge status="Pickup" 
                                             />}

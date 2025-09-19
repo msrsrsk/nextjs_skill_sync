@@ -3,13 +3,14 @@ import Image from "next/image"
 import StarRating from "@/components/ui/review/StarRating"
 import StatusBudge from "@/components/common/labels/StatusBudge"
 import { formatRelativeDate } from "@/lib/utils/format"
-import { REVIEW_IMAGE_CONFIG, ANONYMOUS_USER_ICON_URL } from "@/constants/index"
+import { REVIEW_IMAGE_CONFIG, ANONYMOUS_USER_ICON_URL, STAR_RATING_TYPES } from "@/constants/index"
 
 const { 
     MAX_DISPLAY, 
     OVERLAY_THRESHOLD, 
     OVERLAY_DISPLAY_COUNT 
 } = REVIEW_IMAGE_CONFIG;
+const { STAR_COLOR } = STAR_RATING_TYPES;
 
 interface ReviewCardProps {
     review: ReviewWithUser;
@@ -54,7 +55,10 @@ const ReviewCard = ({ review, setModalActive }: ReviewCardProps) => {
 
             {/* レビュー評価 */}
             <div className="review-list-metabox">
-                <StarRating rating={rating} />
+                <StarRating 
+                    rating={rating} 
+                    type={STAR_COLOR}
+                />
                 {is_priority && <StatusBudge status="Pickup" />}
             </div>
 

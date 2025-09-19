@@ -34,11 +34,11 @@ const StarRating = ({
             return isFilled ? 
                 <StarColorFilledIcon customClass={sizeClass} /> : 
                 <StarColorEmptyIcon customClass={sizeClass} />;
-        } else {
-            return isFilled ? 
-                <StarMonoFilledIcon customClass={sizeClass} /> : 
-                <StarMonoEmptyIcon customClass={sizeClass} />;
         }
+        
+        return isFilled ? 
+            <StarMonoFilledIcon customClass={sizeClass} /> : 
+            <StarMonoEmptyIcon customClass={sizeClass} />;
     }
 
     return (
