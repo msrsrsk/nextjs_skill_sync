@@ -33,7 +33,7 @@ const SearchForm = ({
                     name="query"
                     defaultValue={query}
                     placeholder="キーワードを入力してください" 
-                    className={`bg-transparent border-none outline-none border-box w-full py-3 leading-6 font-medium placeholder:text-sub${size === 'medium' ? ' text-sm' : ' text-base min-h-[64px]'}`} 
+                    className={`bg-transparent border-none outline-none border-box w-full py-3 leading-6 font-medium placeholder:text-sub${size === 'medium' ? ' text-base' : ' text-base min-h-[64px]'}`} 
                 />
             </div>
             

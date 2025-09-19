@@ -141,7 +141,7 @@ const SupportChatContent = ({ chats, user }: SupportChatContentProps) => {
                 <div className="flex gap-2 md:gap-0 items-end border-b border-foreground">
                     <TextareaAutosize 
                         name="chatMessage"
-                        className="w-full bg-transparent box-border py-4 px-3 md:p-5 text-sm leading-[24px] font-medium placeholder:text-sub focus:outline-none resize-none"
+                        className="w-full bg-transparent box-border py-4 px-3 md:p-5 text-base leading-[24px] font-medium placeholder:text-sub focus:outline-none resize-none"
                         placeholder="メッセージを入力してください"
                         value={chatMessage}
                         onChange={handleChatMessageChange}
