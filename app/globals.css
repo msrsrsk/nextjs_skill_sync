@@ -829,6 +829,9 @@
     .review-form-label {
         @apply text-sm md:text-base font-bold leading-[28px] mb-2 block;
     }
+    svg {
+        @apply inline-block;
+    }
 
     /* ===== ANOTHER WORLD ===== */
     #another-world {
