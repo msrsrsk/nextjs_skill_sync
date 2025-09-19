@@ -43,7 +43,7 @@ const ScrollToTop = ({
             }`}
             aria-label="トップへ戻る"
         >
-            <span className="w-3 h-3">
+            <span className="w-3 h-3 grid">
                 <MoreIcon color="#222222" customClass="-rotate-45" />
             </span>
             <span 
