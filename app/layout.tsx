@@ -14,7 +14,7 @@ import ScrollToTop from "@/components/common/display/ScrollToTop"
 
 const nasalization = localFont({
     variable: "--font-nasalization",
-    src: "../public/assets/fonts/nasalization-rg.ttf",
+    src: "/assets/fonts/nasalization-rg.ttf",
     display: "swap",
     preload: true,
 });
@@ -23,12 +23,12 @@ const zenKakuGothicNew = localFont({
     variable: "--font-zen",
     src: [
         {
-            path: "../public/assets/fonts/zenkaaku-gothic-new-regular.ttf",
+            path: "/assets/fonts/zenkaaku-gothic-new-regular.ttf",
             weight: "500",
             style: "normal",
         },
         {
-            path: "../public/assets/fonts/zenkaaku-gothic-new-bold.ttf",
+            path: "/assets/fonts/zenkaaku-gothic-new-bold.ttf",
             weight: "700",
             style: "normal",
         },
