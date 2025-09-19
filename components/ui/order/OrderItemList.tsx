@@ -34,7 +34,7 @@ const OrderItemList = ({
                                     alt=""
                                     width={80}
                                     height={80}
-                                    className="image-common drop-shadow-light"
+                                    className="image-common drop-shadow-light transform-gpu"
                                 />
                             </Link>
                         </div>

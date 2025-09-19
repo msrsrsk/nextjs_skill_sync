@@ -85,7 +85,7 @@ const CartItem = ({
                         alt=""
                         width={120}
                         height={120}
-                        className="image-common drop-shadow-light md:drop-shadow-main-sp"
+                        className="image-common drop-shadow-light md:drop-shadow-main-sp transform-gpu"
                     />
                 </Link>
                 <div>

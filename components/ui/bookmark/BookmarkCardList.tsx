@@ -78,7 +78,7 @@ const BookmarkCardList = ({
                                 alt=""
                                 width={140}
                                 height={140}
-                                className="image-common drop-shadow-light max-w-[140px] min-w-[140px] md:w-full"
+                                className="image-common drop-shadow-light max-w-[140px] min-w-[140px] md:w-full transform-gpu"
                             />
                         </div>
 

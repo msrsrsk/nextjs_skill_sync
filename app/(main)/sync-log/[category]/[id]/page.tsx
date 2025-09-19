@@ -142,7 +142,7 @@ const SyncLogDetailPage = async ({ params }: { params: { id: string } }) => {
                                             alt=""
                                             width={800}
                                             height={800}
-                                            className="image-common drop-shadow-main-sp md:drop-shadow-main"
+                                            className="image-common drop-shadow-main-sp md:drop-shadow-main transform-gpu"
                                         />
                                     </div>
                                     <div>
