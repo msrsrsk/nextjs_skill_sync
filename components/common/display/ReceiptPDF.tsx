@@ -11,7 +11,7 @@ Font.register({
     family: "ZenKakuGothicNew",
     fonts: [
         {
-            src: "/assets/fonts/zenkaaku-gothic-new-medium.ttf",
+            src: "/assets/fonts/zenkaku-gothic-new-medium.ttf",
             fontWeight: "medium",
         },
         {

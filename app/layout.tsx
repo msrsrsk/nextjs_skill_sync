@@ -19,20 +19,10 @@ const nasalization = localFont({
     preload: true,
 });
 
-const zenKakuGothicNew = localFont({
+const zenKakuGothicNew = Zen_Kaku_Gothic_New({
     variable: "--font-zen",
-    src: [
-        {
-            path: "../public/assets/fonts/zenkaku-gothic-new-medium.ttf",
-            weight: "500",
-            style: "normal",
-        },
-        {
-            path: "../public/assets/fonts/zenkaku-gothic-new-bold.ttf",
-            weight: "700",
-            style: "normal",
-        },
-    ],
+    weight: ["500", "700"],
+    subsets: ["latin"],
     display: "swap",
     preload: true,
 });
@@ -72,5 +62,5 @@ export default function RootLayout({
                 </SessionProvider>
             </body>
         </html>
-    )
+    );
 }
