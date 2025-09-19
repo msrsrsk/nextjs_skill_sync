@@ -1,9 +1,9 @@
 import type { Metadata } from "next"
-import { Poppins } from "next/font/google"
+import { Zen_Kaku_Gothic_New, Poppins } from "next/font/google"
 import { SessionProvider } from "next-auth/react"
 import { Toaster } from "react-hot-toast"
 
-import "./globals.css"
+import "./globals.css";
 import localFont from "next/font/local"
 
 export const dynamic = "force-dynamic"
@@ -16,33 +16,18 @@ const nasalization = localFont({
     variable: "--font-nasalization",
     src: "../public/assets/fonts/nasalization-rg.ttf",
     display: "swap",
-    preload: true,
 });
 
-const zenKakuGothicNew = localFont({
-    variable: "--font-zen-kaku-gothic-new",
-    src: [
-        {
-            path: "../public/assets/fonts/zenkaaku-gothic-new-medium.ttf",
-            weight: "500",
-            style: "normal",
-        },
-        {
-            path: "../public/assets/fonts/zenkaku-gothic-new-bold.ttf",
-            weight: "700",
-            style: "normal",
-        },
-    ],
-    display: "swap",
-    preload: true,
+const zenKakuGothicNew = Zen_Kaku_Gothic_New({
+    variable: "--font-zen",
+    weight: ["500", "700"],
+    subsets: ["latin"],
 });
 
 const poppins = Poppins({
     variable: "--font-poppins",
     weight: ["500", "600", "700"],
     subsets: ["latin"],
-    display: "swap",
-    preload: true,
 });
 
 export const metadata: Metadata = {
@@ -72,5 +57,5 @@ export default function RootLayout({
                 </SessionProvider>
             </body>
         </html>
-    )
+    );
 }
