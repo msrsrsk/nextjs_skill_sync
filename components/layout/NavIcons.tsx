@@ -5,6 +5,9 @@ import CartIcon from "@/components/common/icons/CartIcon"
 import { AccountIcon } from "@/components/common/display/AccountAuth"
 import { useSearchStore } from "@/app/stores/useStore"
 import { HamburgerIcon } from "@/components/common/icons/SvgIcons"
+import { SITE_MAP } from "@/constants/index"
+
+const { BOOK_MARK_PATH } = SITE_MAP;
 
 const NavIcons = ({ 
     setDrawerOpen 
@@ -27,7 +30,7 @@ const NavIcons = ({
         <div className="hidden md-lg:flex items-center gap-4">
             <AccountIcon />
             <IconBox 
-                link="/account/book-mark" 
+                link={BOOK_MARK_PATH}
                 label="Bookmark" 
             >
                 <Heart className="w-6 h-6" strokeWidth={2.5} />

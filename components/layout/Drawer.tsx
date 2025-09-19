@@ -13,7 +13,7 @@ import { CircleX, Heart } from "lucide-react"
 import { AccountButton } from "@/components/common/display/AccountAuth"
 import { SITE_MAP } from "@/constants/index"
 
-const { HOME_PATH, IMAGE_PATH } = SITE_MAP;
+const { HOME_PATH, IMAGE_PATH, BOOK_MARK_PATH } = SITE_MAP;
 
 interface DrawerProps {
     drawerOpen: boolean;
@@ -27,6 +27,10 @@ const Drawer = ({
     headerHeight 
 }: DrawerProps) => {
     usePreventScroll(drawerOpen);
+
+    const handleCloseDrawer = () => {
+        setDrawerOpen(false);
+    }
 
     return <>
         {drawerOpen && (
@@ -63,10 +67,12 @@ const Drawer = ({
                     <CartIcon 
                         customClass="w-[22px] h-[22px]" 
                         strokeWidth={2.2} 
+                        onClick={handleCloseDrawer}
                     />
                     <IconBox 
-                        link="/account/book-mark" 
+                        link={BOOK_MARK_PATH} 
                         label="Bookmark" 
+                        onClick={handleCloseDrawer}
                     >
                         <Heart 
                             className="w-[22px] h-[22px]" 
