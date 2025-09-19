@@ -118,7 +118,7 @@ const SubscriptionHistoryDetailPage = async ({ params }: { params: { id: OrderId
                             <div className="w-full">
                                 <dl className="order-info-dl">
                                     <OrderInfoDisplay
-                                        label="契約ID　　　"
+                                        label="契約ID　　 "
                                         customClass="font-poppins break-all"
                                     >
                                         {subscriptionId}
