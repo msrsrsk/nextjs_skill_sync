@@ -16,18 +16,23 @@ const nasalization = localFont({
     variable: "--font-nasalization",
     src: "../public/assets/fonts/nasalization-rg.ttf",
     display: "swap",
+    preload: true,
 });
 
 const zenKakuGothicNew = Zen_Kaku_Gothic_New({
     variable: "--font-zen",
     weight: ["500", "700"],
     subsets: ["latin"],
+    display: "swap",
+    preload: true,
 });
 
 const poppins = Poppins({
     variable: "--font-poppins",
     weight: ["500", "600", "700"],
     subsets: ["latin"],
+    display: "swap",
+    preload: true,
 });
 
 export const metadata: Metadata = {
