@@ -69,7 +69,7 @@ const ProductDetails = ({
                         alt="" 
                         width={480} 
                         height={480} 
-                        className="drop-shadow-main-sp md-lg:drop-shadow-main-pc"
+                        className="m-auto drop-shadow-main-sp md-lg:drop-shadow-main-pc"
                     />
 
                     {/* 商品情報 */}

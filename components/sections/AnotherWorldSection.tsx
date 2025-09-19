@@ -12,7 +12,10 @@ const AnotherWorldSection = () => {
         >
             <div className="relative z-10">
                 <div className="mr-5 lg:mr-0">
-                    <SectionTitle title="Another World" customClass="mb-8" />
+                    <SectionTitle 
+                        title="Another World" 
+                        customClass="mb-8 leading-[-0.5px] sm:leading-[0.04em]" 
+                    />
                     <p className="another-world-description">
                         3Dモデルをカスタマイズして遊ぶ
                     </p>
