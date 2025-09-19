@@ -566,7 +566,7 @@
         @apply w-8 h-8 md:w-10 md:h-10;
     }
     .quantity-input {
-        @apply bg-transparent border-b border-foreground text-center font-poppins font-medium leading-[32px] [&::-webkit-inner-spin-button]:appearance-none focus:outline-none;
+        @apply bg-transparent rounded-none border-b border-foreground text-center font-poppins font-medium leading-[32px] [&::-webkit-inner-spin-button]:appearance-none focus:outline-none;
     }
     .quantity-box.is-medium .quantity-input {
         @apply text-xl w-[64px] md:w-[80px] pb-[2px];
@@ -756,7 +756,7 @@
         @apply grass-bg relative overflow-hidden min-h-[202px] rounded-sm;
     }
     .category-image {
-        @apply w-full h-auto object-cover drop-shadow-soft-sp xl:drop-shadow-soft;
+        @apply w-full h-auto object-cover drop-shadow-soft-sp xl:drop-shadow-soft transform-gpu;
     }
 
     /* ===== SYNC LOG ===== */
