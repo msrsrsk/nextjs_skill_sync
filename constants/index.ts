@@ -666,13 +666,6 @@ export const STAR_RATING_SIZES_TYPES = {
     STAR_LARGE: BASE_SIZE.LARGE,
 };
 
-// 評価の星のサイズ
-export const STAR_RATING_SIZES = {
-    [STAR_RATING_SIZES_TYPES.STAR_SMALL]: { width: 14, height: 13 },
-    [STAR_RATING_SIZES_TYPES.STAR_MEDIUM]: { width: 18, height: 17 },
-    [STAR_RATING_SIZES_TYPES.STAR_LARGE]: { width: 20, height: 19 },
-};
-
 // 評価の星のタイプ
 export const STAR_RATING_TYPES = {
     STAR_COLOR: 'color',

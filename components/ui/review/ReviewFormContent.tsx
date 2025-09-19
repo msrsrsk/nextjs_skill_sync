@@ -6,13 +6,11 @@ import {
     STAR_RATING_SIZES_TYPES, 
     STAR_MAX_RATING, 
     REVIEW_FORM_CONFIG,
-    STAR_RATING_TYPES,
     SITE_MAP 
 } from "@/constants/index"
 
 const { STAR_LARGE } = STAR_RATING_SIZES_TYPES;
 const { DECIMAL_PLACES, INITIAL_TOTAL, PERCENTAGE_MULTIPLIER } = REVIEW_FORM_CONFIG;
-const { STAR_COLOR } = STAR_RATING_TYPES;
 const { IMAGE_PATH } = SITE_MAP;
 
 const ReviewFormContent = ({ productReviewStats, productReviewsCount }: ReviewFormProps) => {
@@ -34,7 +32,6 @@ const ReviewFormContent = ({ productReviewStats, productReviewsCount }: ReviewFo
                 <StarRating 
                     rating={STAR_MAX_RATING} 
                     size={STAR_LARGE} 
-                    type={STAR_COLOR}
                 />
                 <span className="text-[40px] leading-none font-semibold font-poppins">
                     {averageRating.toFixed(DECIMAL_PLACES)}

@@ -7,11 +7,10 @@ import {
 import { 
     STAR_MAX_RATING, 
     STAR_RATING_SIZES_TYPES,
-    STAR_RATING_SIZES,
     STAR_RATING_TYPES
 } from "@/constants/index"
 
-const { STAR_MEDIUM } = STAR_RATING_SIZES_TYPES;
+const { STAR_SMALL, STAR_MEDIUM, STAR_LARGE } = STAR_RATING_SIZES_TYPES;
 const { STAR_COLOR } = STAR_RATING_TYPES;
 
 interface StarRatingProps {
@@ -26,8 +25,21 @@ const StarRating = ({
     type = STAR_COLOR
 }: StarRatingProps) => {
     const roundedRating = Math.round(rating);
-    const { width, height } = STAR_RATING_SIZES[size];
-    const sizeClass = `w-[${width}px] h-[${height}px]`;
+
+    const getSizeClass = (size: StarRatingSizeType) => {
+        switch (size) {
+            case STAR_SMALL:
+                return 'w-[14px] h-[13px]';
+            case STAR_MEDIUM:
+                return 'w-[18px] h-[17px]';
+            case STAR_LARGE:
+                return 'w-[20px] h-[19px]';
+            default:
+                return 'w-[18px] h-[17px]';
+        }
+    };
+
+    const sizeClass = getSizeClass(size);
 
     const getStarIcon = (isFilled: boolean) => {
         if (type === STAR_COLOR) {
