@@ -2,8 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-@import "../public/assets/fonts/zenkaaku-gothic-new-medium.ttf";
-@import "../public/assets/fonts/zenkaaku-gothic-new-bold.ttf";
+@import "../public/assets/fonts/zenkaku-gothic-new-medium.ttf";
+@import "../public/assets/fonts/zenkaku-gothic-new-bold.ttf";
 
 @import 'slick-carousel/slick/slick.css';
 @import 'slick-carousel/slick/slick-theme.css';
