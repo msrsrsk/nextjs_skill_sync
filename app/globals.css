@@ -780,7 +780,7 @@
         @apply hidden md:block small-text mb-6;
     }
     .log-metabox {
-        @apply flex items-center gap-2 md:gap-4;
+        @apply flex flex-col sm:flex-row sm:items-center gap-2 md:gap-4;
     }
     .log-tag {
         @apply leading-5 font-medium font-poppins;
