@@ -15,7 +15,7 @@ const AboutSection = () => {
                         <h3 className="text-lg md:text-2xl leading-none font-bold mb-4 md:mb-6">
                             スキルをシェアする時代へ
                         </h3>
-                        <p className="text-sm md:text-lg leading-[28px] md:leading-[40px] font-medium">
+                        <p className="text-sm md:text-lg leading-[28px] md:leading-[40px] font-medium font-zen">
                             SKILL SYNCは、<br className="md:hidden" />
                             “スキル”という新しい価値を販売・装備する<br className="md:hidden" />
                             未来型のマーケットプレイスです。<br />
