@@ -11,11 +11,11 @@ Font.register({
     family: "ZenKakuGothicNew",
     fonts: [
         {
-            src: "/assets/fonts/ZenKakuGothicNew-Medium.ttf",
+            src: "/assets/fonts/zenkaaku-gothic-new-medium.ttf",
             fontWeight: "medium",
         },
         {
-            src: "/assets/fonts/ZenKakuGothicNew-Bold.ttf",
+            src: "/assets/fonts/zenkaku-gothic-new-bold.ttf",
             fontWeight: "bold",
         },
     ],

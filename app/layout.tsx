@@ -23,12 +23,12 @@ const zenKakuGothicNew = localFont({
     variable: "--font-zen-kaku-gothic-new",
     src: [
         {
-            path: "../public/assets/fonts/ZenKakuGothicNew-Medium.ttf",
+            path: "../public/assets/fonts/zenkaaku-gothic-new-medium.ttf",
             weight: "500",
             style: "normal",
         },
         {
-            path: "../public/assets/fonts/ZenKakuGothicNew-Bold.ttf",
+            path: "../public/assets/fonts/zenkaku-gothic-new-bold.ttf",
             weight: "700",
             style: "normal",
         },
