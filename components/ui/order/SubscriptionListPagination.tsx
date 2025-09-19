@@ -60,7 +60,7 @@ const SubscriptionListPagination = ({
             activeTab={activeTab} 
             text={TAB_JA}
             setActiveTab={handleTabChange} 
-            customClass="mt-10 mb-8 md:mt-[56px] md:mb-10"
+            customClass="mt-10 mb-8 md:mt-[56px] md:mb-10 justify-center"
         />
 
         <div className="max-w-3xl mx-auto">
