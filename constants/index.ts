@@ -821,7 +821,7 @@ export const SUBSCRIPTION_PAYMENT_STATUS = {
     PAST_DUE: 'past_due',
     SUCCEEDED: 'succeeded',
     FAILED: 'failed',
-    CANCELED: 'canceled',
+    CANCELED: 'cancelled',
 }
 
 export const SUBSCRIPTION_PAYMENT_DISPLAY = {

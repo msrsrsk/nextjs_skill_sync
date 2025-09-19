@@ -14,8 +14,6 @@ const SubscriptionCard = async ({ orderItem }: { orderItem: OrderItem }) => {
         subscription_status
     } = orderItem;
 
-    console.log(subscription_status);
-
     const formattedNextPaymentDate = subscription_status !== CANCELED 
         ? subscription_next_payment 
         ? formatDate(subscription_next_payment) 
