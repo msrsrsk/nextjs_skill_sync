@@ -20,7 +20,6 @@ const nextConfig = {
             },
         ].filter(pattern => pattern.hostname && pattern.hostname.trim() !== ''),
     },
-    optimizeFonts: false,
 };
 
 export default nextConfig;
