@@ -14,7 +14,7 @@ const AnotherWorldSection = () => {
                 <div className="mr-5 lg:mr-0">
                     <SectionTitle 
                         title="Another World" 
-                        customClass="mb-8 leading-[-0.5px] sm:leading-[0.04em]" 
+                        customClass="mb-8 tracking-[-0.5px] sm:tracking-[0.04em]" 
                     />
                     <p className="another-world-description">
                         3Dモデルをカスタマイズして遊ぶ
