@@ -36,7 +36,7 @@ const SyncLogSectionContent = ({ categoryData }: { categoryData: SyncLogListsDat
                     categories={SYNC_LOG_CATEGORIES}
                     activeTab={activeTab} 
                     setActiveTab={setActiveTab}
-                    customClass="mb-8"
+                    customClass="mb-8 justify-start sm:justify-center"
                 />
                 
                 {Object.entries(filteredLogLists).map(([key, value]) => {
