@@ -188,7 +188,7 @@ export const FILE_UPLOAD_RANDOM_ID = {
 }
 
 // カートアイコンの太さ
-export const CART_ICON_STROKE_WIDTH = 2.5;
+export const CART_ICON_STROKE_WIDTH = 2.3;
 
 // ページ上部へのスクロールの設定
 export const SCROLL_TOP_CONFIG = {
