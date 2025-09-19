@@ -1004,7 +1004,8 @@
         @apply w-full border border-form-line rounded-[8px] box-border flex items-center justify-between gap-2 h-[48px] md:h-[56px] py-[9px] md:py-[14px] px-5;
     }
     .form-input:focus,
-    .form-select:focus {
+    .form-select:focus,
+    .form-password:focus-within {
         @apply shadow-main;
     }
     .form-input.is-invalid,
