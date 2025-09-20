@@ -20,7 +20,10 @@ const TabNavigation = ({
 
     return (
         <div className="overflow-x-auto overflow-y-hidden scrollbar-hide">
-            <ul role="list" className="menu-linkbox mb-8 md:mb-[64px] justify-start sm:justify-center">
+            <ul 
+                role="list" 
+                className="menu-linkbox mb-8 md:mb-[64px] justify-start sm:justify-center pr-5 sm:pr-0"
+            >
                 {allChildren?.map(({ label, href }) => {
                     const displayLabel = label.split(' ')[0];
                     const isActive = displayLabel === category;
