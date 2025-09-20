@@ -12,9 +12,11 @@ const { BUTTON_JA } = BUTTON_TEXT_TYPES;
 const { SUBMIT_TYPE } = BUTTON_TYPES;
 const { MODAL_SMALL } = MODAL_SIZES;
 
+type ConfirmAction = (formData: FormData) => void | Promise<void>;
+
 interface ConfirmModalProps extends ModalStateProps {
     text: string | React.ReactNode;
-    onConfirm: () => void | Promise<any>; 
+    onConfirm: ConfirmAction; 
 }
 
 const ConfirmModal = ({ 
