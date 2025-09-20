@@ -71,8 +71,15 @@ const useCreatePaymentLink = ({
 
             const { success, data: paymentLinkData } = await response.json();
 
+            // Safariのポップアップブロック対策
             if (success && paymentLinkData?.url) {
-                window.open(paymentLinkData.url, '_blank', 'noopener');
+                const popup = window.open(paymentLinkData.url, '_blank', 'noopener,noreferrer');
+                
+                if (!popup || popup.closed || typeof popup.closed == 'undefined') {
+                    window.location.href = paymentLinkData.url;
+                } else {
+                    popup.focus();
+                }
             } else {
                 throw new Error(CHECKOUT_ERROR.PAYMENT_LINK_FAILED);
             }
