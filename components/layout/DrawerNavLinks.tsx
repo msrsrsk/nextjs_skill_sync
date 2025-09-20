@@ -9,7 +9,7 @@ import useAccordion from "@/hooks/layout/useAccordion"
 import { navLinks } from "@/data/links"
 import { accordionAnimation } from "@/lib/motion"
 import { ToggleIcon } from "@/components/common/icons/SvgIcons"
-import { SITE_MAP } from "@/constants/index"
+import { DRAWER_CLOSE_DELAY, SITE_MAP } from "@/constants/index"
 
 const { HOME_PATH, ANOTHER_WORLD_PATH } = SITE_MAP;
 
@@ -25,6 +25,12 @@ const DrawerNavLinks = ({
     const { expandedIndex, toggleAccordion } = useAccordion(0);
 
     const pathname = usePathname();
+
+    const handleCloseDrawer = () => {
+        setTimeout(() => {
+            setDrawerOpen(false);
+        }, DRAWER_CLOSE_DELAY)
+    }
 
     return (
         <ul 
@@ -61,7 +67,7 @@ const DrawerNavLinks = ({
                                         duration={500}
                                         offset={headerHeight}
                                         className="drawer-navlink-titlebox"
-                                        onClick={() => setDrawerOpen(false)}
+                                        onClick={handleCloseDrawer}
                                     >
                                         <span className="drawer-title">
                                             {links.label}
