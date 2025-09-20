@@ -38,7 +38,7 @@ const SyncLogContent = ({
         {logList.length === 0 ? (
             <NoDataText />
         ) : <>
-            <div className="max-w-2xl mx-auto mr-5 md:mr-0">
+            <div className="max-w-2xl mx-auto mr-5 md:mr-auto">
                 <div className="border-b border-sub">
                     {logList.map(({ 
                         id, 
