@@ -25,6 +25,7 @@ const zenKakuGothicNew = Zen_Kaku_Gothic_New({
     subsets: ["latin"],
     display: "swap",
     preload: true,
+    fallback: ['Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'sans-serif'],
 });
 
 const poppins = Poppins({

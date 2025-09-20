@@ -7,7 +7,7 @@
 
 @layer base {
     :root {
-        --font-zen: 'Zen Kaku Gothic New', sans-serif;
+        --font-zen: 'Zen Kaku Gothic New', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', sans-serif;
 
         --background: #f0f0f0;
         --foreground: #222222;
