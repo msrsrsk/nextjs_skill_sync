@@ -44,10 +44,11 @@ export default function RootLayout({
     children,
 }: Readonly<{ children: React.ReactNode }>) {
     return (
-        <html lang="ja">
-            <body 
-                className={`${nasalization.variable} ${zenKakuGothicNew.variable} ${poppins.variable}`}
-            >
+        <html 
+            lang="ja"
+            className={`${nasalization.variable} ${zenKakuGothicNew.variable} ${poppins.variable}`}
+        >
+            <body>
                 <SessionProvider>
                     <Header />
                     <main>
