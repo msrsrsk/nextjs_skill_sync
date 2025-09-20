@@ -3,7 +3,7 @@ import { Zen_Kaku_Gothic_New, Poppins } from "next/font/google"
 import { SessionProvider } from "next-auth/react"
 import { Toaster } from "react-hot-toast"
 
-import "./globals.css";
+import "./globals.css"
 import localFont from "next/font/local"
 
 export const dynamic = "force-dynamic"
