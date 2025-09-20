@@ -1,5 +1,6 @@
 import { useRef, useState, useCallback } from "react"
 
+import { showErrorToast } from "@/components/common/display/Toasts"
 import { FILE_UPLOAD_CONFIG } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
@@ -15,7 +16,7 @@ const useIconUpload = (optimisticIconImage: UserIconUrl) => {
         if (!file) return;
 
         if (file.size > MAX_ACCOUNT_INFO_ICON_SIZE) {
-            alert(USER_ERROR.FILE_SIZE_EXCEEDED);
+            showErrorToast(USER_ERROR.FILE_SIZE_EXCEEDED);
             return;
         }
 
