@@ -35,10 +35,10 @@ const TrendCategoryPage = ({
     return <>
         <Breadcrumb />
 
-        <div className="c-container-page">
+        <div className="c-container-page-overflow">
             <PageTitle 
                 title="Trend"
-                customClass="mt-6 mb-2 md:mt-10 md:mb-4" 
+                customClass="mt-6 mb-2 md:mt-10 md:mb-4 mr-5 md:mr-0" 
             />
             <p className="page-subtitle">
                 世界で人気のトレンドを装備する

@@ -135,6 +135,9 @@
     .c-container-page {
         @apply mx-auto px-5 md:px-20 pb-[64px] md:pb-[120px];
     }
+    .c-container-page-overflow {
+        @apply mx-auto pl-5 md:pl-20 md:pr-20 pb-[64px] md:pb-[120px];
+    }
     .c-container-page-no-padding {
         @apply mx-auto px-5 md:px-20;
     }

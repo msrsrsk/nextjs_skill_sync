@@ -54,10 +54,10 @@ const SyncLogCategoryPage = ({
     return <>
         <Breadcrumb />
 
-        <div className="c-container-page">
+        <div className="c-container-page-overflow">
             <PageTitle 
                 title="The Sync Log"
-                customClass="mt-6 mb-6 md:mt-10 md:mb-10" 
+                customClass="mt-6 mb-6 md:mt-10 md:mb-10 mr-5 md:mr-0" 
             />
 
             <Suspense fallback={<LoadingSpinner />}>

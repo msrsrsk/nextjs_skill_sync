@@ -70,7 +70,7 @@ const ProductCategoryContent = ({
                 isHovered={isHovered} 
             />
 
-            <div className="max-w-4xl mx-auto">
+            <div className="max-w-4xl mx-auto mr-5 md:mr-0">
                 <div className="category-card-list">
                     {products.map((product) => (
                         <div 
