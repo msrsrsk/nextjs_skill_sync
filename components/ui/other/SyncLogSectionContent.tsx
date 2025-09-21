@@ -45,7 +45,7 @@ const SyncLogSectionContent = ({ categoryData }: { categoryData: SyncLogListsDat
                     const { logList, totalCount } = value;
 
                     return (
-                        <div key={key}>
+                        <div key={key} className="mr-5 md:mr-auto">
                             {!logList ? (
                                 <LoadingSpinner />
                             ) : logList.length === 0 ? (

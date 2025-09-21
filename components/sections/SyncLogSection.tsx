@@ -13,7 +13,7 @@ const { LOG_ERROR } = ERROR_MESSAGES;
 
 const SyncLogSection = () => {
     return (
-        <section className="c-container">
+        <section className="c-container-overflow">
             <SectionTitle 
                 title="The Sync Log" 
                 customClass="mb-6 md:mb-10 mr-5 md:mr-0" 
