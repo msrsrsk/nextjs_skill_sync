@@ -20,13 +20,16 @@ import { MoreIcon } from "@/components/common/icons/SvgIcons"
 import { 
     BUTTON_SIZES, 
     BUTTON_TEXT_TYPES, 
-    BUTTON_POSITIONS, 
+    BUTTON_POSITIONS,
+    STAR_RATING_TYPES,
+    ANONYMOUS_USER_ICON_URL,
     SITE_MAP 
 } from "@/constants/index"
 
 const { BUTTON_LARGE } = BUTTON_SIZES;
 const { BUTTON_JA } = BUTTON_TEXT_TYPES;
 const { POSITION_LEFT } = BUTTON_POSITIONS;
+const { STAR_COLOR } = STAR_RATING_TYPES;
 const { CATEGORY_PATH } = SITE_MAP;
 
 interface ReviewDetailModalProps extends ModalStateProps {
@@ -152,18 +155,25 @@ const ReviewDetailModal = ({
                                         <div className="review-list-userbox">
                                             <Image 
                                                 className="image-common max-w-[56px] max-h-[56px] md:max-w-[72px] md:max-h-[72px]" 
-                                                src={user.icon_url} 
+                                                src={user?.icon_url || ANONYMOUS_USER_ICON_URL} 
                                                 alt={`${name}のアイコン画像`} 
                                                 width={80} 
                                                 height={80} 
                                             />
                                             <div>
-                                                <p className="text-base md:text-xl leading-6 md:leading-8 font-bold">{name}</p>
-                                                <p className="review-list-date">{formatRelativeDate(created_at)}</p>
+                                                <p className="text-base md:text-xl leading-6 md:leading-8 font-bold">
+                                                    {user ? name : '退会ユーザー'}
+                                                </p>
+                                                <p className="review-list-date">
+                                                    {formatRelativeDate(created_at)}
+                                                </p>
                                             </div>
                                         </div>
                                         <div className="review-list-metabox">
-                                            <StarRating rating={rating} />
+                                            <StarRating 
+                                                rating={rating} 
+                                                type={STAR_COLOR}
+                                            />
                                             {is_priority && 
                                                 <StatusBudge status="Pickup" 
                                             />}
