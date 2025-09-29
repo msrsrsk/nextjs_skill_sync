@@ -31,7 +31,7 @@ export const createChatMessageByUserId = async ({
             chatRoomId: chatRoom.id,
             message,
             senderType,
-            source,
+            source
         });
 
         return {
