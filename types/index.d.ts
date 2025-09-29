@@ -597,7 +597,7 @@ declare global {
     type NotificationData = PrismaNotification; // ブラウザの組み込み型と競合するため型名にDataを追加
 
     interface NotificationWithDetails extends NotificationData {
-        relatedData?: Product | Chat;
+        relatedData?: ProductNotificationData | ChatNotificationData | null;
     }
     
     interface ProductNotificationData {
