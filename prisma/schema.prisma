@@ -81,8 +81,8 @@ model User {
   icon_url     String
   tel          String?
   stripe_customer_id     String?
-  created_at   DateTime @default(now()) 
-  updated_at   DateTime @updatedAt
+  created_at   DateTime @default(now())
+  updated_at   DateTime @default(now()) @updatedAt
 
   // Relations
   reviews    Review[]
@@ -178,7 +178,7 @@ model Notification {
   notifiable_type String   // テーブルの指定
 
   created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
+  updated_at  DateTime @default(now()) @updatedAt
 
   @@index([type])
   @@index([type, created_at])
@@ -195,8 +195,8 @@ model Review {
   rating      Int      @db.SmallInt
   comment     String
   image_urls  String[] @default([])
-  created_at  DateTime @default(now()) 
-  updated_at  DateTime @updatedAt
+  created_at  DateTime @default(now())
+  updated_at  DateTime @default(now()) @updatedAt
   is_priority Boolean  @default(false)
   is_approved Boolean  @default(false)
 
@@ -219,8 +219,8 @@ model Review {
 model ChatRoom {
   id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   user_id    String   @unique @db.Uuid
-  created_at DateTime @default(now()) 
-  updated_at DateTime @updatedAt
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
 
   // Relations
   user  User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
@@ -236,6 +236,7 @@ model Chat {
   sent_at      DateTime @default(now()) 
   sender_type  SenderType @default(user)
   source       SourceType  @default(human_support)
+  updated_at   DateTime @default(now()) @updatedAt
 
   // Relations
   chat_room ChatRoom @relation(fields: [chat_room_id], references: [id], onDelete: Cascade)
@@ -288,7 +289,7 @@ model OrderItem {
   subscription_interval String?  // サブスクの周期
   subscription_next_payment DateTime?  // サブスクの次回支払日
   created_at            DateTime @default(now())
-  updated_at            DateTime @updatedAt
+  updated_at            DateTime @default(now()) @updatedAt
   
   // Relations
   order                 Order    @relation(fields: [order_id], references: [id], onDelete: Cascade)
@@ -312,7 +313,7 @@ model SubscriptionPayment {
   status          SubscriptionStatusType   @default(pending)
   subscription_id String   // Stripe subscription ID
   created_at      DateTime @default(now())
-  updated_at      DateTime @updatedAt
+  updated_at      DateTime @default(now()) @updatedAt
 
   user User? @relation(fields: [user_id], references: [id], onDelete: SetNull)
   orderItem OrderItem? @relation("OrderItemSubscriptionPayment", fields: [subscription_id], references: [subscription_id], onDelete: Cascade)
@@ -353,7 +354,7 @@ model UserImage {
   user_id         String   @unique @db.Uuid
   file_path       String?  @unique
   created_at      DateTime @default(now())
-  updated_at      DateTime @updatedAt
+  updated_at      DateTime @default(now()) @updatedAt
 
   user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
@@ -366,7 +367,7 @@ model UserBookmark {
   user_id    String   @db.Uuid
   product_id String   @db.Uuid
   created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  updated_at DateTime @default(now()) @updatedAt
 
   // Relations
   user    User    @relation(fields: [user_id], references: [id], onDelete: Cascade)
@@ -385,8 +386,8 @@ model VerificationToken {
   expires    DateTime
   password   String?
   userData   String?   // Auth.jsとの互換性のためキャメルケース
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  created_at  DateTime @default(now())
+  updated_at  DateTime @default(now()) @updatedAt
  
   @@unique([identifier, token])
   @@map("verification_tokens")
