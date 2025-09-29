@@ -365,12 +365,7 @@ declare global {
         productId: ProductId,
         quantity: number
     }
-
-    /* ============================== 
-        Notification 関連
-    ============================== */
-    type NotificationData = PrismaNotification; // ブラウザの組み込み型と競合するため型名にDataを追加
-
+    
 
     /* ============================== 
         Review 関連
@@ -430,6 +425,7 @@ declare global {
     ============================== */
     type CHAT_SOURCE_TYPE = typeof CHAT_SOURCE[keyof typeof CHAT_SOURCE];
     
+    type Chat = PrismaChat;
     type ChatId = Chat['id'];
     type ChatRoomId = Chat['chat_room_id'];
     type ChatMessage = Chat['message'];
@@ -592,6 +588,28 @@ declare global {
     interface BookmarkContentProps {
         bookmarkData: BookmarkItemWithProduct[];
         setBookmarkData: (data: BookmarkItemWithProduct[]) => void;
+    }
+
+
+    /* ============================== 
+        Notification 関連
+    ============================== */
+    type NotificationData = PrismaNotification; // ブラウザの組み込み型と競合するため型名にDataを追加
+
+    interface NotificationWithDetails extends NotificationData {
+        relatedData?: Product | Chat;
+    }
+    
+    interface ProductNotificationData {
+        id: ProductId;
+        title: ProductTitle;
+    }
+    
+    interface ChatNotificationData {
+        id: ChatId;
+        chat_room_id: ChatRoomId;
+        message: ChatMessage;
+        sent_at: ChatSentAt;
     }
 
 

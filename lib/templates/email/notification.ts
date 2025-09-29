@@ -1,6 +1,6 @@
 import { LOGO_IMAGE_PATH } from "@/constants/index"
 
-export const chatNotificationEmailTemplate = (record: NotificationData) => `
+export const chatNotificationEmailTemplate = (chatData: ChatNotificationData) => `
     <!DOCTYPE html>
     <html lang="ja">
     <head>
@@ -73,7 +73,7 @@ export const chatNotificationEmailTemplate = (record: NotificationData) => `
                         </tr>
                         <tr>
                             <td style="text-align: left; font-size: 14px; line-height: 1.8; color: #222222; padding-bottom: 28px;">
-                                ${record.id}
+                                ${chatData.id}
                             </td>
                         </tr>
 
@@ -84,7 +84,7 @@ export const chatNotificationEmailTemplate = (record: NotificationData) => `
                         </tr>
                         <tr>
                             <td style="text-align: left; font-size: 14px; line-height: 1.8; margin-bottom: 28px; color: #222222; padding-bottom: 28px;">
-                                ${record.chat_room_id}
+                                ${chatData.chat_room_id}
                             </td>
                         </tr>
 
@@ -95,7 +95,7 @@ export const chatNotificationEmailTemplate = (record: NotificationData) => `
                         </tr>
                         <tr>
                             <td style="text-align: left; font-size: 14px; line-height: 1.8; color: #222222; padding-bottom: 28px;">
-                                ${record.message}
+                                ${chatData.message}
                             </td>
                         </tr>
 
@@ -106,7 +106,7 @@ export const chatNotificationEmailTemplate = (record: NotificationData) => `
                         </tr>
                         <tr>
                             <td style="text-align: left; font-size: 14px; line-height: 1.8; color: #222222;">
-                                ${record.sent_at}
+                                ${chatData.sent_at}
                             </td>
                         </tr>
                     </table>
@@ -234,7 +234,7 @@ export const reviewNotificationEmailTemplate = (record: Review) => `
     </html>
 `
 
-export const stockNotificationEmailTemplate = (record: NotificationData) => `
+export const stockNotificationEmailTemplate = (productData: ProductNotificationData) => `
     <!DOCTYPE html>
     <html lang="ja">
     <head>
@@ -307,7 +307,7 @@ export const stockNotificationEmailTemplate = (record: NotificationData) => `
                         </tr>
                         <tr>
                             <td style="text-align: left; font-size: 14px; line-height: 1.8; margin-bottom: 28px; color: #222222; padding-bottom: 28px;">
-                                ${record.product_id}
+                                ${productData.id}
                             </td>
                         </tr>
 
@@ -318,7 +318,7 @@ export const stockNotificationEmailTemplate = (record: NotificationData) => `
                         </tr>
                         <tr>
                             <td style="text-align: left; font-size: 14px; line-height: 1.8; color: #222222; padding-bottom: 28px;">
-                                ${record.product_title}
+                                ${productData.title}
                             </td>
                         </tr>
                     </table>

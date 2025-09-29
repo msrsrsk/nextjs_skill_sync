@@ -64,5 +64,5 @@ export default function RootLayout({
                 </SessionProvider>
             </body>
         </html>
-    );
+    )
 }

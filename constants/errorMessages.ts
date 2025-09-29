@@ -259,6 +259,7 @@ export const ERROR_MESSAGES = {
         CONTACT_SEND_FAILED: "お問い合わせのメールの送信に失敗しました",
         PAYMENT_REQUEST_SEND_FAILED: "お支払いのお願いのメールの送信に失敗しました",
         REVIEW_SEND_FAILED: "レビューの通知メールの送信に失敗しました",
+        STOCK_SEND_FAILED: "在庫の通知メールの送信に失敗しました",
         SUBSCRIPTION_PAYMENT_REQUEST_SEND_FAILED: "サブスクリプションのお支払いのお願いのメールの送信に失敗しました",
     },
 

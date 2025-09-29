@@ -21,7 +21,7 @@ const ReviewSectionWrapper = async () => {
         return <ErrorMessage message="データの取得に失敗しました" />
     }
         
-        const { data, error } = result;
+    const { data, error } = result;
     
     return <>
         <ReviewSectionContent 

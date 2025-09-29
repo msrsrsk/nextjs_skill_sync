@@ -1,9 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server'
 
-import { handleWebhook } from "@/lib/utils/webhook";
-import { receiveChatNotificationEmail } from "@/lib/services/email/notification/chat";
-import { receiveStockNotificationEmail } from "@/lib/services/email/notification/stock";
-import { ERROR_MESSAGES } from "@/constants/errorMessages";
+import { handleWebhook } from "@/lib/utils/webhook"
+import { receiveChatNotificationEmail } from "@/lib/services/email/notification/chat"
+import { receiveStockNotificationEmail } from "@/lib/services/email/notification/stock"
+import { getNotificationWithDetails } from "@/lib/database/prisma/actions/notification"
+import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { PRODUCT_ERROR, CHAT_ERROR, WEBHOOK_ERROR } = ERROR_MESSAGES;
 
@@ -11,9 +12,11 @@ export async function POST(request: NextRequest) {
     try {
         const { record }: { record: NotificationData } = await request.json();
 
+        const notificationWithDetails = await getNotificationWithDetails(record);
+
         if (record.type === 'product_stock') {
             return handleWebhook<NotificationData>(request, {
-                record,
+                record: notificationWithDetails,
                 processFunction: receiveStockNotificationEmail,
                 errorText: PRODUCT_ERROR.STOCK_WEBHOOK_PROCESS_FAILED,
                 condition: (record: NotificationData) => record.type === 'product_stock'
@@ -21,7 +24,7 @@ export async function POST(request: NextRequest) {
         }
 
         return handleWebhook<NotificationData>(request, {
-            record,
+            record: notificationWithDetails,
             processFunction: receiveChatNotificationEmail,
             errorText: CHAT_ERROR.WEBHOOK_PROCESS_FAILED,
             condition: (record: NotificationData) => record.type === 'chat'
