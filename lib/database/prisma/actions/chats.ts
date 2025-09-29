@@ -56,7 +56,9 @@ export const createChatMessageData = async ({
             chat_room_id: chatRoomId,
             message,
             sender_type: senderType,
-            source
+            source,
+            created_at: new Date(),
+            updated_at: new Date()
         }
     });
 }
