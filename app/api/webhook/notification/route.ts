@@ -13,7 +13,6 @@ export async function POST(request: NextRequest) {
         const { record }: { record: NotificationData } = await request.json();
 
         const notificationWithDetails = await getNotificationWithDetails(record);
-        console.log('notificationWithDetails', notificationWithDetails);
 
         if (record.type === 'product_stock') {
             return handleWebhook<NotificationData>(request, {
