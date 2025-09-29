@@ -74,10 +74,6 @@ const useChatSend = ({ chats }: { chats: ChatProps[] }) => {
                 source: aiResponseSource 
             } = await handleChatMessage(message);
 
-            console.log('aiResponseSuccess', aiResponseSuccess);
-            console.log('aiResponseError', aiResponseError);
-            console.log('aiResponseSource', aiResponseSource);
-
             if (aiResponseSuccess) {
                 const aiMessage: ChatProps = {
                     id: `ai-${Date.now()}`,
@@ -86,10 +82,10 @@ const useChatSend = ({ chats }: { chats: ChatProps[] }) => {
                     sent_at: new Date(),
                     source: aiResponseSource 
                 };
-
-                console.log('aiMessage', aiMessage);
                 
                 setChatMessages(prev => [...prev, aiMessage]);
+
+                console.log('chatMessages', chatMessages);
 
                 const saveAiMessage = await fetch(CHAT_API_PATH, {
                     method: 'POST',
@@ -106,8 +102,6 @@ const useChatSend = ({ chats }: { chats: ChatProps[] }) => {
                 console.log('saveAiMessage', saveAiMessage);
 
                 const { success: saveAiSuccess } = await saveAiMessage.json();
-
-                console.log('saveAiSuccess', saveAiSuccess);
 
                 if (!saveAiSuccess) {
                     setError(CHAT_ERROR.FAILED_SAVE_AI_MESSAGE); // AIメッセージの送信エラー

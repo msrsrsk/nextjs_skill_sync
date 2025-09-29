@@ -17,17 +17,11 @@ export async function POST(request: NextRequest) {
             CHAT_ERROR.UNAUTHORIZED
         );
 
-        console.log('userId', userId);
-
         const { 
             message, 
             senderType = SENDER_USER,
             source,
         } = await request.json();
-
-        console.log('message', message);
-        console.log('senderType', senderType);
-        console.log('source', source);
 
         if (!message) {
             return NextResponse.json(
@@ -42,10 +36,6 @@ export async function POST(request: NextRequest) {
             senderType,
             source
         });
-
-        console.log('success', success);
-        console.log('error', error);
-        console.log('data', data);
 
         if (!success) {
             return NextResponse.json(
