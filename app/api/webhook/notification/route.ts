@@ -15,19 +15,19 @@ export async function POST(request: NextRequest) {
         const notificationWithDetails = await getNotificationWithDetails(record);
 
         if (record.type === 'product_stock') {
-            return handleWebhook<NotificationData>(request, {
+            return handleWebhook<NotificationWithDetails>(request, {
                 record: notificationWithDetails,
                 processFunction: receiveStockNotificationEmail,
                 errorText: PRODUCT_ERROR.STOCK_WEBHOOK_PROCESS_FAILED,
-                condition: (record: NotificationData) => record.type === 'product_stock'
+                condition: (record: NotificationWithDetails) => record.type === 'product_stock'
             });
         }
 
-        return handleWebhook<NotificationData>(request, {
+        return handleWebhook<NotificationWithDetails>(request, {
             record: notificationWithDetails,
             processFunction: receiveChatNotificationEmail,
             errorText: CHAT_ERROR.WEBHOOK_PROCESS_FAILED,
-            condition: (record: NotificationData) => record.type === 'chat'
+            condition: (record: NotificationWithDetails) => record.type === 'chat'
         });
     } catch (error) {
         console.error('Webhook Error - Notification POST error:', error);
