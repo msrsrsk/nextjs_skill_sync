@@ -146,6 +146,7 @@ export const ERROR_MESSAGES = {
         MONTHLY_LIMIT_EXCEEDED: `月間使用量の上限に達しました。\nまた翌月お試しください。`,
         LIMIT_WARNING: `チャットメッセージの送信は履歴も含めて最大${MAX_CHAT_MESSAGES}件までです。古いメッセージが自動削除されるまでしばらくお待ちください。`,
         EMBEDDING_SEARCH_FAILED: `類似テンプレートの検索に失敗しました。${RETRY}`,
+        OPENAI_API_KEY_NOT_SET: `OpenAIのAPIキーが設定されていません。`,
 
         WEBHOOK_PROCESS_FAILED: 'チャットのWebhook処理中にエラーが発生しました。',
     },
