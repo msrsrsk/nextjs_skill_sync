@@ -85,8 +85,6 @@ const useChatSend = ({ chats }: { chats: ChatProps[] }) => {
                 
                 setChatMessages(prev => [...prev, aiMessage]);
 
-                console.log('chatMessages', chatMessages);
-
                 const saveAiMessage = await fetch(CHAT_API_PATH, {
                     method: 'POST',
                     headers: {
@@ -99,9 +97,20 @@ const useChatSend = ({ chats }: { chats: ChatProps[] }) => {
                     })
                 });
 
-                console.log('saveAiMessage', saveAiMessage);
+                console.log('saveAiMessage status:', saveAiMessage.status);
+                console.log('saveAiMessage ok:', saveAiMessage.ok);
 
-                const { success: saveAiSuccess } = await saveAiMessage.json();
+                if (!saveAiMessage.ok) {
+                    const errorText = await saveAiMessage.text();
+                    console.error('API Error Response:', errorText);
+                    setError(`API Error: ${saveAiMessage.status} - ${errorText}`);
+                    return { success: false };
+                }
+
+                const { success: saveAiSuccess, message: saveAiError } = await saveAiMessage.json();
+
+                console.log('saveAiSuccess', saveAiSuccess);
+                console.log('saveAiError', saveAiError);
 
                 if (!saveAiSuccess) {
                     setError(CHAT_ERROR.FAILED_SAVE_AI_MESSAGE); // AIメッセージの送信エラー
