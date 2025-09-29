@@ -8,10 +8,6 @@ import { ERROR_MESSAGES } from "@/constants/errorMessages"
 const { INITIAL_USAGE, SEARCH_RESULTS_COUNT } = EMBEDDING_CONFIG;
 const { CHAT_ERROR } = ERROR_MESSAGES;
 
-const embeddings = new OpenAIEmbeddings({
-    openAIApiKey: process.env.OPENAI_API_KEY,
-});
-
 let monthlyUsage = INITIAL_USAGE;
 
 // ベクトル検索用の関数
@@ -26,6 +22,10 @@ export const findSimilarTemplate = async (userMessage: string) => {
     }
 
     try {
+        const embeddings = new OpenAIEmbeddings({
+            openAIApiKey: process.env.OPENAI_API_KEY,
+        });
+
         // テンプレートの質問文をベクトル化
         const texts = CHAT_TEMPLATES.map(template => template.question);
         const metadatas = CHAT_TEMPLATES.map(template => ({
