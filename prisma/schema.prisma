@@ -236,8 +236,8 @@ model Chat {
   sent_at      DateTime @default(now()) 
   sender_type  SenderType @default(user)
   source       SourceType  @default(human_support)
-  created_at DateTime? @default(now()) 
-  updated_at  DateTime? @updatedAt
+  created_at DateTime @default(now()) 
+  updated_at  DateTime @updatedAt
 
   // Relations
   chat_room ChatRoom @relation(fields: [chat_room_id], references: [id], onDelete: Cascade)
