@@ -12,6 +12,16 @@ let monthlyUsage = INITIAL_USAGE;
 
 // ベクトル検索用の関数
 export const findSimilarTemplate = async (userMessage: string) => {
+    const apiKey = process.env.OPENAI_API_KEY;
+    
+    if (!apiKey) {
+        return {
+            success: false,
+            error: CHAT_ERROR.OPENAI_API_KEY_NOT_SET,
+            message: null,
+        };
+    }
+
     // 使用量のチェック
     if (monthlyUsage >= CHAT_CONFIG.MONTHLY_LIMIT) {
         return {
@@ -23,7 +33,7 @@ export const findSimilarTemplate = async (userMessage: string) => {
 
     try {
         const embeddings = new OpenAIEmbeddings({
-            openAIApiKey: process.env.OPENAI_API_KEY,
+            openAIApiKey: apiKey,
         });
 
         // テンプレートの質問文をベクトル化
