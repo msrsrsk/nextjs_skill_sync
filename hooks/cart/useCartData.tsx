@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from "react"
 import { SITE_MAP } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
-const { CART_DATA_API_PATH } = SITE_MAP;
+const { CART_API_PATH } = SITE_MAP;
 const { CART_ITEM_ERROR } = ERROR_MESSAGES;
 
 const useCartData = () => {
@@ -22,7 +22,7 @@ const useCartData = () => {
         setError(null);
 
         try {
-            const response = await fetch(CART_DATA_API_PATH, {
+            const response = await fetch(CART_API_PATH, {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json' },
             });

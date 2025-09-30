@@ -3,7 +3,7 @@ import { useState, useCallback } from "react"
 import { CART_QUANTITY_CONFIG, SITE_MAP } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
-const { CART_QUANTITY_API_PATH } = SITE_MAP;
+const { CART_API_PATH } = SITE_MAP;
 const { MIN_QUANTITY, MAX_QUANTITY, QUANTITY_CHANGE } = CART_QUANTITY_CONFIG;
 const { CART_ITEM_ERROR } = ERROR_MESSAGES;
 
@@ -28,7 +28,7 @@ const useCartQuantity = ({
         setError(null);
 
         try {
-            const response = await fetch(CART_QUANTITY_API_PATH, {
+            const response = await fetch(CART_API_PATH, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

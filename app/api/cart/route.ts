@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server"
 
 import { requireApiAuth } from "@/lib/middleware/auth"
-import { getCartItemsByProductIdData } from "@/lib/database/prisma/actions/cartItems"
+import { 
+    getCartItemsData, 
+    getCartItemsByProductIdData 
+} from "@/lib/database/prisma/actions/cartItems"
 import { 
     createCartItems, 
     updateCartItemQuantity,
@@ -10,10 +13,46 @@ import {
 } from "@/lib/services/cart-item/actions"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
-const { CART_ITEM_ERROR } = ERROR_MESSAGES;
+const { USER_ERROR, CART_ITEM_ERROR } = ERROR_MESSAGES;
 
 export const dynamic = "force-dynamic"
 
+// GET: カートのデータを取得
+export async function GET(request: NextRequest) {
+    try {
+        // throw new Error('test error');
+
+        const { userId } = await requireApiAuth(
+            request, 
+            USER_ERROR.UNAUTHORIZED
+        )
+
+        const cartItemsResult = await getCartItemsData({
+            userId: userId as UserId
+        });
+
+        if (!cartItemsResult) {
+            return NextResponse.json(
+                { message: CART_ITEM_ERROR.FETCH_FAILED }, 
+                { status: 500 }
+            );
+        }
+
+        return NextResponse.json({ 
+            success: true, 
+            data: cartItemsResult 
+        });
+    } catch (error) {
+        console.error('API Error - Cart Data GET error:', error);
+
+        return NextResponse.json(
+            { message: CART_ITEM_ERROR.FETCH_FAILED }, 
+            { status: 500 }
+        );
+    }
+}
+
+// POST: カートに商品を追加
 export async function POST(request: NextRequest) {
     try {
         const { userId } = await requireApiAuth(
@@ -97,6 +136,50 @@ export async function POST(request: NextRequest) {
     }
 }
 
+// PUT: カートの商品数量を更新
+export async function PUT(request: NextRequest) {
+    try {
+        const { userId } = await requireApiAuth(
+            request, 
+            CART_ITEM_ERROR.UNAUTHORIZED
+        );
+
+        const { productId, quantity } = await request.json();
+
+        if (!productId || !quantity) {
+            return NextResponse.json(
+                { message: CART_ITEM_ERROR.NO_PRODUCT_DATA }, 
+                { status: 400 }
+            );
+        }
+
+        const { success, error } = await updateCartItemQuantity({
+            userId: userId as UserId,
+            productId,
+            quantity
+        });
+
+        if (!success) {
+            return NextResponse.json(
+                { message: error }, 
+                { status: 500 }
+            );
+        }
+
+        return NextResponse.json({ 
+            success: true, 
+        });
+    } catch (error) {
+        console.error('API Error - Cart Quantity POST error:', error);
+
+        return NextResponse.json(
+            { message: CART_ITEM_ERROR.UPDATE_QUANTITY_FAILED }, 
+            { status: 500 }
+        );
+    }
+}
+
+// DELETE: カートの商品を削除
 export async function DELETE(request: NextRequest) {
     try {
         const { userId } = await requireApiAuth(

@@ -124,13 +124,12 @@ export const SITE_MAP = {
     ANOTHER_WORLD_PATH: '/#another-world',
 
     // API
+    WEBHOOK_API_PATH: '/api/webhook/',
     USER_API_PATH: '/api/user',
     BOOKMARK_ITEMS_API_PATH: '/api/bookmark-items',
     BOOKMARK_DATA_API_PATH: '/api/bookmark-data',
     BOOKMARK_PRODUCT_API_PATH: '/api/bookmark-product',
-    CART_DATA_API_PATH: '/api/cart-data',
-    CART_ITEMS_API_PATH: '/api/cart-items',
-    CART_QUANTITY_API_PATH: '/api/cart-quantity',
+    CART_API_PATH: '/api/cart',
     PRODUCTS_API_PATH: '/api/products',
     CHECKOUT_API_PATH: '/api/checkout',
     SUBSCRIPTION_CHECK_API_PATH: '/api/subscription-check',

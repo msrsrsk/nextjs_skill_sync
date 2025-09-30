@@ -4,7 +4,7 @@ import { CART_OPERATION_TYPES, SITE_MAP } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { CART_POST, CART_DELETE } = CART_OPERATION_TYPES;
-const { CART_ITEMS_API_PATH } = SITE_MAP;
+const { CART_API_PATH } = SITE_MAP;
 const { CART_ITEM_ERROR } = ERROR_MESSAGES;
 
 interface CartOperationProps {
@@ -32,7 +32,7 @@ const useCart = () => {
                 ? JSON.stringify({ productId, quantity })
                 : JSON.stringify({ productId });
 
-            const response = await fetch(CART_ITEMS_API_PATH, {
+            const response = await fetch(CART_API_PATH, {
                 method,
                 headers: { 'Content-Type': 'application/json' },
                 body
@@ -65,7 +65,7 @@ const useCart = () => {
         setSuccess(false);
 
         try {
-            const response = await fetch(`${CART_ITEMS_API_PATH}?action=all`, {
+            const response = await fetch(`${CART_API_PATH}?action=all`, {
                 method: CART_DELETE,
                 headers: { 'Content-Type': 'application/json' },
             });
