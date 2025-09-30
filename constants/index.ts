@@ -136,7 +136,7 @@ export const SITE_MAP = {
     SUBSCRIPTION_CHECKOUT_API_PATH: '/api/subscription-checkout',
     SUBSCRIPTION_CANCEL_API_PATH: '/api/subscription-cancel',
     CHAT_API_PATH: '/api/chat',
-    SHIPPING_ADDRESS_API_PATH: '/api/shipping-address',
+    SHIPPING_ADDRESS_API_PATH: '/api/address',
 }
 
 // 領収書の設定
