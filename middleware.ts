@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth"
 import { NextResponse } from "next/server"
 
+import { showErrorToast } from "@/components/common/display/Toasts"
 import { SITE_MAP } from "@/constants/index"
 const { 
     HOME_PATH,
@@ -13,13 +14,20 @@ const {
     TREND_ALL_PATH,
     SYNC_LOG_PATH,
     SYNC_LOG_ALL_PATH,
-    NOT_AVAILABLE_PATH
+    NOT_AVAILABLE_PATH,
+    WEBHOOK_API_PATH,
+    BOOKMARK_API_PATH,
+    CART_API_PATH,
+    CHAT_API_PATH,
+    SHIPPING_ADDRESS_API_PATH,
+    USER_API_PATH
 } = SITE_MAP;
+import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 export default auth((req) => {
     const { pathname, searchParams } = req.nextUrl;
 
-    if (pathname.startsWith('/api/webhook/')) {
+    if (pathname.startsWith(WEBHOOK_API_PATH)) {
         return null;
     }
 
@@ -31,6 +39,25 @@ export default auth((req) => {
 
     if (pathname === NOT_AVAILABLE_PATH && country && country === 'JP') {
         return NextResponse.redirect(new URL(HOME_PATH, req.url));
+    }
+
+    const protectedApiRoutes = [
+        BOOKMARK_API_PATH,
+        CART_API_PATH,
+        CHAT_API_PATH,
+        SHIPPING_ADDRESS_API_PATH,
+        USER_API_PATH
+    ]
+
+    const isProtectedApiRoute = protectedApiRoutes.some(route => 
+        pathname.startsWith(route)
+    )
+
+    if (isProtectedApiRoute) {
+        if (!req.auth?.user?.id) {
+            showErrorToast(ERROR_MESSAGES.AUTH_ERROR.USER_NOT_FOUND);
+            return NextResponse.redirect(new URL(NOT_FOUND_PATH, req.url));
+        }
     }
 
     if (pathname === DELETE_ACCOUNT_PUBLIC_PATH) {

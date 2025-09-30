@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 
-import { requireApiAuth } from "@/lib/middleware/auth"
+import { requireUserId } from "@/lib/middleware/auth"
 import { deleteUser } from "@/lib/services/user/actions"
 import { deleteUserImage } from "@/lib/services/cloudflare/actions"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
@@ -13,10 +13,7 @@ export async function DELETE(request: NextRequest) {
     try {
         // throw new Error('test error');
 
-        const { userId } = await requireApiAuth(
-            request, 
-            USER_ERROR.UNAUTHORIZED
-        )
+        const { userId } = await requireUserId();
 
         // ユーザーのアイコン画像をストレージから削除
         const { 

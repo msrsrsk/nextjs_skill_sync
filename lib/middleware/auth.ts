@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from "next/server"
 import { redirect } from "next/navigation"
 
 import { auth } from "@/lib/auth"
 import { SITE_MAP } from "@/constants/index"
 import type { User } from "next-auth"
+import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { LOGIN_PATH } = SITE_MAP;
 
@@ -22,17 +22,11 @@ interface ActionAuthResult<T> {
     userId?: UserId;
 }
 
-export async function requireApiAuth(
-    request: NextRequest,
-    message: string
-): Promise<{ userId: UserId }> {
+export async function requireUserId(): Promise<{ userId: UserId }> {
     const session = await auth();
 
     if (!session?.user?.id) {
-        throw new NextResponse(
-            JSON.stringify({ message: message }), 
-            { status: 401 }
-        );
+        throw new Error(ERROR_MESSAGES.AUTH_ERROR.USER_NOT_FOUND);
     }
 
     return {

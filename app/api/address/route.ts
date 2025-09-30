@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
 
-import { requireApiAuth } from "@/lib/middleware/auth"
 import { deleteShippingAddress } from "@/lib/services/shipping-address/actions"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
@@ -11,11 +10,6 @@ export const dynamic = "force-dynamic"
 export async function DELETE(request: NextRequest) {
     try {
         // throw new Error('test');
-
-        await requireApiAuth(
-            request, 
-            SHIPPING_ADDRESS_ERROR.DELETE_UNAUTHORIZED
-        );
 
         const { searchParams } = new URL(request.url);
         const addressId = searchParams.get('addressId');

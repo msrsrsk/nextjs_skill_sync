@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 
-import { requireApiAuth } from "@/lib/middleware/auth"
+import { requireUserId } from "@/lib/middleware/auth"
 import { createChatMessageByUserId } from "@/lib/services/chat/actions"
 import { CHAT_SENDER_TYPES } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
@@ -12,10 +12,7 @@ export const dynamic = "force-dynamic"
 
 export async function POST(request: NextRequest) {
     try {
-        const { userId } = await requireApiAuth(
-            request, 
-            CHAT_ERROR.UNAUTHORIZED
-        );
+        const { userId } = await requireUserId();
 
         const { 
             message, 

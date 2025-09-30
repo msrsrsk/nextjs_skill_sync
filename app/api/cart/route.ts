@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 
-import { requireApiAuth } from "@/lib/middleware/auth"
+import { requireUserId } from "@/lib/middleware/auth"
 import { 
     getCartItemsData, 
     getCartItemsByProductIdData 
@@ -22,10 +22,7 @@ export async function GET(request: NextRequest) {
     try {
         // throw new Error('test error');
 
-        const { userId } = await requireApiAuth(
-            request, 
-            USER_ERROR.UNAUTHORIZED
-        )
+        const { userId } = await requireUserId();
 
         const cartItemsResult = await getCartItemsData({
             userId: userId as UserId
@@ -55,10 +52,7 @@ export async function GET(request: NextRequest) {
 // POST: カートに商品を追加
 export async function POST(request: NextRequest) {
     try {
-        const { userId } = await requireApiAuth(
-            request, 
-            CART_ITEM_ERROR.UNAUTHORIZED
-        );
+        const { userId } = await requireUserId();
 
         const { productId, quantity } = await request.json();
 
@@ -139,10 +133,7 @@ export async function POST(request: NextRequest) {
 // PUT: カートの商品数量を更新
 export async function PUT(request: NextRequest) {
     try {
-        const { userId } = await requireApiAuth(
-            request, 
-            CART_ITEM_ERROR.UNAUTHORIZED
-        );
+        const { userId } = await requireUserId();
 
         const { productId, quantity } = await request.json();
 
@@ -182,10 +173,7 @@ export async function PUT(request: NextRequest) {
 // DELETE: カートの商品を削除
 export async function DELETE(request: NextRequest) {
     try {
-        const { userId } = await requireApiAuth(
-            request, 
-            CART_ITEM_ERROR.UNAUTHORIZED
-        );
+        const { userId } = await requireUserId();
 
         const { searchParams } = new URL(request.url);
         const action = searchParams.get('action');

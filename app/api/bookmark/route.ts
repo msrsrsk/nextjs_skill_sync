@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 
-import { requireApiAuth } from "@/lib/middleware/auth"
+import { requireUserId } from "@/lib/middleware/auth"
 import { 
     addBookmark, 
     removeBookmark, 
@@ -22,10 +22,7 @@ export async function GET(request: NextRequest) {
     try {
         // throw new Error('test error');
 
-        const { userId } = await requireApiAuth(
-            request, 
-            USER_ERROR.UNAUTHORIZED
-        )
+        const { userId } = await requireUserId();
 
         const { searchParams } = new URL(request.url);
         const productId = searchParams.get('productId');
@@ -78,10 +75,7 @@ export async function GET(request: NextRequest) {
 // POST: お気に入り状態の変更
 export async function POST(request: NextRequest) {
     try {
-        const { userId } = await requireApiAuth(
-            request, 
-            BOOKMARK_ERROR.ADD_UNAUTHORIZED
-        );
+        const { userId } = await requireUserId();
 
         const { productId } = await request.json();
 
@@ -121,10 +115,7 @@ export async function POST(request: NextRequest) {
 // DELETE: お気に入り削除（個別 or 全て）
 export async function DELETE(request: NextRequest) {
     try {
-        const { userId } = await requireApiAuth(
-            request, 
-            BOOKMARK_ERROR.REMOVE_UNAUTHORIZED
-        );
+        const { userId } = await requireUserId();
 
         const { searchParams } = new URL(request.url);
         const action = searchParams.get('action');
