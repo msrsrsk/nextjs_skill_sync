@@ -132,9 +132,7 @@ export const SITE_MAP = {
     CART_API_PATH: '/api/cart',
     PRODUCTS_API_PATH: '/api/products',
     CHECKOUT_API_PATH: '/api/checkout',
-    SUBSCRIPTION_CHECK_API_PATH: '/api/subscription-check',
-    SUBSCRIPTION_CHECKOUT_API_PATH: '/api/subscription-checkout',
-    SUBSCRIPTION_CANCEL_API_PATH: '/api/subscription-cancel',
+    SUBSCRIPTIONS_API_PATH: '/api/subscription',
     CHAT_API_PATH: '/api/chat',
     SHIPPING_ADDRESS_API_PATH: '/api/address',
 }

@@ -3,7 +3,7 @@ import { useState } from "react"
 import { SITE_MAP } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
-const { SUBSCRIPTION_CANCEL_API_PATH } = SITE_MAP;
+const { SUBSCRIPTIONS_API_PATH } = SITE_MAP;
 const { SUBSCRIPTION_ERROR } = ERROR_MESSAGES;
 
 const useSubscriptionCancel = ({ 
@@ -20,8 +20,8 @@ const useSubscriptionCancel = ({
         setError(null);
 
         try {
-            const response = await fetch(SUBSCRIPTION_CANCEL_API_PATH, {
-                method: 'POST',
+            const response = await fetch(SUBSCRIPTIONS_API_PATH, {
+                method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
                 },

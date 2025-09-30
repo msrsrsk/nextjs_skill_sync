@@ -4,7 +4,7 @@ import { showErrorToast } from "@/components/common/display/Toasts"
 import { SITE_MAP } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
-const { SUBSCRIPTION_CHECK_API_PATH, SUBSCRIPTION_CHECKOUT_API_PATH } = SITE_MAP;
+const { SUBSCRIPTIONS_API_PATH } = SITE_MAP;
 const { CHECKOUT_ERROR } = ERROR_MESSAGES;
 
 interface UseCreatePaymentLinkProps {
@@ -23,8 +23,8 @@ const useCreatePaymentLink = ({
 
     // サブスク契約状況の確認
     const checkSubscription = async () => {
-        const response = await fetch(SUBSCRIPTION_CHECK_API_PATH, {
-            method: 'POST',
+        const response = await fetch(SUBSCRIPTIONS_API_PATH, {
+            method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -61,7 +61,7 @@ const useCreatePaymentLink = ({
 
             if (!proceed) return;
 
-            const response = await fetch(SUBSCRIPTION_CHECKOUT_API_PATH, {
+            const response = await fetch(SUBSCRIPTIONS_API_PATH, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
