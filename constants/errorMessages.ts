@@ -108,6 +108,10 @@ export const ERROR_MESSAGES = {
         INDIVIDUAL_FETCH_FAILED: `個別商品のレビューの取得に失敗しました。${RETRY}`,
 
         WEBHOOK_PROCESS_FAILED: 'レビューのWebhook処理中にエラーが発生しました。',
+        WEBHOOK_INSERT_FAILED: 'レビュー作成時のデータが見つかりませんでした。',
+        WEBHOOK_INSERT_PROCESS_FAILED: 'レビュー作成時のWebhook処理中にエラーが発生しました。',
+        WEBHOOK_DELETE_FAILED: 'レビュー削除時のデータが見つかりませんでした。',
+        WEBHOOK_DELETE_PROCESS_FAILED: 'レビュー削除時のWebhook処理中にエラーが発生しました。',
     },
 
     // お気に入り関連
