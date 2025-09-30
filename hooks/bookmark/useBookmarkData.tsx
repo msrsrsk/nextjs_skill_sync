@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from "react"
 import { SITE_MAP } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
-const { BOOKMARK_DATA_API_PATH } = SITE_MAP;
+const { BOOKMARK_API_PATH } = SITE_MAP;
 const { BOOKMARK_ERROR } = ERROR_MESSAGES;
 
 const useBookmarkData = () => {
@@ -22,7 +22,7 @@ const useBookmarkData = () => {
         setError(null);
 
         try {
-            const response = await fetch(BOOKMARK_DATA_API_PATH, {
+            const response = await fetch(BOOKMARK_API_PATH, {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json' },
             });

@@ -4,7 +4,7 @@ import { BOOKMARK_OPERATION_TYPES, SITE_MAP } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { BOOKMARK_POST, BOOKMARK_DELETE } = BOOKMARK_OPERATION_TYPES;
-const { BOOKMARK_ITEMS_API_PATH } = SITE_MAP;
+const { BOOKMARK_API_PATH } = SITE_MAP;
 const { BOOKMARK_ERROR } = ERROR_MESSAGES;
 
 interface BookmarkOperationProps {
@@ -27,7 +27,7 @@ const useBookmark = () => {
         setSuccess(false);
 
         try {
-            const response = await fetch(BOOKMARK_ITEMS_API_PATH, {
+            const response = await fetch(BOOKMARK_API_PATH, {
                 method,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ productId })
@@ -60,7 +60,7 @@ const useBookmark = () => {
         setSuccess(false);
 
         try {
-            const response = await fetch(`${BOOKMARK_ITEMS_API_PATH}?action=all`, {
+            const response = await fetch(`${BOOKMARK_API_PATH}?action=all`, {
                 method: BOOKMARK_DELETE,
                 headers: { 'Content-Type': 'application/json' },
             });

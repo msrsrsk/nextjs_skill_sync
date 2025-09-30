@@ -4,7 +4,7 @@ import useAuth from "@/hooks/auth/useAuth"
 import { SITE_MAP } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
-const { BOOKMARK_PRODUCT_API_PATH } = SITE_MAP;
+const { BOOKMARK_API_PATH } = SITE_MAP;
 const { BOOKMARK_ERROR } = ERROR_MESSAGES;
 
 const useBookmarkProduct = ({ productId }: { productId: ProductId }) => {
@@ -31,7 +31,7 @@ const useBookmarkProduct = ({ productId }: { productId: ProductId }) => {
 
         try {
             const response = await fetch(`
-                ${BOOKMARK_PRODUCT_API_PATH}?productId=${productId}
+                ${BOOKMARK_API_PATH}?productId=${productId}
             `, {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json' },

@@ -1,12 +1,79 @@
 import { NextRequest, NextResponse } from "next/server"
 
 import { requireApiAuth } from "@/lib/middleware/auth"
-import { addBookmark, removeBookmark, removeAllBookmarks } from "@/lib/services/bookmark/actions"
+import { 
+    addBookmark, 
+    removeBookmark, 
+    removeAllBookmarks 
+} from "@/lib/services/bookmark/actions"
+import { 
+    getUserProductBookmarksData, 
+    getUserBookmarksData 
+} from "@/lib/database/prisma/actions/bookmarks"
+import { BOOKMARK_PAGE_DISPLAY_LIMIT } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
-const { BOOKMARK_ERROR } = ERROR_MESSAGES;
+const { USER_ERROR, BOOKMARK_ERROR } = ERROR_MESSAGES;
 
 export const dynamic = "force-dynamic"
+
+// GET: お気に入りデータの取得
+export async function GET(request: NextRequest) {
+    try {
+        // throw new Error('test error');
+
+        const { userId } = await requireApiAuth(
+            request, 
+            USER_ERROR.UNAUTHORIZED
+        )
+
+        const { searchParams } = new URL(request.url);
+        const productId = searchParams.get('productId');
+
+        if (productId) {
+            const isBookmarked = await getUserProductBookmarksData({
+                userId: userId as UserId,
+                productId: productId
+            });
+    
+            if (!isBookmarked) {
+                return NextResponse.json(
+                    { message: BOOKMARK_ERROR.FETCH_PRODUCT_FAILED }, 
+                    { status: 500 }
+                );
+            }
+    
+            return NextResponse.json({ 
+                success: true, 
+                data: isBookmarked 
+            });
+        } else {
+            const bookmarkItemsResult = await getUserBookmarksData({
+                userId: userId as UserId,
+                limit: BOOKMARK_PAGE_DISPLAY_LIMIT
+            });
+    
+            if (!bookmarkItemsResult) {
+                return NextResponse.json(
+                    { message: BOOKMARK_ERROR.FETCH_FAILED }, 
+                    { status: 500 }
+                );
+            }
+    
+            return NextResponse.json({ 
+                success: true, 
+                data: bookmarkItemsResult 
+            });
+        }
+    } catch (error) {
+        console.error('API Error - Bookmark GET error:', error);
+
+        return NextResponse.json(
+            { message: BOOKMARK_ERROR.FETCH_FAILED }, 
+            { status: 500 }
+        );
+    }
+}
 
 // POST: お気に入り状態の変更
 export async function POST(request: NextRequest) {

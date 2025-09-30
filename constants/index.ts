@@ -126,9 +126,7 @@ export const SITE_MAP = {
     // API
     WEBHOOK_API_PATH: '/api/webhook/',
     USER_API_PATH: '/api/user',
-    BOOKMARK_ITEMS_API_PATH: '/api/bookmark-items',
-    BOOKMARK_DATA_API_PATH: '/api/bookmark-data',
-    BOOKMARK_PRODUCT_API_PATH: '/api/bookmark-product',
+    BOOKMARK_API_PATH: '/api/bookmark',
     CART_API_PATH: '/api/cart',
     PRODUCTS_API_PATH: '/api/products',
     CHECKOUT_API_PATH: '/api/checkout',

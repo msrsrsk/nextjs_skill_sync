@@ -120,7 +120,6 @@ export const ERROR_MESSAGES = {
         FETCH_FAILED: `お気に入りデータの取得に失敗しました。${RETRY}`,
         ADD_MISSING_DATA: `お気に入りデータの変更に必要な情報が不足しています。${RETRY}`,
         REMOVE_MISSING_DATA: `お気に入りデータの削除に必要な情報が不足しています。${RETRY}`,
-        NO_PRODUCT_ID: `お気に入り状態の取得に必要な情報が不足しています。${RETRY}`,
         FETCH_PRODUCT_FAILED: `お気に入り状態の取得に失敗しました。${RETRY}`,
 
         ADD_FAILED: `お気に入りの追加に失敗しました。${RETRY}`,
