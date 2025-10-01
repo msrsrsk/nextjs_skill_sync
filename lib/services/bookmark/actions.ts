@@ -7,7 +7,7 @@ import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { BOOKMARK_ERROR } = ERROR_MESSAGES;
 
-interface BookmarkActionsProps extends UserIdActionsProps {
+interface BookmarkActionsProps extends UserIdProps {
     productId: ProductId;
 }
 
@@ -55,7 +55,7 @@ export const removeBookmark = async ({
     }
 }
 
-export const removeAllBookmarks = async ({ userId }: UserIdActionsProps) => {
+export const removeAllBookmarks = async ({ userId }: UserIdProps) => {
     try {
         await deleteAllUserBookmarksData({ userId });
 

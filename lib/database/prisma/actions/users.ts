@@ -10,7 +10,7 @@ interface CreateUserWithTransactionProps {
     userData: CreateUserData;
 }
 
-interface GetUserDataProps extends UserIdActionsProps {
+interface GetUserDataProps extends UserIdProps {
     getType: GetUserDataTypes;
 }
 

@@ -204,7 +204,7 @@ declare global {
     type UserEmailVerified = User['emailVerified'];
     type UserStripeCustomerId = User['stripe_customer_id'];
 
-    interface UserIdActionsProps {
+    interface UserIdProps {
         userId: UserId;
     }
 
@@ -220,29 +220,29 @@ declare global {
         emailVerified: UserEmailVerified;
     }
 
-    interface UpdateStripeCustomerIdProps extends UserIdActionsProps {
+    interface UpdateStripeCustomerIdProps extends UserIdProps {
         userId: UserId;
         customerId: StripeCustomerId;
     }
 
-    interface UpdateUserIconUrlProps extends UserIdActionsProps {
+    interface UpdateUserIconUrlProps extends UserIdProps {
         iconUrl: UserIconUrl;
     }
     
-    interface UpdateUserNameProps extends UserIdActionsProps {
+    interface UpdateUserNameProps extends UserIdProps {
         lastname: UserLastname;
         firstname: UserFirstname;
     }
     
-    interface UpdateUserTelProps extends UserIdActionsProps {
+    interface UpdateUserTelProps extends UserIdProps {
         tel: UserTel;
     }
     
-    interface UpdateUserEmailProps extends UserIdActionsProps {
+    interface UpdateUserEmailProps extends UserIdProps {
         email: UserEmail;
     }
     
-    interface UpdateUserPasswordProps extends UserIdActionsProps {
+    interface UpdateUserPasswordProps extends UserIdProps {
         password: UserPassword;
     }
 

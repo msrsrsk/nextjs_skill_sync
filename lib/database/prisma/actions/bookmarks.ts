@@ -1,10 +1,10 @@
 import prisma from "@/lib/database/prisma/client"
 
-interface BookmarkActionsProps extends UserIdActionsProps {
+interface BookmarkActionsProps extends UserIdProps {
     productId: ProductId;
 }
 
-interface GetUserBookmarksDataProps extends UserIdActionsProps {
+interface GetUserBookmarksDataProps extends UserIdProps {
     limit: number;
 }
 
@@ -86,7 +86,7 @@ export const deleteUserBookmarkData = async ({
 // ユーザーの全てのお気に入りの削除
 export const deleteAllUserBookmarksData = async ({ 
     userId 
-}: UserIdActionsProps) => {
+}: UserIdProps) => {
     return await prisma.userBookmark.deleteMany({
         where: { user_id: userId }
     });
