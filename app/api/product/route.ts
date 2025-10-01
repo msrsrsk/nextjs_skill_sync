@@ -30,7 +30,7 @@ export async function GET(request: Request) {
             data: productsResult || []
         });
     } catch (error) {
-        console.error('API Error - Products GET error:', error);
+        console.error('API Error - Get Products error:', error);
 
         return NextResponse.json(
             { message: PRODUCT_ERROR.FETCH_FAILED }, 

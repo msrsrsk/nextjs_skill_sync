@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 
-import { requireServerAuth } from "@/lib/middleware/auth"
+import { requireUserId, requireServerAuth } from "@/lib/middleware/auth"
 import { getUserSubscriptionByProduct } from "@/lib/services/order/actions"
 import { createPaymentLink, cancelSubscription } from "@/lib/services/stripe/actions"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
@@ -11,20 +11,19 @@ export const dynamic = "force-dynamic"
 
 // GET: サブスクリプション状況の確認
 export async function GET(request: NextRequest) {
-    const { user } = await requireServerAuth();
-    const userId = user?.id as UserId;
+    const { userId } = await requireUserId();
+
+    const { searchParams } = new URL(request.url);
+    const productId = searchParams.get('productId');
+
+    if (!productId) {
+        return NextResponse.json(
+            { message: PRODUCT_ERROR.NOT_FOUND_IDS }, 
+            { status: 400 }
+        );
+    }
 
     try {
-        const { searchParams } = new URL(request.url);
-        const productId = searchParams.get('productId');
-
-        if (!productId) {
-            return NextResponse.json(
-                { message: PRODUCT_ERROR.NOT_FOUND_IDS }, 
-                { status: 400 }
-            );
-        }
-
         const { success, error, data } = await getUserSubscriptionByProduct({
             productId,
             userId
@@ -42,7 +41,7 @@ export async function GET(request: NextRequest) {
             data: data 
         });
     } catch (error) {
-        console.error('API Error - Subscription Check error:', error);
+        console.error('API Error - Get Subscription Data error:', error);
 
         return NextResponse.json(
             { message: CHECKOUT_ERROR.FETCH_SUBSCRIPTION_FAILED }, 
@@ -57,23 +56,23 @@ export async function POST(request: NextRequest) {
     const userId = user?.id as UserId;
     const userEmail = user?.email as UserEmail;
 
-    try {
-        const { subscriptionPriceId, interval } = await request.json();
+    const { subscriptionPriceId, interval } = await request.json();
 
-        if (!subscriptionPriceId) {
-            return NextResponse.json(
-                { message: CHECKOUT_ERROR.NO_SUBSCRIPTION_PRICE }, 
-                { status: 400 }
-            )
+    if (!subscriptionPriceId) {
+        return NextResponse.json(
+            { message: CHECKOUT_ERROR.NO_SUBSCRIPTION_PRICE }, 
+            { status: 400 }
+        )
+    }
+
+    const lineItems = [
+        {
+            price: subscriptionPriceId,
+            quantity: 1,
         }
+    ]
 
-        const lineItems = [
-            {
-                price: subscriptionPriceId,
-                quantity: 1,
-            }
-        ];
-
+    try {
         const { success, data } = await createPaymentLink({ 
             lineItems, 
             userId,
@@ -93,7 +92,7 @@ export async function POST(request: NextRequest) {
             data: data 
         });
     } catch (error) {
-        console.error('API Error - Subscription Checkout error:', error);
+        console.error('API Error - Create Payment Link error:', error);
 
         return NextResponse.json(
             { message: CHECKOUT_ERROR.PAYMENT_LINK_FAILED }, 
@@ -104,16 +103,16 @@ export async function POST(request: NextRequest) {
 
 // DELETE: サブスクリプションのキャンセル
 export async function DELETE(request: NextRequest) {
+    const { subscriptionId } = await request.json();
+
+    if (!subscriptionId) {
+        return NextResponse.json(
+            { message: SUBSCRIPTION_ERROR.NO_SUBSCRIPTION_ID }, 
+            { status: 400 }
+        );
+    }
+
     try {
-        const { subscriptionId } = await request.json();
-
-        if (!subscriptionId) {
-            return NextResponse.json(
-                { message: SUBSCRIPTION_ERROR.NO_SUBSCRIPTION_ID }, 
-                { status: 400 }
-            );
-        }
-
         const { success, error } = await cancelSubscription({
             subscriptionId
         });
@@ -127,7 +126,7 @@ export async function DELETE(request: NextRequest) {
 
         return NextResponse.json({ success: true });
     } catch (error) {
-        console.error('API Error - Subscription Cancel error:', error);
+        console.error('API Error - Cancel Subscription error:', error);
 
         return NextResponse.json(
             { message: SUBSCRIPTION_ERROR.CANCEL_SUBSCRIPTION_FAILED }, 

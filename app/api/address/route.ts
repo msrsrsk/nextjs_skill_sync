@@ -8,18 +8,18 @@ const { SHIPPING_ADDRESS_ERROR } = ERROR_MESSAGES;
 export const dynamic = "force-dynamic"
 
 export async function DELETE(request: NextRequest) {
+    const { searchParams } = new URL(request.url);
+    const addressId = searchParams.get('addressId');
+
+    if (!addressId) {
+        return NextResponse.json(
+            { message: SHIPPING_ADDRESS_ERROR.DELETE_MISSING_DATA }, 
+            { status: 400 }
+        );
+    }
+
     try {
         // throw new Error('test');
-
-        const { searchParams } = new URL(request.url);
-        const addressId = searchParams.get('addressId');
-
-        if (!addressId) {
-            return NextResponse.json(
-                { message: SHIPPING_ADDRESS_ERROR.DELETE_MISSING_DATA }, 
-                { status: 400 }
-            );
-        }
         
         const { success, error } = await deleteShippingAddress({
             id: addressId
@@ -34,7 +34,7 @@ export async function DELETE(request: NextRequest) {
         
         return NextResponse.json({ success: true });
     } catch (error) {
-        console.error('API Error - Shipping Address DELETE error:', error);
+        console.error('API Error - Delete Shipping Address error:', error);
 
         return NextResponse.json(
             { message: SHIPPING_ADDRESS_ERROR.DELETE_FAILED }, 

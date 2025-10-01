@@ -67,6 +67,7 @@ export const ERROR_MESSAGES = {
 
         EXPIRED_PASSWORD_TOKEN: `パスワードリセットの有効期限が過ぎました。${FIRST}`,
         DELETE_FAILED: `アカウントの削除に失敗しました。${RETRY}`,
+        DELETE_IMAGE_FAILED: `アイコンの削除に失敗しました。${RETRY}`,
 
         UNSHIPPED_ORDERS_COUNT_MISSING_DATA: `アカウントの削除に必要なデータの取得に失敗しました。${RETRY}`,
         UNSHIPPED_ORDERS_COUNT_WARNING: `未発送の注文が残っています。全て発送済みであることをご確認の上、退会手続を進めてください。`,
@@ -178,11 +179,15 @@ export const ERROR_MESSAGES = {
 
         STOCK_CHECK_FAILED: `在庫チェックのための必要な情報が不足しています。${RETRY}`,
         FAILED_CHECK_STOCK: `商品の在庫チェックに失敗しました。${RETRY}`,
-        UPDATE_STOCK: `の在庫状況を更新いたしました。注文数を再度ご確認の上、チェックアウトに進んでください。`,
+        UPDATE_STOCK: `在庫状況を更新いたしました。注文数を再度ご確認の上、チェックアウトに進んでください。`,
 
         CHECKOUT_SESSION_FAILED: `チェックアウトの作成に失敗しました。${RETRY}`,
+        CHECKOUT_PRODUCT_CREATE_FAILED: `チェックアウトの商品リストの作成に失敗しました。${RETRY}`,
         NOT_PROCEED_CHECKOUT: `チェックアウトに進めませんでした。${RETRY}`,
         WEBHOOK_PROCESS_FAILED: 'チェックアウトの処理中にエラーが発生しました。',
+
+        CHECKOUT_COMPLETED_FAILED: `チェックアウト完了時の処理中にエラーが発生しました。${RETRY}`,
+        SUBSCRIPTION_EVENT_FAILED: `サブスクリプションの注文処理中にエラーが発生しました。${RETRY}`,
         
         FETCH_SUBSCRIPTION_FAILED: `サブスクリプションの契約状況の取得に失敗しました。${RETRY}`,
         NO_SUBSCRIPTION_PRICE: `サブスクリプション商品の購入で必要な情報が不足しています。${RETRY}`,

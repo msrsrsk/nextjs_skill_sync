@@ -12,18 +12,20 @@ export const dynamic = "force-dynamic"
 export async function POST(request: NextRequest) {
     const { userId } = await requireServerAuth();
 
+    const { cartItems } = await request.json();
+
+    if (!cartItems || !Array.isArray(cartItems) || cartItems.length === 0) {
+        return NextResponse.json(
+            { message: CHECKOUT_ERROR.NO_CART_ITEMS }, 
+            { status: 400 }
+        )
+    }
+
     try {
-        const { cartItems } = await request.json();
-
-        if (!cartItems || !Array.isArray(cartItems) || cartItems.length === 0) {
-            return NextResponse.json(
-                { message: CHECKOUT_ERROR.NO_CART_ITEMS }, 
-                { status: 400 }
-            )
-        }
-
+        // 商品の合計数量を計算
         const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, CHECKOUT_INITIAL_QUANTITY);
 
+        // チェックアウトの商品リストを作成
         let lineItems: CheckoutLineItem[] = [];
 
         for (const cartItem of cartItems) {
@@ -51,28 +53,38 @@ export async function POST(request: NextRequest) {
             }];
         }
 
-        const { success, data } = await createCheckoutSession({ 
-            lineItems, 
-            userId,
-            totalQuantity,
-        });
+        try {
+            // チェックアウトセッションを作成
+            const { success, data } = await createCheckoutSession({ 
+                lineItems, 
+                userId,
+                totalQuantity,
+            });
+    
+            if (!success) {
+                return NextResponse.json(
+                    { message: CHECKOUT_ERROR.CHECKOUT_SESSION_FAILED }, 
+                    { status: 500 }
+                );
+            }
+    
+            return NextResponse.json({ 
+                success: true, 
+                data: data 
+            });
+        } catch (error) {
+            console.error('API Error - Create Checkout Session error:', error);
 
-        if (!success) {
             return NextResponse.json(
                 { message: CHECKOUT_ERROR.CHECKOUT_SESSION_FAILED }, 
                 { status: 500 }
             );
         }
-
-        return NextResponse.json({ 
-            success: true, 
-            data: data 
-        });
     } catch (error) {
-        console.error('API Error - Checkout POST error:', error);
+        console.error('API Error - Process Checkout error:', error);
 
         return NextResponse.json(
-            { message: CHECKOUT_ERROR.CHECKOUT_SESSION_FAILED }, 
+            { message: CHECKOUT_ERROR.CHECKOUT_PRODUCT_CREATE_FAILED }, 
             { status: 500 }
         );
     }

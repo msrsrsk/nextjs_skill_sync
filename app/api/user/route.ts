@@ -10,11 +10,9 @@ const { USER_ERROR } = ERROR_MESSAGES;
 export const dynamic = "force-dynamic"
 
 export async function DELETE(request: NextRequest) {
+    const { userId } = await requireUserId();
+
     try {
-        // throw new Error('test error');
-
-        const { userId } = await requireUserId();
-
         // ユーザーのアイコン画像をストレージから削除
         const { 
             success: deleteUserImageSuccess, 
@@ -27,7 +25,16 @@ export async function DELETE(request: NextRequest) {
                 { status: 500 }
             );
         }
+    } catch (error) {
+        console.error('API Error - Delete User Image error:', error);
 
+        return NextResponse.json(
+            { message: USER_ERROR.DELETE_IMAGE_FAILED }, 
+            { status: 500 }
+        );
+    }
+
+    try {
         // ユーザーを削除
         const { 
             success: deleteUserSuccess, 
@@ -43,7 +50,7 @@ export async function DELETE(request: NextRequest) {
 
         return NextResponse.json({ success: true });
     } catch (error) {
-        console.error('API Error - User DELETE error:', error);
+        console.error('API Error - Delete User error:', error);
 
         return NextResponse.json(
             { message: USER_ERROR.DELETE_FAILED }, 
