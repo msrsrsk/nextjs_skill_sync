@@ -28,7 +28,7 @@ export async function DELETE(request: NextRequest) {
         if (!success) {
             return NextResponse.json(
                 { message: error }, 
-                { status: 500 }
+                { status: 404 }
             );
         }
         

@@ -212,6 +212,7 @@ export const ERROR_MESSAGES = {
     
     // サブスクリプション関連
     SUBSCRIPTION_ERROR: {
+        NO_SUBSCRIPTION_ID: `サブスクリプションのIDが見つかりませんでした。${RETRY}`,
         CREATE_FAILED: `サブスクリプションの支払いデータの作成に失敗しました。${RETRY}`,
         GET_LATEST_FAILED: `サブスクリプションの最新の支払いデータの取得に失敗しました。${RETRY}`,
         UPDATE_FAILED: `サブスクリプションの支払いデータの更新に失敗しました。${RETRY}`,

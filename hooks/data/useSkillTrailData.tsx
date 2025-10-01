@@ -33,7 +33,8 @@ const useSkillTrailData = (ids: string[]) => {
             const { success, data, message } = await response.json();
 
             if (success && data) {
-                setProducts(data);
+                setProducts(data && data.length > 0 ? data : null);
+                setError(null);
             } else {
                 setProducts(null);
                 setError(message);

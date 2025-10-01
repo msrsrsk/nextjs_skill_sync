@@ -34,16 +34,9 @@ export async function GET(request: Request) {
             pageType
         });
 
-        if (!productsResult) {
-            return NextResponse.json(
-                { message: PRODUCT_ERROR.IDS_FETCH_FAILED }, 
-                { status: 500 }
-            );
-        }
-
         return NextResponse.json({ 
             success: true, 
-            data: productsResult 
+            data: productsResult || []
         });
     } catch (error) {
         console.error('API Error - Products GET error:', error);

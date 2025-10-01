@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
             if (!product) {
                 return NextResponse.json(
                     { message: CHECKOUT_ERROR.NO_CART_ITEMS }, 
-                    { status: 400 }
+                    { status: 404 }
                 );
             }
 
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
             if (!priceId) {
                 return NextResponse.json(
                     { message: CHECKOUT_ERROR.NO_PRICE_ID }, 
-                    { status: 500 }
+                    { status: 404 }
                 );
             }
 

@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
         if (!success) {
             return NextResponse.json(
                 { message: error }, 
-                { status: 500 }
+                { status: 404 }
             );
         }
 
@@ -106,6 +106,13 @@ export async function POST(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
     try {
         const { subscriptionId } = await request.json();
+
+        if (!subscriptionId) {
+            return NextResponse.json(
+                { message: SUBSCRIPTION_ERROR.NO_SUBSCRIPTION_ID }, 
+                { status: 400 }
+            );
+        }
 
         const { success, error } = await cancelSubscription({
             subscriptionId

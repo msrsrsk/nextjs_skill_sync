@@ -24,10 +24,19 @@ const useCheckout = ({ cartItems }: { cartItems: CartItemWithProduct[] }) => {
             `);
             const { success, data } = await response.json();
 
-            if (!success || !data) {
+            if (!success) {
                 return {
                     success: false,
                     message: CHECKOUT_ERROR.STOCK_CHECK_FAILED
+                };
+            }
+
+            const products = data || [];
+        
+            if (products.length === 0) {
+                return {
+                    success: false,
+                    message: CHECKOUT_ERROR.NO_PRODUCT_DATA
                 };
             }
 

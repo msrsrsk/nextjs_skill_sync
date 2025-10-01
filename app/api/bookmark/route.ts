@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
             if (!isBookmarked) {
                 return NextResponse.json(
                     { message: BOOKMARK_ERROR.FETCH_PRODUCT_FAILED }, 
-                    { status: 500 }
+                    { status: 404 }
                 );
             }
     
@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
             if (!bookmarkItemsResult) {
                 return NextResponse.json(
                     { message: BOOKMARK_ERROR.FETCH_FAILED }, 
-                    { status: 500 }
+                    { status: 404 }
                 );
             }
     

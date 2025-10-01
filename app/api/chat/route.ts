@@ -35,6 +35,13 @@ export async function POST(request: NextRequest) {
         });
 
         if (!success) {
+            if (error === CHAT_ERROR.MISSING_CHAT_ROOM) {
+                return NextResponse.json(
+                    { message: error }, 
+                    { status: 404 }
+                );
+            }
+            
             return NextResponse.json(
                 { message: error }, 
                 { status: 500 }

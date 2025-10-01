@@ -28,16 +28,9 @@ export async function GET(request: NextRequest) {
             userId: userId as UserId
         });
 
-        if (!cartItemsResult) {
-            return NextResponse.json(
-                { message: CART_ITEM_ERROR.FETCH_FAILED }, 
-                { status: 500 }
-            );
-        }
-
         return NextResponse.json({ 
             success: true, 
-            data: cartItemsResult 
+            data: cartItemsResult || []
         });
     } catch (error) {
         console.error('API Error - Cart Data GET error:', error);
@@ -153,7 +146,7 @@ export async function PUT(request: NextRequest) {
         if (!success) {
             return NextResponse.json(
                 { message: error }, 
-                { status: 500 }
+                { status: 404 }
             );
         }
 
@@ -212,7 +205,7 @@ export async function DELETE(request: NextRequest) {
             if (!success) {
                 return NextResponse.json(
                     { message: error }, 
-                    { status: 500 }
+                    { status: 404 }
                 );
             }
     
