@@ -28,8 +28,11 @@ const useSkillTrailData = (ids: string[]) => {
             setLoading(true);
             setError(null);
 
-            const idsParam = ids.join(',');
-            const response = await fetch(`${PRODUCTS_API_PATH}?ids=${idsParam}&pageType=${SKILL_TRAIL}`);
+            const params = new URLSearchParams();
+            ids.forEach(id => params.append('id', id));
+            params.append('pageType', SKILL_TRAIL);
+
+            const response = await fetch(`${PRODUCTS_API_PATH}?${params.toString()}`);
             const { success, data, message } = await response.json();
 
             if (success && data) {

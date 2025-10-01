@@ -9,10 +9,10 @@ export const dynamic = "force-dynamic"
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
-    const idsParam = searchParams.get('ids');
+    const ids = searchParams.getAll('id');
     const pageType = searchParams.get('pageType');
 
-    if (!idsParam) {
+    if (!ids || ids.length === 0) {
         return NextResponse.json(
             { message: PRODUCT_ERROR.NO_IDS }, 
             { status: 400 }
@@ -20,15 +20,6 @@ export async function GET(request: Request) {
     }
 
     try {
-        const ids = idsParam.split(',').filter(id => id.trim() !== '');
-
-        if (ids.length === 0) {
-            return NextResponse.json(
-                { message: PRODUCT_ERROR.NOT_FOUND_IDS }, 
-                { status: 400 }
-            );
-        }
-
         const productsResult = await getProductsByIdsData({
             ids,
             pageType

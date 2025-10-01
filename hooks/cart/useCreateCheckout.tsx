@@ -19,8 +19,13 @@ const useCheckout = ({ cartItems }: { cartItems: CartItemWithProduct[] }) => {
     const checkStockAvailability = async () => {
         try {
             const ids = cartItems.map(item => item.product.id);
+
+            const params = new URLSearchParams();
+            ids.forEach(id => params.append('id', id));
+            params.append('pageType', CART);
+
             const response = await fetch(`
-                ${PRODUCTS_API_PATH}?ids=${ids.join(',')}&pageType=${CART}
+                ${PRODUCTS_API_PATH}?${params.toString()}
             `);
             const { success, data } = await response.json();
 

@@ -128,7 +128,7 @@ export const SITE_MAP = {
     USER_API_PATH: '/api/user',
     BOOKMARK_API_PATH: '/api/bookmark',
     CART_API_PATH: '/api/cart',
-    PRODUCTS_API_PATH: '/api/products',
+    PRODUCTS_API_PATH: '/api/product',
     CHECKOUT_API_PATH: '/api/checkout',
     SUBSCRIPTIONS_API_PATH: '/api/subscription',
     CHAT_API_PATH: '/api/chat',
