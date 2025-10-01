@@ -267,7 +267,7 @@ declare global {
     type ProductTitle = Product['title'];
     type ProductImageUrls = Product['image_urls'];
     type ProductPrice = Product['price'];
-    type ProductSalePriceType = Product['sale_price'];
+    type ProductSalePrice = Product['sale_price'];
     type ProductCategory = Product['category'];
     type ProductId = Product['id'];
     type ProductSlug = Product['slug'];
@@ -681,7 +681,7 @@ declare global {
         title: ProductTitle;
         image_urls: ProductImageUrls;
         price: ProductPrice;
-        sale_price: ProductSalePriceType;
+        sale_price: ProductSalePrice;
         category: ProductCategory;
         slug: ProductSlug;
         stock: ProductStock;

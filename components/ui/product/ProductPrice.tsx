@@ -20,7 +20,7 @@ interface GetProductStatusProps {
 
 interface ProductPriceProps {
     price: ProductPrice;
-    salePrice: ProductSalePriceType;
+    salePrice: ProductSalePrice;
     stock: ProductStock;
     type?: ProductPriceType;
 }
