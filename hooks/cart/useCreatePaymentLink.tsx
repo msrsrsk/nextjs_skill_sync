@@ -23,12 +23,11 @@ const useCreatePaymentLink = ({
 
     // サブスク契約状況の確認
     const checkSubscription = async () => {
-        const response = await fetch(SUBSCRIPTIONS_API_PATH, {
+        const response = await fetch(`${SUBSCRIPTIONS_API_PATH}?productId=${productId}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ productId })
+            }
         });
 
         const { success, data } = await response.json();

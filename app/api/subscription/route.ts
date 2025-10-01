@@ -1,83 +1,130 @@
-import { stripe } from "@/lib/clients/stripe/client"
 import { NextRequest, NextResponse } from "next/server"
 
-import { verifyWebhookSignature } from "@/lib/services/stripe/webhook/actions"
-import { handleSubscriptionEvent } from "@/lib/services/stripe/webhook/actions"
-import { updateSubscriptionPaymentStatus } from "@/lib/services/subscription-payment/actions"
-import { formatStripeSubscriptionStatus } from "@/lib/utils/format"
+import { requireServerAuth } from "@/lib/middleware/auth"
+import { getUserSubscriptionByProduct } from "@/lib/services/order/actions"
+import { createPaymentLink, cancelSubscription } from "@/lib/services/stripe/actions"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
-const { SUBSCRIPTION_ERROR } = ERROR_MESSAGES;
+const { CHECKOUT_ERROR, PRODUCT_ERROR, SUBSCRIPTION_ERROR } = ERROR_MESSAGES;
 
-export async function POST(request: NextRequest) {   
-    const endpointSecret = process.env.STRIPE_SUBSCRIPTION_WEBHOOK_SECRET_KEY;
+export const dynamic = "force-dynamic"
+
+// GET: サブスクリプション状況の確認
+export async function GET(request: NextRequest) {
+    const { user } = await requireServerAuth();
+    const userId = user?.id as UserId;
 
     try {
-        const event = await verifyWebhookSignature({
-            request,
-            endpointSecret: endpointSecret as string,
-            errorMessage: SUBSCRIPTION_ERROR.WEBHOOK_PROCESS_FAILED
-        });
-        
-        /* ============================== 
-            サブスクリプションの継続支払い時の処理（2回目以降のサブスク契約で発生）
-        ============================== */
-        if (event.type === 'invoice.payment_succeeded' || event.type === 'invoice.payment_failed') {
-            const invoiceEvent = event.data.object as StripeInvoice;
+        const { searchParams } = new URL(request.url);
+        const productId = searchParams.get('productId');
 
-            // 1. サブスクリプションのデータ作成
-            if (invoiceEvent.billing_reason === 'subscription_cycle') {
-                const subscriptionId = invoiceEvent.parent?.subscription_details?.subscription;
-                const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-
-                await handleSubscriptionEvent({
-                    subscriptionEvent: subscription
-                });
-            }
+        if (!productId) {
+            return NextResponse.json(
+                { message: PRODUCT_ERROR.NOT_FOUND_IDS }, 
+                { status: 400 }
+            );
         }
 
-        if (event.type === 'customer.subscription.updated') {
-            const subscriptionEvent = event.data.object as StripeSubscription;
-            const previousAttributes = event.data.previous_attributes;
-            
-            const currentStatus = subscriptionEvent.status;
-            
-            // 2. サブスクリプションのステータスの確認&更新
-            if (!previousAttributes && currentStatus === 'active') {
-                return NextResponse.json({ success: true });
+        const { success, error, data } = await getUserSubscriptionByProduct({
+            productId,
+            userId
+        });
+
+        if (!success) {
+            return NextResponse.json(
+                { message: error }, 
+                { status: 500 }
+            );
+        }
+
+        return NextResponse.json({ 
+            success: true, 
+            data: data 
+        });
+    } catch (error) {
+        console.error('API Error - Subscription Check error:', error);
+
+        return NextResponse.json(
+            { message: CHECKOUT_ERROR.FETCH_SUBSCRIPTION_FAILED }, 
+            { status: 500 }
+        );
+    }
+}
+
+// POST: サブスクリプションの支払いリンクの作成
+export async function POST(request: NextRequest) {
+    const { user } = await requireServerAuth();
+    const userId = user?.id as UserId;
+    const userEmail = user?.email as UserEmail;
+
+    try {
+        const { subscriptionPriceId, interval } = await request.json();
+
+        if (!subscriptionPriceId) {
+            return NextResponse.json(
+                { message: CHECKOUT_ERROR.NO_SUBSCRIPTION_PRICE }, 
+                { status: 400 }
+            )
+        }
+
+        const lineItems = [
+            {
+                price: subscriptionPriceId,
+                quantity: 1,
             }
-            
-            const previousStatus = previousAttributes?.status;
+        ];
 
-            if (previousStatus && currentStatus && previousStatus !== currentStatus) {
-                const subscriptionId = subscriptionEvent.id;
-                const subscriptionStatus = formatStripeSubscriptionStatus(currentStatus);
+        const { success, data } = await createPaymentLink({ 
+            lineItems, 
+            userId,
+            userEmail,
+            interval
+        });
 
-                const { 
-                    success: updatePaymentStatusSuccess, 
-                    error: updatePaymentStatusError 
-                } = await updateSubscriptionPaymentStatus({
-                    subscriptionId,
-                    status: subscriptionStatus
-                });
+        if (!success) {
+            return NextResponse.json(
+                { message: CHECKOUT_ERROR.PAYMENT_LINK_FAILED }, 
+                { status: 500 }
+            );
+        }
 
-                if (!updatePaymentStatusSuccess) {
-                    throw new Error(updatePaymentStatusError as string);
-                }
-            }
+        return NextResponse.json({ 
+            success: true, 
+            data: data 
+        });
+    } catch (error) {
+        console.error('API Error - Subscription Checkout error:', error);
+
+        return NextResponse.json(
+            { message: CHECKOUT_ERROR.PAYMENT_LINK_FAILED }, 
+            { status: 500 }
+        );
+    }
+}
+
+// DELETE: サブスクリプションのキャンセル
+export async function DELETE(request: NextRequest) {
+    try {
+        const { subscriptionId } = await request.json();
+
+        const { success, error } = await cancelSubscription({
+            subscriptionId
+        });
+
+        if (!success) {
+            return NextResponse.json(
+                { message: error }, 
+                { status: 500 }
+            );
         }
 
         return NextResponse.json({ success: true });
     } catch (error) {
-        console.error('Webhook Error - Stripe Subscription POST error:', error);
-
-        const errorMessage = 
-            error instanceof Error ? 
-            error.message : SUBSCRIPTION_ERROR.WEBHOOK_PROCESS_FAILED;
+        console.error('API Error - Subscription Cancel error:', error);
 
         return NextResponse.json(
-            { message: errorMessage }, 
+            { message: SUBSCRIPTION_ERROR.CANCEL_SUBSCRIPTION_FAILED }, 
             { status: 500 }
         );
-    } 
+    }
 }
