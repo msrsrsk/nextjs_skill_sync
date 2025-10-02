@@ -15,7 +15,7 @@ import PendingContent from "@/components/common/buttons/PendingContent"
 import useDisplayNameValidation from "@/hooks/validation/useDisplayNameValidation"
 import useTextareaValidation from "@/hooks/validation/useTextareaValidation"
 import usePreventScroll from "@/hooks/utils/usePreventScroll"
-import { fadeScale } from "@/lib/motion"
+import { fadeScale } from "@/lib/utils/motion"
 import { EventButtonPrimary, EventButtonSecondary } from "@/components/common/buttons/Button"
 import { BUTTON_TEXT_TYPES, BUTTON_TYPES, TEXTAREA_SCHEMA_TYPES } from "@/constants/index"
 

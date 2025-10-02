@@ -3,7 +3,7 @@ import { CircleX } from "lucide-react"
 
 import Overlay from "@/components/common/display/Overlay"
 import usePreventScroll from "@/hooks/utils/usePreventScroll"
-import { fadeScale } from "@/lib/motion"
+import { fadeScale } from "@/lib/utils/motion"
 import { MODAL_SIZES } from "@/constants/index"
 
 const { MODAL_MEDIUM } = MODAL_SIZES;

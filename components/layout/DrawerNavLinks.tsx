@@ -7,7 +7,7 @@ import { Link as Scroll } from "react-scroll"
 
 import useAccordion from "@/hooks/layout/useAccordion"
 import { navLinks } from "@/data/links"
-import { accordionAnimation } from "@/lib/motion"
+import { accordionAnimation } from "@/lib/utils/motion"
 import { ToggleIcon } from "@/components/common/icons/SvgIcons"
 import { DRAWER_CLOSE_DELAY, SITE_MAP } from "@/constants/index"
 

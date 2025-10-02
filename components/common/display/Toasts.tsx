@@ -2,7 +2,7 @@ import { toast } from "react-hot-toast";
 import { CircleX } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
-import { fadeInToast } from "@/lib/motion"
+import { fadeInToast } from "@/lib/utils/motion"
 import { CheckIcon, AlertIcon } from "@/components/common/icons/SvgIcons"
 
 interface ToastProps {

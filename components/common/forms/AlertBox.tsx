@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion"
 import { CircleAlert } from "lucide-react"
 
-import { fadeIn } from "@/lib/motion"
+import { fadeIn } from "@/lib/utils/motion"
 
 interface AlertBoxProps {
     message: string;

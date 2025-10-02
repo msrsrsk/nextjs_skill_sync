@@ -10,7 +10,7 @@ import Breadcrumb from "@/components/ui/navigation/Breadcrumb"
 import PageTitle from "@/components/common/display/PageTitle"
 import useFaqAccordion from "@/hooks/layout/useFaqAccordion"
 import { faqData } from "@/data/faq"
-import { accordionAnimation } from "@/lib/motion"
+import { accordionAnimation } from "@/lib/utils/motion"
 
 interface FaqItemProps {
     itemKey: string

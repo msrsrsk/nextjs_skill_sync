@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion"
 
-import { fadeIn } from "@/lib/motion"
+import { fadeIn } from "@/lib/utils/motion"
 
 const FormErrorText = ({ errorList }: { errorList: string[] }) => {
     return (

@@ -1,6 +1,6 @@
 import { motion } from "framer-motion"
 
-import { fadeInUp } from "@/lib/motion"
+import { fadeInUp } from "@/lib/utils/motion"
 
 interface FadeInUpContainerProps {
     children: React.ReactNode
