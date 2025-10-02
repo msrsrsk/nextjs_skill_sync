@@ -228,7 +228,7 @@ export const updateProductStockAndSoldCount = async ({ orderId }: { orderId: Ord
 export const updateOrderItemSubscriptionStatus = async ({
     subscriptionId,
     subscriptionStatus
-}: UpdateOrderItemSubscriptionStatusDataProps) => {
+}: UpdateSubscriptionStatusProps) => {
     try {
         const orderItemSubscriptionStatus = await updateOrderItemSubscriptionStatusData({ 
             subscriptionId, 

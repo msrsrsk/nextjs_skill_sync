@@ -301,7 +301,7 @@ declare global {
         productData: OptimalSyncsProductIds;
     }
 
-    interface GetAllCategoriesProductsSalesVolumeProps {
+    interface GetAllCategoriesProductsProps {
         limit?: number;
         threshold?: number;
     }
@@ -494,7 +494,7 @@ declare global {
         limit: number;
     }
 
-    interface UpdateOrderItemSubscriptionStatusDataProps {
+    interface UpdateSubscriptionStatusProps {
         subscriptionId: OrderItemSubscriptionId;
         subscriptionStatus: SubscriptionContractStatusType;
     }

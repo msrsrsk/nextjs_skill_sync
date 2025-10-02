@@ -177,7 +177,7 @@ export const getProductPriceBoundsData = async () => {
 export const getAllCategoriesProductsSalesVolumeData = async ({
     limit = TREND_LIMIT,
     threshold = TREND_PRODUCT_SALES_VOLUME_THRESHOLD
-}: GetAllCategoriesProductsSalesVolumeProps) => {
+}: GetAllCategoriesProductsProps) => {
     const categories = Object.values(SECTION_CATEGORIES);
     
     const results = await Promise.all(

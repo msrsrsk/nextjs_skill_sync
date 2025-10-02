@@ -95,7 +95,7 @@ export const getProductBySlug = async ({
 export const getAllCategoriesProductsSalesVolume = async ({
     limit = TREND_LIMIT,
     threshold = TREND_PRODUCT_SALES_VOLUME_THRESHOLD
-}: GetAllCategoriesProductsSalesVolumeProps) => {
+}: GetAllCategoriesProductsProps) => {
     try {
         const results = await getAllCategoriesProductsSalesVolumeData({
             limit,

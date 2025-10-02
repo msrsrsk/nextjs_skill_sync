@@ -147,7 +147,7 @@ export const getOrderItemSubscriptionNextPaymentData = async ({
 export const updateOrderItemSubscriptionStatusData = async ({
     subscriptionId,
     subscriptionStatus
-}: UpdateOrderItemSubscriptionStatusDataProps) => {
+}: UpdateSubscriptionStatusProps) => {
     return await prisma.orderItem.update({
         where: { subscription_id: subscriptionId },
         data: { subscription_status: subscriptionStatus }
