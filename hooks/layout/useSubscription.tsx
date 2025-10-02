@@ -4,7 +4,7 @@ import {
     useSubscriptionPurchaseTypeStore, 
     useSelectedSubscriptionOptionStore
 } from "@/app/stores/useStore"
-import { getDiscountRate } from "@/lib/utils/calculation"
+import { getDiscountRate } from "@/services/subscription-payment/calculation"
 import { SUBSCRIPTION_PURCHASE_TYPES } from "@/constants/index"
 
 const { ONE_TIME, SUBSCRIPTION } = SUBSCRIPTION_PURCHASE_TYPES;

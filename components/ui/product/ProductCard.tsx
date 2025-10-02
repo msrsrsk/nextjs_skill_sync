@@ -5,7 +5,7 @@ import ProductTag from "@/components/common/labels/ProductTag"
 import StarRating from "@/components/ui/review/StarRating"
 import TrendStatus from "@/components/common/labels/TrendStatus"
 import ProductPrice from "@/components/ui/product/ProductPrice"
-import { calculateAverageRating } from "@/lib/utils/calculation"
+import { calculateAverageRating } from "@/services/review/calculation"
 import { 
     NOIMAGE_PRODUCT_IMAGE_URL, 
     STAR_RATING_SIZES_TYPES, 

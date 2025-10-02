@@ -1,5 +1,5 @@
 import { getProductRepository, updateProductRepository } from "@/repository/product"
-import { calculateReviewStats } from "@/lib/utils/calculation"
+import { calculateReviewStats } from "@/services/review/calculation"
 import { 
     PRODUCTS_DISPLAY_CONFIG, 
     TREND_PRODUCT_SALES_VOLUME_THRESHOLD,

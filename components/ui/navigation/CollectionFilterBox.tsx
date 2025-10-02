@@ -5,7 +5,7 @@ import { SlidersHorizontal } from "lucide-react"
 import PriceRangeSlider from '@/components/ui/product/PriceRangeSlider'
 import FilterTitleBox from "@/components/common/display/FilterTitleBox"
 import useCollectionFilter from "@/hooks/data/useCollectionFilter"
-import { getStepByPriceRange } from "@/lib/utils/calculation"
+import { getStepByPriceRange } from "@/services/product/calculation"
 import { useCollectionFilterStore } from "@/app/stores/useStore"
 import { EventButtonPrimary } from "@/components/common/buttons/Button"
 import { BUTTON_TEXT_TYPES, BUTTON_TYPES, PRICE_SLIDER_CONFIG } from "@/constants/index"
