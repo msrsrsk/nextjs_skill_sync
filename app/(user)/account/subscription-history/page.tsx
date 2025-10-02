@@ -8,7 +8,6 @@ import SubscriptionListPagination from "@/components/ui/order/SubscriptionListPa
 import LoadingSpinner from "@/components/common/display/LoadingSpinner"
 import { generatePageMetadata } from "@/lib/metadata/page"
 import { requireServerAuth } from "@/lib/middleware/auth"
-import { getUserPaginatedSubscriptionData } from "@/lib/database/prisma/actions/orderItems"
 import { getOrderItemRepository } from "@/repository/orderItem"
 import { 
     SUBSCRIPTION_ORDER_HISTORY_PAGE_LIMIT, 
