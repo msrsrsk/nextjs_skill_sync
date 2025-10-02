@@ -8,6 +8,8 @@ import {
     DATE_FORMAT_CONFIG,
     ORDER_NUMBER_PADDING
 } from "@/constants/index"
+import { PAYMENT_ERROR_MAP } from "@/constants/error"
+import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { 
     ORDER_PENDING, 
@@ -120,4 +122,9 @@ export const formatOrderDateTime = (
 export const formatPaymentDueDate = (timestamp: number): string => {
     const dueDate = new Date(timestamp * TIMESTAMP_MULTIPLIER + PAYMENT_DUE_DATE);
     return formatDateCommon(dueDate, DATE_SLASH);
+}
+
+export const getPaymentErrorDetails = (errorType: string): string => {
+    const errorKey = PAYMENT_ERROR_MAP[errorType];
+    return errorKey ? ERROR_MESSAGES.PAYMENT_ERROR[errorKey] : ERROR_MESSAGES.PAYMENT_ERROR.UNKNOWN;
 }

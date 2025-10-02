@@ -6,7 +6,7 @@ import {
     formatOrderRemarks, 
     formatOrderNumber 
 } from "@/services/order/format"
-import { getPaymentErrorDetails } from "@/lib/utils/error"
+import { getPaymentErrorDetails } from "@/services/order/format"
 import { LOGO_IMAGE_PATH } from "@/constants/index"
 
 interface CompleteEmailProps {
