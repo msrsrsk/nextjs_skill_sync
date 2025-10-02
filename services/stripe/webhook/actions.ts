@@ -2,8 +2,8 @@ import { headers } from "next/headers"
 import { NextRequest, NextResponse } from "next/server"
 import { stripe } from "@/lib/clients/stripe/client"
 
-import { sendSubscriptionPaymentRequestEmail } from "@/lib/services/email/subscription/subscription-payment-request"
-import { createSubscriptionPayment } from "@/lib/services/subscription-payment/actions"
+import { sendSubscriptionPaymentRequestEmail } from "@/services/email/subscription/subscription-payment-request"
+import { createSubscriptionPayment } from "@/services/subscription-payment/actions"
 import { formatStripeSubscriptionStatus } from "@/lib/utils/format"
 import { NOIMAGE_PRODUCT_IMAGE_URL, SUBSCRIPTION_STATUS } from "@/constants/index"
 

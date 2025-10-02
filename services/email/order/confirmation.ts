@@ -3,7 +3,7 @@
 import { Resend } from "resend"
 
 import { orderCompleteEmailTemplate } from "@/lib/templates/email/order"
-import { getShippingRateAmount } from "@/lib/services/stripe/actions"
+import { getShippingRateAmount } from "@/services/stripe/actions"
 import { formatOrderDateTime } from "@/lib/utils/format"
 import { formatNumber, formatPaymentMethodType } from "@/lib/utils/format"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 import { handleWebhook } from "@/lib/utils/webhook"
-import { receiveChatNotificationEmail } from "@/lib/services/email/notification/chat"
-import { receiveStockNotificationEmail } from "@/lib/services/email/notification/stock"
+import { receiveChatNotificationEmail } from "@/services/email/notification/chat"
+import { receiveStockNotificationEmail } from "@/services/email/notification/stock"
 import { getNotificationRepository } from "@/repository/notification"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 

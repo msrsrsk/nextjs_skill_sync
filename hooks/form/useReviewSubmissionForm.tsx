@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react"
 import { useFormState } from "react-dom"
 
-import { createReviewAction } from "@/lib/services/review/actions"
+import { createReviewAction } from "@/services/review/actions"
 
 const useReviewSubmissionForm = () => {
     const [createState, createFormAction] = useFormState(createReviewAction, { 

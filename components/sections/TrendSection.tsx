@@ -4,7 +4,7 @@ import SectionTitle from "@/components/common/display/SectionTitle"
 import TrendSectionContent from "@/components/ui/other/TrendSectionContent"
 import LoadingSpinner from "@/components/common/display/LoadingSpinner"
 import ErrorMessage from "@/components/common/display/ErrorMessage"
-import { getAllCategoriesProductsSalesVolume } from "@/lib/services/product/actions"
+import { getAllCategoriesProductsSalesVolume } from "@/services/product/actions"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { PRODUCT_ERROR } = ERROR_MESSAGES;

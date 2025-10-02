@@ -1,7 +1,7 @@
 "use client"
 
 import { useFormStatus } from "react-dom"
-import { receiveContactEmail } from "@/lib/services/email/contact"
+import { receiveContactEmail } from "@/services/email/contact"
 
 import ContactStatus from "@/components/common/forms/ContactStatus"
 import UploadedFileList from "@/components/ui/form/UploadedFileList"

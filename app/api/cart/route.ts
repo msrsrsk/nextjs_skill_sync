@@ -7,7 +7,7 @@ import {
     updateCartItemQuantity,
     deleteCartItems, 
     deleteAllCartItems 
-} from "@/lib/services/cart-item/actions"
+} from "@/services/cart-item/actions"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { CART_ITEM_ERROR } = ERROR_MESSAGES;

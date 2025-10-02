@@ -3,13 +3,13 @@
 import { auth } from "@/lib/auth"
 import { actionAuth } from "@/lib/middleware/auth"
 import { updateUserRepository, deleteUserRepository } from "@/repository/user"
-import { urlToFile } from "@/lib/services/file/actions"
+import { urlToFile } from "@/services/file/actions"
 import { getUserImageRepository } from "@/repository/userImage"
 import { 
     uploadImageToR2,
     getAuthenticatedProfileImageUrl, 
     deleteProfileImage 
-} from "@/lib/services/cloudflare/actions"
+} from "@/services/cloudflare/actions"
 import { isDefaultIcon } from "@/lib/utils/validation"
 import { CLOUDFLARE_BUCKET_TYPES } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"

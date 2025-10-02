@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react"
 import { useFormState } from "react-dom"
 
-import { updateTelAction } from "@/lib/services/user/actions"
+import { updateTelAction } from "@/services/user/actions"
 import { showSuccessToast } from "@/components/common/display/Toasts"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 

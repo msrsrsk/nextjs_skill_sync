@@ -5,7 +5,7 @@ import {
     addBookmark, 
     removeBookmark, 
     removeAllBookmarks 
-} from "@/lib/services/bookmark/actions"
+} from "@/services/bookmark/actions"
 import { getUserBookmarkRepository } from "@/repository/bookmark"
 import { BOOKMARK_PAGE_DISPLAY_LIMIT } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"

@@ -7,7 +7,7 @@ import {
     deleteShippingAddressRepository 
 } from "@/repository/shippingAddress"
 import { getUserRepository } from "@/repository/user"
-import { updateCustomerShippingAddress } from "@/lib/services/stripe/actions"
+import { updateCustomerShippingAddress } from "@/services/stripe/actions"
 import { GET_USER_DATA_TYPES } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 

@@ -10,7 +10,7 @@ import {
     getOrderItemRepository,
     updateOrderItemRepository
 } from "@/repository/orderItem"
-import { updateStockAndSoldCount } from "@/lib/services/product/actions"
+import { updateStockAndSoldCount } from "@/services/product/actions"
 import { formatOrderRemarks } from "@/lib/utils/format"
 import { ORDER_STATUS } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"

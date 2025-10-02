@@ -3,7 +3,7 @@ import { createR2Client } from "@/lib/clients/cloudflare/client"
 import { requireServerAuth } from "@/lib/middleware/auth"
 import { PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3"
 import { getUserImageRepository } from "@/repository/userImage"
-import { updateUserImageFilePath } from "@/lib/services/user-image/actions"
+import { updateUserImageFilePath } from "@/services/user-image/actions"
 import { CLOUDFLARE_BUCKET_TYPES, FILE_UPLOAD_RANDOM_ID } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 
 import { requireUserId, requireServerAuth } from "@/lib/middleware/auth"
-import { getUserSubscriptionByProduct } from "@/lib/services/order/actions"
-import { createPaymentLink, cancelSubscription } from "@/lib/services/stripe/actions"
+import { getUserSubscriptionByProduct } from "@/services/order/actions"
+import { createPaymentLink, cancelSubscription } from "@/services/stripe/actions"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { CHECKOUT_ERROR, PRODUCT_ERROR, SUBSCRIPTION_ERROR } = ERROR_MESSAGES;

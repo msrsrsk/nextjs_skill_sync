@@ -7,7 +7,7 @@ import PageTitle from "@/components/common/display/PageTitle"
 import SyncLogContent from "@/components/ui/other/SyncLogContent"
 import LoadingSpinner from "@/components/common/display/LoadingSpinner"
 import ErrorMessage from "@/components/common/display/ErrorMessage"
-import { getPaginatedSyncLogByCategory } from "@/lib/services/microcms/actions"
+import { getPaginatedSyncLogByCategory } from "@/services/microcms/actions"
 import { isValidCategory } from "@/lib/utils/validation"
 import { generatePageMetadata } from "@/lib/metadata/page"
 import { 

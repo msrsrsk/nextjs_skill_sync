@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 
-import { deleteShippingAddress } from "@/lib/services/shipping-address/actions"
+import { deleteShippingAddress } from "@/services/shipping-address/actions"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { SHIPPING_ADDRESS_ERROR } = ERROR_MESSAGES;

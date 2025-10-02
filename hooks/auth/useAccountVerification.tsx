@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 
-import { verifyEmailToken } from "@/lib/services/auth/actions"
+import { verifyEmailToken } from "@/services/auth/actions"
 import { SITE_MAP, VERIFICATION_STATUS } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 

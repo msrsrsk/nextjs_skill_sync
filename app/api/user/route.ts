@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 
 import { requireUserId } from "@/lib/middleware/auth"
-import { deleteUser } from "@/lib/services/user/actions"
-import { deleteUserImage } from "@/lib/services/cloudflare/actions"
+import { deleteUser } from "@/services/user/actions"
+import { deleteUserImage } from "@/services/cloudflare/actions"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { USER_ERROR } = ERROR_MESSAGES;

@@ -6,8 +6,8 @@ import prisma from "@/lib/clients/prisma/client"
 import { signIn, signOut } from "@/lib/auth"
 
 import { actionAuth } from "@/lib/middleware/auth"
-import { sendVerificationEmail } from "@/lib/services/email/auth/verification"
-import { updatePasswordWithToken } from "@/lib/services/verification-token/actions"
+import { sendVerificationEmail } from "@/services/email/auth/verification"
+import { updatePasswordWithToken } from "@/services/verification-token/actions"
 import { 
     createUserRepository, 
     getUserRepository, 
@@ -18,7 +18,7 @@ import {
     updateUserPassword, 
     updateStripeCustomerId, 
     deleteUser 
-} from "@/lib/services/user/actions"
+} from "@/services/user/actions"
 import { createChatRoomRepository } from "@/repository/chatRoom"
 import { createChatRepository } from "@/repository/chat"
 import { 
@@ -26,7 +26,7 @@ import {
     getVerificationTokenRepository,
     deleteVerificationTokenRepository
 } from "@/repository/verificationToken"
-import { createCustomer } from "@/lib/services/stripe/actions"
+import { createCustomer } from "@/services/stripe/actions"
 import { createUserImageRepository } from "@/repository/userImage"
 import { 
     AUTH_TYPES, 

@@ -1,5 +1,5 @@
-import { getRuleBasedAnswer } from "@/lib/services/chat/rule-based"
-import { findSimilarTemplate } from "@/lib/services/chat/embedding"
+import { getRuleBasedAnswer } from "@/services/chat/rule-based"
+import { findSimilarTemplate } from "@/services/chat/embedding"
 import { CHAT_CONFIG, CHAT_SOURCE } from "@/constants/index"
 
 const { RULE_BASED, EMBEDDING_SEARCH, STAFF_CONFIRMING } = CHAT_SOURCE;

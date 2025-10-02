@@ -3,7 +3,7 @@ import { Suspense } from "react"
 import LoadingSpinner from "@/components/common/display/LoadingSpinner"
 import ReviewSectionContent from "@/components/ui/review/ReviewSectionContent"
 import ErrorMessage from "@/components/common/display/ErrorMessage"
-import { getSectionReviews } from "@/lib/services/review/actions"
+import { getSectionReviews } from "@/services/review/actions"
 
 const ReviewSection = () => {
     return (

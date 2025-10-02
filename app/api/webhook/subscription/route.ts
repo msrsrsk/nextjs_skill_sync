@@ -1,9 +1,9 @@
 import { stripe } from "@/lib/clients/stripe/client"
 import { NextRequest, NextResponse } from "next/server"
 
-import { verifyWebhookSignature } from "@/lib/services/stripe/webhook/actions"
-import { handleSubscriptionEvent } from "@/lib/services/stripe/webhook/actions"
-import { updateSubscriptionPaymentStatus } from "@/lib/services/subscription-payment/actions"
+import { verifyWebhookSignature } from "@/services/stripe/webhook/actions"
+import { handleSubscriptionEvent } from "@/services/stripe/webhook/actions"
+import { updateSubscriptionPaymentStatus } from "@/services/subscription-payment/actions"
 import { formatStripeSubscriptionStatus } from "@/lib/utils/format"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 

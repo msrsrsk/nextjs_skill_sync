@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { headers } from "next/headers"
 
-import { createStripeProduct, createStripePrice } from "@/lib/services/stripe/actions"
-import { updateProduct } from "@/lib/services/product/actions"
+import { createStripeProduct, createStripePrice } from "@/services/stripe/actions"
+import { updateProduct } from "@/services/product/actions"
 import { getRecurringConfig, formatCreateSubscriptionNickname } from "@/lib/utils/format"
 import { extractCreateSubscriptionPrices, extractUpdatedSubscriptionPriceIds } from "@/lib/utils/extractors"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"

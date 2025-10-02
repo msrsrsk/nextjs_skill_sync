@@ -5,8 +5,8 @@ import { stripe } from "@/lib/clients/stripe/client"
 import { actionAuth } from "@/lib/middleware/auth"
 import { getUserRepository } from "@/repository/user"
 import { getShippingAddressRepository } from "@/repository/shippingAddress"
-import { setDefaultShippingAddress } from "@/lib/services/shipping-address/actions"
-import { updateOrderItemSubscriptionStatus } from "@/lib/services/order/actions"
+import { setDefaultShippingAddress } from "@/services/shipping-address/actions"
+import { updateOrderItemSubscriptionStatus } from "@/services/order/actions"
 import { getRecurringConfig } from "@/lib/utils/format"
 import { 
     SITE_MAP, 

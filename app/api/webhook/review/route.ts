@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 
 import { handleWebhook } from "@/lib/utils/webhook"
-import { receiveReviewNotificationEmail } from "@/lib/services/email/notification/review"
-import { deleteReviewImage } from "@/lib/services/cloudflare/actions"
+import { receiveReviewNotificationEmail } from "@/services/email/notification/review"
+import { deleteReviewImage } from "@/services/cloudflare/actions"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { REVIEW_ERROR } = ERROR_MESSAGES;

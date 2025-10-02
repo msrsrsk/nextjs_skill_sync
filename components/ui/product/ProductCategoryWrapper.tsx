@@ -2,7 +2,7 @@ import { notFound } from "next/navigation"
 
 import ErrorMessage from "@/components/common/display/ErrorMessage"
 import ProductCategoryContent from "@/components/ui/product/ProductCategoryContent"
-import { getPaginatedProducts } from "@/lib/services/product/actions"
+import { getPaginatedProducts } from "@/services/product/actions"
 import { getProductRepository } from "@/repository/product"
 import { isValidCategory } from "@/lib/utils/validation"
 import { PRODUCTS_DISPLAY_CONFIG, CATEGORY_TAGS } from "@/constants/index"

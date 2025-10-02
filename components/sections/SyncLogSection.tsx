@@ -4,7 +4,7 @@ import SectionTitle from "@/components/common/display/SectionTitle"
 import SyncLogSectionContent from "@/components/ui/other/SyncLogSectionContent"
 import LoadingSpinner from "@/components/common/display/LoadingSpinner"
 import ErrorMessage from "@/components/common/display/ErrorMessage"
-import { getAllSyncLogLists } from "@/lib/services/microcms/actions"
+import { getAllSyncLogLists } from "@/services/microcms/actions"
 import { SYNC_LOG_DISPLAY_CONFIG } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 
-import { handleChatMessage } from "@/lib/services/chat/hybrid-search"
+import { handleChatMessage } from "@/services/chat/hybrid-search"
 import { CHAT_CONFIG, CHAT_SENDER_TYPES, CHAT_SOURCE, SITE_MAP } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 

@@ -4,7 +4,7 @@ import SearchForm from "@/components/common/forms/SearchForm"
 import PageCountText from "@/components/common/display/PageCountText"
 import ErrorMessage from "@/components/common/display/ErrorMessage"
 import NoDataText from "@/components/common/display/NoDataText"
-import { getPaginatedProducts } from "@/lib/services/product/actions"
+import { getPaginatedProducts } from "@/services/product/actions"
 import { SEARCH_PAGE_DISPLAY_LIMIT, PAGINATION_CONFIG } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
