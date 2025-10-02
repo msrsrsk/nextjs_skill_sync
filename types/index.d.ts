@@ -433,7 +433,6 @@ declare global {
     type ChatSentAt = Chat['sent_at'];
     type ChatSource = CHAT_SOURCE_TYPE;
 
-
     interface ChatProps {
         id: ChatId;
         message: ChatMessage;
@@ -442,10 +441,8 @@ declare global {
         source: ChatSource;
     }
 
-    interface ChatActionsProps {
-        message: ChatMessage;
+    interface ChatMessageProps extends Pick<ChatProps, 'message' | 'source'> {
         senderType: ChatSenderType;
-        source: ChatSource;
     }
 
 

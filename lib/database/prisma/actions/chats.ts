@@ -5,12 +5,12 @@ interface CreateChatRoomWithTransactionProps {
     userId: UserId;
 }
 
-interface CreateChatMessageWithTransactionProps extends ChatActionsProps {
+interface CreateChatMessageWithTransactionProps extends ChatMessageProps {
     tx: TransactionClient;
     chatRoomId: ChatRoomId;
 }
 
-interface CreateChatMessageDataProps extends ChatActionsProps {
+interface CreateChatMessageDataProps extends ChatMessageProps {
     chatRoomId: ChatRoomId;
 }
 

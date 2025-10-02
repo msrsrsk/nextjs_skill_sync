@@ -6,7 +6,7 @@ const { SENDER_ADMIN } = CHAT_SENDER_TYPES;
 const { HUMAN_SUPPORT } = CHAT_SOURCE;
 const { CHAT_ERROR } = ERROR_MESSAGES;
 
-interface CreateChatMessageByUserIdProps extends ChatActionsProps {
+interface CreateChatMessageByUserIdProps extends ChatMessageProps {
     userId: UserId;
 }
 
