@@ -28,6 +28,7 @@ import {
 } from "@/repository/verificationToken"
 import { createCustomer } from "@/services/stripe/actions"
 import { createUserImageRepository } from "@/repository/userImage"
+import { LoginCredentials } from "next-auth"
 import { 
     AUTH_TYPES, 
     EMAIL_VERIFICATION_TYPES, 
@@ -487,6 +488,29 @@ export async function createEmailVerificationTokenWithEmail(email: UserEmail) {
             error: AUTH_ERROR.TOKEN_SEND_PROCESS_FAILED,
             token: null
         }
+    }
+}
+
+// ユーザー認証
+export const authenticateUser = async (credentials: LoginCredentials) => {
+    const repository = getUserRepository();
+    const user = await repository.getUserByEmail({
+        email: credentials.email as string
+    })
+
+    if (!user || !user.password) return null;
+
+    const isPasswordValid = await bcrypt.compare(
+        credentials.password as string, 
+        user.password
+    )
+
+    if (!isPasswordValid) return null;
+
+    return {
+        id: user.id, 
+        email: user.email,
+        name: `${user.lastname} ${user.firstname}`,
     }
 }
 

@@ -10,6 +10,11 @@ declare module 'next-auth' {
         error?: string 
     }
 
+    interface LoginCredentials {
+        email: string;
+        password: string;
+    }
+
     interface NextAuthUser {
         id: string
         email: string

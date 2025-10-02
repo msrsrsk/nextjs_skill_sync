@@ -1,10 +1,10 @@
 import NextAuth from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 import prisma from "@/lib/clients/prisma/client"
-import bcrypt from "bcryptjs"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 
-import { getUserRepository } from "@/repository/user"
+import { authenticateUser } from "@/services/auth/actions"
+import { LoginCredentials } from "next-auth"
 import { SITE_MAP, SESSION_MAX_AGE } from "@/constants/index"
 
 const { 
@@ -28,25 +28,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             async authorize(credentials) {
                 if (!credentials) return null;
         
-                const repository = getUserRepository();
-                const user = await repository.getUserByEmail({
-                    email: credentials.email as string
-                })
-        
-                if (!user || !user.password) return null
-
-                const isPasswordValid = await bcrypt.compare(
-                    credentials.password as string, 
-                    user.password
+                return await authenticateUser(
+                    credentials as LoginCredentials
                 )
-
-                if (!isPasswordValid) return null
-        
-                return {
-                    id: user.id, 
-                    email: user.email,
-                    name: `${user.lastname} ${user.firstname}`,
-                }
             }
         }),
     ],
