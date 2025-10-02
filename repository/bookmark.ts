@@ -25,7 +25,7 @@ export const createUserBookmarkRepository = () => {
     }
 }
 
-export const getUserBookmarksRepository = () => {
+export const getUserBookmarkRepository = () => {
     return {
         // ユーザーのお気に入りデータの取得
         getUserBookmarks: async ({ 

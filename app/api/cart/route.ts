@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 
 import { requireUserId } from "@/lib/middleware/auth"
-import { 
-    getCartItemsData, 
-    getCartItemsByProductIdData 
-} from "@/lib/database/prisma/actions/cartItems"
+import { getCartItemRepository } from "@/repository/cartItem"
 import { 
     createCartItems, 
     updateCartItemQuantity,
@@ -24,7 +21,8 @@ export async function GET(request: NextRequest) {
     try {
         // throw new Error('test error');
 
-        const cartItemsResult = await getCartItemsData({
+        const repository = getCartItemRepository();
+        const cartItemsResult = await repository.getCartItems({
             userId: userId as UserId
         });
 
@@ -57,7 +55,8 @@ export async function POST(request: NextRequest) {
 
     try {
         // カートに商品が既にあるか確認
-        const checkCartItem = await getCartItemsByProductIdData({
+        const repository = getCartItemRepository();
+        const checkCartItem = await repository.getCartItemByProductId({
             userId: userId as UserId,
             productId: productId
         });

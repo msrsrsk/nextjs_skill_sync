@@ -4,7 +4,7 @@ import { Suspense } from "react"
 
 import LoadingSpinner from "@/components/common/display/LoadingSpinner"
 import ErrorMessage from "@/components/common/display/ErrorMessage"
-import { getProductsByIdsData } from "@/lib/database/prisma/actions/products"
+import { getProductRepository } from "@/repository/product"
 import { 
     NOIMAGE_PRODUCT_IMAGE_URL, 
     GET_PRODUCTS_PAGE_TYPES, 
@@ -23,7 +23,8 @@ interface ProductSyncConditionsProps {
 }
 
 const ProductSyncConditions = async ({ optimalSyncsArray }: ProductSyncConditionsProps) => {
-    const productsResult = await getProductsByIdsData({
+    const repository = getProductRepository();
+    const productsResult = await repository.getProductsByIds({
         ids: optimalSyncsArray,
         pageType: SYNC_CONDITIONS
     });

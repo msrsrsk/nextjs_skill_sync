@@ -8,7 +8,7 @@ import OrderHistoryListPagination from "@/components/ui/order/OrderHistoryListPa
 import LoadingSpinner from "@/components/common/display/LoadingSpinner"
 import { generatePageMetadata } from "@/lib/metadata/page"
 import { requireServerAuth } from "@/lib/middleware/auth"
-import { getUserPaginatedOrdersData } from "@/lib/database/prisma/actions/orders"
+import { getOrderRepository } from "@/repository/order"
 import { ORDER_HISTORY_CATEGORIES, ORDER_HISTORY_PAGE_LIMIT, DEFAULT_PAGE } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 import { USER_METADATA } from "@/constants/metadata/user"
@@ -49,7 +49,8 @@ const OrderHistoryWrapper = async ({
 }: SearchParamsPageCategory) => {
     const { userId } = await requireServerAuth();
 
-    const { data } = await getUserPaginatedOrdersData({
+    const repository = getOrderRepository();
+    const { data } = await repository.getUserPaginatedOrders({
         userId,
         category, 
         page, 

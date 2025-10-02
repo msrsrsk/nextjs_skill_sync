@@ -16,7 +16,7 @@ export const createShippingAddressRepository = () => {
 export const getShippingAddressRepository = () => {
     return {
         // ユーザーのデフォルトの住所データの取得
-        getDefaultShippingAddressByUserId: async ({ 
+        getUserDefaultShippingAddress: async ({ 
             userId 
         }: UserIdProps) => {
             return await prisma.shippingAddress.findFirst({

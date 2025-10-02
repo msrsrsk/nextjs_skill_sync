@@ -2,12 +2,11 @@
 
 import { actionAuth } from "@/lib/middleware/auth"
 import { 
-    createShippingAddressData,
-    updateShippingAddressData,
-    deleteShippingAddressData,
-    setDefaultShippingAddressData
-} from "@/lib/database/prisma/actions/shippingAddresses"
-import { getUserData } from "@/lib/database/prisma/actions/users"
+    createShippingAddressRepository, 
+    updateShippingAddressRepository, 
+    deleteShippingAddressRepository 
+} from "@/repository/shippingAddress"
+import { getUserRepository } from "@/repository/user"
 import { updateCustomerShippingAddress } from "@/lib/services/stripe/actions"
 import { GET_USER_DATA_TYPES } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
@@ -24,7 +23,8 @@ export const createShippingAddress = async ({
     address
 }: { address: ShippingAddress }) => {
     try {
-        const shippingAddress = await createShippingAddressData({ address });
+        const repository = createShippingAddressRepository();
+        const shippingAddress = await repository.createShippingAddress({ address });
 
         return {
             success: true, 
@@ -48,7 +48,8 @@ export const updateShippingAddress = async ({
     shippingAddress
 }: UpdateShippingAddressProps) => {
     try {
-        const shippingAddressData = await updateShippingAddressData({
+        const repository = updateShippingAddressRepository();
+        const shippingAddressData = await repository.updateShippingAddress({
             id,
             shippingAddress
         });
@@ -74,7 +75,8 @@ export const setDefaultShippingAddress = async ({
     addressId
 }: { addressId: ShippingAddressId }) => {
     try {
-        await setDefaultShippingAddressData({ addressId });
+        const repository = updateShippingAddressRepository();
+        await repository.updateDefaultShippingAddressesWithTransaction({ addressId });
 
         return {
             success: true, 
@@ -93,7 +95,8 @@ export const setDefaultShippingAddress = async ({
 // 住所の削除
 export const deleteShippingAddress = async ({ id }: { id: ShippingAddressId }) => {
     try {
-        await deleteShippingAddressData({ id });
+        const repository = deleteShippingAddressRepository();
+        await repository.deleteShippingAddress({ id });
 
         return {
             success: true, 
@@ -274,7 +277,8 @@ export async function updateDefaultShippingAddressAction(
             }
         }
 
-        const stripeCustomerId = await getUserData({
+        const repository = getUserRepository();
+        const stripeCustomerId = await repository.getUser({
             userId,
             getType: CUSTOMER_ID_DATA
         });

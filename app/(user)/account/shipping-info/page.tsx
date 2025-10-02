@@ -8,7 +8,7 @@ import LoadingSpinner from "@/components/common/display/LoadingSpinner"
 import ErrorMessage from "@/components/common/display/ErrorMessage"
 import { generatePageMetadata } from "@/lib/metadata/page"
 import { requireServerAuth } from "@/lib/middleware/auth"
-import { getAllShippingAddressesData } from "@/lib/database/prisma/actions/shippingAddresses"
+import { getShippingAddressRepository } from "@/repository/shippingAddress"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 import { USER_METADATA } from "@/constants/metadata/user"
 
@@ -38,7 +38,8 @@ const ShippingInfoPage = () => {
 const ShippingInfoWrapper = async () => {
     const { userId } = await requireServerAuth();
 
-    const { data } = await getAllShippingAddressesData({ userId });
+    const repository = getShippingAddressRepository();
+    const { data } = await repository.getUserAllShippingAddresses({ userId });
     // const { data } = { data: undefined };
 
     if (!data) {

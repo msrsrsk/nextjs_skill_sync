@@ -8,7 +8,7 @@ import LoadingSpinner from "@/components/common/display/LoadingSpinner"
 import ErrorMessage from "@/components/common/display/ErrorMessage"
 import { generatePageMetadata } from "@/lib/metadata/page"
 import { requireServerAuth } from "@/lib/middleware/auth"
-import { getChatRoomData } from "@/lib/database/prisma/actions/chats"
+import { getChatRoomRepository } from "@/repository/chatRoom"
 import { BUSINESS_HOURS_CONFIG } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 import { USER_METADATA } from "@/constants/metadata/user"
@@ -40,7 +40,8 @@ const SupportChatPage = () => {
 const SupportChatWrapper = async () => {
     const { userId } = await requireServerAuth();
 
-    const chatResult = await getChatRoomData({ userId });
+    const chatRoomRepository = getChatRoomRepository();
+    const chatResult = await chatRoomRepository.getChatRoom({ userId });
     // const chatResult = undefined;
 
     if (!chatResult) {

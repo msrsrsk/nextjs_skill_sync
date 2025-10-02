@@ -3,7 +3,7 @@ import { Suspense } from "react"
 
 import LoadingSpinner from "@/components/common/display/LoadingSpinner"
 import ErrorMessage from "@/components/common/display/ErrorMessage"
-import { getOrderByIdData } from "@/lib/database/prisma/actions/orders"
+import { getOrderRepository } from "@/repository/order"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { ORDER_ERROR } = ERROR_MESSAGES;
@@ -43,7 +43,8 @@ const ReceiptPrintWrapper = async ({
     isSubscription = false,
     subscriptionPaymentId
 }: ReceiptPrintWrapperProps) => {
-    const orderResult = await getOrderByIdData({
+    const repository = getOrderRepository();
+    const orderResult = await repository.getOrderById({
         orderId: id,
         isSubscription
     });

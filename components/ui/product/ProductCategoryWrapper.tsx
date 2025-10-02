@@ -3,7 +3,7 @@ import { notFound } from "next/navigation"
 import ErrorMessage from "@/components/common/display/ErrorMessage"
 import ProductCategoryContent from "@/components/ui/product/ProductCategoryContent"
 import { getPaginatedProducts } from "@/lib/services/product/actions"
-import { getProductPriceBoundsData } from "@/lib/database/prisma/actions/products"
+import { getProductRepository } from "@/repository/product"
 import { isValidCategory } from "@/lib/utils/validation"
 import { PRODUCTS_DISPLAY_CONFIG, CATEGORY_TAGS } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
@@ -42,7 +42,8 @@ const ProductCategoryWrapper = async ({
 
     const categoryType = isAll ? undefined : (categoryTitile as CategoryType);
 
-    const { data: priceBoundsData } = await getProductPriceBoundsData();
+    const productRepository = getProductRepository();
+    const { data: priceBoundsData } = await productRepository.getProductPriceBounds();
 
     if (!priceBoundsData) {
         return <ErrorMessage message={PRODUCT_ERROR.PRICE_FETCH_FAILED} />

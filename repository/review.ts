@@ -39,7 +39,7 @@ export const createReviewRepository = () => {
 export const getReviewRepository = () => {
     return {
         // 全てのレビューデータの取得
-        getAllReviewsData: async () => {
+        getAllReviews: async () => {
             // ユーザーデータがあるレビュー
             const reviewsWithUser = await prisma.review.findMany({
                 where: {

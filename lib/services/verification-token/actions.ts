@@ -1,6 +1,6 @@
 "use server"
 
-import { getVerificationTokenData } from "@/lib/database/prisma/actions/verificationToken"
+import { getVerificationTokenRepository } from "@/repository/verificationToken"
 import { resetPassword } from "@/lib/services/auth/actions"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
@@ -11,7 +11,8 @@ export const updatePasswordWithToken = async (
     password: string
 ) => {
     try {
-        const verificationToken = await getVerificationTokenData({ token });
+        const repository = getVerificationTokenRepository();
+        const verificationToken = await repository.getVerificationToken({ token });
 
         if (!verificationToken) {
             throw new Error(USER_ERROR.PASSWORD_RESET_MISSING_DATA);

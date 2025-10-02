@@ -1,8 +1,7 @@
 import { 
-    createUserBookmarkData, 
-    deleteUserBookmarkData,
-    deleteAllUserBookmarksData
-} from "@/lib/database/prisma/actions/bookmarks"
+    createUserBookmarkRepository, 
+    deleteUserBookmarkRepository
+} from "@/repository/bookmark"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { BOOKMARK_ERROR } = ERROR_MESSAGES;
@@ -16,7 +15,8 @@ export const addBookmark = async ({
     productId 
 }: BookmarkActionsProps) => {
     try {
-        await createUserBookmarkData({ userId, productId });
+        const repository = createUserBookmarkRepository();
+        await repository.createUserBookmark({ userId, productId });
 
         return {
             success: true, 
@@ -38,7 +38,8 @@ export const removeBookmark = async ({
     productId
 }: BookmarkActionsProps) => {
     try {
-        await deleteUserBookmarkData({ userId, productId });
+        const repository = deleteUserBookmarkRepository();
+        await repository.deleteUserBookmark({ userId, productId });
 
         return {
             success: true, 
@@ -57,7 +58,8 @@ export const removeBookmark = async ({
 
 export const removeAllBookmarks = async ({ userId }: UserIdProps) => {
     try {
-        await deleteAllUserBookmarksData({ userId });
+        const repository = deleteUserBookmarkRepository();
+        await repository.deleteUserAllBookmarks({ userId });
 
         return {
             success: true, 

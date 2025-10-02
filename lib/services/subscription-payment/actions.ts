@@ -1,8 +1,8 @@
-import { createSubscriptionPaymentData } from "@/lib/database/prisma/actions/subscriptionPayments"
 import { 
-    getLatestSubscriptionPaymentData, 
-    updateSubscriptionPaymentStatusData 
-} from "@/lib/database/prisma/actions/subscriptionPayments"
+    createSubscriptionPaymentRepository, 
+    getSubscriptionPaymentRepository, 
+    updateSubscriptionPaymentRepository 
+} from "@/repository/subscriptionPayment"
 
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
@@ -18,7 +18,10 @@ export const createSubscriptionPayment = async ({
     subscriptionPaymentData 
 }: { subscriptionPaymentData: SubscriptionPayment }) => {
     try {
-        const subscriptionPayment = await createSubscriptionPaymentData({ subscriptionPaymentData });
+        const repository = createSubscriptionPaymentRepository();
+        const subscriptionPayment = await repository.createSubscriptionPayment({ 
+            subscriptionPaymentData 
+        });
 
         return {
             success: true, 
@@ -41,7 +44,8 @@ export const updateSubscriptionPaymentStatus = async ({
     status
 }: updateSubscriptionPaymentStatusProps) => {
     try {
-        const latestPayment = await getLatestSubscriptionPaymentData({ subscriptionId });
+        const getRepository = getSubscriptionPaymentRepository();
+        const latestPayment = await getRepository.getSubscriptionPayment({ subscriptionId });
     
         if (!latestPayment) {
             return {
@@ -51,7 +55,8 @@ export const updateSubscriptionPaymentStatus = async ({
             }
         }
     
-        const updatedPayment = await updateSubscriptionPaymentStatusData({
+        const updateRepository = updateSubscriptionPaymentRepository();
+        const updatedPayment = await updateRepository.updateSubscriptionPaymentStatus({
             latestPaymentId: latestPayment.id,
             status
         });

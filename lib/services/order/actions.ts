@@ -1,11 +1,15 @@
 import { stripe } from "@/lib/clients/stripe/client"
 
-import { createOrderData, getOrderByIdWithOrderItemsData, deleteOrderData } from "@/lib/database/prisma/actions/orders"
 import { 
-    createOrderItemsData, 
-    getUserSubscriptionByProductData, 
-    updateOrderItemSubscriptionStatusData 
-} from "@/lib/database/prisma/actions/orderItems"
+    createOrderRepository, 
+    getOrderRepository, 
+    deleteOrderRepository 
+} from "@/repository/order"
+import { 
+    createOrderItemRepository, 
+    getOrderItemRepository,
+    updateOrderItemRepository
+} from "@/repository/orderItem"
 import { updateStockAndSoldCount } from "@/lib/services/product/actions"
 import { formatOrderRemarks } from "@/lib/utils/format"
 import { ORDER_STATUS } from "@/constants/index"
@@ -22,7 +26,8 @@ interface CreateCheckoutOrderItemsProps {
 // 注文データの作成
 export const createOrder = async ({ orderData }: { orderData: Order }) => {
     try {
-        const order = await createOrderData({ orderData });
+        const repository = createOrderRepository();
+        const order = await repository.createOrder({ orderData });
 
         return {
             success: true, 
@@ -137,7 +142,8 @@ export const createCheckoutOrderItems = async ({
             remarks: formatOrderRemarks(item),
         }));
 
-        const orderItems = await createOrderItemsData({ orderItemsData });
+        const repository = createOrderItemRepository();
+        const orderItems = await repository.createOrderItems({ orderItemsData });
 
         return {
             success: true, 
@@ -161,7 +167,8 @@ export const getUserSubscriptionByProduct = async ({
     userId
 }: GetUserSubscriptionByProductProps) => {
     try {
-        const subscriptionCount = await getUserSubscriptionByProductData({ 
+        const repository = getOrderItemRepository();
+        const subscriptionCount = await repository.getUserSubscriptionByProduct({ 
             productId,
             userId
         });
@@ -185,7 +192,8 @@ export const getUserSubscriptionByProduct = async ({
 // 注文履歴の情報から商品の在庫数と売り上げ数を更新
 export const updateProductStockAndSoldCount = async ({ orderId }: { orderId: OrderId }) => {
     try {
-        const orderItemsResult = await getOrderByIdWithOrderItemsData({
+        const repository = getOrderRepository();
+        const orderItemsResult = await repository.getOrderByIdWithOrderItems({
             orderId
         });
 
@@ -230,7 +238,8 @@ export const updateOrderItemSubscriptionStatus = async ({
     subscriptionStatus
 }: UpdateSubscriptionStatusProps) => {
     try {
-        const orderItemSubscriptionStatus = await updateOrderItemSubscriptionStatusData({ 
+        const repository = updateOrderItemRepository();
+        const orderItemSubscriptionStatus = await repository.updateSubscriptionStatus({ 
             subscriptionId, 
             subscriptionStatus 
         });
@@ -254,7 +263,8 @@ export const updateOrderItemSubscriptionStatus = async ({
 // 注文履歴の削除
 export const deleteOrder = async ({ orderId }: { orderId: OrderId }) => {
     try {
-        await deleteOrderData({ orderId });
+        const repository = deleteOrderRepository();
+        await repository.deleteOrder({ orderId });
 
         return {
             success: true, 

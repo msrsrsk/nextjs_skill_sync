@@ -1,11 +1,7 @@
 "use server"
 
 import { actionAuth } from "@/lib/middleware/auth"
-import { 
-    createReviewData, 
-    getSectionReviewsData,
-    getProductReviewsData
-} from "@/lib/database/prisma/actions/reviews"
+import { createReviewRepository, getReviewRepository } from "@/repository/review"
 import { uploadImageToR2 } from "@/lib/services/cloudflare/actions"
 import { CLOUDFLARE_BUCKET_TYPES } from "@/constants/index"
 import { ERROR_MESSAGES } from '@/constants/errorMessages'
@@ -16,7 +12,8 @@ const { AUTH_ERROR, REVIEW_ERROR } = ERROR_MESSAGES;
 // レビューの作成
 export const createReview = async ({ reviewData }: { reviewData: Review }) => {
     try {
-        const review = await createReviewData({ reviewData });
+        const repository = createReviewRepository();
+        const review = await repository.createReview({ reviewData });
 
         return {
             success: true, 
@@ -37,7 +34,8 @@ export const createReview = async ({ reviewData }: { reviewData: Review }) => {
 // Reviewセクションの全てのレビューデータの取得
 export const getSectionReviews = async () => {
     try {
-        const { reviews, totalCount } = await getSectionReviewsData();
+        const repository = getReviewRepository();
+        const { reviews, totalCount } = await repository.getAllReviews();
 
         return {
             success: true, 
@@ -63,7 +61,8 @@ export const getProductReviews = async ({
     productSlug
 }: { productSlug: ProductSlug }) => {
     try {
-        const { reviews, totalCount } = await getProductReviewsData({ productSlug });
+        const repository = getReviewRepository();
+        const { reviews, totalCount } = await repository.getProductReviews({ productSlug });
 
         return {
             success: true, 

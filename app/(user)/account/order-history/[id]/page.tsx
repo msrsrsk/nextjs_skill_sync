@@ -14,7 +14,7 @@ import OrderInfoDisplay from "@/components/ui/order/OrderInfoDisplay"
 import OrderAddressDisplay from "@/components/ui/order/OrderAddressDisplay"
 import { generatePageMetadata } from "@/lib/metadata/page"
 import { formatDate } from "@/lib/utils/format"
-import { getOrderByIdData } from "@/lib/database/prisma/actions/orders"
+import { getOrderRepository } from "@/repository/order"
 import { formatOrderNumber } from "@/lib/utils/format"
 import { 
     ORDER_STATUS, 
@@ -45,7 +45,8 @@ export async function generateMetadata({
 }
 
 const OrderHistoryDetailPage = async ({ params }: { params: { id: OrderId } }) => {
-    const orderResult = await getOrderByIdData({
+    const repository = getOrderRepository();
+    const orderResult = await repository.getOrderById({
         orderId: params.id
     });
 

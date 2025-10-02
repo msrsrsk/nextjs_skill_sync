@@ -9,24 +9,25 @@ import { actionAuth } from "@/lib/middleware/auth"
 import { sendVerificationEmail } from "@/lib/services/email/auth/verification"
 import { updatePasswordWithToken } from "@/lib/services/verification-token/actions"
 import { 
-    checkExistingUserData, 
-    getUserData, 
-    createUserWithTransaction, 
-    updatedUserPasswordWithTransaction 
-} from "@/lib/database/prisma/actions/users"
-import { updateUserEmail, updateUserPassword, updateStripeCustomerId, deleteUser } from "@/lib/services/user/actions"
+    createUserRepository, 
+    getUserRepository, 
+    updateUserRepository 
+} from "@/repository/user"
 import { 
-    deleteVerificationTokenWithTransaction, 
-    createVerificationTokenData, 
-    createEmailVerificationTokenData, 
-    getVerificationTokenData 
-} from "@/lib/database/prisma/actions/verificationToken"
+    updateUserEmail, 
+    updateUserPassword, 
+    updateStripeCustomerId, 
+    deleteUser 
+} from "@/lib/services/user/actions"
+import { createChatRoomRepository } from "@/repository/chatRoom"
+import { createChatRepository } from "@/repository/chat"
 import { 
-    createChatRoomWithTransaction, 
-    createChatMessageWithTransaction 
-} from "@/lib/database/prisma/actions/chats"
+    createVerificationTokenRepository, 
+    getVerificationTokenRepository,
+    deleteVerificationTokenRepository
+} from "@/repository/verificationToken"
 import { createCustomer } from "@/lib/services/stripe/actions"
-import { createUserImageWithTransaction } from "@/lib/database/prisma/actions/userImage"
+import { createUserImageRepository } from "@/repository/userImage"
 import { 
     AUTH_TYPES, 
     EMAIL_VERIFICATION_TYPES, 
@@ -76,7 +77,8 @@ export async function createAccountWithEmailAction(
             password 
         } as UserData;
 
-        const existingUser = await checkExistingUserData({
+        const repository = getUserRepository();
+        const existingUser = await repository.getUserByEmail({
             email: userData.email
         });
 
@@ -160,7 +162,8 @@ export async function sendVerificationEmailAction(
     const email = formData.get('email') as UserEmail;
 
     try {
-        const existingUser = await checkExistingUserData({ email });
+        const repository = getUserRepository();
+        const existingUser = await repository.getUserByEmail({ email });
 
         if (type === EMAIL_RESET_PASSWORD_PAGE) {
             if (!existingUser) {
@@ -248,14 +251,17 @@ export const registerUserWithChat = async (
 ) => {
     try {
         return await prisma.$transaction(async (tx) => {
-            const user = await createUserWithTransaction({ tx, userData });
+            const repository = createUserRepository();
+            const user = await repository.createUserWithTransaction({ tx, userData });
 
-            const chatRoom = await createChatRoomWithTransaction({
+            const chatRoomRepository = createChatRoomRepository();
+            const chatRoom = await chatRoomRepository.createChatRoomWithTransaction({
                 tx, 
                 userId: user.id
             });
             
-            await createChatMessageWithTransaction({
+            const chatRepository = createChatRepository();
+            await chatRepository.createChatMessageWithTransaction({
                 tx, 
                 chatRoomId: chatRoom.id, 
                 message: CHAT_HISTORY_INITIAL_MESSAGE, 
@@ -263,12 +269,14 @@ export const registerUserWithChat = async (
                 source: CHAT_SOURCE.INITIAL
             });
 
-            await createUserImageWithTransaction({
+            const userImageRepository = createUserImageRepository();
+            await userImageRepository.createUserImageWithTransaction({
                 tx,
                 userId: user.id
             });
 
-            await deleteVerificationTokenWithTransaction({
+            const verificationTokenRepository = deleteVerificationTokenRepository();
+            await verificationTokenRepository.deleteVerificationTokenWithTransaction({
                 tx,
                 token
             });
@@ -297,7 +305,8 @@ export async function createVerificationTokenWithPassword(userData: UserData) {
     const hashedPassword = await bcrypt.hash(userData.password, PASSWORD_HASH_ROUNDS);
 
     try {
-        await createVerificationTokenData({
+        const repository = createVerificationTokenRepository();
+        await repository.createVerificationToken({
             verificationData: {
                 identifier: userData.email,
                 token,
@@ -332,7 +341,8 @@ export async function verifyEmailToken(
     verifyEmailType: VerifyEmailType
 ) {
     try {
-        const verificationToken = await getVerificationTokenData({ token });
+        const repository = getVerificationTokenRepository();
+        const verificationToken = await repository.getVerificationToken({ token });
 
         if (!verificationToken) {
             throw new Error(AUTH_ERROR.NOT_FOUND_TOKEN)
@@ -455,7 +465,8 @@ export async function createEmailVerificationTokenWithEmail(email: UserEmail) {
     const expires = new Date(new Date().getTime() + EXPIRATION_TIME);
 
     try {
-        await createEmailVerificationTokenData({
+        const repository = createVerificationTokenRepository();
+        await repository.createEmailVerificationToken({
             emailVerificationData: {
                 identifier: email,
                 token,
@@ -545,13 +556,15 @@ export const resetPassword = async (
     password: UserPassword
 ) => {
     return await prisma.$transaction(async (tx) => {
-        const user = await updatedUserPasswordWithTransaction({
+        const userRepository = updateUserRepository();
+        const user = await userRepository.updateUserPasswordWithTransaction({
             tx, 
             verificationToken, 
             password
         });
 
-        await deleteVerificationTokenWithTransaction({
+        const verificationTokenRepository = deleteVerificationTokenRepository();
+        await verificationTokenRepository.deleteVerificationTokenWithTransaction({
             tx,
             token: verificationToken.token
         });
@@ -563,7 +576,8 @@ export const resetPassword = async (
 // パスワードのリセットトークンの認証
 export async function verifyResetPasswordToken(token: string) {
     try {
-        const resetToken = await getVerificationTokenData({ token });
+        const repository = getVerificationTokenRepository();
+        const resetToken = await repository.getVerificationToken({ token });
 
         if (!resetToken) {
             throw new Error(AUTH_ERROR.NOT_FOUND_PASSWORD_TOKEN)
@@ -609,7 +623,8 @@ export async function signInWithCredentialsAction(
         if (type === AUTH_REAUTHENTICATE) {
             const { user } = await actionAuth(AUTH_ERROR.SESSION_NOT_FOUND);
 
-            const userData = await getUserData({
+            const repository = getUserRepository();
+            const userData = await repository.getUser({
                 userId: user?.id as UserId,
                 getType: EMAIL_DATA
             });

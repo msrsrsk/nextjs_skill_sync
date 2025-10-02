@@ -4,7 +4,7 @@ import prisma from "@/lib/database/prisma/client"
 import bcrypt from "bcryptjs"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 
-import { checkExistingUserData } from "@/lib/database/prisma/actions/users"
+import { getUserRepository } from "@/repository/user"
 import { SITE_MAP, SESSION_MAX_AGE } from "@/constants/index"
 
 const { 
@@ -28,7 +28,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             async authorize(credentials) {
                 if (!credentials) return null;
         
-                const user = await checkExistingUserData({
+                const repository = getUserRepository();
+                const user = await repository.getUserByEmail({
                     email: credentials.email as string
                 })
         

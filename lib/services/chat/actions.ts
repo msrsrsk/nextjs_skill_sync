@@ -1,4 +1,5 @@
-import { getChatRoomIdByUserIdData, createChatMessageData } from "@/lib/database/prisma/actions/chats"
+import { getChatRoomRepository } from "@/repository/chatRoom"
+import { createChatRepository } from "@/repository/chat"
 import { CHAT_SENDER_TYPES, CHAT_SOURCE } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
@@ -18,7 +19,8 @@ export const createChatMessageByUserId = async ({
     source = HUMAN_SUPPORT
 }: CreateChatMessageByUserIdProps) => {
     try {
-        const chatRoom = await getChatRoomIdByUserIdData({ userId });
+        const chatRoomRepository = getChatRoomRepository();
+        const chatRoom = await chatRoomRepository.getUserChatRoomId({ userId });
 
         if (!chatRoom) {
             return {
@@ -27,7 +29,8 @@ export const createChatMessageByUserId = async ({
             }
         }
 
-        const chatMessage = await createChatMessageData({
+        const chatRepository = createChatRepository();
+        const chatMessage = await chatRepository.createChatMessage({
             chatRoomId: chatRoom.id,
             message,
             senderType,

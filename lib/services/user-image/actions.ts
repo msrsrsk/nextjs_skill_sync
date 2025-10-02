@@ -1,4 +1,4 @@
-import { updateUserImageFilePathData } from "@/lib/database/prisma/actions/userImage"
+import { updateUserImageRepository } from "@/repository/userImage"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { USER_IMAGE_ERROR } = ERROR_MESSAGES;
@@ -8,7 +8,8 @@ export const updateUserImageFilePath = async ({
     filePath
 }: UpdateUserImageFilePathProps) => {
     try {
-        await updateUserImageFilePathData({ userId, filePath });
+        const repository = updateUserImageRepository();
+        await repository.updateUserImageFilePath({ userId, filePath });
 
         return {
             success: true,

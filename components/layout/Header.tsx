@@ -1,15 +1,16 @@
 import HeaderContent from "@/components/ui/navigation/HeaderContent"
 import CartCountProvider from "@/components/layout/CartCountProvider"
 import { auth } from "@/lib/auth"
-import { getProductPriceBoundsData } from "@/lib/database/prisma/actions/products"
-import { getCartCountData } from "@/lib/database/prisma/actions/cartItems"
+import { getCartItemRepository } from "@/repository/cartItem"
+import { getProductRepository } from "@/repository/product"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { PRODUCT_ERROR } = ERROR_MESSAGES;
 
 const Header = async () => {
     // 価格データの取得
-    const { data } = await getProductPriceBoundsData();
+    const productRepository = getProductRepository();
+    const { data } = await productRepository.getProductPriceBounds();
 
     if (!data) throw new Error(PRODUCT_ERROR.PRICE_FETCH_FAILED);
 
@@ -20,7 +21,8 @@ const Header = async () => {
     const userId = session?.user?.id as UserId;
 
     if (userId) {
-        cartItemsCount = await getCartCountData({ 
+        const cartItemRepository = getCartItemRepository();
+        cartItemsCount = await cartItemRepository.getCartCount({ 
             userId: userId as UserId 
         });
     }

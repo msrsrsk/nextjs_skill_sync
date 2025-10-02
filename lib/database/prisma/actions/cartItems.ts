@@ -76,7 +76,7 @@ export const updateCartItemQuantityData = async ({
     userId,
     productId,
     quantity
-}: UpdateCartItemQuantityDataProps) => {
+}: UpdateCartItemQuantityProps) => {
     return await prisma.cartItem.update({
         where: { 
             user_product_unique: { 

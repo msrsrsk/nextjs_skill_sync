@@ -360,7 +360,7 @@ declare global {
 
     type CartItemCreateInput = Prisma.CartItemCreateInput;
 
-    interface UpdateCartItemQuantityDataProps {
+    interface UpdateCartItemQuantityProps {
         userId: UserId,
         productId: ProductId,
         quantity: number

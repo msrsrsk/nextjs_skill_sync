@@ -3,8 +3,8 @@
 import { stripe } from "@/lib/clients/stripe/client"
 
 import { actionAuth } from "@/lib/middleware/auth"
-import { getUserData } from "@/lib/database/prisma/actions/users"
-import { getShippingAddressByIdData } from "@/lib/database/prisma/actions/shippingAddresses"
+import { getUserRepository } from "@/repository/user"
+import { getShippingAddressRepository } from "@/repository/shippingAddress"
 import { setDefaultShippingAddress } from "@/lib/services/shipping-address/actions"
 import { updateOrderItemSubscriptionStatus } from "@/lib/services/order/actions"
 import { getRecurringConfig } from "@/lib/utils/format"
@@ -139,7 +139,8 @@ export const createCheckoutSession = async ({
 }: CreateCheckoutSessionProps) => {
     try {
         // ユーザーのStripe顧客IDを取得
-        const stripeCustomerId = await getUserData({
+        const repository = getUserRepository();
+        const stripeCustomerId = await repository.getUser({
             userId,
             getType: CUSTOMER_ID_DATA
         });
@@ -362,7 +363,8 @@ export async function setDefaultShippingAddressAction(
             }
         }
 
-        const newDefaultAddressResult = await getShippingAddressByIdData({
+        const shippingAddressRepository = getShippingAddressRepository();
+        const newDefaultAddressResult = await shippingAddressRepository.getShippingAddressById({
             addressId: newDefaultAddressId
         });
 
@@ -374,7 +376,8 @@ export async function setDefaultShippingAddressAction(
             }
         }
 
-        const stripeCustomerIdResult = await getUserData({
+        const userRepository = getUserRepository();
+        const stripeCustomerIdResult = await userRepository.getUser({
             userId: userId as UserId,
             getType: CUSTOMER_ID_DATA
         });

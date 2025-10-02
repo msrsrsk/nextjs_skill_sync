@@ -24,7 +24,7 @@ export const createChatRoomRepository = () => {
 export const getChatRoomRepository = () => {
     return {
         // チャットルームIDの取得
-        getChatRoomIdByUserId: async ({ userId }: UserIdProps) => {
+        getUserChatRoomId: async ({ userId }: UserIdProps) => {
             return await prisma.chatRoom.findUnique({
                 where: { user_id: userId },
                 select: { id: true }

@@ -9,6 +9,7 @@ import LoadingSpinner from "@/components/common/display/LoadingSpinner"
 import { generatePageMetadata } from "@/lib/metadata/page"
 import { requireServerAuth } from "@/lib/middleware/auth"
 import { getUserPaginatedSubscriptionData } from "@/lib/database/prisma/actions/orderItems"
+import { getOrderItemRepository } from "@/repository/orderItem"
 import { 
     SUBSCRIPTION_ORDER_HISTORY_PAGE_LIMIT, 
     SUBSCRIPTION_HISTORY_CATEGORIES,
@@ -53,7 +54,8 @@ const SubscriptionWrapper = async ({
 }: SearchParamsPageCategory) => {
     const { userId } = await requireServerAuth();
 
-    const { data } = await getUserPaginatedSubscriptionData({
+    const repository = getOrderItemRepository();
+    const { data } = await repository.getUserPaginatedSubscription({
         userId,
         category,
         page, 

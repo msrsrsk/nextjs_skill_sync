@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { handleWebhook } from "@/lib/utils/webhook"
 import { receiveChatNotificationEmail } from "@/lib/services/email/notification/chat"
 import { receiveStockNotificationEmail } from "@/lib/services/email/notification/stock"
-import { getNotificationWithDetails } from "@/lib/database/prisma/actions/notification"
+import { getNotificationRepository } from "@/repository/notification"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { PRODUCT_ERROR, CHAT_ERROR, WEBHOOK_ERROR } = ERROR_MESSAGES;
@@ -12,7 +12,8 @@ export async function POST(request: NextRequest) {
     try {
         const { record }: { record: NotificationData } = await request.json();
 
-        const notificationWithDetails = await getNotificationWithDetails(record);
+        const repository = getNotificationRepository();
+        const notificationWithDetails = await repository.getNotificationWithDetails(record);
 
         if (record.type === 'product_stock') {
             return handleWebhook<NotificationData>(request, {

@@ -2,17 +2,9 @@
 
 import { auth } from "@/lib/auth"
 import { actionAuth } from "@/lib/middleware/auth"
-import { 
-    updateStripeCustomerIdData,
-    updateUserIconUrlData,
-    updateUserNameData,
-    updateUserTelData,
-    updateUserEmailData,
-    updateUserPasswordData,
-    deleteUserData
-} from "@/lib/database/prisma/actions/users"
+import { updateUserRepository, deleteUserRepository } from "@/repository/user"
 import { urlToFile } from "@/lib/services/file/actions"
-import { getUserImageIdData } from "@/lib/database/prisma/actions/userImage"
+import { getUserImageRepository } from "@/repository/userImage"
 import { 
     uploadImageToR2,
     getAuthenticatedProfileImageUrl, 
@@ -46,7 +38,8 @@ export const updateStripeCustomerId = async ({
     customerId
 }: UpdateStripeCustomerIdProps) => {
     try {
-        await updateStripeCustomerIdData({ userId, customerId });
+        const repository = updateUserRepository();
+        await repository.updateStripeCustomerId({ userId, customerId });
         
         return {
             success: true, 
@@ -68,7 +61,8 @@ export const updateUserIconUrl = async ({
     iconUrl
 }: UpdateUserIconUrlProps) => {
     try {
-        const userIconUrl = await updateUserIconUrlData({ userId, iconUrl });
+        const repository = updateUserRepository();
+        const userIconUrl = await repository.updateUserIconUrl({ userId, iconUrl });
 
         return {
             success: true, 
@@ -92,7 +86,8 @@ export const updateUserName = async ({
     firstname
 }: UpdateUserNameProps) => {
     try {
-        const userName = await updateUserNameData({
+        const repository = updateUserRepository();
+        const userName = await repository.updateUserName({
             userId,
             lastname,
             firstname
@@ -119,7 +114,8 @@ export const updateUserTel = async ({
     tel
 }: UpdateUserTelProps) => {
     try {
-        const userTel = await updateUserTelData({ userId, tel });
+        const repository = updateUserRepository();
+        const userTel = await repository.updateUserTel({ userId, tel });
 
         return {
             success: true, 
@@ -142,7 +138,8 @@ export const updateUserEmail = async ({
     email
 }: UpdateUserEmailProps) => {
     try {
-        const userEmail = await updateUserEmailData({ userId, email });
+        const repository = updateUserRepository();
+        const userEmail = await repository.updateUserEmail({ userId, email });
 
         return {
             success: true, 
@@ -165,7 +162,8 @@ export const updateUserPassword = async ({
     password
 }: UpdateUserPasswordProps) => {
     try {
-        const userPassword = await updateUserPasswordData({
+        const repository = updateUserRepository();
+        const userPassword = await repository.updateUserPassword({
             userId,
             password
         });
@@ -188,7 +186,8 @@ export const updateUserPassword = async ({
 // ユーザーの削除
 export const deleteUser = async ({ userId }: { userId: string }) => {
     try {
-        await deleteUserData({ userId });
+        const repository = deleteUserRepository();
+        await repository.deleteUser({ userId });
 
         return {
             success: true, 
@@ -233,7 +232,10 @@ export async function updateIconImageAction(
         let finalIconUrl = iconUrl;
 
         if (!isDefault) {
-            const userImageIdResult = await getUserImageIdData({ userId: userId as UserId });
+            const repository = getUserImageRepository();
+            const userImageIdResult = await repository.getUserImageId({ 
+                userId: userId as UserId 
+            });
 
             if (!userImageIdResult) {
                 return {

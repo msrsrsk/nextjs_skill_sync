@@ -4,7 +4,7 @@ import SearchForm from "@/components/common/forms/SearchForm"
 import ErrorMessage from "@/components/common/display/ErrorMessage"
 import NoDataText from "@/components/common/display/NoDataText"
 import { requireServerAuth } from "@/lib/middleware/auth"
-import { getPaginatedReviewsData } from "@/lib/database/prisma/actions/reviews"
+import { getReviewRepository } from "@/repository/review"
 import { REVIEW_DISPLAY_CONFIG, PAGINATION_CONFIG } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
@@ -32,9 +32,11 @@ const ReviewListPageWrapper = async ({
         userId = privateUserId;
     }
 
+    const repository = getReviewRepository();
+
     const { data } = isPrivate 
-        ? await getPaginatedReviewsData({ page, limit, userId })
-        : await getPaginatedReviewsData({ page, limit, query });
+        ? await repository.getPaginatedReviews({ page, limit, userId })
+        : await repository.getPaginatedReviews({ page, limit, query });
     // const { data } = { data: undefined };
 
     if (!data) return <ErrorMessage message={REVIEW_ERROR.FETCH_FAILED} />

@@ -1,5 +1,6 @@
 import { Metadata } from "next"
 import { Suspense } from "react"
+import { notFound } from "next/navigation"
 
 import Breadcrumb from "@/components/ui/navigation/Breadcrumb"
 import ProductDetails from "@/components/sections/ProductDetails"
@@ -7,10 +8,9 @@ import ReviewSectionContent from "@/components/ui/review/ReviewSectionContent"
 import OptimalSyncsSection from "@/components/sections/OptimalSyncsSection"
 import SkillTrailSection from "@/components/sections/SkillTrailSection"
 import LoadingSpinner from "@/components/common/display/LoadingSpinner"
-import { getProductBySlugDataForMetadata } from "@/lib/database/prisma/actions/products"
+import { getProductRepository } from "@/repository/product"
 import { getProductBySlug } from "@/lib/services/product/actions"
 import { getProductReviews } from "@/lib/services/review/actions"
-import { notFound } from "next/navigation"
 import { generatePageMetadata } from "@/lib/metadata/page"
 import { SITE_MAP } from "@/constants/index"
 
@@ -19,7 +19,8 @@ const { CATEGORY_PATH } = SITE_MAP;
 export async function generateMetadata({ 
     params 
 }: { params: { slug: string } }): Promise<Metadata> {
-    const product = await getProductBySlugDataForMetadata({ 
+    const repository = getProductRepository();
+    const product = await repository.getProductBySlugForMetadata({ 
         slug: params.slug, 
     });
 

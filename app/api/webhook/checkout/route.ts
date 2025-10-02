@@ -6,7 +6,7 @@ import { createCheckoutOrder } from "@/lib/services/order/actions"
 import { deleteOrder } from "@/lib/services/order/actions"
 import { createCheckoutOrderItems } from "@/lib/services/order/actions"
 import { createShippingAddress } from "@/lib/services/shipping-address/actions"
-import { getDefaultShippingAddressByUserIdData } from "@/lib/database/prisma/actions/shippingAddresses"
+import { getShippingAddressRepository } from "@/repository/shippingAddress"
 import { updateProductStockAndSoldCount } from "@/lib/services/order/actions"
 import { updateCustomerShippingAddress, } from "@/lib/services/stripe/actions"
 import { createProductDetails, handleSubscriptionEvent } from "@/lib/services/stripe/webhook/actions"
@@ -117,7 +117,8 @@ async function handleCheckoutSessionCompleted({
 
     // 3. 配送先住所のデータ保存
     const userId = checkoutSessionEvent?.metadata?.userID as UserId;
-    const defaultShippingAddress = await getDefaultShippingAddressByUserIdData({
+    const repository = getShippingAddressRepository();
+    const defaultShippingAddress = await repository.getUserDefaultShippingAddress({
         userId
     });
     

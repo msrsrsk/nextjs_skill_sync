@@ -136,15 +136,6 @@ export const getOrderItemRepository = () => {
                     hasPrevPage: page > INITIAL_PAGE
                 }
             }
-        },
-        // 注文商品リストのサブスクリプションの次回支払日の取得
-        getUserSubscriptionNextPayment: async ({
-            subscriptionId
-        }: { subscriptionId: OrderItemSubscriptionId }) => {
-            return await prisma.orderItem.findFirst({
-                where: { subscription_id: subscriptionId },
-                select: { subscription_next_payment: true }
-            })
         }
     }
 }

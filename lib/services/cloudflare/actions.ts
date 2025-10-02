@@ -2,11 +2,7 @@ import { createR2Client } from "@/lib/clients/cloudflare/client"
 
 import { requireServerAuth } from "@/lib/middleware/auth"
 import { PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3"
-import { 
-    getUserImageIdData, 
-    getUserImageByImageIdData, 
-    getUserImageFilePathData 
-} from "@/lib/database/prisma/actions/userImage"
+import { getUserImageRepository } from "@/repository/userImage"
 import { updateUserImageFilePath } from "@/lib/services/user-image/actions"
 import { CLOUDFLARE_BUCKET_TYPES, FILE_UPLOAD_RANDOM_ID } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
@@ -30,7 +26,8 @@ export const uploadImageToR2 = async ({
     
     try {
         // 1. ユーザーのアイコン画像IDを取得
-        const userImageResult = await getUserImageIdData({ userId });
+        const repository = getUserImageRepository();
+        const userImageResult = await repository.getUserImageId({ userId });
 
         if (!userImageResult) {
             return {
@@ -123,7 +120,8 @@ const authenticateAndAuthorizeUserImage = async ({
         }
     }
 
-    const userImageResult = await getUserImageByImageIdData({ userImageId });
+    const repository = getUserImageRepository();
+    const userImageResult = await repository.getUserImageByImageId({ userImageId });
 
     if (!userImageResult) {
         return {
@@ -303,7 +301,8 @@ export const deleteUserImage = async ({
     userId
 }: { userId: UserId }) => {
     try {
-        const userImageResult = await getUserImageFilePathData({ userId });
+        const repository = getUserImageRepository();
+        const userImageResult = await repository.getUserImageFilePath({ userId });
 
         if (!userImageResult || !userImageResult.file_path) {
             return {

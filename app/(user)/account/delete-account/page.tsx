@@ -6,7 +6,7 @@ import DeleteAccountContent from "@/components/ui/other/DeleteAccountContent"
 import LoadingSpinner from "@/components/common/display/LoadingSpinner"
 import ErrorMessage from "@/components/common/display/ErrorMessage"
 import { requireServerAuth } from "@/lib/middleware/auth"
-import { getUnshippedOrdersCountData } from "@/lib/database/prisma/actions/orders"
+import { getOrderRepository } from "@/repository/order"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { USER_ERROR } = ERROR_MESSAGES;
@@ -31,7 +31,8 @@ const PrivateDeleteAccount = () => {
 const DeleteAccountWrapper = async () => {
     const { userId } = await requireServerAuth();
 
-    const unshippedOrdersCount = await getUnshippedOrdersCountData({ userId });
+    const repository = getOrderRepository();
+    const unshippedOrdersCount = await repository.getUnshippedOrdersCount({ userId });
 
     if (unshippedOrdersCount === null || unshippedOrdersCount === undefined) return (
         <ErrorMessage message={USER_ERROR.UNSHIPPED_ORDERS_COUNT_MISSING_DATA} />

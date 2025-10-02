@@ -1,14 +1,13 @@
 import { 
-    createCartItemsData, 
-    updateCartItemQuantityData,
-    deleteCartItemsData, 
-    deleteAllCartItemsData 
-} from "@/lib/database/prisma/actions/cartItems"
+    createCartItemRepository, 
+    updateCartItemRepository,
+    deleteCartItemRepository 
+} from "@/repository/cartItem"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { CART_ITEM_ERROR } = ERROR_MESSAGES;
 
-interface DeleteCartItemsDataProps {
+interface DeleteCartItemsProps {
     userId: UserId,
     productId: ProductId
 }
@@ -18,7 +17,8 @@ export const createCartItems = async ({
     cartItemsData 
 }: { cartItemsData: CartItem }) => {
     try {
-        const cartItem = await createCartItemsData({ cartItemsData });
+        const repository = createCartItemRepository();
+        const cartItem = await repository.createCartItems({ cartItemsData });
 
         return {
             success: true, 
@@ -40,9 +40,10 @@ export const createCartItems = async ({
 export const deleteCartItems = async ({ 
     userId,
     productId 
-}: DeleteCartItemsDataProps) => {
+}: DeleteCartItemsProps) => {
     try {
-        const cartItem = await deleteCartItemsData({ userId, productId });
+        const repository = deleteCartItemRepository();
+        const cartItem = await repository.deleteCartItem({ userId, productId });
 
         return {
             success: true, 
@@ -65,9 +66,10 @@ export const updateCartItemQuantity = async ({
     userId,
     productId,
     quantity
-}: UpdateCartItemQuantityDataProps) => {    
+}: UpdateCartItemQuantityProps) => {    
     try {
-        const cartItem = await updateCartItemQuantityData({ 
+        const repository = updateCartItemRepository();
+        const cartItem = await repository.updateCartItemQuantity({ 
             userId, 
             productId, 
             quantity 
@@ -94,7 +96,8 @@ export const deleteAllCartItems = async ({
     userId,
 }: { userId: UserId }) => {
     try {
-        const cartItem = await deleteAllCartItemsData({ userId });
+        const repository = deleteCartItemRepository();
+        const cartItem = await repository.deleteAllCartItems({ userId });
 
         return {
             success: true, 

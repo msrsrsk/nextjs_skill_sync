@@ -1,6 +1,6 @@
 import SectionTitle from "@/components/common/display/SectionTitle"
 import OptimalSyncsSectionContent from "@/components/ui/other/OptimalSyncsSectionContent"
-import { getProductsByIdsData } from "@/lib/database/prisma/actions/products"
+import { getProductRepository } from "@/repository/product"
 import { GET_PRODUCTS_PAGE_TYPES } from "@/constants/index"
 
 const { OPTIMAL_SYNCS } = GET_PRODUCTS_PAGE_TYPES;
@@ -24,16 +24,18 @@ const OptimalSyncsSection = async ({
         recommendedIds 
     } = optimalSyncs;
 
+    const repository = getProductRepository();
+
     const [requiredProducts, optionProducts, recommendedProducts] = await Promise.all([
-        requiredIds.length > 0 ? getProductsByIdsData({
+        requiredIds.length > 0 ? repository.getProductsByIds({
             ids: requiredIds,
             pageType: OPTIMAL_SYNCS
         }) : null,
-        optionIds.length > 0 ? getProductsByIdsData({
+        optionIds.length > 0 ? repository.getProductsByIds({
             ids: optionIds,
             pageType: OPTIMAL_SYNCS
         }) : null,
-        recommendedIds.length > 0 ? getProductsByIdsData({
+        recommendedIds.length > 0 ? repository.getProductsByIds({
             ids: recommendedIds,
             pageType: OPTIMAL_SYNCS
         }) : null

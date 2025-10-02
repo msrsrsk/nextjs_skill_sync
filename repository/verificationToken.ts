@@ -44,12 +44,6 @@ export const getVerificationTokenRepository = () => {
 
 export const deleteVerificationTokenRepository = () => {
     return {
-        // トークンの削除
-        deleteVerificationToken: async ({ token }: TokenProps) => {
-            await prisma.verificationToken.delete({
-                where: { token }
-            })
-        },
         // トークンの削除（トランザクション）
         deleteVerificationTokenWithTransaction: async ({ 
             tx, 

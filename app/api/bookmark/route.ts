@@ -6,10 +6,7 @@ import {
     removeBookmark, 
     removeAllBookmarks 
 } from "@/lib/services/bookmark/actions"
-import { 
-    getUserProductBookmarksData, 
-    getUserBookmarksData 
-} from "@/lib/database/prisma/actions/bookmarks"
+import { getUserBookmarkRepository } from "@/repository/bookmark"
 import { BOOKMARK_PAGE_DISPLAY_LIMIT } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
@@ -24,11 +21,13 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const productId = searchParams.get('productId');
 
+    const repository = getUserBookmarkRepository();
+    
     if (productId) {
         // throw new Error('test error');
 
         try {
-            const isBookmarked = await getUserProductBookmarksData({
+            const isBookmarked = await repository.getUserProductBookmark({
                 userId: userId as UserId,
                 productId: productId
             });
@@ -54,7 +53,7 @@ export async function GET(request: NextRequest) {
         }
     } else {
         try {
-            const bookmarkItemsResult = await getUserBookmarksData({
+            const bookmarkItemsResult = await repository.getUserBookmarks({
                 userId: userId as UserId,
                 limit: BOOKMARK_PAGE_DISPLAY_LIMIT
             });

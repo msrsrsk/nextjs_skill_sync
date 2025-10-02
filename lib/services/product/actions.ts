@@ -1,10 +1,4 @@
-import { 
-    getProductBySlugData, 
-    updateProductData,
-    updateStockAndSoldCountData,
-    getAllCategoriesProductsSalesVolumeData,
-    getPaginatedProductsData
-} from "@/lib/database/prisma/actions/products"
+import { getProductRepository, updateProductRepository } from "@/repository/product"
 import { calculateReviewStats } from "@/lib/utils/calculation"
 import { 
     PRODUCTS_DISPLAY_CONFIG, 
@@ -22,7 +16,8 @@ export const getProductBySlug = async ({
     slug,
 }: { slug: ProductSlug }) => {
     try {
-        const product = await getProductBySlugData({ slug });
+        const repository = getProductRepository();
+        const product = await repository.getProductBySlug({ slug });
 
         if (!product) {
             return {
@@ -97,7 +92,8 @@ export const getAllCategoriesProductsSalesVolume = async ({
     threshold = TREND_PRODUCT_SALES_VOLUME_THRESHOLD
 }: GetAllCategoriesProductsProps) => {
     try {
-        const results = await getAllCategoriesProductsSalesVolumeData({
+        const repository = getProductRepository();
+        const results = await repository.getAllCategoriesProducts({
             limit,
             threshold
         });
@@ -129,7 +125,8 @@ export const getPaginatedProducts = async ({
     sortType = CREATED_DESCENDING
 }: GetPaginatedProductsProps) => {
     try{
-        const result = await getPaginatedProductsData({
+        const repository = getProductRepository();
+        const result = await repository.getPaginatedProducts({
             page,
             limit,
             query,
@@ -161,7 +158,8 @@ export const updateProduct = async ({
     data
 }: UpdateProductProps) => {
     try {
-        await updateProductData({ productId, data });
+        const repository = updateProductRepository();
+        await repository.updateProduct({ productId, data });
 
         return {
             success: true, 
@@ -182,7 +180,8 @@ export const updateStockAndSoldCount = async ({
     productUpdates
 }: UpdateStockAndSoldCountProps) => {
     try {
-        await updateStockAndSoldCountData({ productUpdates });
+        const repository = updateProductRepository();
+        await repository.updateStockAndSoldCount({ productUpdates });
 
         return {
             success: true, 

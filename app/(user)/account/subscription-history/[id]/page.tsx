@@ -13,7 +13,7 @@ import OrderPriceDisplay from "@/components/ui/order/OrderPriceDisplay"
 import OrderStatusDisplay from "@/components/ui/order/OrderStatusDisplay"
 import OrderInfoDisplay from "@/components/ui/order/OrderInfoDisplay"
 import OrderAddressDisplay from "@/components/ui/order/OrderAddressDisplay"
-import { getOrderByIdData } from "@/lib/database/prisma/actions/orders"
+import { getOrderRepository } from "@/repository/order"
 import { generatePageMetadata } from "@/lib/metadata/page"
 import { formatDate } from "@/lib/utils/format"
 import { formatOrderNumber } from "@/lib/utils/format"
@@ -46,7 +46,8 @@ export async function generateMetadata({
 }
 
 const SubscriptionHistoryDetailPage = async ({ params }: { params: { id: OrderId } }) => {
-    const orderResult = await getOrderByIdData({
+    const repository = getOrderRepository();
+    const orderResult = await repository.getOrderById({
         orderId: params.id,
         isSubscription: true
     });

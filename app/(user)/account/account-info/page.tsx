@@ -8,7 +8,7 @@ import LoadingSpinner from "@/components/common/display/LoadingSpinner"
 import ErrorMessage from "@/components/common/display/ErrorMessage"
 import { generatePageMetadata } from "@/lib/metadata/page"
 import { requireServerAuth } from "@/lib/middleware/auth"
-import { getUserByIdData } from "@/lib/database/prisma/actions/users"
+import { getUserRepository } from "@/repository/user"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 import { USER_METADATA } from "@/constants/metadata/user"
 
@@ -38,7 +38,8 @@ const AccountInfoPage = () => {
 const AccountInfoWrapper = async () => {
     const { userId } = await requireServerAuth();
 
-    const userResult = await getUserByIdData({ userId });
+    const repository = getUserRepository();
+    const userResult = await repository.getUserById({ userId });
     // const userResult = undefined;
 
     if (!userResult) {

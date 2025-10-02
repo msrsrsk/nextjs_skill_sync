@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 
-import { getProductsByIdsData } from "@/lib/database/prisma/actions/products"
+import { getProductRepository } from "@/repository/product"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { PRODUCT_ERROR } = ERROR_MESSAGES;
@@ -20,7 +20,8 @@ export async function GET(request: Request) {
     }
 
     try {
-        const productsResult = await getProductsByIdsData({
+        const repository = getProductRepository();
+        const productsResult = await repository.getProductsByIds({
             ids,
             pageType
         });
