@@ -1,7 +1,7 @@
 import prisma from "@/lib/clients/prisma/client"
 import { Prisma } from "@prisma/client"
 
-import { isValidProductCategory } from "@/lib/utils/validation"
+import { isValidProductCategory } from "@/services/product/validation"
 import { 
     PRODUCTS_DISPLAY_CONFIG, 
     TREND_PRODUCT_SALES_VOLUME_THRESHOLD,

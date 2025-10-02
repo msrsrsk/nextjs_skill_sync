@@ -1,14 +1,3 @@
-import { accountInfoIconImages } from "@/data"
-import { CATEGORY_TAGS } from "@/constants/index"
-
-const { 
-    ACTIVE_TAG, 
-    EXPLORER_TAG, 
-    CREATIVE_TAG, 
-    WISDOM_TAG, 
-    UNIQUE_TAG 
-} = CATEGORY_TAGS;
-
 export const isValidCategory = (
     category: string, 
     categoryConstants: Record<string, string>
@@ -16,38 +5,4 @@ export const isValidCategory = (
     const validCategories = Object.values(categoryConstants)
         .map(cat => cat.toLowerCase());
     return validCategories.includes(category.toLowerCase());
-};
-
-export const isValidProductCategory = (
-    query: string
-): boolean => {
-    const validCategories = [
-        ACTIVE_TAG, 
-        EXPLORER_TAG, 
-        CREATIVE_TAG, 
-        WISDOM_TAG, 
-        UNIQUE_TAG 
-    ];
-    return validCategories.includes(query);
-};
-
-export const startTokenValidation = (
-    expiryTime: Date,
-    onExpiry: () => void
-) => {
-    const now = new Date();
-    const timeUntilExpiry = expiryTime.getTime() - now.getTime();
-    
-    if (timeUntilExpiry <= 0) {
-        onExpiry();
-        return null;
-    }
-
-    return setTimeout(() => {
-        onExpiry();
-    }, timeUntilExpiry);
-};
-
-export const isDefaultIcon = (iconUrl: string): boolean => {
-    return accountInfoIconImages.some(icon => icon.src === iconUrl);
-};
+}
