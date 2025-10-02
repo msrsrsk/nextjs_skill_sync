@@ -12,7 +12,7 @@ import BookmarkButton from "@/components/ui/bookmark/BookmarkButton"
 import SkillTrailTracker from "@/components/ui/other/SkillTrailTracker"
 import ProductSubscriptionContent from "@/components/ui/product/ProductSubscriptionContent"
 import ProductPurchaseSection from "@/components/sections/ProductPurchaseSection"
-import { extractSubscriptionPrices } from "@/lib/utils/extractors"
+import { extractSubscriptionPrices } from "@/services/subscription-payment/extractors"
 import { 
     NOIMAGE_PRODUCT_IMAGE_URL, 
     TREND_STATUS_SIZES, 

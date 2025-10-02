@@ -13,7 +13,8 @@ import { getSyncLogDetail } from "@/services/microcms/actions"
 import { generatePageMetadata } from "@/lib/metadata/page"
 import { formatDate } from "@/lib/utils/format"
 import { LinkButtonPrimary } from "@/components/common/buttons/Button"
-import { extractSyncLogData, extractProductLink } from "@/lib/utils/extractors"
+import { extractProductLink } from "@/services/product/extractors"
+import { extractSyncLogData } from "@/services/microcms/extractors"
 import { MoreIcon } from "@/components/common/icons/SvgIcons"
 import { 
     SYNC_LOG_CATEGORIES, 

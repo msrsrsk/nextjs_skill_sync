@@ -4,7 +4,10 @@ import { headers } from "next/headers"
 import { createStripeProduct, createStripePrice } from "@/services/stripe/actions"
 import { updateProduct } from "@/services/product/actions"
 import { getRecurringConfig, formatCreateSubscriptionNickname } from "@/services/subscription-payment/format"
-import { extractCreateSubscriptionPrices, extractUpdatedSubscriptionPriceIds } from "@/lib/utils/extractors"
+import { 
+    extractCreateSubscriptionPrices, 
+    extractUpdatedSubscriptionPriceIds 
+} from "@/services/subscription-payment/extractors"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { PRODUCT_ERROR, SUBSCRIPTION_ERROR } = ERROR_MESSAGES;
