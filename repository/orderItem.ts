@@ -1,4 +1,4 @@
-import prisma from "@/lib/database/prisma/client"
+import prisma from "@/lib/clients/prisma/client"
 
 import {
     PAGINATION_CONFIG,

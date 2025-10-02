@@ -1,4 +1,4 @@
-import prisma from "@/lib/database/prisma/client"
+import prisma from "@/lib/clients/prisma/client"
 import { Prisma } from "@prisma/client"
 
 import { isValidProductCategory } from "@/lib/utils/validation"

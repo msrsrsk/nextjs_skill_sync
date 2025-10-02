@@ -1,4 +1,4 @@
-import prisma from "@/lib/database/prisma/client"
+import prisma from "@/lib/clients/prisma/client"
 import bcrypt from "bcryptjs"
 
 import { GET_USER_DATA_TYPES, PASSWORD_HASH_ROUNDS } from "@/constants/index"

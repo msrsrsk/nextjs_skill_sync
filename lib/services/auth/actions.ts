@@ -2,7 +2,7 @@
 
 import crypto from "crypto"
 import bcrypt from "bcryptjs"
-import prisma from "@/lib/database/prisma/client"
+import prisma from "@/lib/clients/prisma/client"
 import { signIn, signOut } from "@/lib/auth"
 
 import { actionAuth } from "@/lib/middleware/auth"
