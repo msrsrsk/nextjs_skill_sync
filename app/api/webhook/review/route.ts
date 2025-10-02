@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 
-import { handleWebhook } from "@/lib/utils/webhook"
+import { handleWebhook } from "@/services/webhook/validation"
 import { receiveReviewNotificationEmail } from "@/services/email/notification/review"
 import { deleteReviewImage } from "@/services/cloudflare/actions"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
