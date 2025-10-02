@@ -487,7 +487,7 @@ declare global {
         orders: OrderWithOrderItems[];
     }
 
-    interface GetUserPaginatedOrdersDataProps {
+    interface GetUserPaginatedOrdersProps {
         userId: UserId;
         category: string;
         page: number;

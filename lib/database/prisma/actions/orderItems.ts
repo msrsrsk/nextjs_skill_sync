@@ -64,7 +64,7 @@ export const getUserPaginatedSubscriptionData = async ({
     category,
     page,
     limit
-}: GetUserPaginatedOrdersDataProps) => {
+}: GetUserPaginatedOrdersProps) => {
     const skip = (page - PAGE_OFFSET) * limit;
 
     const whereCondition: OrderItemWhereInput = {
