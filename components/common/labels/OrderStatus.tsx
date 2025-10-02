@@ -1,4 +1,4 @@
-import { formatOrderStatus } from "@/lib/utils/format"
+import { formatOrderStatus } from "@/services/order/format"
 import { ORDER_STATUS, ORDER_DISPLAY_TYPES } from "@/constants/index"
 
 const { ORDER_PROCESSING, ORDER_SHIPPED } = ORDER_STATUS;

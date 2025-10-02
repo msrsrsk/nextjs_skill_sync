@@ -1,4 +1,4 @@
-import { formatProductPriceStatus } from "@/lib/utils/format"
+import { formatProductPriceStatus } from "@/services/product/format"
 import { PRODUCT_PRICE_STATUS, PRODUCT_STATUS_SIZES } from "@/constants/index"
 
 const { PRODUCT_SALE, PRODUCT_SOLDOUT } = PRODUCT_PRICE_STATUS;

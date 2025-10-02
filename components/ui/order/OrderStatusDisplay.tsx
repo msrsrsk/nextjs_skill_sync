@@ -1,4 +1,4 @@
-import { formatPaymentStatus, formatPaymentCardBrand } from "@/lib/utils/format"
+import { formatPaymentStatus, formatPaymentCardBrand } from "@/services/order/format"
 import { ORDER_STATUS_DISPLAY_TYPES } from "@/constants/index"
 
 const { STATUS } = ORDER_STATUS_DISPLAY_TYPES;

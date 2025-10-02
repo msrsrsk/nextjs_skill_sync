@@ -4,7 +4,7 @@ import { LinkButtonPrimary } from "@/components/common/buttons/Button"
 import { MoreIcon } from "@/components/common/icons/SvgIcons"
 import { formatDate } from "@/lib/utils/format"
 import { formatNumber } from "@/lib/utils/format"
-import { formatPaymentStatus } from "@/lib/utils/format"
+import { formatPaymentStatus } from "@/services/order/format"
 import { SITE_MAP } from "@/constants/index"
 
 const { ORDER_HISTORY_PATH } = SITE_MAP;

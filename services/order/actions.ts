@@ -11,7 +11,7 @@ import {
     updateOrderItemRepository
 } from "@/repository/orderItem"
 import { updateStockAndSoldCount } from "@/services/product/actions"
-import { formatOrderRemarks } from "@/lib/utils/format"
+import { formatOrderRemarks } from "@/services/order/format"
 import { ORDER_STATUS } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 

@@ -1,4 +1,4 @@
-import { formatOptimalSyncsStatus } from "@/lib/utils/format"
+import { formatOptimalSyncsStatus } from "@/services/product/format"
 import { OPTIMAL_SYNC_TAG_TYPES } from "@/constants/index"
 
 const { REQUIRED_TAG, OPTION_TAG, PICKUP_TAG } = OPTIMAL_SYNC_TAG_TYPES;

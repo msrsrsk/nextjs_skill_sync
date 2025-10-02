@@ -1,6 +1,7 @@
 import ProductCountup from "@/components/ui/product/ProductCountup"
 import ProductSyncConditions from "@/components/ui/product/ProductSyncConditions"
-import { parseNewlineToArray, formatCategory } from "@/lib/utils/format"
+import { parseNewlineToArray } from "@/lib/utils/format"
+import { formatCategory } from "@/services/product/format"
 
 const ProductInfo = ({ product }: { product: Product }) => {
     if (!product) return null

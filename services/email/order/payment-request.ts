@@ -3,7 +3,7 @@
 import { Resend } from "resend"
 
 import { paymentRequestEmailTemplate } from "@/lib/templates/email/order"
-import { formatOrderDateTime } from "@/lib/utils/format"
+import { formatOrderDateTime } from "@/services/order/format"
 import { formatNumber } from "@/lib/utils/format"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 import { SITE_MAP } from "@/constants/index"

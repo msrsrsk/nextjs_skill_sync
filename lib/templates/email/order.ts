@@ -1,9 +1,11 @@
 import { 
     formatNumber, 
-    formatPaymentDueDate, 
-    formatOrderRemarks,
-    formatOrderNumber
 } from "@/lib/utils/format"
+import { 
+    formatPaymentDueDate, 
+    formatOrderRemarks, 
+    formatOrderNumber 
+} from "@/services/order/format"
 import { getPaymentErrorDetails } from "@/lib/utils/error"
 import { LOGO_IMAGE_PATH } from "@/constants/index"
 

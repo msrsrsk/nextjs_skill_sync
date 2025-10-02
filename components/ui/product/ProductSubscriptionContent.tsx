@@ -3,7 +3,8 @@
 import { Package, RefreshCw } from "lucide-react"
 
 import useSubscription from "@/hooks/layout/useSubscription"
-import { formatNumber, formatSubscriptionInterval } from "@/lib/utils/format"
+import { formatNumber } from "@/lib/utils/format"
+import { formatSubscriptionInterval } from "@/services/subscription-payment/format"
 import { SUBSCRIPTION_PURCHASE_TYPES } from "@/constants/index"
 
 const { ONE_TIME, SUBSCRIPTION } = SUBSCRIPTION_PURCHASE_TYPES;

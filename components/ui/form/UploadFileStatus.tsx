@@ -1,7 +1,7 @@
 import { LoaderCircle, CircleX } from "lucide-react"
 
 import UploadedFileList from "@/components/ui/form/UploadedFileList"
-import { formatFileStatusMessage } from "@/lib/utils/format"
+import { formatFileStatusMessage } from "@/services/file/format"
 import { UploadSuccessIcon, AlertIcon } from "@/components/common/icons/SvgIcons"
 import { UploadedFileContent } from "@/components/ui/form/UploadedFileList"
 import { FILE_STATUS_TYPES } from "@/constants/index"

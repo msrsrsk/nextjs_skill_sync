@@ -4,8 +4,8 @@ import { Resend } from "resend"
 
 import { orderCompleteEmailTemplate } from "@/lib/templates/email/order"
 import { getShippingRateAmount } from "@/services/stripe/actions"
-import { formatOrderDateTime } from "@/lib/utils/format"
-import { formatNumber, formatPaymentMethodType } from "@/lib/utils/format"
+import { formatNumber } from "@/lib/utils/format"
+import { formatOrderDateTime, formatPaymentMethodType } from "@/services/order/format"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 import { SITE_MAP } from "@/constants/index"
 

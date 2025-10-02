@@ -4,7 +4,7 @@ import { stripe } from "@/lib/clients/stripe/client"
 
 import { sendSubscriptionPaymentRequestEmail } from "@/services/email/subscription/subscription-payment-request"
 import { createSubscriptionPayment } from "@/services/subscription-payment/actions"
-import { formatStripeSubscriptionStatus } from "@/lib/utils/format"
+import { formatStripeSubscriptionStatus } from "@/services/subscription-payment/format"
 import { NOIMAGE_PRODUCT_IMAGE_URL, SUBSCRIPTION_STATUS } from "@/constants/index"
 
 const { SUBS_ACTIVE } = SUBSCRIPTION_STATUS;

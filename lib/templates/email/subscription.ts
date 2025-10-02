@@ -1,8 +1,5 @@
-import { 
-    formatNumber, 
-    formatPaymentDueDate, 
-    formatOrderRemarks,
-} from "@/lib/utils/format"
+import { formatNumber } from "@/lib/utils/format"
+import { formatPaymentDueDate, formatOrderRemarks } from "@/services/order/format"
 import { LOGO_IMAGE_PATH } from "@/constants/index"
 
 interface SubscriptionPaymentRequestEmailProps {

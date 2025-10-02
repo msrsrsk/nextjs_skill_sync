@@ -7,7 +7,7 @@ import { getUserRepository } from "@/repository/user"
 import { getShippingAddressRepository } from "@/repository/shippingAddress"
 import { setDefaultShippingAddress } from "@/services/shipping-address/actions"
 import { updateOrderItemSubscriptionStatus } from "@/services/order/actions"
-import { getRecurringConfig } from "@/lib/utils/format"
+import { getRecurringConfig } from "@/services/subscription-payment/format"
 import { 
     SITE_MAP, 
     STRIPE_SHIPPING_FREE_LIMIT, 

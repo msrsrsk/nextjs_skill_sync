@@ -1,7 +1,8 @@
 import { Document, Page, Text, View, Font, Svg, Path } from "@react-pdf/renderer"
 import { createTw } from "react-pdf-tailwind"
 
-import { formatNumber, formatPaymentCardBrand, formatDate } from "@/lib/utils/format"
+import { formatNumber, formatDate } from "@/lib/utils/format"
+import { formatPaymentCardBrand } from "@/services/order/format"
 import { RECEIPT_CONFIG, DATE_FORMAT_TYPES } from "@/constants/index"
 
 const { TAX_RATE_8, TAX_RATE_10 } = RECEIPT_CONFIG;

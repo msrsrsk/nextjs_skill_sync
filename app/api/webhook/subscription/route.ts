@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { verifyWebhookSignature } from "@/services/stripe/webhook/actions"
 import { handleSubscriptionEvent } from "@/services/stripe/webhook/actions"
 import { updateSubscriptionPaymentStatus } from "@/services/subscription-payment/actions"
-import { formatStripeSubscriptionStatus } from "@/lib/utils/format"
+import { formatStripeSubscriptionStatus } from "@/services/subscription-payment/format"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { SUBSCRIPTION_ERROR } = ERROR_MESSAGES;

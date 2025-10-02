@@ -5,7 +5,7 @@ import { ArrowUpDown } from "lucide-react"
 import FilterTitleBox from "@/components/common/display/FilterTitleBox"
 import useCollectionSort from "@/hooks/data/useCollectionSort"
 import { useCollectionSortStore } from "@/app/stores/useStore"
-import { formatCollectionSortType } from "@/lib/utils/format"
+import { formatCollectionSortType } from "@/services/product/format"
 import { EventButtonPrimary } from "@/components/common/buttons/Button"
 import { COLLECTION_SORT_TYPES, BUTTON_TEXT_TYPES, BUTTON_TYPES } from "@/constants/index"
 

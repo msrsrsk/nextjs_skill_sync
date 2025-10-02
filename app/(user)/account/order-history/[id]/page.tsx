@@ -15,7 +15,7 @@ import OrderAddressDisplay from "@/components/ui/order/OrderAddressDisplay"
 import { generatePageMetadata } from "@/lib/metadata/page"
 import { formatDate } from "@/lib/utils/format"
 import { getOrderRepository } from "@/repository/order"
-import { formatOrderNumber } from "@/lib/utils/format"
+import { formatOrderNumber } from "@/services/order/format"
 import { 
     ORDER_STATUS, 
     ORDER_DISPLAY_TYPES, 
