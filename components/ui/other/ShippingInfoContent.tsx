@@ -10,7 +10,7 @@ import useUpdateShippingAddressForm from "@/hooks/form/useUpdateShippingAddressF
 import useUpdateDefaultShippingAddressForm from "@/hooks/form/useUpdateDefaultShippingAddressForm"
 import useRemoveShippingAddress from "@/hooks/shipping/useRemoveShippingAddress"
 import useToastNotifications from "@/hooks/notification/useToastNotifications"
-import useSetDefaultShippingAddress from "@/hooks/shipping/useSetDefaultShippingAddress"
+import useSetDefaultShippingAddressForm from "@/hooks/form/useSetDefaultShippingAddressForm"
 import { 
     EventButtonPrimary, 
     EventButtonSecondary 
@@ -98,7 +98,7 @@ const ShippingInfoContent = ({ shippingAddressesData}: ShippingInfoContentProps)
         handleConfirmDefault,
         setDefaultModalActive,
         setSetDefaultModalActive,
-    } = useSetDefaultShippingAddress({
+    } = useSetDefaultShippingAddressForm({
         optimisticDefaultAddress,
         optimisticOtherAddresses,
         setOptimisticDefaultAddress,

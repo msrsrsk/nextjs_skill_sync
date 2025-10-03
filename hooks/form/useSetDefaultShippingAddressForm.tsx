@@ -1,21 +1,21 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useFormState } from 'react-dom'
 
-import { setDefaultShippingAddressAction } from '@/services/stripe/actions';
+import { setDefaultShippingAddressAction } from '@/services/stripe/server-actions';
 
-interface UseSetDefaultShippingAddressProps {
+interface UseSetDefaultShippingAddressFormProps {
     optimisticDefaultAddress: ShippingAddress | null;
     optimisticOtherAddresses: ShippingAddress[];
     setOptimisticDefaultAddress: (address: ShippingAddress) => void;
     setOptimisticOtherAddresses: (addresses: ShippingAddress[]) => void;
 }
 
-const useSetDefaultShippingAddress = ({
+const useSetDefaultShippingAddressForm = ({
     optimisticDefaultAddress,
     optimisticOtherAddresses,
     setOptimisticDefaultAddress,
     setOptimisticOtherAddresses
-}: UseSetDefaultShippingAddressProps) => {
+}: UseSetDefaultShippingAddressFormProps) => {
 
     const [setDefaultState, setDefaultFormAction] = useFormState(setDefaultShippingAddressAction, {
         success: false,
@@ -88,4 +88,4 @@ const useSetDefaultShippingAddress = ({
     };
 }
 
-export default useSetDefaultShippingAddress
+export default useSetDefaultShippingAddressForm
