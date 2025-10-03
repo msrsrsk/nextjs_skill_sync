@@ -1,15 +1,17 @@
 import prisma from "@/lib/clients/prisma/client"
 
-export const updateUserStripeRepository = () => {
+export const createUserStripeRepository = () => {
     return {
-        // ユーザーのStripeIDの更新（デフォルト住所の設定による更新）
-        updateUserStripeCustomerId: async ({
+        // ユーザーのStripeIDの作成（デフォルト住所の設定による更新）
+        createUserStripeCustomerId: async ({
             userId,
             customerId
-        }: UpdateStripeCustomerIdProps) => {
-            return await prisma.userStripe.update({
-                where: { user_id: userId },
-                data: { customer_id: customerId }
+        }: CreateUserStripeCustomerIdProps) => {
+            return await prisma.userStripe.create({
+                data: { 
+                    user_id: userId, 
+                    customer_id: customerId 
+                }
             })
         }
     }

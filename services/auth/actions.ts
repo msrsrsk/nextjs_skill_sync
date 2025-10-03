@@ -6,7 +6,7 @@ import { actionAuth } from "@/lib/middleware/auth"
 import { createUserRepository, updateUserRepository } from "@/repository/user"
 import { 
     updateUserEmail, 
-    updateStripeCustomerId, 
+    createUserStripeCustomerId, 
     deleteUser 
 } from "@/services/user/actions"
 import { createChatRoomRepository } from "@/repository/chatRoom"
@@ -198,19 +198,19 @@ export async function verifyEmailToken(
 
             // 3. SupabaseユーザーのStripe顧客IDの更新
             const { 
-                success: updateStripeSuccess, 
-                error: updateStripeError 
-            } = await updateStripeCustomerId({
+                success: createStripeSuccess, 
+                error: createStripeError 
+            } = await createUserStripeCustomerId({
                 userId: user.id,
                 customerId: stripeCustomer.id
             });
 
-            if (!updateStripeSuccess) {
+            if (!createStripeSuccess) {
                 await deleteUser({ userId: user.id });
 
                 return {
                     success: false, 
-                    error: updateStripeError,
+                    error: createStripeError,
                     expires: null
                 }
             }

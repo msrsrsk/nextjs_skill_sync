@@ -219,7 +219,7 @@ declare global {
         emailVerified: UserEmailVerified;
     }
 
-    interface UpdateStripeCustomerIdProps extends UserIdProps {
+    interface CreateUserStripeCustomerIdProps extends UserIdProps {
         userId: UserId;
         customerId: StripeCustomerId;
     }

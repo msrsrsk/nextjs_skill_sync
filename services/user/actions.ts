@@ -1,24 +1,24 @@
 import { updateUserRepository, deleteUserRepository } from "@/repository/user"
-import { updateUserStripeRepository } from "@/repository/userStripe"
+import { createUserStripeRepository } from "@/repository/userStripe"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { USER_ERROR, CHECKOUT_ERROR } = ERROR_MESSAGES;
 
-// ユーザーのStripeIDの更新（デフォルト住所の設定による更新）
-export const updateStripeCustomerId = async ({
+// ユーザーのStripeIDの作成（デフォルト住所の設定による更新）
+export const createUserStripeCustomerId = async ({
     userId,
     customerId
-}: UpdateStripeCustomerIdProps) => {
+}: CreateUserStripeCustomerIdProps) => {
     try {
-        const repository = updateUserStripeRepository();
-        await repository.updateUserStripeCustomerId({ userId, customerId });
+        const repository = createUserStripeRepository();
+        await repository.createUserStripeCustomerId({ userId, customerId });
         
         return {
             success: true, 
             error: null, 
         }
     } catch (error) {
-        console.error('Database : Error in updateStripeCustomerId:', error);
+        console.error('Database : Error in createUserStripeCustomerId:', error);
 
         return {
             success: false, 

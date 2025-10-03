@@ -102,7 +102,7 @@ model User {
 model UserStripe {
   id            String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   user_id       String @unique @db.Uuid
-  customer_id   String?
+  customer_id   String
   created_at    DateTime @default(now())
   updated_at    DateTime @default(now()) @updatedAt
   
