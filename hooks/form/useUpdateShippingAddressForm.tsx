@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo, useCallback } from "react"
 import { useFormState } from "react-dom"
 
-import { updateShippingAddressAction } from "@/services/shipping-address/actions"
+import { updateShippingAddressAction } from "@/services/shipping-address/server-actions"
 import { showSuccessToast } from "@/components/common/display/Toasts"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
