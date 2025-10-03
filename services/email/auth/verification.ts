@@ -3,7 +3,7 @@
 import { Resend } from "resend"
 
 import { verificationEmailTemplate } from "@/lib/templates/email/verification"
-import { getVerificationEmailConfig } from "@/lib/config/email"
+import { getVerificationEmailConfig } from "@/services/email/auth/config"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { EMAIL_ERROR } = ERROR_MESSAGES;

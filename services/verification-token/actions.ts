@@ -1,5 +1,3 @@
-"use server"
-
 import { getVerificationTokenRepository } from "@/repository/verificationToken"
 import { resetPassword } from "@/services/auth/actions"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
