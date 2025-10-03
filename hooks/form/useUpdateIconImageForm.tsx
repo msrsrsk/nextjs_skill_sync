@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react"
 import { useFormState } from "react-dom"
 
-import { updateIconImageAction } from "@/services/user/actions"
+import { updateIconImageAction } from "@/services/user/server-actions"
 import { showSuccessToast } from "@/components/common/display/Toasts"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
