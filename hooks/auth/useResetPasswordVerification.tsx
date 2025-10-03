@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 
 import { verifyResetPasswordToken } from "@/services/auth/actions"
-import { startTokenValidation } from "@/services/auth/validation"
+import { startTokenValidation } from "@/lib/utils/validation"
 import { SITE_MAP, VERIFICATION_STATUS } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
