@@ -3,7 +3,7 @@
 import { useState } from "react"
 
 import ConfirmModal from "@/components/common/modals/ConfirmModal"
-import { signOutAction } from "@/services/auth/actions"
+import { signOutAction } from "@/services/auth/server-actions"
 
 const AccountLogoutButton = () => {
     const [modalActive, setModalActive] = useState(false);

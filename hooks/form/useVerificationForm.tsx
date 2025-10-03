@@ -1,6 +1,6 @@
 import { useFormState } from "react-dom"
 
-import { sendVerificationEmailAction } from "@/services/auth/actions"
+import { sendVerificationEmailAction } from "@/services/auth/server-actions"
 
 const useVerificationForm = (type: EmailVerificationPageType) => {
     const [verificationState, verificationFormAction] = useFormState((

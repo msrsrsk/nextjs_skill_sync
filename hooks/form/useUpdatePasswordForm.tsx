@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from "react"
 import { useFormState } from "react-dom"
 
-import { updatePasswordAction } from "@/services/auth/actions"
+import { updatePasswordAction } from "@/services/auth/server-actions"
 import { SITE_MAP, UPDATE_PASSWORD_PAGE_TYPES } from "@/constants/index"
 
 const { RESET_PASSWORD_PAGE } = UPDATE_PASSWORD_PAGE_TYPES;

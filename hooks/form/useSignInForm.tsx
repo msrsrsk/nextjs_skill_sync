@@ -1,6 +1,6 @@
 import { useFormState } from "react-dom"
 
-import { signInWithCredentialsAction } from "@/services/auth/actions";
+import { signInWithCredentialsAction } from "@/services/auth/server-actions";
 
 const useSignInForm = (type: AuthType) => {
     const [SignInState, SignInFormAction] = useFormState((
