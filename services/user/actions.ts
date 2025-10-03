@@ -1,4 +1,5 @@
 import { updateUserRepository, deleteUserRepository } from "@/repository/user"
+import { updateUserStripeRepository } from "@/repository/userStripe"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { USER_ERROR, CHECKOUT_ERROR } = ERROR_MESSAGES;
@@ -9,8 +10,8 @@ export const updateStripeCustomerId = async ({
     customerId
 }: UpdateStripeCustomerIdProps) => {
     try {
-        const repository = updateUserRepository();
-        await repository.updateStripeCustomerId({ userId, customerId });
+        const repository = updateUserStripeRepository();
+        await repository.updateUserStripeCustomerId({ userId, customerId });
         
         return {
             success: true, 

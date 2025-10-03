@@ -77,7 +77,11 @@ export const getUserRepository = () => {
         
                 if (getType === CUSTOMER_ID_DATA) {
                     return {
-                        stripe_customer_id: true 
+                        user_stripes: {
+                            select: {
+                                customer_id: true
+                            }
+                        }
                     };
                 }
         
@@ -122,16 +126,6 @@ export const getUserRepository = () => {
 
 export const updateUserRepository = () => {
     return {
-        // ユーザーのStripeIDの更新（デフォルト住所の設定による更新）
-        updateStripeCustomerId: async ({
-            userId,
-            customerId
-        }: UpdateStripeCustomerIdProps) => {
-            return await prisma.user.update({
-                where: { id: userId },
-                data: { stripe_customer_id: customerId }
-            })
-        },
         // ユーザーのアイコン画像の更新
         updateUserIconUrl: async ({
             userId,

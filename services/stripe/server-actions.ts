@@ -49,12 +49,12 @@ export async function setDefaultShippingAddressAction(
         }
 
         const userRepository = getUserRepository();
-        const stripeCustomerIdResult = await userRepository.getUser({
+        const userResult = await userRepository.getUser({
             userId: userId as UserId,
             getType: CUSTOMER_ID_DATA
         });
 
-        if (!stripeCustomerIdResult) {
+        if (!userResult) {
             return {
                 success: false, 
                 error: USER_ERROR.CUSTOMER_ID_FETCH_FAILED,
@@ -62,7 +62,7 @@ export async function setDefaultShippingAddressAction(
             }
         }
 
-        const customerId = stripeCustomerIdResult.stripe_customer_id;
+        const customerId = userResult.user_stripes?.customer_id;
 
         const [stripeResult, setDefaultAddressResult] = await Promise.all([
             customerId ? updateCustomerShippingAddress(

@@ -180,12 +180,12 @@ export async function updateDefaultShippingAddressAction(
         }
 
         const repository = getUserRepository();
-        const stripeCustomerId = await repository.getUser({
+        const user = await repository.getUser({
             userId,
             getType: CUSTOMER_ID_DATA
         });
 
-        if (!stripeCustomerId) {
+        if (!user) {
             return {
                 success: false, 
                 error: USER_ERROR.CUSTOMER_ID_FETCH_FAILED,
@@ -194,7 +194,7 @@ export async function updateDefaultShippingAddressAction(
             }
         }
 
-        const customerId = stripeCustomerId.stripe_customer_id;
+        const customerId = user.user_stripes?.customer_id;
 
         const shippingAddress = { 
             id,

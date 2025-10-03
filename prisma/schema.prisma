@@ -80,11 +80,11 @@ model User {
   emailVerified DateTime? // Auth.jsとの互換性のためキャメルケース
   icon_url     String
   tel          String?
-  stripe_customer_id     String?
   created_at   DateTime @default(now())
   updated_at   DateTime @default(now()) @updatedAt
 
   // Relations
+  user_stripes    UserStripe?
   reviews    Review[]
   bookmarks  UserBookmark[]
   chat_room ChatRoom?
@@ -95,9 +95,23 @@ model User {
   cart_items CartItem[]
 
   @@index([email])
-  @@index([stripe_customer_id])
   @@index([created_at])
   @@map("users")
+}
+
+model UserStripe {
+  id            String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id       String @unique @db.Uuid
+  customer_id   String?
+  created_at    DateTime @default(now())
+  updated_at    DateTime @default(now()) @updatedAt
+  
+  // Relations
+  user          User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  
+  @@index([user_id])
+  @@index([customer_id])
+  @@map("user_stripes")
 }
 
 model Product {

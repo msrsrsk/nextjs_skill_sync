@@ -135,12 +135,12 @@ export const createCheckoutSession = async ({
     try {
         // ユーザーのStripe顧客IDを取得
         const repository = getUserRepository();
-        const stripeCustomerId = await repository.getUser({
+        const user = await repository.getUser({
             userId,
             getType: CUSTOMER_ID_DATA
         });
 
-        if (!stripeCustomerId) {
+        if (!user) {
             return {
                 success: false, 
                 error: USER_ERROR.CUSTOMER_ID_FETCH_FAILED,
@@ -148,7 +148,7 @@ export const createCheckoutSession = async ({
             }
         }
 
-        const customerId = stripeCustomerId.stripe_customer_id;
+        const customerId = user.user_stripes?.customer_id;
 
         // 配送料を設定
         const shippingRateId = totalQuantity >= STRIPE_SHIPPING_FREE_LIMIT

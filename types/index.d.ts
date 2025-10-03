@@ -202,7 +202,6 @@ declare global {
     type UserIconUrl = User['icon_url'];
     type UserTel = User['tel'];
     type UserEmailVerified = User['emailVerified'];
-    type UserStripeCustomerId = User['stripe_customer_id'];
 
     interface UserIdProps {
         userId: UserId;
@@ -639,15 +638,17 @@ declare global {
     type StripeSubscriptionItem = Stripe.SubscriptionItem;
     type StripePaymentMethod = string | Stripe.PaymentMethod;
 
+    interface StripeAddress {
+        line1?: string;
+        line2?: string;
+        city?: string;
+        state?: string;
+        postal_code?: string;
+        country?: string;
+    }
+
     interface CustomerDetails {
-        address: {
-            line1?: string;
-            line2?: string;
-            city?: string;
-            state?: string;
-            postal_code?: string;
-            country?: string;
-        };
+        address: StripeAddress;
         name: string;
         phone?: string;
     }
