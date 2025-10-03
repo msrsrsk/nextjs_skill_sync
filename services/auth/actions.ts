@@ -493,6 +493,8 @@ export async function createEmailVerificationTokenWithEmail(email: UserEmail) {
 
 // ユーザー認証
 export const authenticateUser = async (credentials: LoginCredentials) => {
+    if (!credentials) return null;
+    
     const repository = getUserRepository();
     const user = await repository.getUserByEmail({
         email: credentials.email as string
