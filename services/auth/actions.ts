@@ -4,11 +4,8 @@ import prisma from "@/lib/clients/prisma/client"
 
 import { actionAuth } from "@/lib/middleware/auth"
 import { createUserRepository, updateUserRepository } from "@/repository/user"
-import { 
-    updateUserEmail, 
-    createUserStripeCustomerId, 
-    deleteUser 
-} from "@/services/user/actions"
+import { updateUserEmail, deleteUser } from "@/services/user/actions"
+import { createUserStripeCustomerId } from "@/services/user-stripe/actions"
 import { createChatRoomRepository } from "@/repository/chatRoom"
 import { createChatRepository } from "@/repository/chat"
 import { 
