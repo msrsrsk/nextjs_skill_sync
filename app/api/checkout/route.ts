@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
                 );
             }
 
-            const priceId = product.stripe_sale_price_id || product.stripe_regular_price_id;
+            const priceId = product.product_stripes?.sale_price_id || product.product_stripes?.regular_price_id;
 
             if (!priceId) {
                 return NextResponse.json(

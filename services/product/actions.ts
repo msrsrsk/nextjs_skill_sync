@@ -86,6 +86,30 @@ export const getProductBySlug = async ({
     }
 }
 
+// Stripeへ自動商品登録用データの取得
+export const getProductByProductId = async ({
+    productId,
+}: { productId: ProductId }) => {
+    try {
+        const repository = getProductRepository();
+        const results = await repository.getProductByProductId({ productId });
+
+        return {
+            success: true, 
+            error: null, 
+            data: results
+        }
+    } catch (error) {
+        console.error('Database : Error in getProductByProductId: ', error);
+
+        return {
+            success: false, 
+            error: PRODUCT_ERROR.FETCH_FAILED,
+            data: null
+        }
+    }
+}
+
 // トレンド商品一覧セクション：カテゴリー別のトレンド商品データを一括取得
 export const getAllCategoriesProductsSalesVolume = async ({
     limit = TREND_LIMIT,
@@ -148,29 +172,6 @@ export const getPaginatedProducts = async ({
             success: false, 
             error: PRODUCT_ERROR.FETCH_FAILED,
             data: null
-        }
-    }
-}
-
-// 商品データの更新
-export const updateProduct = async ({
-    productId,
-    data
-}: UpdateProductProps) => {
-    try {
-        const repository = updateProductRepository();
-        await repository.updateProduct({ productId, data });
-
-        return {
-            success: true, 
-            error: null, 
-        }
-    } catch (error) {
-        console.error('Database : Error in updateProduct: ', error);
-
-        return {
-            success: false, 
-            error: PRODUCT_ERROR.UPDATE_FAILED,
         }
     }
 }

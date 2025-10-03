@@ -3,7 +3,7 @@ import ProductSyncConditions from "@/components/ui/product/ProductSyncConditions
 import { parseNewlineToArray } from "@/lib/utils/format"
 import { formatCategory } from "@/services/product/format"
 
-const ProductInfo = ({ product }: { product: Product }) => {
+const ProductInfo = ({ product }: { product: ProductWithProductStripe }) => {
     if (!product) return null
 
     const { 

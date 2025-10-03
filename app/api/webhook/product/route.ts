@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server"
 import { headers } from "next/headers"
 
 import { createStripeProduct, createStripePrice } from "@/services/stripe/actions"
-import { updateProduct } from "@/services/product/actions"
+import { updateProductStripe } from "@/services/product-stripe/actions"
+import { getProductByProductId } from "@/services/product/actions"
 import { getRecurringConfig, formatCreateSubscriptionNickname } from "@/services/subscription-payment/format"
 import { 
     extractCreateSubscriptionPrices, 
@@ -31,13 +32,26 @@ export async function POST(request: NextRequest) {
         const { record } = await request.json();
 
         const { 
-            id, 
-            title, 
-            price, 
-            sale_price,
-            stripe_subscription_price_ids
+            product_id,
+            subscription_price_ids
         } = record;
 
+        // DBから商品データの取得
+        const { 
+            success: getDataSuccess, 
+            data: getData, 
+            error: getDataError 
+        } = await getProductByProductId({ productId: product_id });
+
+        if (!getDataSuccess || !getData) {
+            return NextResponse.json(
+                { message: getDataError },
+                { status: 500 }) 
+        }
+
+        const { title, price, sale_price } = getData;
+
+        // Stripe商品の作成
         const { 
             success: productSuccess, 
             data: productData, 
@@ -45,12 +59,12 @@ export async function POST(request: NextRequest) {
         }  = await createStripeProduct({
             name: title,
             metadata: {
-                supabase_id: id,
-                ...(stripe_subscription_price_ids && {
+                supabase_id: product_id,
+                ...(subscription_price_ids && {
                     subscription_product: true
                 })
             }
-        });
+        })
 
         if (!productSuccess || !productData) {
             return NextResponse.json(
@@ -58,6 +72,7 @@ export async function POST(request: NextRequest) {
                 { status: 500 }) 
         }
 
+        // Stripe価格の作成
         const { 
             success: priceSuccess, 
             data: priceData, 
@@ -79,6 +94,7 @@ export async function POST(request: NextRequest) {
 
         let stripeSalePriceId = null;
 
+        // Stripeセール価格の作成
         if (sale_price) {
             const { 
                 success: salePriceSuccess, 
@@ -100,10 +116,11 @@ export async function POST(request: NextRequest) {
             stripeSalePriceId = salePriceData.id;
         }
 
-        let updatedSubscriptionPriceIds = stripe_subscription_price_ids;
+        let updatedSubscriptionPriceIds = subscription_price_ids;
 
-        if (stripe_subscription_price_ids) {
-            const subscriptionPrices = extractCreateSubscriptionPrices(stripe_subscription_price_ids);
+        // Stripeサブスクリプション価格の作成
+        if (subscription_price_ids) {
+            const subscriptionPrices = extractCreateSubscriptionPrices(subscription_price_ids);
             
             const subscriptionPriceResults = await Promise.all(
                 subscriptionPrices.map(async (priceData) => {
@@ -137,29 +154,30 @@ export async function POST(request: NextRequest) {
                         price
                     };
                 })
-            );
+            )
 
             const successfulPrices = subscriptionPriceResults.filter(result => result !== null);
 
             updatedSubscriptionPriceIds = extractUpdatedSubscriptionPriceIds(
-                stripe_subscription_price_ids, 
+                subscription_price_ids, 
                 successfulPrices
-            );
+            )
         }
 
+        // DBのStripe商品データの更新
         const { 
             success: updateSuccess, 
             error: updateError 
-        } = await updateProduct({
-            productId: id,
+        } = await updateProductStripe({
+            productId: product_id,
             data: {
                 stripe_product_id: productData.id,
-                stripe_regular_price_id: priceData.id,
+                regular_price_id: priceData.id,
                 ...(sale_price && stripeSalePriceId && {
-                    stripe_sale_price_id: stripeSalePriceId
+                    sale_price_id: stripeSalePriceId
                 }),
-                ...(stripe_subscription_price_ids && {
-                    stripe_subscription_price_ids: updatedSubscriptionPriceIds
+                ...(subscription_price_ids && {
+                    subscription_price_ids: updatedSubscriptionPriceIds
                 })
             }
         });

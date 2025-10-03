@@ -57,8 +57,12 @@ export const getCartItemRepository = () => {
                             category: true,
                             slug: true,
                             stock: true,
-                            stripe_sale_price_id: true,
-                            stripe_regular_price_id: true,
+                            product_stripes: {
+                                select: {
+                                    sale_price_id: true,
+                                    regular_price_id: true
+                                }
+                            }
                         }
                     }
                 }

@@ -125,10 +125,6 @@ model Product {
   skill_type   String
   slug         String  @unique
   stock        Int     @default(0)
-  stripe_product_id String?
-  stripe_regular_price_id   String?
-  stripe_sale_price_id   String?
-  stripe_subscription_price_ids   String?
   created_at   DateTime @default(now()) 
   updated_at   DateTime @default(now()) @updatedAt
   sold_count   Int      @default(0)
@@ -149,6 +145,7 @@ model Product {
   optimal_syncs_text  String?  @db.VarChar(60) 
 
   // Relations
+  product_stripes    ProductStripe?
   reviews   Review[]
   bookmarks UserBookmark[]
   order_items OrderItem[]
@@ -162,8 +159,24 @@ model Product {
   @@index([category, stock])
   @@index([category, created_at])
   @@index([sold_count])
-  @@index([stripe_product_id])
   @@map("products")
+}
+
+model ProductStripe {
+  id           String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  product_id   String @unique @db.Uuid    // Supabaseの商品ID
+  stripe_product_id   String?             // Stripeの商品ID
+  regular_price_id   String?              // Stripeの通常商品価格ID
+  sale_price_id   String?                 // Stripeのセール商品価格ID
+  subscription_price_ids   String?        // Stripeのサブスク商品価格ID
+  created_at   DateTime @default(now())
+  updated_at   DateTime @default(now()) @updatedAt
+  
+  // Relations
+  product     Product @relation(fields: [product_id], references: [id], onDelete: Cascade)
+
+  @@index([stripe_product_id])
+  @@map("product_stripes")
 }
 
 model CartItem {

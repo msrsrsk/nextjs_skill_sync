@@ -68,7 +68,20 @@ export const getProductRepository = () => {
                         select: {
                             rating: true
                         }
-                    }
+                    },
+                    product_stripes: true
+                }
+            })
+        },
+        getProductByProductId: async ({
+            productId
+        }: { productId: ProductId }) => {
+            return await prisma.product.findUnique({
+                where: { id: productId },
+                select: {
+                    title: true, 
+                    price: true, 
+                    sale_price: true,
                 }
             })
         },
@@ -306,16 +319,6 @@ export const getProductRepository = () => {
 
 export const updateProductRepository = () => {
     return {
-        // 商品データの更新
-        updateProduct: async ({
-            productId,
-            data
-        }: UpdateProductProps) => {
-            return await prisma.product.update({
-                where: { id: productId },
-                data: data
-            })
-        },
         // 商品の在庫数と売り上げ数の更新
         updateStockAndSoldCount: async ({
             productUpdates

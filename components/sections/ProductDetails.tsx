@@ -26,7 +26,7 @@ const { STAR_MONOCHROME } = STAR_RATING_TYPES;
 
 interface ProductDetailsProps extends ReviewStats {
     slug: ProductSlug;
-    product: Product;
+    product: ProductWithProductStripe;
     productReviewsCount?: number;
 }
 
@@ -47,11 +47,13 @@ const ProductDetails = ({
         skill_type, 
         stock,
         sold_count,
-        stripe_subscription_price_ids,
+        product_stripes,
     } = product;
 
-    const isSubscription = !!stripe_subscription_price_ids;
-    const subscriptionOptions = extractSubscriptionPrices(stripe_subscription_price_ids);
+    const isSubscription = !!product_stripes?.subscription_price_ids;
+    const subscriptionOptions = extractSubscriptionPrices(
+        product_stripes?.subscription_price_ids ?? null
+    )
 
     return (
         <div className="mx-auto px-5 md:px-20 md-lg:px-0 pb-10 md:pb-0 md-lg:pt-[60px] md-lg:min-h-screen">

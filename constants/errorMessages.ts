@@ -82,6 +82,7 @@ export const ERROR_MESSAGES = {
         
         NO_IDS: `商品IDの取得に失敗しました。${RETRY}`,
         FETCH_FAILED: `商品データの取得に失敗しました。${RETRY}`,
+        STRIPE_FETCH_FAILED: `Stripeの商品データの取得に失敗しました。${RETRY}`,
         DETAIL_FETCH_FAILED: `商品詳細データの取得に失敗しました。${RETRY}`,
         IDS_FETCH_FAILED: `商品IDによるデータ取得に失敗しました。${RETRY}`,
         PRICE_FETCH_FAILED: `商品の価格データの取得に失敗しました。${RETRY}`,
@@ -196,6 +197,17 @@ export const ERROR_MESSAGES = {
         PAYMENT_LINK_DEACTIVATE_FAILED: `サブスクリプションの支払いリンクの無効化に失敗しました。${RETRY}`,
         NOT_PROCEED_PAYMENTLINK: `サブスクリプションの支払いリンクの作成に進めませんでした。${RETRY}`,
         ALREADY_SUBSCRIBED: `既に該当商品のサブスクリプションを契約済みです。変更や解除はアカウントページで行ってください。`,
+
+        GET_ORDER_DATA_FAILED: `注文データの取得に失敗しました。${RETRY}`,
+        CREATE_ORDER_FAILED: `注文履歴の保存に失敗しました。${RETRY}`,
+        CREATE_ORDER_ITEMS_FAILED: `注文の商品リストの保存に失敗しました。${RETRY}`,
+        UPDATE_STOCK_AND_SOLD_COUNT_FAILED: `商品の在庫数と売り上げ数の更新に失敗しました。${RETRY}`,
+        GET_DEFAULT_SHIPPING_ADDRESS_FAILED: `デフォルトの配送先住所の取得に失敗しました。${RETRY}`,
+        CREATE_DEFAULT_SHIPPING_ADDRESS_FAILED: `デフォルトの配送先住所の保存に失敗しました。${RETRY}`,
+        CREATE_SHIPPING_ADDRESS_FAILED: `配送先住所の保存に失敗しました。${RETRY}`,
+        UPDATE_CUSTOMER_ADDRESS_FAILED: `顧客の配送先住所の更新に失敗しました。${RETRY}`,
+        SEND_ORDER_COMPLETE_EMAIL_FAILED: `注文完了メールの送信に失敗しました。${RETRY}`,
+        SEND_PAYMENT_REQUEST_EMAIL_FAILED: `お支払いのお願いメールの送信に失敗しました。${RETRY}`,
     },
 
     // 注文関連

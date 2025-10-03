@@ -2,6 +2,7 @@ import type {
     User as PrismaUser, 
     Review as PrismaReview, 
     Product as PrismaProduct, 
+    ProductStripe as PrismaProductStripe,
     CartItem as PrismaCartItem,
     Chat as PrismaChat, 
     VerificationToken as PrismaVerificationToken, 
@@ -153,6 +154,10 @@ declare global {
     interface BookmarkItemWithProduct extends UserBookmark {
         product: Product;
     }
+
+    interface ProductWithProductStripe extends Product {
+        product_stripes: ProductStripe | null;
+    }
     
 
     /* ============================== 
@@ -272,10 +277,6 @@ declare global {
     type ProductSlug = Product['slug'];
     type ProductStock = Product['stock'];
     type CategoryType = Product['category'];
-    type StripeProductId = Product['stripe_product_id'];
-    type StripeRegularPriceId = Product['stripe_regular_price_id'];
-    type StripeSalePriceId = Product['stripe_sale_price_id'];
-    type StripeSubscriptionPriceIds = Product['stripe_subscription_price_ids'];
 
     type ProductWhereInput = Prisma.ProductWhereInput;
 
@@ -318,15 +319,6 @@ declare global {
         sortType?: CollectionSortType
     }
 
-    interface UpdateProductProps {
-        productId: ProductId;
-        data: {
-            stripe_product_id: StripeProductId,
-            stripe_regular_price_id: StripeRegularPriceId,
-            stripe_sale_price_id?: StripeSalePriceId
-        }
-    }
-
     interface UpdateStockAndSoldCountProps {
         productUpdates: Array<{ 
             productId: ProductId; 
@@ -347,6 +339,25 @@ declare global {
 
     interface TrendSectionContentProps {
         productData: TrendCategoryData[];
+    }
+
+
+    /* ============================== 
+        ProductStripe 関連
+    ============================== */
+    type ProductStripe = PrismaProductStripe;
+    type StripeProductId = ProductStripe['stripe_product_id'];
+    type StripeRegularPriceId = ProductStripe['regular_price_id'];
+    type StripeSalePriceId = ProductStripe['sale_price_id'];
+    type StripeSubscriptionPriceIds = ProductStripe['subscription_price_ids'];
+
+    interface UpdateProductStripeProps {
+        productId: ProductId;
+        data: {
+            stripe_product_id: StripeProductId,
+            regular_price_id: StripeRegularPriceId,
+            sale_price_id?: StripeSalePriceId
+        }
     }
 
 

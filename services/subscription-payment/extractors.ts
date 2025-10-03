@@ -75,12 +75,12 @@ export const extractSubscriptionPrices = (
 }
 
 export const extractUpdatedSubscriptionPriceIds = (
-    stripe_subscription_price_ids: StripeSubscriptionPriceIds,
+    subscriptionPriceIds: StripeSubscriptionPriceIds,
     successfulPrices: SubscriptionOption[]
 ) => {
-    if (!stripe_subscription_price_ids) return [];
+    if (!subscriptionPriceIds) return '';
 
-    return stripe_subscription_price_ids
+    return subscriptionPriceIds
         .split('\n')
         .map(line => {
             const trimmedLine = line.trim();

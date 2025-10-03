@@ -60,6 +60,8 @@ const ProductAndReviewData = async ({ slug }: { slug: string }) => {
     const { data: productData } = productResult;
     const { data: reviewData, error: reviewError } = reviewsResult;
 
+    const hasSubscriptionPrices = product.product_stripes?.subscription_price_ids;
+
     return <>
         <ProductDetails 
             slug={slug}
@@ -75,7 +77,7 @@ const ProductAndReviewData = async ({ slug }: { slug: string }) => {
             hasError={reviewError}
         />
 
-        {!productData?.product.stripe_subscription_price_ids && productData?.optimalSyncs && (
+        {!hasSubscriptionPrices && productData?.optimalSyncs && (
             <OptimalSyncsSection 
                 optimalSyncs={productData.optimalSyncs}
             />
