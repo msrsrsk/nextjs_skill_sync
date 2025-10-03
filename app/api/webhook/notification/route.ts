@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-import { handleWebhook } from "@/services/webhook/validation"
+import { handleWebhook } from "@/lib/utils/webhook"
 import { receiveChatNotificationEmail } from "@/services/email/notification/chat"
 import { receiveStockNotificationEmail } from "@/services/email/notification/stock"
 import { getNotificationRepository } from "@/repository/notification"
