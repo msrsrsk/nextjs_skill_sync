@@ -20,6 +20,19 @@ declare module 'next-auth' {
         email: string
         name: string
     }
+
+    interface AccessControlParams {
+        auth: {
+            user?: {
+                id: string
+                email: string
+                name: string
+            } | null
+        } | null
+        request: {
+            nextUrl: URL
+        }
+    }
 }
 
 declare module 'next-auth/jwt' {
