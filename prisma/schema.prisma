@@ -120,14 +120,12 @@ model Product {
   description  String  @db.VarChar(120) 
   image_urls   String?
   price        Int
-  sale_price   Int?
   category     CategoryType @default(Active)
   skill_type   String
   slug         String  @unique
   stock        Int     @default(0)
   created_at   DateTime @default(now()) 
   updated_at   DateTime @default(now()) @updatedAt
-  sold_count   Int      @default(0)
 
   // 商品情報
   sync_time          String?
@@ -145,6 +143,7 @@ model Product {
   optimal_syncs_text  String?  @db.VarChar(60) 
 
   // Relations
+  product_pricings    ProductPricing?
   product_stripes    ProductStripe?
   reviews   Review[]
   bookmarks UserBookmark[]
@@ -158,8 +157,22 @@ model Product {
   @@index([category, price])
   @@index([category, stock])
   @@index([category, created_at])
-  @@index([sold_count])
   @@map("products")
+}
+
+model ProductPricing {
+  id           String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  product_id   String @unique @db.Uuid
+  sale_price   Int?
+  sold_count   Int      @default(0)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @default(now()) @updatedAt
+  
+  // Relations
+  product      Product @relation(fields: [product_id], references: [id], onDelete: Cascade)
+
+  @@index([sold_count])
+  @@map("product_pricings")
 }
 
 model ProductStripe {
