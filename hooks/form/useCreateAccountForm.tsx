@@ -1,6 +1,6 @@
 import { useFormState } from "react-dom"
 
-import { createAccountWithEmailAction } from '@/services/auth/server-actions'
+import { createAccountWithEmailAction } from '@/services/auth/form-actions'
 
 const useCreateAccountForm = () => {
     const [createState, createFormAction] = useFormState(createAccountWithEmailAction, { 

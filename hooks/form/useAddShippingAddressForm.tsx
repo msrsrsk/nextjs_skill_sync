@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useFormState } from "react-dom"
 
-import { createShippingAddressAction } from "@/services/shipping-address/server-actions"
+import { createShippingAddressAction } from "@/services/shipping-address/form-actions"
 
 interface UseAddShippingAddressFormProps {
     optimisticOtherAddresses: ShippingAddress[];

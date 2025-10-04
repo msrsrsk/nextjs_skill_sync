@@ -1,3 +1,5 @@
+"use server"
+
 import { updateUserRepository, deleteUserRepository } from "@/repository/user"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 

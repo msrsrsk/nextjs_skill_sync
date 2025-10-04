@@ -1,3 +1,5 @@
+"use server"
+
 import { stripe } from "@/lib/clients/stripe/client"
 
 import { getUserRepository } from "@/repository/user"

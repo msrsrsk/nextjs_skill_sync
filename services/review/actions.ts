@@ -1,3 +1,5 @@
+"use server"
+
 import { createReviewRepository, getReviewRepository } from "@/repository/review"
 import { ERROR_MESSAGES } from '@/constants/errorMessages'
 
