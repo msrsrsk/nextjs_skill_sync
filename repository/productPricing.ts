@@ -1,5 +1,3 @@
-import prisma from "@/lib/clients/prisma/client"
-
 export const updateProductPricingRepository = () => {
     return {
         // 商品の売り上げ数の更新

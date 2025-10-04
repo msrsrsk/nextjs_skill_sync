@@ -269,15 +269,23 @@ export const getProductRepository = () => {
                 ...(filters?.priceRange && {
                     OR: [
                         {
-                            AND: [
-                                { product_pricings: { sale_price: { not: null } } },
-                                { product_pricings: { sale_price: { gte: filters.priceRange[0], lte: filters.priceRange[1] } } }
-                            ]
+                            product_pricings: {
+                                sale_price: { 
+                                    not: null,
+                                    gte: filters.priceRange[0], 
+                                    lte: filters.priceRange[1] 
+                                }
+                            }
                         },
                         {
                             AND: [
-                                { product_pricings: { sale_price: null } },
-                                { product_pricings: { sale_price: { gte: filters.priceRange[0], lte: filters.priceRange[1] } } }
+                                {
+                                    OR: [
+                                        { product_pricings: { sale_price: null } },
+                                        { product_pricings: null }
+                                    ]
+                                },
+                                { price: { gte: filters.priceRange[0], lte: filters.priceRange[1] } }
                             ]
                         }
                     ]
