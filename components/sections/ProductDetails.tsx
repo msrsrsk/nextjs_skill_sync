@@ -26,7 +26,7 @@ const { STAR_MONOCHROME } = STAR_RATING_TYPES;
 
 interface ProductDetailsProps extends ReviewStats {
     slug: ProductSlug;
-    product: ProductWithProductStripe;
+    product: ProductWithProductStripeAndPricing;
     productReviewsCount?: number;
 }
 
@@ -42,13 +42,14 @@ const ProductDetails = ({
         description, 
         image_urls, 
         price, 
-        sale_price, 
         category, 
         skill_type, 
         stock,
-        sold_count,
+        product_pricings,
         product_stripes,
     } = product;
+
+    const { sold_count, sale_price } = product_pricings || {};
 
     const isSubscription = !!product_stripes?.subscription_price_ids;
     const subscriptionOptions = extractSubscriptionPrices(
@@ -63,7 +64,7 @@ const ProductDetails = ({
                 {/* 商品画像 */}
                 <div className="relative bg-grass rounded-sm md:rounded-2xl md-lg:rounded-s-[0px] md-lg:rounded-r-2xl border border-white md-lg:w-[50%] place-items-center p-[38px] md:p-[56px] md-lg:pr-0 md-lg:pb-[64px] xl:pl-20">
                     <TrendStatus 
-                        syncNum={sold_count} 
+                        syncNum={sold_count || 0} 
                         size={TREND_STATUS_LARGE} 
                     />
                     <Image 
@@ -105,13 +106,13 @@ const ProductDetails = ({
                     {isSubscription ? (
                         <ProductSubscriptionPrice 
                             price={price} 
-                            salePrice={sale_price} 
+                            salePrice={sale_price ?? null} 
                             stock={stock}
                         />
                     ) : (
                         <ProductPrice 
                             price={price} 
-                            salePrice={sale_price} 
+                            salePrice={sale_price ?? null} 
                             type={PRICE_DETAIL}
                             stock={stock}
                         />

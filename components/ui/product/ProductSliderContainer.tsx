@@ -20,7 +20,7 @@ const { SIZE_LARGE } = MEDIA_QUERY_CONFIG;
 const { REQUIRED_TAG, OPTION_TAG, PICKUP_TAG } = OPTIMAL_SYNC_TAG_TYPES;
 
 type ProductSliderContainerProps<T extends boolean> = {
-    products: T extends true ? OptimalSyncsProductIds : ProductWithReviews[];
+    products: T extends true ? OptimalSyncsProductIds : ProductWithReviewsAndPricing[];
     totalCount: number;
     buttonLink?: string;
     isOptimalSyncs: T;
@@ -56,7 +56,7 @@ const ProductSliderContainer = <T extends boolean = false>({
 
     if (!isSliderInitialized) return <LoadingSpinner />
 
-    const renderProductCards = () => (products as ProductWithReviews[])?.map((product) => (
+    const renderProductCards = () => (products as ProductWithReviewsAndPricing[])?.map((product) => (
         <div key={product.id}>
             <ProductCard 
                 product={product}

@@ -1,4 +1,7 @@
+import prisma from "@/lib/clients/prisma/client"
+
 import { getProductRepository, updateProductRepository } from "@/repository/product"
+import { updateProductPricingRepository } from "@/repository/productPricing"
 import { calculateReviewStats } from "@/services/review/calculation"
 import { 
     PRODUCTS_DISPLAY_CONFIG, 
@@ -86,30 +89,6 @@ export const getProductBySlug = async ({
     }
 }
 
-// Stripeへ自動商品登録用データの取得
-export const getProductByProductId = async ({
-    productId,
-}: { productId: ProductId }) => {
-    try {
-        const repository = getProductRepository();
-        const results = await repository.getProductByProductId({ productId });
-
-        return {
-            success: true, 
-            error: null, 
-            data: results
-        }
-    } catch (error) {
-        console.error('Database : Error in getProductByProductId: ', error);
-
-        return {
-            success: false, 
-            error: PRODUCT_ERROR.FETCH_FAILED,
-            data: null
-        }
-    }
-}
-
 // トレンド商品一覧セクション：カテゴリー別のトレンド商品データを一括取得
 export const getAllCategoriesProductsSalesVolume = async ({
     limit = TREND_LIMIT,
@@ -181,8 +160,25 @@ export const updateStockAndSoldCount = async ({
     productUpdates
 }: UpdateStockAndSoldCountProps) => {
     try {
-        const repository = updateProductRepository();
-        await repository.updateStockAndSoldCount({ productUpdates });
+        const updatePromises = productUpdates.map(({ productId, quantity }) =>
+            prisma.$transaction(async (tx) => {
+                const productRepository = updateProductRepository();
+                await productRepository.updateProductStockWithTransaction({ 
+                    productId, 
+                    quantity, 
+                    tx 
+                });
+
+                const pricingRepository = updateProductPricingRepository();
+                await pricingRepository.updateProductSoldCountWithTransaction({ 
+                    productId, 
+                    quantity, 
+                    tx 
+                });
+            })
+        );
+    
+        await Promise.all(updatePromises);
 
         return {
             success: true, 

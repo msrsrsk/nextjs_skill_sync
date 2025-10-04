@@ -1,0 +1,25 @@
+import prisma from "@/lib/clients/prisma/client"
+
+export const updateProductPricingRepository = () => {
+    return {
+        // 商品の売り上げ数の更新
+        updateProductSoldCountWithTransaction: async ({
+            productId,
+            quantity,
+            tx
+        }: { 
+            productId: ProductId, 
+            quantity: number,
+            tx: TransactionClient
+        }) => {
+            return await tx.productPricing.updateMany({
+                where: { product_id: productId },
+                data: { 
+                    sold_count: {
+                        increment: quantity
+                    }
+                }
+            })
+        }
+    }
+}

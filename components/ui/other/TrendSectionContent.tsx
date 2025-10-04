@@ -15,7 +15,7 @@ const { TREND_PATH } = SITE_MAP;
 
 interface TrendCategoryData {
     category: string;
-    products: ProductWithReviews[];
+    products: ProductWithReviewsAndPricing[];
     totalCount: number;
 }
 
@@ -62,7 +62,7 @@ const TrendSectionInner = ({ categoryData }: TrendSectionInnerProps) => {
 
     return (
         <ProductSliderContainer 
-            products={products as ProductWithReviews[]} 
+            products={products as ProductWithReviewsAndPricing[]} 
             totalCount={totalCount}
             buttonLink={`${TREND_PATH}/${category.toLowerCase()}`}
             isOptimalSyncs={false}

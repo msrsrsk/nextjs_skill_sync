@@ -43,7 +43,7 @@ const SkillTrailContent = () => {
 
     return (
         <ProductSliderContainer 
-            products={products as ProductWithReviews[]} 
+            products={products as ProductWithReviewsAndPricing[]} 
             totalCount={products?.length || 0}
             isOptimalSyncs={false}
             customClass="mb-5 md:mb-10"

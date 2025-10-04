@@ -10,7 +10,7 @@ import { SUBSCRIPTION_PURCHASE_TYPES } from "@/constants/index"
 const { ONE_TIME, SUBSCRIPTION } = SUBSCRIPTION_PURCHASE_TYPES;
 
 interface ProductSubscriptionContentProps {
-    product: ProductWithProductStripe;
+    product: ProductWithProductStripeAndPricing;
     subscriptionOptions?: SubscriptionOption[];
 }
 

@@ -51,11 +51,13 @@ const CartItem = ({
         title,
         image_urls,
         price,
-        sale_price,
         category,
         slug,
         stock,
+        product_pricings,
     } = product;
+
+    const sale_price = product_pricings?.sale_price;
 
     const {
         loading: cartQuantityLoading,
@@ -96,7 +98,7 @@ const CartItem = ({
                         <div className="md:hidden">
                             <ProductPrice 
                                 price={price}
-                                salePrice={sale_price}
+                                salePrice={sale_price ?? null}
                                 type={PRICE_CART}
                                 stock={stock}
                             />
@@ -123,7 +125,7 @@ const CartItem = ({
                 <div className="hidden md:block">
                     <ProductPrice 
                         price={price}
-                        salePrice={sale_price}
+                        salePrice={sale_price ?? null}
                         type={PRICE_CART}
                         stock={stock}
                     />

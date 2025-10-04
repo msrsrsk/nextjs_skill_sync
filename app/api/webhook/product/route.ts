@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from "next/server"
 import { headers } from "next/headers"
 
+import { getProductRepository } from "@/repository/product"
 import { createStripeProduct, createStripePrice } from "@/services/stripe/actions"
 import { updateProductStripe } from "@/services/product-stripe/actions"
-import { getProductByProductId } from "@/services/product/actions"
-import { getRecurringConfig, formatCreateSubscriptionNickname } from "@/services/subscription-payment/format"
+import {
+    getRecurringConfig, 
+    formatCreateSubscriptionNickname 
+} from "@/services/subscription-payment/format"
 import { 
     extractCreateSubscriptionPrices, 
     extractUpdatedSubscriptionPriceIds 
@@ -37,19 +40,17 @@ export async function POST(request: NextRequest) {
         } = record;
 
         // DBから商品データの取得
-        const { 
-            success: getDataSuccess, 
-            data: getData, 
-            error: getDataError 
-        } = await getProductByProductId({ productId: product_id });
+        const repository = getProductRepository();
+        const productResult = await repository.getProductByProductId({ productId: product_id });
 
-        if (!getDataSuccess || !getData) {
+        if (!productResult) {
             return NextResponse.json(
-                { message: getDataError },
+                { message: PRODUCT_ERROR.FETCH_FAILED },
                 { status: 500 }) 
         }
 
-        const { title, price, sale_price } = getData;
+        const { title, price, product_pricings } = productResult;
+        const sale_price = product_pricings?.sale_price;
 
         // Stripe商品の作成
         const { 

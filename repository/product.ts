@@ -38,18 +38,17 @@ const defaultProductSelectFields = {
     title: true,
     description: true,
     price: true,
-    sale_price: true,
     image_urls: true,
     slug: true,
     category: true,
     stock: true,
-    sold_count: true,
     created_at: true,
     reviews: {
         select: {
             rating: true
         }
-    }
+    },
+    product_pricings: true
 }
 
 export const getProductRepository = () => {
@@ -69,6 +68,7 @@ export const getProductRepository = () => {
                             rating: true
                         }
                     },
+                    product_pricings: true,
                     product_stripes: true
                 }
             })
@@ -81,7 +81,11 @@ export const getProductRepository = () => {
                 select: {
                     title: true, 
                     price: true, 
-                    sale_price: true,
+                    product_pricings: {
+                        select: {
+                            sale_price: true
+                        }
+                    }
                 }
             })
         },
@@ -136,10 +140,14 @@ export const getProductRepository = () => {
                         title: true,
                         image_urls: true,
                         price: true,
-                        sale_price: true,
                         category: true,
                         slug: true,
-                        stock: true
+                        stock: true,
+                        product_pricings: {
+                            select: {
+                                sale_price: true
+                            }
+                        }
                     };
                 }
             }
@@ -156,12 +164,16 @@ export const getProductRepository = () => {
             const products = await prisma.product.findMany({
                 select: {
                     price: true,
-                    sale_price: true
+                    product_pricings: {
+                        select: {
+                            sale_price: true
+                        }
+                    }
                 }
             })
         
             const actualPrices = products.map(product => {
-                return product.sale_price || product.price;
+                return product.product_pricings?.sale_price || product.price;
             }).filter(price => price !== null);
         
             if (actualPrices.length === 0) {
@@ -195,8 +207,10 @@ export const getProductRepository = () => {
                 categories.map(async (category) => {
                     const whereCondition = {
                         category: category as CategoryType,
-                        sold_count: {
-                            gte: threshold
+                        product_pricings: {
+                            sold_count: {
+                                gte: threshold
+                            }
                         }
                     };
 
@@ -206,7 +220,7 @@ export const getProductRepository = () => {
                             select: defaultProductSelectFields,
                             take: limit,
                             orderBy: [
-                                { sold_count: "desc" }
+                                { product_pricings: { sold_count: "desc" } }
                             ]
                         }),
                         prisma.product.count({
@@ -246,22 +260,24 @@ export const getProductRepository = () => {
                     ]
                 }),
                 ...(isTrend && {
-                    sold_count: {
-                        gte: TREND_PRODUCT_SALES_VOLUME_THRESHOLD
+                    product_pricings: {
+                        sold_count: {
+                            gte: TREND_PRODUCT_SALES_VOLUME_THRESHOLD
+                        }
                     }
                 }),
                 ...(filters?.priceRange && {
                     OR: [
                         {
                             AND: [
-                                { sale_price: { not: null } },
-                                { sale_price: { gte: filters.priceRange[0], lte: filters.priceRange[1] } }
+                                { product_pricings: { sale_price: { not: null } } },
+                                { product_pricings: { sale_price: { gte: filters.priceRange[0], lte: filters.priceRange[1] } } }
                             ]
                         },
                         {
                             AND: [
-                                { sale_price: null },
-                                { price: { gte: filters.priceRange[0], lte: filters.priceRange[1] } }
+                                { product_pricings: { sale_price: null } },
+                                { product_pricings: { sale_price: { gte: filters.priceRange[0], lte: filters.priceRange[1] } } }
                             ]
                         }
                     ]
@@ -276,7 +292,7 @@ export const getProductRepository = () => {
                     case CREATED_DESCENDING:
                         return [{ created_at: "desc" }];
                     case BEST_SELLING:
-                        return [{ sold_count: "desc" }];
+                        return [{ product_pricings: { sold_count: "desc" } }];
                     case TITLE_ASCENDING:
                         return [{ title: "asc" }];
                     case TITLE_DESCENDING:
@@ -319,25 +335,25 @@ export const getProductRepository = () => {
 
 export const updateProductRepository = () => {
     return {
-        // 商品の在庫数と売り上げ数の更新
-        updateStockAndSoldCount: async ({
-            productUpdates
-        }: UpdateStockAndSoldCountProps) => {
-            const updatePromises = productUpdates.map(({ productId, quantity }) =>
-                prisma.product.updateMany({
-                    where: { id: productId },
-                    data: {
-                        stock: {
-                            decrement: quantity
-                        },
-                        sold_count: {
-                            increment: quantity
-                        }
+        // 商品の在庫数の更新
+        updateProductStockWithTransaction: async ({
+            productId,
+            quantity,
+            tx
+        }: { 
+            productId: 
+            ProductId, 
+            quantity: number,
+            tx: TransactionClient
+        }) => {
+            return await tx.product.updateMany({
+                where: { id: productId },
+                data: {
+                    stock: {
+                        decrement: quantity
                     }
-                })
-            )
-        
-            await Promise.all(updatePromises);
+                }
+            })
         }
     }
 }

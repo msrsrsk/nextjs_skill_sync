@@ -53,10 +53,14 @@ export const getCartItemRepository = () => {
                             title: true,
                             image_urls: true,
                             price: true,
-                            sale_price: true,
                             category: true,
                             slug: true,
                             stock: true,
+                            product_pricings: {
+                                select: {
+                                    sale_price: true
+                                }
+                            },
                             product_stripes: {
                                 select: {
                                     sale_price_id: true,

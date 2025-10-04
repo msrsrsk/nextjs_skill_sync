@@ -7,7 +7,7 @@ import Pointer from "@/components/ui/display/Pointer"
 import useProductCardHover from "@/hooks/layout/useProductCardHover"
 
 interface ProductListProps {
-    products: ProductWithReviews[];
+    products: ProductWithReviewsAndPricing[];
     limit?: number;
 }
 

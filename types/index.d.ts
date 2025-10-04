@@ -2,6 +2,7 @@ import type {
     User as PrismaUser, 
     Review as PrismaReview, 
     Product as PrismaProduct, 
+    ProductPricing as PrismaProductPricing,
     ProductStripe as PrismaProductStripe,
     CartItem as PrismaCartItem,
     Chat as PrismaChat, 
@@ -135,8 +136,9 @@ declare global {
         address: ShippingAddress | null;
     }
 
-    interface ProductWithReviews extends Product {
+    interface ProductWithReviewsAndPricing extends Product {
         reviews: Review[];
+        product_pricings: ProductPricing | null;
     }
 
     interface ReviewWithUser extends Review {
@@ -148,15 +150,16 @@ declare global {
     }
 
     interface CartItemWithProduct extends CartItem {
-        product: Product;
+        product: ProductWithProductStripeAndPricing;
     }
 
     interface BookmarkItemWithProduct extends UserBookmark {
         product: Product;
     }
 
-    interface ProductWithProductStripe extends Product {
+    interface ProductWithProductStripeAndPricing extends Product {
         product_stripes: ProductStripe | null;
+        product_pricings: ProductPricing | null;
     }
     
 
@@ -271,7 +274,6 @@ declare global {
     type ProductTitle = Product['title'];
     type ProductImageUrls = Product['image_urls'];
     type ProductPrice = Product['price'];
-    type ProductSalePrice = Product['sale_price'];
     type ProductCategory = Product['category'];
     type ProductId = Product['id'];
     type ProductSlug = Product['slug'];
@@ -286,7 +288,7 @@ declare global {
     }
 
     interface ProductsCategoryData extends PaginationWithTotalCount {
-        products: ProductWithReviews[];
+        products: ProductWithReviewsAndPricing[];
         category: CategoryType;
     }
 
@@ -340,6 +342,13 @@ declare global {
     interface TrendSectionContentProps {
         productData: TrendCategoryData[];
     }
+
+
+    /* ============================== 
+        ProductStripe 関連
+    ============================== */
+    type ProductPricing = PrismaProductPricing;
+    type ProductSalePrice = ProductPricing['sale_price'];
 
 
     /* ============================== 

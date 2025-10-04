@@ -57,7 +57,7 @@ const SearchWrapper = async ({
             {query && (
                 <div className="max-w-4xl mx-auto">
                     <ProductList 
-                        products={products as ProductWithReviews[]}
+                        products={products as ProductWithReviewsAndPricing[]}
                     />
 
                     {totalPages > INITIAL_PAGE && (

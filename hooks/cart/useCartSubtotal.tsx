@@ -21,8 +21,8 @@ const useCartSubtotal = ({ cartItems, optimisticQuantities }: useCartSubtotalPro
         try {
             const calculatedSubtotal = cartItems.reduce((acc, item) => {
                 const quantity = optimisticQuantities?.[item.product.id] || item.quantity;
-                const itemPrice = item.product.sale_price && item.product.sale_price > 0 
-                    ? item.product.sale_price : item.product.price;
+                const itemPrice = item.product.product_pricings?.sale_price && item.product.product_pricings.sale_price > 0 
+                    ? item.product.product_pricings.sale_price : item.product.price;
                 return acc + (itemPrice * quantity);
             }, 0);
             

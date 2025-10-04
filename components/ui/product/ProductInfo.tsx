@@ -3,11 +3,10 @@ import ProductSyncConditions from "@/components/ui/product/ProductSyncConditions
 import { parseNewlineToArray } from "@/lib/utils/format"
 import { formatCategory } from "@/services/product/format"
 
-const ProductInfo = ({ product }: { product: ProductWithProductStripe }) => {
+const ProductInfo = ({ product }: { product: ProductWithProductStripeAndPricing }) => {
     if (!product) return null
 
     const { 
-        sold_count,
         sync_time, 
         target_level, 
         effective_date, 
@@ -16,7 +15,10 @@ const ProductInfo = ({ product }: { product: ProductWithProductStripe }) => {
         side_effect, 
         skill_effects, 
         optimal_syncs_required_id, 
+        product_pricings,
     } = product;
+
+    const sold_count = product_pricings?.sold_count;
 
     const productInfoItems = [
         { key: 'sync_time', label: '同期時間　　：', value: sync_time },
@@ -36,7 +38,7 @@ const ProductInfo = ({ product }: { product: ProductWithProductStripe }) => {
                 <div className="product-subtitle">
                     <h3 className="product-info-title">Global Syncs</h3>
                 </div>
-                <ProductCountup syncNum={sold_count} />
+                <ProductCountup syncNum={sold_count || 0} />
             </div>
 
             <div className="product-info-box">

@@ -18,7 +18,7 @@ const { STAR_MONOCHROME } = STAR_RATING_TYPES;
 const { CATEGORY_PATH } = SITE_MAP;
 
 interface ProductCardProps {
-    product: ProductWithReviews;
+    product: ProductWithReviewsAndPricing;
     linksRef: React.RefObject<HTMLAnchorElement>;
     onMouseEnter: () => void;
     onMouseLeave: () => void;
@@ -36,12 +36,13 @@ const ProductCard = ({
         title, 
         image_urls, 
         price, 
-        sale_price, 
         category, 
         slug,
         stock,
-        sold_count,
+        product_pricings,
     } = product;
+
+    const { sale_price, sold_count } = product_pricings || {};
 
     const reviews = 'reviews' in product ? product.reviews : [];
 
@@ -54,7 +55,7 @@ const ProductCard = ({
             onMouseLeave={onMouseLeave}
         >
             {trendStatus && (
-                <TrendStatus syncNum={sold_count} />
+                <TrendStatus syncNum={sold_count || 0} />
             )}
 
             {/* 商品画像 */}
@@ -92,7 +93,7 @@ const ProductCard = ({
                 {/* 価格 */}
                 <ProductPrice 
                     price={price} 
-                    salePrice={sale_price} 
+                    salePrice={sale_price ?? null} 
                     stock={stock}
                 />
             </div>

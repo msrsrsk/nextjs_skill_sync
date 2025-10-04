@@ -13,7 +13,7 @@ const TrendStatus = ({
     size = TREND_STATUS_MEDIUM
 }: TrendStatusProps) => {
     return <>
-        {syncNum > Number(TREND_PRODUCT_SALES_VOLUME_THRESHOLD) && (
+        {syncNum && syncNum > Number(TREND_PRODUCT_SALES_VOLUME_THRESHOLD) && (
             <div className={`trend-status${
                 size === TREND_STATUS_MEDIUM ? " is-medium" : " is-large"
             }`}>

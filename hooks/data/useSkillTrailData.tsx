@@ -8,7 +8,7 @@ const { PRODUCTS_API_PATH } = SITE_MAP;
 const { PRODUCT_ERROR } = ERROR_MESSAGES;
 
 const useSkillTrailData = (ids: string[]) => {
-    const [products, setProducts] = useState<Product[] | null>(null); 
+    const [products, setProducts] = useState<ProductWithReviewsAndPricing[] | null>(null); 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
