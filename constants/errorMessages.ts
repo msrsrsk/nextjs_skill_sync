@@ -200,6 +200,7 @@ export const ERROR_MESSAGES = {
 
         GET_ORDER_DATA_FAILED: `注文データの取得に失敗しました。${RETRY}`,
         CREATE_ORDER_FAILED: `注文履歴の保存に失敗しました。${RETRY}`,
+        CREATE_ORDER_STRIPE_FAILED: `注文履歴のStripeデータの作成に失敗しました。${RETRY}`,
         CREATE_ORDER_ITEMS_FAILED: `注文の商品リストの保存に失敗しました。${RETRY}`,
         UPDATE_STOCK_AND_SOLD_COUNT_FAILED: `商品の在庫数と売り上げ数の更新に失敗しました。${RETRY}`,
         GET_DEFAULT_SHIPPING_ADDRESS_FAILED: `デフォルトの配送先住所の取得に失敗しました。${RETRY}`,
@@ -215,9 +216,10 @@ export const ERROR_MESSAGES = {
         HISTORY_FETCH_FAILED: `注文履歴の取得に失敗しました。${RETRY}`,
         DETAIL_FETCH_FAILED: `注文の詳細データの取得に失敗しました。${RETRY}`,
         CREATE_FAILED: `注文履歴の作成に失敗しました。${RETRY}`,
-        CREATE_CHECKOUT_FAILED: `注文履歴の保存に失敗しました。${RETRY}`,
+        CREATE_STRIPE_FAILED: `注文履歴のStripeデータの作成に失敗しました。${RETRY}`,
         LIST_CREATE_FAILED: `注文の商品リストの保存に失敗しました。${RETRY}`,
         DELETE_FAILED: `注文の削除に失敗しました。${RETRY}`,
+        DELETE_STRIPE_FAILED: `注文履歴のStripeデータの削除に失敗しました。${RETRY}`,
     },
 
     // ユーザー画像関連

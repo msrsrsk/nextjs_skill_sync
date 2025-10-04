@@ -23,9 +23,9 @@ export const createOrderRepository = () => {
         // 注文データの作成
         createOrder: async ({ 
             orderData 
-        }: { orderData: Order }) => {
+        }: { orderData: OrderCreateInput }) => {
             return await prisma.order.create({
-                data: orderData as OrderCreateInput
+                data: orderData
             })
         }
     }

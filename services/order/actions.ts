@@ -5,6 +5,7 @@ import {
     getOrderRepository, 
     deleteOrderRepository 
 } from "@/repository/order"
+import { createOrderStripe } from "@/services/order-stripe/actions"
 import { 
     createOrderItemRepository, 
     getOrderItemRepository,
@@ -16,7 +17,7 @@ import { ORDER_STATUS } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { ORDER_PENDING, ORDER_PROCESSING } = ORDER_STATUS;
-const { PRODUCT_ERROR, ORDER_ERROR, SUBSCRIPTION_ERROR } = ERROR_MESSAGES;
+const { PRODUCT_ERROR, ORDER_ERROR, SUBSCRIPTION_ERROR, CHECKOUT_ERROR } = ERROR_MESSAGES;
 
 interface CreateCheckoutOrderItemsProps {
     orderId: OrderId;
@@ -24,7 +25,7 @@ interface CreateCheckoutOrderItemsProps {
 }
 
 // 注文データの作成
-export const createOrder = async ({ orderData }: { orderData: Order }) => {
+export const createOrder = async ({ orderData }: { orderData: OrderCreateInput }) => {
     try {
         const repository = createOrderRepository();
         const order = await repository.createOrder({ orderData });
@@ -79,10 +80,9 @@ export const createCheckoutOrder = async ({ session }: { session: StripeCheckout
             }
         }
         
+        // 注文データの作成
         const orderData = {
             user_id: session.metadata.userID as UserId,
-            stripe_session_id: session.id,
-            stripe_payment_intent_id: session.payment_intent,
             status: paymentStatus as OrderStatusType,
             shipping_fee: subscriptionShippingFee || session.shipping_cost?.amount_total || 0,
             total_amount: session.amount_total,
@@ -90,12 +90,11 @@ export const createCheckoutOrder = async ({ session }: { session: StripeCheckout
             address: session.customer_details?.address,
             delivery_name: session.customer_details?.name,
             payment_method: cardBrand,
-            created_at: new Date(),
-        } as Order;
+        }
 
         const { success, error, data } = await createOrder({ orderData });
 
-        if (!success) {
+        if (!success || !data) {
             return {
                 success: false, 
                 error: error,
@@ -106,14 +105,61 @@ export const createCheckoutOrder = async ({ session }: { session: StripeCheckout
         return {
             success: true, 
             error: null, 
-            data
+            data: data
         }
     } catch (error) {
         console.error('Database : Error in createCheckoutOrder: ', error);
 
         return {
             success: false, 
-            error: ORDER_ERROR.CREATE_CHECKOUT_FAILED,
+            error: CHECKOUT_ERROR.CREATE_ORDER_FAILED,
+            data: null
+        }
+    }
+}
+
+interface CreateCheckoutOrderStripeProps {
+    session: StripeCheckoutSession;
+    orderData: Order;
+}
+
+// 注文履歴の作成
+export const createCheckoutOrderStripe = async ({ 
+    session, 
+    orderData 
+}: CreateCheckoutOrderStripeProps) => {
+    try {
+        // Stripe注文データの作成
+        const orderStripeData = {
+            order_id: orderData.id,
+            session_id: session.id,
+            payment_intent_id: session.payment_intent,
+        }
+
+        const { 
+            success: orderStripeSuccess, 
+            error: orderStripeError, 
+        } = await createOrderStripe({ orderStripeData });
+
+        if (!orderStripeSuccess) {
+            return {
+                success: false, 
+                error: orderStripeError,
+                data: null
+            }
+        }
+
+        return {
+            success: true, 
+            error: null, 
+            data: null
+        }
+    } catch (error) {
+        console.error('Database : Error in createCheckoutOrderStripe: ', error);
+
+        return {
+            success: false, 
+            error: CHECKOUT_ERROR.CREATE_ORDER_STRIPE_FAILED,
             data: null
         }
     }

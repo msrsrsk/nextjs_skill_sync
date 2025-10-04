@@ -144,7 +144,7 @@ model Product {
 
   // Relations
   product_pricings    ProductPricing?
-  product_stripes    ProductStripe?
+  product_stripes     ProductStripe?
   reviews   Review[]
   bookmarks UserBookmark[]
   order_items OrderItem[]
@@ -290,8 +290,6 @@ model Order {
   id                    String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   user_id               String?      @db.Uuid
   order_number          Int         @unique @default(autoincrement())
-  stripe_session_id     String?     @unique  // Stripe Checkout Session ID
-  stripe_payment_intent_id String?  @unique  // Stripe Payment Intent ID
   status                OrderStatusType @default(pending)
   shipping_fee          Int
   total_amount          Int
@@ -304,15 +302,30 @@ model Order {
   
   // Relations
   user                  User?        @relation(fields: [user_id], references: [id], onDelete: SetNull)
+  order_stripes         OrderStripe?
   order_items           OrderItem[]
   
   @@index([user_id])
   @@index([status])
   @@index([user_id, status])
   @@index([created_at])
-  @@index([stripe_session_id])
-  @@index([stripe_payment_intent_id])
   @@map("orders")
+}
+
+model OrderStripe {
+  id                     String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  order_id               String @unique @db.Uuid
+  session_id             String? @unique            // Stripe Checkout Session ID
+  payment_intent_id      String? @unique            // Stripe Payment Intent ID
+  created_at             DateTime @default(now())
+  updated_at             DateTime @default(now()) @updatedAt
+  
+  // Relations
+  order                  Order @relation(fields: [order_id], references: [id], onDelete: Cascade)
+
+  @@index([session_id])
+  @@index([payment_intent_id])
+  @@map("order_stripes")
 }
 
 model OrderItem {

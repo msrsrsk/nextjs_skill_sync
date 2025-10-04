@@ -8,6 +8,7 @@ import type {
     Chat as PrismaChat, 
     VerificationToken as PrismaVerificationToken, 
     Order as PrismaOrder, 
+    OrderStripe as PrismaOrderStripe,
     SubscriptionPayment as PrismaSubscriptionPayment,
     ShippingAddress as PrismaShippingAddress, 
     Notification as PrismaNotification,
@@ -543,6 +544,14 @@ declare global {
         isSubscription?: boolean;
         subscriptionPaymentId?: PaymentSubscriptionId;
     }
+
+
+    /* ============================== 
+        OrderStripe 関連
+    ============================== */
+    type OrderStripe = PrismaOrderStripe;
+    
+    interface CreateOrderStripeProps extends Pick<OrderStripe, 'order_id' | 'session_id' | 'payment_intent_id'> {}
 
 
     /* ============================== 

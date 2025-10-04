@@ -3,7 +3,9 @@ import { NextRequest, NextResponse } from "next/server"
 
 import { verifyWebhookSignature } from "@/services/stripe/webhook/actions"
 import { createCheckoutOrder } from "@/services/order/actions"
+import { createCheckoutOrderStripe } from "@/services/order/actions"
 import { deleteOrder } from "@/services/order/actions"
+import { deleteOrderStripe } from "@/services/order-stripe/actions"
 import { createCheckoutOrderItems } from "@/services/order/actions"
 import { createShippingAddress } from "@/services/shipping-address/actions"
 import { getShippingAddressRepository } from "@/repository/shippingAddress"
@@ -91,6 +93,20 @@ async function handleCheckoutSessionCompleted({
         throw new Error(orderError as string);
     }
 
+    // OrderStripe テーブルのデータ作成
+    const { 
+        success: orderStripeSuccess, 
+        error: orderStripeError, 
+    } = await createCheckoutOrderStripe({ 
+        session: checkoutSessionEvent, 
+        orderData: orderData 
+    });
+
+    if (!orderStripeSuccess) {
+        await deleteOrder({ orderId: orderData.id });
+        throw new Error(orderStripeError as string);
+    }
+
     // OrderItems テーブルのデータ作成
     const  { 
         success: orderItemsSuccess, 
@@ -101,7 +117,7 @@ async function handleCheckoutSessionCompleted({
     });
 
     if (!orderItemsSuccess) {
-        await deleteOrder({ orderId: orderData.id });
+        await deleteOrderStripe({ orderId: orderData.id });
         throw new Error(orderItemsError as string);
     }
 
