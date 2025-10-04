@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useFormState } from 'react-dom'
 
-import { setDefaultShippingAddressAction } from '@/services/stripe/server-actions';
+import { setDefaultShippingAddressAction } from '@/services/stripe/form-actions'
 
 interface UseSetDefaultShippingAddressFormProps {
     optimisticDefaultAddress: ShippingAddress | null;
