@@ -1,3 +1,5 @@
+"use server"
+
 import crypto from "crypto"
 import bcrypt from "bcryptjs"
 import prisma from "@/lib/clients/prisma/client"
