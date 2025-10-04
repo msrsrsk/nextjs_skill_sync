@@ -8,7 +8,7 @@ export const updateProductStripeRepository = () => {
             data
         }: UpdateProductStripeProps) => {
             return await prisma.productStripe.update({
-                where: { id: productId },
+                where: { product_id: productId },
                 data: data
             })
         }
