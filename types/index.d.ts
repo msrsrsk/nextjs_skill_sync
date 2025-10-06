@@ -8,17 +8,18 @@ import type {
     ProductDetail as PrismaProductDetail,
     ProductRelation as PrismaProductRelation,
     ProductStripe as PrismaProductStripe,
-    Review as PrismaReview, 
     CartItem as PrismaCartItem,
+    Notification as PrismaNotification,
+    Review as PrismaReview, 
     Chat as PrismaChat, 
-    VerificationToken as PrismaVerificationToken, 
     Order as PrismaOrder, 
     OrderStripe as PrismaOrderStripe,
     OrderItem as PrismaOrderItem,
     OrderItemStripe as PrismaOrderItemStripe,
     SubscriptionPayment as PrismaSubscriptionPayment,
     ShippingAddress as PrismaShippingAddress, 
-    Notification as PrismaNotification,
+    UserBookmark as PrismaUserBookmark,
+    VerificationToken as PrismaVerificationToken, 
 } from "@prisma/client"
 import { Session } from "next-auth"
 import { openai } from "@/lib/clients/openai/client"
@@ -408,46 +409,15 @@ declare global {
         interval: string;
         price: number;
     }
-    
-
-    /* ============================== 
-        Sync Log 関連
-    ============================== */
-    type SyncLogTagSizeType = typeof SYNC_LOG_TAG_SIZES[keyof typeof SYNC_LOG_TAG_SIZES];
-
-    interface SyncLogCardProps {
-        id: string;
-        thumbnail: {
-            url: string;
-        };
-        title: string;
-        content: string;
-        category: {
-            name: string;
-        };
-        createdAt: Date;
-    }
-
-    interface SyncLogListsData {
-        logLists: {
-            [key: string]: {
-                logList: SyncLogCardProps[];
-                totalCount: number;
-            }
-        };
-    }
-
-    interface SyncLogData extends PaginationWithTotalCount {
-        logList: SyncLogCardProps[];
-    }
 
 
     /* ============================== 
-        Cart Item 関連
+        CartItem 関連
     ============================== */
     type CartOperationType = typeof CART_OPERATION_TYPES[keyof typeof CART_OPERATION_TYPES];
     
     type CartItem = PrismaCartItem;
+    type CartItemQuantity = CartItem['quantity'];
 
     type CartItemCreateInput = Prisma.CartItemCreateInput;
 
@@ -455,6 +425,42 @@ declare global {
         userId: UserId,
         productId: ProductId,
         quantity: number
+    }
+
+    interface CartItem {
+        id: ProductId;
+        title: ProductTitle;
+        image_urls: ProductImageUrls;
+        price: ProductPrice;
+        sale_price: ProductSalePrice;
+        category: ProductCategory;
+        slug: ProductSlug;
+        stock: ProductStock;
+        quantity: CartItemQuantity;
+        addedAt: number;
+        isSubscriptionOneTime?: boolean;
+    }
+
+
+    /* ============================== 
+        Notification 関連
+    ============================== */
+    type NotificationData = PrismaNotification; // ブラウザの組み込み型と競合するため型名にDataを追加
+
+    interface NotificationWithDetails extends NotificationData {
+        relatedData?: ProductNotificationData | ChatNotificationData | null;
+    }
+    
+    interface ProductNotificationData {
+        id: ProductId;
+        title: ProductTitle;
+    }
+    
+    interface ChatNotificationData {
+        id: ChatId;
+        chat_room_id: ChatRoomId;
+        message: ChatMessage;
+        sent_at: ChatSentAt;
     }
     
 
@@ -534,26 +540,6 @@ declare global {
 
     interface ChatMessageProps extends Pick<ChatProps, 'message' | 'source'> {
         senderType: ChatSenderType;
-    }
-
-
-    /* ============================== 
-        VerificationToken 関連
-    ============================== */
-    type VerificationStatusType = typeof VERIFICATION_STATUS[keyof typeof VERIFICATION_STATUS];
-
-    type VerificationIdentifier = VerificationToken['identifier'];
-    type VerificationTokenValue = VerificationToken['token'];
-    type VerificationExpires = VerificationToken['expires'];
-    type VerificationPassword = VerificationToken['password'];
-    type VerificationUserData = VerificationToken['userData'];
-
-    interface VerificationData {
-        identifier: VerificationIdentifier;
-        token: VerificationTokenValue;
-        expires: VerificationExpires;
-        password?: VerificationPassword;
-        userData?: VerificationUserData;
     }
 
 
@@ -686,7 +672,7 @@ declare global {
     ============================== */
     type BookmarkOperationType = typeof BOOKMARK_OPERATION_TYPES[keyof typeof BOOKMARK_OPERATION_TYPES];
 
-    type UserBookmark = UserBookmark;
+    type UserBookmark = PrismaUserBookmark;
 
     interface BookmarkContentProps {
         bookmarkData: BookmarkItemWithProduct[];
@@ -695,24 +681,54 @@ declare global {
 
 
     /* ============================== 
-        Notification 関連
+        VerificationToken 関連
     ============================== */
-    type NotificationData = PrismaNotification; // ブラウザの組み込み型と競合するため型名にDataを追加
+    type VerificationStatusType = typeof VERIFICATION_STATUS[keyof typeof VERIFICATION_STATUS];
 
-    interface NotificationWithDetails extends NotificationData {
-        relatedData?: ProductNotificationData | ChatNotificationData | null;
+    type VerificationIdentifier = VerificationToken['identifier'];
+    type VerificationTokenValue = VerificationToken['token'];
+    type VerificationExpires = VerificationToken['expires'];
+    type VerificationPassword = VerificationToken['password'];
+    type VerificationUserData = VerificationToken['userData'];
+
+    interface VerificationData {
+        identifier: VerificationIdentifier;
+        token: VerificationTokenValue;
+        expires: VerificationExpires;
+        password?: VerificationPassword;
+        userData?: VerificationUserData;
     }
-    
-    interface ProductNotificationData {
-        id: ProductId;
-        title: ProductTitle;
+
+
+    /* ============================== 
+        Sync Log 関連
+    ============================== */
+    type SyncLogTagSizeType = typeof SYNC_LOG_TAG_SIZES[keyof typeof SYNC_LOG_TAG_SIZES];
+
+    interface SyncLogCardProps {
+        id: string;
+        thumbnail: {
+            url: string;
+        };
+        title: string;
+        content: string;
+        category: {
+            name: string;
+        };
+        createdAt: Date;
     }
-    
-    interface ChatNotificationData {
-        id: ChatId;
-        chat_room_id: ChatRoomId;
-        message: ChatMessage;
-        sent_at: ChatSentAt;
+
+    interface SyncLogListsData {
+        logLists: {
+            [key: string]: {
+                logList: SyncLogCardProps[];
+                totalCount: number;
+            }
+        };
+    }
+
+    interface SyncLogData extends PaginationWithTotalCount {
+        logList: SyncLogCardProps[];
     }
 
 
@@ -741,7 +757,7 @@ declare global {
         country?: string;
     }
 
-    interface CustomerDetails {
+    interface StripeCustomerDetails {
         address: StripeAddress;
         name: string;
         phone?: string;
@@ -781,20 +797,6 @@ declare global {
     type StripeSubscriptionInterval = typeof SUBSCRIPTION_INTERVALS[keyof typeof SUBSCRIPTION_INTERVALS];
 
     type OpenAIClient = typeof openai;
-
-    interface CartItem {
-        id: ProductId;
-        title: ProductTitle;
-        image_urls: ProductImageUrls;
-        price: ProductPrice;
-        sale_price: ProductSalePrice;
-        category: ProductCategory;
-        slug: ProductSlug;
-        stock: ProductStock;
-        quantity: number;
-        addedAt: number;
-        isSubscriptionOneTime?: boolean;
-    }
 
     interface CheckoutLineItem {
         price: string;

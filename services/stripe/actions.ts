@@ -309,7 +309,7 @@ export const getShippingRateAmount = async (shippingRateId: string) => {
 
 export const updateCustomerShippingAddress = async (
     customerId: string,
-    data: CustomerDetails
+    data: StripeCustomerDetails
 ) => {
     try {
         const customer = await stripe.customers.update(customerId, {
