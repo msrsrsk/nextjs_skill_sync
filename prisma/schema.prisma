@@ -335,18 +335,20 @@ model OrderItem {
   quantity              Int
   unit_price            Int      // 購入時の単価
   total_price           Int      // 単価×数量
-  stripe_price_id       String?  // 使用Stripe価格ID
   remarks               String?  // 備考テキスト
-  subscription_id       String?  @unique  // Stripe subscription ID
   subscription_status   SubscriptionContractStatusType?
   subscription_interval String?  // サブスクの周期
   subscription_next_payment DateTime?  // サブスクの次回支払日
   created_at            DateTime @default(now())
   updated_at            DateTime @default(now()) @updatedAt
+
+  stripe_price_id       String?  // 使用Stripe価格ID
+  subscription_id       String?  @unique  // Stripe subscription ID
   
   // Relations
   order                 Order    @relation(fields: [order_id], references: [id], onDelete: Cascade)
   product               Product  @relation(fields: [product_id], references: [id], onDelete: Restrict)
+  order_item_stripes    OrderItemStripe?
   subscriptionPayments  SubscriptionPayment[] @relation("OrderItemSubscriptionPayment")
   
   @@index([order_id])
@@ -357,6 +359,20 @@ model OrderItem {
   @@index([order_id, product_id])
   @@index([created_at])
   @@map("order_items")
+}
+
+model OrderItemStripe {
+  id                     String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  order_item_id          String @unique @db.Uuid
+  price_id               String?                    // Stripe Price ID
+  subscription_id        String?  @unique           // Stripe subscription ID
+  created_at             DateTime @default(now())
+  updated_at             DateTime @default(now()) @updatedAt
+  
+  // Relations
+  order_items            OrderItem @relation(fields: [order_item_id], references: [id], onDelete: Cascade)
+
+  @@map("order_item_stripes")
 }
 
 model SubscriptionPayment {
