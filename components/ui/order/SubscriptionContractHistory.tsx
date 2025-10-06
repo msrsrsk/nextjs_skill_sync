@@ -11,7 +11,7 @@ const { DESKTOP_MAX_ITEMS, MOBILE_MAX_ITEMS } = SUBSCRIPTION_PAYMENT_DISPLAY;
 const { SUCCEEDED } = SUBSCRIPTION_PAYMENT_STATUS;
 
 interface SubscriptionContractHistoryProps {
-    order_items: OrderItem[];
+    order_items: OrderItemWithSelectFields[];
     orderId: OrderId;
 }
 
@@ -22,7 +22,7 @@ const SubscriptionContractHistory = ({
 
     const isMobile = useIsMobile();
 
-    const subscriptionPayments = order_items[0].subscriptionPayments;
+    const subscriptionPayments = order_items[0].subscription_payments;
     const maxItems = isMobile ? MOBILE_MAX_ITEMS : DESKTOP_MAX_ITEMS;
     const shouldShowOmit = subscriptionPayments.length > maxItems;
 

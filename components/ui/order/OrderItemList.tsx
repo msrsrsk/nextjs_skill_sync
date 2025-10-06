@@ -8,7 +8,7 @@ import { NOIMAGE_PRODUCT_IMAGE_URL, SITE_MAP } from "@/constants/index"
 const { CATEGORY_PATH } = SITE_MAP;
 
 interface OrderItemListProps {
-    orderItems: OrderItemWithOrderItemStripesAndProduct[];
+    orderItems: OrderItemWithSelectFields[];
     customClass?: string;
 }
 
@@ -26,8 +26,11 @@ const OrderItemList = ({
                     remarks,
                     order_item_stripes
                 } = item;
+
+                const { subscription_id } = order_item_stripes || {};
+
                 const isSale = unit_price < product.price;
-                const isRegularSale = isSale && !order_item_stripes[0].subscription_id;
+                const isRegularSale = isSale && order_item_stripes && !subscription_id;
 
                 return (
                     <div key={index} className="flex items-center gap-4 md:gap-6">

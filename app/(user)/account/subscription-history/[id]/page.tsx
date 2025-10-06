@@ -57,16 +57,16 @@ const SubscriptionHistoryDetailPage = async ({ params }: { params: { id: OrderId
     const { 
         created_at, 
         status, 
-        shipping_fee,
         order_items,
         order_number,
         total_amount,
         payment_method,
-        address,
-        delivery_name
-    } = orderResult as OrderWithOrderItems;
+        order_shippings,
+    } = orderResult as OrderWithSelectFields;
 
-    const subscriptionId = order_items[0].subscription_id;
+    const { delivery_name, address, shipping_fee } = order_shippings || {};
+
+    const subscriptionId = order_items[0].order_item_stripes?.subscription_id;
     const subscriptionStatus = order_items[0].subscription_status;
     const nextPaymentDate = order_items[0].subscription_next_payment;
     const formattedNextPaymentDate = nextPaymentDate ? formatDate(nextPaymentDate) : 'No data';
@@ -98,11 +98,13 @@ const SubscriptionHistoryDetailPage = async ({ params }: { params: { id: OrderId
                             サブスクリプションの詳細
                         </h4>
                         <div className="hidden md:block">
-                            <SubscriptionCancelButton 
-                                subscriptionId={subscriptionId}
-                                createdAt={created_at}
-                                isCancelled={isCancelled}
-                            />
+                            {subscriptionId && (
+                                <SubscriptionCancelButton 
+                                    subscriptionId={subscriptionId}
+                                    createdAt={created_at}
+                                    isCancelled={isCancelled}
+                                />
+                            )}
                         </div>
                     </div>
 
@@ -164,11 +166,11 @@ const SubscriptionHistoryDetailPage = async ({ params }: { params: { id: OrderId
 
                                     <OrderPriceDisplay 
                                         label="小計　　　　" 
-                                        amount={total_amount - shipping_fee}
+                                        amount={total_amount - (shipping_fee || 0)}
                                     />
                                     <OrderPriceDisplay 
                                         label="配送料　　　" 
-                                        amount={shipping_fee}
+                                        amount={shipping_fee || 0}
                                     />
                                     <OrderPriceDisplay 
                                         label="合計　　　　" 
@@ -189,22 +191,24 @@ const SubscriptionHistoryDetailPage = async ({ params }: { params: { id: OrderId
                     <div className="order-address-box">
                         <OrderAddressDisplay
                             title="お届け先"
-                            name={delivery_name}
+                            name={delivery_name || ''}
                             address={address as ShippingAddress}
                         />
                         <OrderAddressDisplay
                             title="請求先"
-                            name={delivery_name}
+                            name={delivery_name || ''}
                             address={address as ShippingAddress}
                         />
                     </div>
 
                     <div className="order-download-btnbox">
-                        <SubscriptionCancelButton 
-                            subscriptionId={subscriptionId}
-                            createdAt={created_at}
-                            isCancelled={isCancelled}
-                        />
+                        {subscriptionId && (
+                            <SubscriptionCancelButton 
+                                subscriptionId={subscriptionId}
+                                createdAt={created_at}
+                                isCancelled={isCancelled}
+                            />
+                        )}
                     </div>
                 </div>
 

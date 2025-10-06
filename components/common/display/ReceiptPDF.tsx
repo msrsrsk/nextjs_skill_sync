@@ -41,14 +41,14 @@ const ReceiptPDF = ({
 }: ReceiptPDFProps) => {
     const { 
         created_at, 
-        shipping_fee,
         order_items,
         order_number,
         total_amount,
         payment_method,
-        address,
-        delivery_name
+        order_shippings
     } = order;
+
+    const { delivery_name, address, shipping_fee } = order_shippings || {};
 
     const receiptNumber = isSubscription && subscriptionPaymentId 
         ? subscriptionPaymentId 
@@ -162,7 +162,7 @@ const ReceiptPDF = ({
                         </Text>
                     </View>
                 </View>
-                {order_items.map((item: OrderItem) => {
+                {order_items.map((item: OrderItemWithSelectFields) => {
                     const { product, quantity, unit_price, remarks } = item;
 
                     const isSale = unit_price < product.price;
@@ -207,7 +207,7 @@ const ReceiptPDF = ({
                             小計
                         </Text>
                         <Text style={tw("text-sm font-meduim pt-1 pb-2 px-2 max-w-[114px] w-full text-right border-r border-b border-main min-h-[23px]")}>
-                            ¥{formatNumber(total_amount - shipping_fee)}
+                            ¥{formatNumber(total_amount - (shipping_fee || 0))}
                         </Text>
                     </View>
                 </View>
@@ -218,7 +218,7 @@ const ReceiptPDF = ({
                             配送料
                         </Text>
                         <Text style={tw("text-sm font-meduim pt-1 pb-2 px-2 max-w-[114px] w-full text-right border-r border-b border-main min-h-[23px]")}>
-                            ¥{formatNumber(shipping_fee)}
+                            ¥{formatNumber(shipping_fee || 0)}
                         </Text>
                     </View>
                 </View>

@@ -2,13 +2,15 @@ import { SUBSCRIPTION_PAYMENT_STATUS } from "@/constants/index"
 
 const { PENDING, PAST_DUE, FAILED, CANCELED } = SUBSCRIPTION_PAYMENT_STATUS;
 
+type SubscriptionPaymentSelectFields = Pick<SubscriptionPayment, 'id' | 'payment_date' | 'status'>;
+
 interface SubscriptionPaymentDisplayProps {
-    subscriptionPayments: SubscriptionPayment[];
+    subscriptionPayments: SubscriptionPaymentSelectFields[];
     maxItems: number;
 }
 
 interface DisplayDataItem {
-    payment: SubscriptionPayment;
+    payment: SubscriptionPaymentSelectFields;
     originalIndex: number;
 }
 
@@ -22,7 +24,7 @@ const useSubscriptionPaymentDisplay = ({
             return subscriptionPayments
                 .slice(0, maxItems)
                 .map((
-                    payment: SubscriptionPayment, 
+                    payment: SubscriptionPaymentSelectFields, 
                     index: number
                 ) => (
             { payment, originalIndex: index }));
@@ -30,7 +32,7 @@ const useSubscriptionPaymentDisplay = ({
             const firstItem = { payment: subscriptionPayments[0], originalIndex: 0 };
             const lastItems = subscriptionPayments
                 .slice(-(maxItems - 1))
-                .map((payment: SubscriptionPayment, index: number) => ({
+                .map((payment: SubscriptionPaymentSelectFields, index: number) => ({
                     payment,
                     originalIndex: subscriptionPayments.length - (maxItems - 1) + index
                 }));

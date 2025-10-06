@@ -13,6 +13,7 @@ import type {
     Review as PrismaReview, 
     Chat as PrismaChat, 
     Order as PrismaOrder, 
+    OrderShipping as PrismaOrderShipping,
     OrderStripe as PrismaOrderStripe,
     OrderItem as PrismaOrderItem,
     OrderItemStripe as PrismaOrderItemStripe,
@@ -141,12 +142,23 @@ declare global {
         user_profiles: UserProfile;
     }
 
-    interface OrderItemWithOrderItemStripes extends OrderItem {
+    interface OrderItemWithStripes extends OrderItem {
         order_item_stripes: OrderItemStripe[];
     }
-    
+
+    interface OrderItemWithRelations extends OrderItem {
+        order_item_stripes: OrderItemStripe[];
+        product: Product;
+        subscription_payments: SubscriptionPayment[] | null;
+    }
+
+    interface OrderWithRelations extends Order {
+        order_shippings: OrderShipping | null;
+        order_items: OrderItemWithRelations[];
+    }
+
     interface OrderWithOrderItemsAndStripeData extends Order {
-        order_items: OrderItemWithOrderItemStripes[];
+        order_items: OrderItemWithStripes[];
         address: ShippingAddress | null;
     }
 
@@ -583,10 +595,48 @@ declare global {
     }
 
     interface ReceiptPDFProps {
-        order: OrderWithOrderItemsAndStripeData;
+        order: OrderWithSelectFields;
         isSubscription?: boolean;
         subscriptionPaymentId?: PaymentSubscriptionId;
     }
+
+    interface OrderItemWithSelectFields {
+        id: OrderItemId;
+        product_id: OrderItemOrderId;
+        quantity: OrderItemQuantity;
+        unit_price: OrderItemUnitPrice;
+        subscription_status: OrderItemSubscriptionStatus;
+        subscription_next_payment: OrderItemSubscriptionNextPayment;
+        remarks: OrderItemRemarks;
+        order_item_stripes: {
+            subscription_id: OrderItemStripeSubscriptionId;
+        } | null;
+        product: {
+            title: ProductTitle;
+            image_urls: ProductImageUrls;
+            price: ProductPrice;
+            category: CategoryType;
+            slug: ProductSlug;
+        };
+        subscription_payments: {
+            id: SubscriptionPaymentId;
+            payment_date: SubscriptionPaymentPaymentDate;
+            status: SubscriptionPaymentStatus;
+        }[];
+    }
+
+    interface OrderWithSelectFields extends Order {
+        order_items: OrderItemWithSelectFields[];
+        order_shippings: (Omit<OrderShipping, 'address'> & {
+            address: ShippingAddress;
+        }) | null;
+    }
+
+
+    /* ============================== 
+        OrderShipping 関連
+    ============================== */
+    type OrderShipping = PrismaOrderShipping;
 
 
     /* ============================== 
@@ -610,6 +660,7 @@ declare global {
     type OrderItemSubscriptionInterval = OrderItem['subscription_interval'];
     type OrderItemSubscriptionStatus = OrderItem['subscription_status'];
     type OrderItemSubscriptionProduct = OrderItem['subscription_product'];
+    type OrderItemSubscriptionNextPayment = OrderItem['subscription_next_payment'];
     type OrderItemRemarks = OrderItem['remarks'];
 
     type OrderItemSubscriptionId = OrderItem['subscription_id'];
@@ -637,6 +688,7 @@ declare global {
     ============================== */
     type SubscriptionPayment = PrismaSubscriptionPayment;
     type SubscriptionPaymentId = SubscriptionPayment['id'];
+    type SubscriptionPaymentPaymentDate = SubscriptionPayment['payment_date'];
     type PaymentSubscriptionId = SubscriptionPayment['subscription_id'];
     type SubscriptionPaymentStatus = SubscriptionPayment['status'];
 

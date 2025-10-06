@@ -67,7 +67,6 @@ export const getOrderRepository = () => {
                                 product_id: true,
                                 quantity: true,
                                 unit_price: true,
-                                subscription_id: true,
                                 remarks: true,
                                 order_item_stripes: {
                                     select: {
@@ -123,8 +122,10 @@ export const getOrderRepository = () => {
             return await prisma.order.findUnique({
                 where: { id: orderId },
                 include: {
+                    order_shippings: true,
                     order_items: {
                         select: {
+                            id: true,
                             product_id: true,
                             quantity: true,
                             unit_price: true,

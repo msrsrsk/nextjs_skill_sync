@@ -59,7 +59,7 @@ const ReceiptPrintWrapper = async ({
 
     return (
         <ReceiptPrintContent 
-            order={orderResult as OrderWithOrderItemsAndStripeData} 
+            order={orderResult as OrderWithSelectFields} 
             isSubscription={isSubscription}
             subscriptionPaymentId={subscriptionPaymentId}
         />
