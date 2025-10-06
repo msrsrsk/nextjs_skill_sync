@@ -3,22 +3,26 @@ import ProductSyncConditions from "@/components/ui/product/ProductSyncConditions
 import { parseNewlineToArray } from "@/lib/utils/format"
 import { formatCategory } from "@/services/product/format"
 
-const ProductInfo = ({ product }: { product: ProductWithProductStripeAndPricing }) => {
+const ProductInfo = ({ product }: { product: ProductWithRelationsAndDetails }) => {
     if (!product) return null
 
+    const { 
+        category,
+        optimal_syncs_required_id, 
+        product_pricings,
+        product_details
+    } = product;
+
+    const sold_count = product_pricings?.sold_count;
+    
     const { 
         sync_time, 
         target_level, 
         effective_date, 
-        category,
         obtainable_skills, 
         side_effect, 
-        skill_effects, 
-        optimal_syncs_required_id, 
-        product_pricings,
-    } = product;
-
-    const sold_count = product_pricings?.sold_count;
+        skill_effects 
+    } = product_details || {};
 
     const productInfoItems = [
         { key: 'sync_time', label: '同期時間　　：', value: sync_time },
@@ -48,10 +52,10 @@ const ProductInfo = ({ product }: { product: ProductWithProductStripeAndPricing 
 
                 <dl>
                     {productInfoItems.map(({ key, label, value }) => (
-                            <div key={key} className="product-info-dlbox">
-                                <dt className="product-info-dt">{label}</dt>
-                                <dd className="product-info-dd">{value}</dd>
-                            </div>
+                        <div key={key} className="product-info-dlbox">
+                            <dt className="product-info-dt">{label}</dt>
+                            <dd className="product-info-dd">{value}</dd>
+                        </div>
                     ))}
                 </dl>
             </div>

@@ -26,7 +26,7 @@ const { STAR_MONOCHROME } = STAR_RATING_TYPES;
 
 interface ProductDetailsProps extends ReviewStats {
     slug: ProductSlug;
-    product: ProductWithProductStripeAndPricing;
+    product: ProductWithRelationsAndDetails;
     productReviewsCount?: number;
 }
 

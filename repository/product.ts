@@ -69,6 +69,7 @@ export const getProductRepository = () => {
                         }
                     },
                     product_pricings: true,
+                    product_details: true,
                     product_stripes: true
                 }
             })

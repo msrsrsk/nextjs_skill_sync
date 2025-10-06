@@ -146,6 +146,9 @@ model UserStripe {
   @@map("user_stripes")
 }
 
+// ==================== Product Models ====================
+
+// 商品基本情報
 model Product {
   id           String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   title        String
@@ -159,14 +162,6 @@ model Product {
   created_at   DateTime @default(now()) 
   updated_at   DateTime @default(now()) @updatedAt
 
-  // 商品情報
-  sync_time          String?
-  target_level       String?
-  effective_date     String?
-  obtainable_skills  String?
-  side_effect        String?
-  skill_effects      String?
-  
   // 関連商品ID
   optimal_syncs_required_id    String?
   optimal_syncs_option_id      String?
@@ -175,6 +170,7 @@ model Product {
   optimal_syncs_text  String?  @db.VarChar(60) 
 
   // Relations
+  product_details     ProductDetail?
   product_pricings    ProductPricing?
   product_stripes     ProductStripe?
   reviews   Review[]
@@ -192,8 +188,8 @@ model Product {
   @@map("products")
 }
 
+// 商品価格・販売情報
 model ProductPricing {
-  id           String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   product_id   String @unique @db.Uuid
   sale_price   Int?
   sold_count   Int      @default(0)
@@ -207,15 +203,34 @@ model ProductPricing {
   @@map("product_pricings")
 }
 
+// 商品詳細情報（スキル情報）
+model ProductDetail {
+  product_id         String   @unique @db.Uuid
+  sync_time          String?
+  target_level       String?
+  effective_date     String?
+  obtainable_skills  String?
+  side_effect        String?
+  skill_effects      String?
+  created_at         DateTime @default(now())
+  updated_at         DateTime @default(now()) @updatedAt
+
+  product Product @relation(fields: [product_id], references: [id], onDelete: Cascade)
+
+  @@index([product_id])
+  @@map("product_details")
+}
+
+// 商品Stripe情報
 model ProductStripe {
-  id           String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  product_id   String @unique @db.Uuid    // Supabaseの商品ID
-  stripe_product_id   String?             // Stripeの商品ID
-  regular_price_id   String?              // Stripeの通常商品価格ID
-  sale_price_id   String?                 // Stripeのセール商品価格ID
-  subscription_price_ids   String?        // Stripeのサブスク商品価格ID
-  created_at   DateTime @default(now())
-  updated_at   DateTime @default(now()) @updatedAt
+  id                        String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  product_id                String @unique @db.Uuid    // リレーションの商品ID
+  stripe_product_id         String?                    // Stripeの商品ID
+  regular_price_id          String?                    // Stripeの通常商品価格ID
+  sale_price_id             String?                    // Stripeのセール商品価格ID
+  subscription_price_ids    String?                    // Stripeのサブスク商品価格ID
+  created_at                DateTime @default(now())
+  updated_at                DateTime @default(now()) @updatedAt
   
   // Relations
   product     Product @relation(fields: [product_id], references: [id], onDelete: Cascade)

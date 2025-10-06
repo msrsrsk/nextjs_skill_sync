@@ -3,10 +3,11 @@ import type {
     UserProfile as PrismaUserProfile,
     UserImage as PrismaUserImage,
     UserStripe as PrismaUserStripe,
-    Review as PrismaReview, 
     Product as PrismaProduct, 
     ProductPricing as PrismaProductPricing,
+    ProductDetail as PrismaProductDetail,
     ProductStripe as PrismaProductStripe,
+    Review as PrismaReview, 
     CartItem as PrismaCartItem,
     Chat as PrismaChat, 
     VerificationToken as PrismaVerificationToken, 
@@ -166,16 +167,20 @@ declare global {
     }
 
     interface CartItemWithProduct extends CartItem {
-        product: ProductWithProductStripeAndPricing;
+        product: ProductWithRelations;
     }
 
     interface BookmarkItemWithProduct extends UserBookmark {
         product: Product;
     }
 
-    interface ProductWithProductStripeAndPricing extends Product {
+    interface ProductWithRelations extends Product {
         product_stripes: ProductStripe | null;
         product_pricings: ProductPricing | null;
+    }
+
+    interface ProductWithRelationsAndDetails extends ProductWithRelations {
+        product_details: ProductDetail | null;
     }
 
 
@@ -260,47 +265,6 @@ declare global {
     interface UpdateUserImageFilePathProps {
         userId: UserId;
         filePath: UserImagePath;
-    }
-
-
-    /* ============================== 
-        UserStripe 関連
-    ============================== */
-    interface CreateUserStripeCustomerIdProps extends UserIdProps {
-        userId: UserId;
-        customerId: StripeCustomerId;
-    }
-    
-
-    /* ============================== 
-        Sync Log 関連
-    ============================== */
-    type SyncLogTagSizeType = typeof SYNC_LOG_TAG_SIZES[keyof typeof SYNC_LOG_TAG_SIZES];
-
-    interface SyncLogCardProps {
-        id: string;
-        thumbnail: {
-            url: string;
-        };
-        title: string;
-        content: string;
-        category: {
-            name: string;
-        };
-        createdAt: Date;
-    }
-
-    interface SyncLogListsData {
-        logLists: {
-            [key: string]: {
-                logList: SyncLogCardProps[];
-                totalCount: number;
-            }
-        };
-    }
-
-    interface SyncLogData extends PaginationWithTotalCount {
-        logList: SyncLogCardProps[];
     }
 
 
@@ -395,10 +359,16 @@ declare global {
 
 
     /* ============================== 
-        ProductStripe 関連
+        ProductPricing 関連
     ============================== */
     type ProductPricing = PrismaProductPricing;
     type ProductSalePrice = ProductPricing['sale_price'];
+
+
+    /* ============================== 
+        ProductDetail 関連
+    ============================== */
+    type ProductDetail = PrismaProductDetail;
 
 
     /* ============================== 
@@ -417,6 +387,47 @@ declare global {
             regular_price_id: StripeRegularPriceId,
             sale_price_id?: StripeSalePriceId
         }
+    }
+
+
+    /* ============================== 
+        UserStripe 関連
+    ============================== */
+    interface CreateUserStripeCustomerIdProps extends UserIdProps {
+        userId: UserId;
+        customerId: StripeCustomerId;
+    }
+    
+
+    /* ============================== 
+        Sync Log 関連
+    ============================== */
+    type SyncLogTagSizeType = typeof SYNC_LOG_TAG_SIZES[keyof typeof SYNC_LOG_TAG_SIZES];
+
+    interface SyncLogCardProps {
+        id: string;
+        thumbnail: {
+            url: string;
+        };
+        title: string;
+        content: string;
+        category: {
+            name: string;
+        };
+        createdAt: Date;
+    }
+
+    interface SyncLogListsData {
+        logLists: {
+            [key: string]: {
+                logList: SyncLogCardProps[];
+                totalCount: number;
+            }
+        };
+    }
+
+    interface SyncLogData extends PaginationWithTotalCount {
+        logList: SyncLogCardProps[];
     }
 
 
@@ -779,7 +790,6 @@ declare global {
         quantity: number;
     }
 
-    interface LocalCartStorage extends Pick<CartItem, 'id' | 'quantity' | 'addedAt' | 'isSubscriptionOneTime'> {};
     type PaymentErrorType = keyof typeof ERROR_MESSAGES.PAYMENT_ERROR;
 }
 
