@@ -44,9 +44,11 @@ export const getProductBySlug = async ({
                 );
         };
 
-        const requiredIds = parseIds(product.optimal_syncs_required_id);
-        const optionIds = parseIds(product.optimal_syncs_option_id);
-        const recommendedIds = parseIds(product.optimal_syncs_recommended_id)
+        const productRelations = product.product_relations;
+
+        const requiredIds = parseIds(productRelations?.optimal_syncs_required_id || '');
+        const optionIds = parseIds(productRelations?.optimal_syncs_option_id || '');
+        const recommendedIds = parseIds(productRelations?.optimal_syncs_recommended_id || '')
             .filter(id => id !== product.id);
 
         const maxCount = OPTIMAL_SYNCS_LIMIT;

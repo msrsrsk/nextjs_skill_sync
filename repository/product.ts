@@ -70,6 +70,7 @@ export const getProductRepository = () => {
                     },
                     product_pricings: true,
                     product_details: true,
+                    product_relations: true,
                     product_stripes: true
                 }
             })
@@ -131,7 +132,11 @@ export const getProductRepository = () => {
                         image_urls: true,
                         category: true,
                         slug: true,
-                        optimal_syncs_text: true
+                        product_relations: {
+                            select: {
+                                optimal_syncs_text: true
+                            }
+                        }
                     };
                 }
         

@@ -69,13 +69,13 @@ const ProductSliderContainer = <T extends boolean = false>({
     ));
 
     const renderOptimalSyncCards = (
-        products: Product[], 
+        products: ProductWithOptimalSyncs[], 
         tagType: OptimalSyncTagType,
         linksRef: React.RefObject<HTMLAnchorElement>,
         setIsHovered: (isHovered: boolean) => void
     ) => {
         if (!products || products.length === 0) return null;
-    
+
         return products.map((product) => (
             <div key={product.id}>
                 <OptimalSyncsCard 
@@ -97,19 +97,19 @@ const ProductSliderContainer = <T extends boolean = false>({
     
         const allCards = [
             ...(renderOptimalSyncCards(
-                requiredIds, 
+                requiredIds as ProductWithOptimalSyncs[], 
                 REQUIRED_TAG, 
                 linksRef, 
                 setIsHovered
             ) || []),
             ...(renderOptimalSyncCards(
-                optionIds, 
+                optionIds as ProductWithOptimalSyncs[], 
                 OPTION_TAG, 
                 linksRef, 
                 setIsHovered
             ) || []),
             ...(renderOptimalSyncCards(
-                recommendedIds, 
+                recommendedIds as ProductWithOptimalSyncs[], 
                 PICKUP_TAG, 
                 linksRef, 
                 setIsHovered

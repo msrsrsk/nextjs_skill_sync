@@ -162,16 +162,10 @@ model Product {
   created_at   DateTime @default(now()) 
   updated_at   DateTime @default(now()) @updatedAt
 
-  // 関連商品ID
-  optimal_syncs_required_id    String?
-  optimal_syncs_option_id      String?
-  optimal_syncs_recommended_id String?
-
-  optimal_syncs_text  String?  @db.VarChar(60) 
-
   // Relations
-  product_details     ProductDetail?
   product_pricings    ProductPricing?
+  product_details     ProductDetail?
+  product_relations   ProductRelation?
   product_stripes     ProductStripe?
   reviews   Review[]
   bookmarks UserBookmark[]
@@ -219,6 +213,22 @@ model ProductDetail {
 
   @@index([product_id])
   @@map("product_details")
+}
+
+// 関連商品情報
+model ProductRelation {
+  product_id                       String   @unique @db.Uuid
+  optimal_syncs_required_id        String?
+  optimal_syncs_option_id          String?
+  optimal_syncs_recommended_id     String?
+  optimal_syncs_text               String?  @db.VarChar(60)
+  created_at                       DateTime @default(now())
+  updated_at                       DateTime @default(now()) @updatedAt
+
+  product Product @relation(fields: [product_id], references: [id], onDelete: Cascade)
+
+  @@index([product_id])
+  @@map("product_relations")
 }
 
 // 商品Stripe情報

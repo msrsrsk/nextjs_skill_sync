@@ -7,7 +7,7 @@ import { SITE_MAP, NOIMAGE_PRODUCT_IMAGE_URL } from "@/constants/index"
 const { CATEGORY_PATH } = SITE_MAP;
 
 interface OptimalSyncsCardProps {
-    product: Product;
+    product: ProductWithOptimalSyncs;
     linksRef: React.RefObject<HTMLAnchorElement>;
     setIsHovered: (isHovered: boolean) => void;
     tagType: OptimalSyncTagType;
@@ -24,8 +24,10 @@ const OptimalSyncsCard = ({
         image_urls, 
         category, 
         slug, 
-        optimal_syncs_text 
+        product_relations
     } = product;
+
+    const optimal_syncs_text = product_relations?.optimal_syncs_text;
 
     return (
         <Link 

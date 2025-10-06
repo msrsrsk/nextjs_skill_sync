@@ -6,6 +6,7 @@ import type {
     Product as PrismaProduct, 
     ProductPricing as PrismaProductPricing,
     ProductDetail as PrismaProductDetail,
+    ProductRelation as PrismaProductRelation,
     ProductStripe as PrismaProductStripe,
     Review as PrismaReview, 
     CartItem as PrismaCartItem,
@@ -181,6 +182,11 @@ declare global {
 
     interface ProductWithRelationsAndDetails extends ProductWithRelations {
         product_details: ProductDetail | null;
+        product_relations: ProductRelation | null;
+    }
+
+    interface ProductWithOptimalSyncs extends Product {
+        product_relations: ProductRelation;
     }
 
 
@@ -216,7 +222,6 @@ declare global {
     interface UpdateUserPasswordProps extends UserIdProps {
         password: UserPassword;
     }
-
 
     /* ============================== 
         UserProfile 関連
@@ -269,6 +274,15 @@ declare global {
 
 
     /* ============================== 
+        UserStripe 関連
+    ============================== */
+    interface CreateUserStripeCustomerIdProps extends UserIdProps {
+        userId: UserId;
+        customerId: StripeCustomerId;
+    }
+
+
+    /* ============================== 
         Product 関連
     ============================== */
     type ProductPriceStatusType = typeof PRODUCT_PRICE_STATUS[keyof typeof PRODUCT_PRICE_STATUS];
@@ -306,17 +320,6 @@ declare global {
         category: CategoryType;
     }
 
-    interface OptimalSyncsProductIds {
-        totalCount: number;
-        requiredIds: Product[];
-        optionIds: Product[];
-        recommendedIds: Product[];
-    }
-
-    interface OptimalSyncsProductData {
-        productData: OptimalSyncsProductIds;
-    }
-
     interface GetAllCategoriesProductsProps {
         limit?: number;
         threshold?: number;
@@ -342,17 +345,6 @@ declare global {
         }>
     }
 
-    interface SubscriptionOption {
-        interval: string;
-        priceId: string;
-        price: number;
-    }
-
-    interface CreateSubscriptionOption {
-        interval: string;
-        price: number;
-    }
-
     interface TrendSectionContentProps {
         productData: TrendCategoryData[];
     }
@@ -369,6 +361,23 @@ declare global {
         ProductDetail 関連
     ============================== */
     type ProductDetail = PrismaProductDetail;
+
+
+    /* ============================== 
+        ProductRelation 関連
+    ============================== */
+    type ProductRelation = PrismaProductRelation;
+
+    interface OptimalSyncsProductIds {
+        totalCount: number;
+        requiredIds: Product[];
+        optionIds: Product[];
+        recommendedIds: Product[];
+    }
+
+    interface OptimalSyncsProductData {
+        productData: OptimalSyncsProductIds;
+    }
 
 
     /* ============================== 
@@ -389,13 +398,15 @@ declare global {
         }
     }
 
+    interface SubscriptionOption {
+        interval: string;
+        priceId: string;
+        price: number;
+    }
 
-    /* ============================== 
-        UserStripe 関連
-    ============================== */
-    interface CreateUserStripeCustomerIdProps extends UserIdProps {
-        userId: UserId;
-        customerId: StripeCustomerId;
+    interface CreateSubscriptionOption {
+        interval: string;
+        price: number;
     }
     
 
