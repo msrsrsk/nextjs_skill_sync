@@ -1,7 +1,11 @@
 "use server"
 
 import { auth } from "@/lib/auth"
-import { updateUserIconUrl, updateUserName, updateUserTel } from "@/services/user/actions"
+import { 
+    updateUserProfileIconUrl, 
+    updateUserProfileName, 
+    updateUserProfileTel 
+} from "@/services/user-profile/actions"
 import { actionAuth } from "@/lib/middleware/auth"
 import { urlToFile } from "@/services/file/actions"
 import { getUserImageRepository } from "@/repository/userImage"
@@ -15,21 +19,21 @@ import { CLOUDFLARE_BUCKET_TYPES } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { BUCKET_PROFILE } = CLOUDFLARE_BUCKET_TYPES;
-const { USER_ERROR, USER_IMAGE_ERROR } = ERROR_MESSAGES;
+const { USER_ERROR, USER_PROFILE_ERROR, USER_IMAGE_ERROR } = ERROR_MESSAGES;
 
 interface UpdateIconImageActionState extends ActionStateWithTimestamp {
-    data: UserIconUrl | null;
+    data: UserProfileIconUrl | null;
 }
 
 interface UpdateNameActionState extends ActionStateWithTimestamp {
     data: {
-        lastname: UserLastname | null;
-        firstname: UserFirstname | null;
+        lastname: UserProfileLastname | null;
+        firstname: UserProfileFirstname | null;
     }
 }
 
 interface UpdateTelActionState extends ActionStateWithTimestamp {
-    data: UserTel;
+    data: UserProfileTel;
 }
 
 export async function updateIconImageAction(
@@ -40,7 +44,7 @@ export async function updateIconImageAction(
     try {
         // throw new Error('アイコンの更新に失敗しました。\n時間をおいて再度お試しください。');
         
-        const { userId } = await actionAuth<UserIconUrl>(
+        const { userId } = await actionAuth<UserProfileIconUrl>(
             USER_ERROR.ICON_UPDATE_UNAUTHORIZED,
             true
         );
@@ -142,7 +146,7 @@ export async function updateIconImageAction(
         const { 
             success: updateIconUrlSuccess, 
             error: updateIconUrlError, 
-        } = await updateUserIconUrl({
+        } = await updateUserProfileIconUrl({
             userId: userId as UserId,
             iconUrl: finalIconUrl
         });
@@ -167,7 +171,7 @@ export async function updateIconImageAction(
         
         return {
             success: false, 
-            error: USER_ERROR.ICON_UPDATE_FAILED,
+            error: USER_PROFILE_ERROR.ICON_UPDATE_FAILED,
             data: null,
             timestamp: Date.now()
         }
@@ -210,7 +214,7 @@ export async function updateNameAction(
             };
         }
 
-        const { success, error, data } = await updateUserName({
+        const { success, error, data } = await updateUserProfileName({
             userId: session.user.id,
             lastname,
             firstname
@@ -242,7 +246,7 @@ export async function updateNameAction(
 
         return { 
             success: false, 
-            error: USER_ERROR.NAME_UPDATE_FAILED,
+            error: USER_PROFILE_ERROR.NAME_UPDATE_FAILED,
             data: {
                 lastname: null,
                 firstname: null
@@ -259,7 +263,7 @@ export async function updateTelAction(
     try {
         // throw new Error('電話番号の更新に失敗しました。\n時間をおいて再度お試しください。');
         
-        const { userId } = await actionAuth<UserTel>(
+        const { userId } = await actionAuth<UserProfileTel>(
             USER_ERROR.TEL_UPDATE_UNAUTHORIZED,
             true
         );
@@ -275,7 +279,7 @@ export async function updateTelAction(
             };
         }
 
-        const { success, error, data } = await updateUserTel({
+        const { success, error, data } = await updateUserProfileTel({
             userId: userId as UserId,
             tel
         });
@@ -300,7 +304,7 @@ export async function updateTelAction(
 
         return {
             success: false, 
-            error: USER_ERROR.TEL_UPDATE_FAILED,
+            error: USER_PROFILE_ERROR.TEL_UPDATE_FAILED,
             data: null,
             timestamp: Date.now()
         };

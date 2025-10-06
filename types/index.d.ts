@@ -1,5 +1,8 @@
 import type { 
     User as PrismaUser, 
+    UserProfile as PrismaUserProfile,
+    UserImage as PrismaUserImage,
+    UserStripe as PrismaUserStripe,
     Review as PrismaReview, 
     Product as PrismaProduct, 
     ProductPricing as PrismaProductPricing,
@@ -130,8 +133,9 @@ declare global {
         y: number;
     }
 
-    interface UserWithShippingAddresses extends User {
+    interface UserWithShippingAddressesAndProfile extends User {
         shipping_addresses: ShippingAddress[];
+        user_profiles: UserProfile;
     }
 
     interface OrderItemWithOrderItemStripes extends OrderItem {
@@ -173,6 +177,99 @@ declare global {
         product_stripes: ProductStripe | null;
         product_pricings: ProductPricing | null;
     }
+
+
+    /* ============================== 
+        User 関連
+    ============================== */
+    type GetUserDataTypes = typeof GET_USER_DATA_TYPES[keyof typeof GET_USER_DATA_TYPES];
+    type UpdatePasswordPageType = typeof UPDATE_PASSWORD_PAGE_TYPES[keyof typeof UPDATE_PASSWORD_PAGE_TYPES];
+
+    type User = PrismaUser;
+    type UserId = User['id'];
+    type UserEmail = User['email']; 
+    type UserPassword = User['password']; 
+    type UserEmailVerified = User['emailVerified'];
+    
+    interface UserIdProps {
+        userId: UserId;
+    }
+
+    interface UserData {
+        email: UserEmail;
+        password: UserPassword;
+    }
+    
+    interface CreateUserData extends UserData {
+        emailVerified: UserEmailVerified;
+    }
+    
+    interface UpdateUserEmailProps extends UserIdProps {
+        email: UserEmail;
+    }
+    
+    interface UpdateUserPasswordProps extends UserIdProps {
+        password: UserPassword;
+    }
+
+
+    /* ============================== 
+        UserProfile 関連
+    ============================== */
+    type UserProfile = PrismaUserProfile;
+    type UserProfileId = UserProfile['user_id'];
+    type UserProfileLastname = UserProfile['lastname'];
+    type UserProfileFirstname = UserProfile['firstname'];
+    type UserProfileIconUrl = UserProfile['icon_url'];
+    type UserProfileTel = UserProfile['tel'];
+
+    interface UserProfileData {
+        lastname: UserProfileLastname;
+        firstname: UserProfileFirstname;
+    }
+    
+    interface CreateUserProfileData extends UserProfileData {
+        icon_url: UserProfileIconUrl;
+    }
+
+    interface UserProfileIdProps {
+        userId: UserProfileId;
+    }
+
+    interface UpdateUserProfileIconUrlProps extends UserProfileIdProps {
+        iconUrl: UserProfileIconUrl;
+    }
+    
+    interface UpdateUserProfileNameProps extends UserProfileIdProps {
+        lastname: UserProfileLastname;
+        firstname: UserProfileFirstname;
+    }
+    
+    interface UpdateUserProfileTelProps extends UserProfileIdProps {
+        tel: UserProfileTel;
+    }
+
+
+    /* ============================== 
+        UserImage 関連
+    ============================== */
+    type UserImage = PrismaUserImage;
+    type UserImageId = UserImage['id'];
+    type UserImagePath = UserImage['file_path'];
+
+    interface UpdateUserImageFilePathProps {
+        userId: UserId;
+        filePath: UserImagePath;
+    }
+
+
+    /* ============================== 
+        UserStripe 関連
+    ============================== */
+    interface CreateUserStripeCustomerIdProps extends UserIdProps {
+        userId: UserId;
+        customerId: StripeCustomerId;
+    }
     
 
     /* ============================== 
@@ -204,65 +301,6 @@ declare global {
 
     interface SyncLogData extends PaginationWithTotalCount {
         logList: SyncLogCardProps[];
-    }
-
-    
-    /* ============================== 
-        User 関連
-    ============================== */
-    type GetUserDataTypes = typeof GET_USER_DATA_TYPES[keyof typeof GET_USER_DATA_TYPES];
-    type UpdatePasswordPageType = typeof UPDATE_PASSWORD_PAGE_TYPES[keyof typeof UPDATE_PASSWORD_PAGE_TYPES];
-
-    type User = PrismaUser;
-    type UserId = User['id'];
-    type UserLastname = User['lastname'];
-    type UserFirstname = User['firstname'];
-    type UserEmail = User['email']; 
-    type UserPassword = User['password']; 
-    type UserIconUrl = User['icon_url'];
-    type UserTel = User['tel'];
-    type UserEmailVerified = User['emailVerified'];
-
-    interface UserIdProps {
-        userId: UserId;
-    }
-
-    interface UserData {
-        lastname: UserLastname;
-        firstname: UserFirstname;
-        email: UserEmail;
-        password: UserPassword;
-    }
-    
-    interface CreateUserData extends UserData {
-        icon_url: UserIconUrl;
-        emailVerified: UserEmailVerified;
-    }
-
-    interface CreateUserStripeCustomerIdProps extends UserIdProps {
-        userId: UserId;
-        customerId: StripeCustomerId;
-    }
-
-    interface UpdateUserIconUrlProps extends UserIdProps {
-        iconUrl: UserIconUrl;
-    }
-    
-    interface UpdateUserNameProps extends UserIdProps {
-        lastname: UserLastname;
-        firstname: UserFirstname;
-    }
-    
-    interface UpdateUserTelProps extends UserIdProps {
-        tel: UserTel;
-    }
-    
-    interface UpdateUserEmailProps extends UserIdProps {
-        email: UserEmail;
-    }
-    
-    interface UpdateUserPasswordProps extends UserIdProps {
-        password: UserPassword;
     }
 
 
@@ -653,19 +691,6 @@ declare global {
         chat_room_id: ChatRoomId;
         message: ChatMessage;
         sent_at: ChatSentAt;
-    }
-
-
-    /* ============================== 
-        UserImage 関連
-    ============================== */
-    type UserImage = UserImage;
-    type UserImageId = UserImage['id'];
-    type UserImagePath = UserImage['file_path'];
-
-    interface UpdateUserImageFilePathProps {
-        userId: UserId;
-        filePath: UserImagePath;
     }
 
 

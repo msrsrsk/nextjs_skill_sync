@@ -47,7 +47,7 @@ export async function createAccountWithEmailAction(
             lastname, 
             firstname, 
             password 
-        } as UserData;
+        } as UserData & UserProfileData;
 
         const repository = getUserRepository();
         const existingUser = await repository.getUserByEmail({
@@ -295,8 +295,7 @@ export async function signInWithCredentialsAction(
 
             const repository = getUserRepository();
             const userData = await repository.getUser({
-                userId: user?.id as UserId,
-                getType: EMAIL_DATA
+                userId: user?.id as UserId
             });
 
             if (!userData) {

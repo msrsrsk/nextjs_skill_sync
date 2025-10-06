@@ -33,7 +33,7 @@ export const authenticateUser = async (credentials: LoginCredentials) => {
     return {
         id: user.id, 
         email: user.email,
-        name: `${user.lastname} ${user.firstname}`,
+        name: `${user.user_profiles?.lastname} ${user.user_profiles?.firstname}`,
     }
 }
 

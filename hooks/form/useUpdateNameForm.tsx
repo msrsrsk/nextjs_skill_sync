@@ -7,7 +7,10 @@ import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { ALREADY_SAVED_MESSAGE } = ERROR_MESSAGES;
 
-const useUpdateNameForm = (lastname: UserLastname, firstname: UserFirstname) => {
+const useUpdateNameForm = (
+    lastname: UserProfileLastname, 
+    firstname: UserProfileFirstname
+) => {
     const [updateNameState, updateNameFormAction] = useFormState(updateNameAction, { 
         success: false, 
         error: null,

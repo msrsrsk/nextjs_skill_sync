@@ -24,17 +24,15 @@ const {
 
 const AccountInfoContent = ({ 
     user,
-}: { user: UserWithShippingAddresses }) => {
+}: { user: UserWithShippingAddressesAndProfile }) => {
     const { 
-        icon_url, 
-        lastname, 
-        firstname, 
         email, 
-        tel,
-        shipping_addresses
+        shipping_addresses,
+        user_profiles
     } = user;
 
     const address = shipping_addresses[0];
+    const { icon_url, lastname, firstname, tel } = user_profiles;
 
     /* アイコン画像の編集フック */
     const {

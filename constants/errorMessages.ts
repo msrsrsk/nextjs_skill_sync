@@ -59,9 +59,6 @@ export const ERROR_MESSAGES = {
         TEL_UPDATE_MISSING_DATA: `電話番号の更新に必要なデータの取得ができませんでした。${RETRY}`,
         PASSWORD_RESET_MISSING_DATA: `パスワードリセットのための\n必要な情報が見つかりませんでした。${RETRY}`,
         
-        ICON_UPDATE_FAILED: `アイコンの更新に失敗しました。${RETRY}`,
-        NAME_UPDATE_FAILED: `お名前の更新に失敗しました。${RETRY}`,
-        TEL_UPDATE_FAILED: `電話番号の更新に失敗しました。${RETRY}`,
         MAIL_UPDATE_FAILED: `メールアドレスの更新に失敗しました。${RETRY}`,
         PASSWORD_UPDATE_FAILED: `パスワードの更新に失敗しました。${RETRY}`,
 
@@ -73,6 +70,15 @@ export const ERROR_MESSAGES = {
         UNSHIPPED_ORDERS_COUNT_WARNING: `未発送の注文が残っています。全て発送済みであることをご確認の上、退会手続を進めてください。`,
 
         FILE_SIZE_EXCEEDED: `ファイルサイズは${MAX_ACCOUNT_INFO_ICON_SIZE_TEXT}以下にしてください`,
+    },
+
+    // ユーザープロフィール関連
+    USER_PROFILE_ERROR: {
+        ICON_UPDATE_FAILED: `アイコンの更新に失敗しました。${RETRY}`,
+        NAME_UPDATE_FAILED: `お名前の更新に失敗しました。${RETRY}`,
+        TEL_UPDATE_FAILED: `電話番号の更新に失敗しました。${RETRY}`,
+
+        DELETE_FAILED: `ユーザープロフィールの削除に失敗しました。${RETRY}`,
     },
 
     // 商品関連

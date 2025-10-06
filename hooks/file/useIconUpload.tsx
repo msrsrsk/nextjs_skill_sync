@@ -7,7 +7,7 @@ import { ERROR_MESSAGES } from "@/constants/errorMessages"
 const { MAX_ACCOUNT_INFO_ICON_SIZE } = FILE_UPLOAD_CONFIG;
 const { USER_ERROR } = ERROR_MESSAGES;
 
-const useIconUpload = (optimisticIconImage: UserIconUrl) => {
+const useIconUpload = (optimisticIconImage: UserProfileIconUrl) => {
     const [modalIconImage, setModalIconImage] = useState(optimisticIconImage);
     const fileInputRef = useRef<HTMLInputElement>(null);
 

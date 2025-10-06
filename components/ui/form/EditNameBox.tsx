@@ -16,8 +16,8 @@ const { BUTTON_JA } = BUTTON_TEXT_TYPES;
 
 interface EditNameBoxProps extends ModalStateProps {
     optimisticName: {
-        lastname: UserLastname;
-        firstname: UserFirstname;
+        lastname: UserProfileLastname;
+        firstname: UserProfileFirstname;
     };
     onConfirm: (formData: FormData) => void;
 }

@@ -8,6 +8,7 @@ import { actionAuth } from "@/lib/middleware/auth"
 import { createUserRepository, updateUserRepository } from "@/repository/user"
 import { updateUserEmail, deleteUser } from "@/services/user/actions"
 import { createUserStripeCustomerId } from "@/services/user-stripe/actions"
+import { createUserProfileRepository } from "@/repository/userProfile"
 import { createChatRoomRepository } from "@/repository/chatRoom"
 import { createChatRepository } from "@/repository/chat"
 import { 
@@ -37,12 +38,22 @@ const { VERIFY_CREATE_ACCOUNT } = VERIFY_EMAIL_TYPES;
 // ユーザー登録（初期チャットデータ込み）
 export const registerUserWithChat = async (
     userData: CreateUserData,
+    userProfileData: CreateUserProfileData,
     token: string
 ) => {
     try {
         return await prisma.$transaction(async (tx) => {
-            const repository = createUserRepository();
-            const user = await repository.createUserWithTransaction({ tx, userData });
+            const userRepository = createUserRepository();
+            const user = await userRepository.createUserWithTransaction({ 
+                tx, 
+                userData 
+            });
+
+            const userProfileRepository = createUserProfileRepository();
+            await userProfileRepository.createUserProfileWithTransaction({ 
+                tx, 
+                userProfileData 
+            });
 
             const chatRoomRepository = createChatRoomRepository();
             const chatRoom = await chatRoomRepository.createChatRoomWithTransaction({
@@ -89,7 +100,9 @@ export const registerUserWithChat = async (
 }
 
 // アカウント作成用の認証トークンの作成（パスワード含む）
-export async function createVerificationTokenWithPassword(userData: UserData) {
+export async function createVerificationTokenWithPassword(
+    userData: UserData & UserProfileData
+) {
     const token = crypto.randomBytes(AUTH_TOKEN_BYTES).toString('hex');
     const expires = new Date(new Date().getTime() + EXPIRATION_TIME);
     const hashedPassword = await bcrypt.hash(userData.password, PASSWORD_HASH_ROUNDS);
@@ -143,7 +156,7 @@ export async function verifyEmailToken(
         }
 
         const email = verificationToken.identifier;
-        const userData = JSON.parse(verificationToken.userData || '{}');
+        const tokenUserData = JSON.parse(verificationToken.userData || '{}');
         
         if (verifyEmailType === VERIFY_CREATE_ACCOUNT) {
             const hashedPassword = verificationToken.password;
@@ -153,18 +166,27 @@ export async function verifyEmailToken(
             }
 
             // 1. ユーザーの作成(チャットルーム込み)
+            const userData = {
+                email: email,
+                password: hashedPassword,
+                emailVerified: new Date(),
+            }
+
+            const userProfileData = {
+                lastname: tokenUserData.lastname,
+                firstname: tokenUserData.firstname,
+                icon_url: DEFAULT_ACCOUNT_ICON_URL,
+            }
+
             const { 
                 success: resisterSuccess, 
                 error: resisterError,
                 data: user 
-            } = await registerUserWithChat({
-                email: email,
-                lastname: userData.lastname,
-                firstname: userData.firstname,
-                password: hashedPassword,
-                icon_url: DEFAULT_ACCOUNT_ICON_URL,
-                emailVerified: new Date(),
-            }, token)
+            } = await registerUserWithChat(
+                userData,
+                userProfileData,
+                token
+            )
 
             if (!resisterSuccess) {
                 return {
@@ -181,8 +203,8 @@ export async function verifyEmailToken(
                 data: stripeCustomer 
             } = await createCustomer({ 
                 email,
-                lastname: userData.lastname,
-                firstname: userData.firstname,
+                lastname: tokenUserData.lastname,
+                firstname: tokenUserData.firstname,
             });
 
             if (!createCustomerSuccess || !stripeCustomer) {

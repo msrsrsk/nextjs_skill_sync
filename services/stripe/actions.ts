@@ -41,6 +41,10 @@ interface StripePriceCreateParams {
     };
 }
 
+interface CreateCustomerProps extends UserProfileData {
+    email: UserEmail;
+}
+
 interface CheckoutSessionProps {
     lineItems: CheckoutLineItem[];
     userId: UserId;
@@ -102,7 +106,7 @@ export const createCustomer = async ({
     email,
     lastname, 
     firstname,
-}: Omit<UserData, 'password'>) => {
+}: CreateCustomerProps) => {
     try {
         const customer = await stripe.customers.create({
             name: `${lastname}${firstname}`,

@@ -7,7 +7,7 @@ import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { ALREADY_SAVED_MESSAGE } = ERROR_MESSAGES;
 
-const useUpdateTelForm = (tel: UserTel) => {
+const useUpdateTelForm = (tel: UserProfileTel) => {
     const [updateTelState, updateTelFormAction] = useFormState(updateTelAction, { 
         success: false, 
         error: null,

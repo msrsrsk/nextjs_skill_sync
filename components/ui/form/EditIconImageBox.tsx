@@ -20,13 +20,13 @@ const { BUTTON_JA } = BUTTON_TEXT_TYPES;
 const { IMAGE_JPEG, IMAGE_JPG, IMAGE_PNG } = FILE_MIME_TYPES;
 
 interface EditIconImageBoxProps extends ModalStateProps {
-    optimisticIconImage: UserIconUrl;
-    handleSaveClick: (icon_url: UserIconUrl) => void;
+    optimisticIconImage: UserProfileIconUrl;
+    handleSaveClick: (icon_url: UserProfileIconUrl) => void;
 }
 
 interface SaveButtonProps {
-    modalIconImage: UserIconUrl;
-    handleSaveClick: (icon_url: UserIconUrl) => void;
+    modalIconImage: UserProfileIconUrl;
+    handleSaveClick: (icon_url: UserProfileIconUrl) => void;
 }
 
 const EditIconImageBox = ({ 

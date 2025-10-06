@@ -48,7 +48,7 @@ const AccountInfoWrapper = async () => {
 
     return (
         <AccountInfoContent 
-            user={userResult as UserWithShippingAddresses}
+            user={userResult as UserWithShippingAddressesAndProfile}
         />
     )
 }

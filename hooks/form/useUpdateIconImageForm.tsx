@@ -25,7 +25,7 @@ const useUpdateIconImageForm = (icon_url: string) => {
         return icon_url !== optimisticIconImage;
     }, [optimisticIconImage])
 
-    const handleIconUpdate = useCallback((icon_url: UserIconUrl) => {
+    const handleIconUpdate = useCallback((icon_url: UserProfileIconUrl) => {
         if (!isIconChanged(icon_url)) {
             setUpdateIconModalActive(false);
             showSuccessToast(ALREADY_SAVED_MESSAGE);

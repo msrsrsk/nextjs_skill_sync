@@ -15,7 +15,7 @@ import { BUTTON_TEXT_TYPES } from "@/constants/index"
 const { BUTTON_JA } = BUTTON_TEXT_TYPES;
 
 interface EditTelBoxProps extends ModalStateProps {
-    optimisticTel: UserTel;
+    optimisticTel: UserProfileTel;
     onConfirm: (formData: FormData) => void;
 }
 

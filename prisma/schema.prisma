@@ -14,6 +14,8 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+// ==================== Enums ====================
+
 // 商品カテゴリー
 enum CategoryType {
   Active
@@ -71,32 +73,62 @@ enum SubscriptionStatusType {
   canceled  // 解約済み（支払い失敗続きによる自動解約、手動解約など）
 }
 
+// ==================== User Models ====================
+
+// ユーザー基本情報（認証情報のみ）
 model User {
-  id           String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  lastname     String
-  firstname    String
-  email        String @unique
-  password     String
-  emailVerified DateTime? // Auth.jsとの互換性のためキャメルケース
-  icon_url     String
-  tel          String?
-  created_at   DateTime @default(now())
-  updated_at   DateTime @default(now()) @updatedAt
+  id              String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email           String @unique
+  password        String
+  emailVerified   DateTime? // Auth.jsとの互換性のためキャメルケース
+  created_at      DateTime @default(now())
+  updated_at      DateTime @default(now()) @updatedAt
 
   // Relations
-  user_stripes    UserStripe?
-  reviews    Review[]
-  bookmarks  UserBookmark[]
-  chat_room ChatRoom?
-  orders    Order[]
-  subscription_payments SubscriptionPayment[]
-  shipping_addresses    ShippingAddress[]
-  user_images    UserImage[]
-  cart_items CartItem[]
+  user_profiles             UserProfile?
+  user_images               UserImage[]
+  user_stripes              UserStripe?
+  reviews                   Review[]
+  bookmarks                 UserBookmark[]
+  chat_room                 ChatRoom?
+  orders                    Order[]
+  subscription_payments     SubscriptionPayment[]
+  shipping_addresses        ShippingAddress[]
+  cart_items                CartItem[]
 
   @@index([email])
   @@index([created_at])
   @@map("users")
+}
+
+// ユーザープロフィール情報
+model UserProfile {
+  user_id    String   @unique @db.Uuid
+  lastname   String
+  firstname  String
+  icon_url   String
+  tel        String?
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@map("user_profiles")
+}
+
+// ユーザー画像情報
+model UserImage {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id         String   @unique @db.Uuid
+  file_path       String?  @unique
+  created_at      DateTime @default(now())
+  updated_at      DateTime @default(now()) @updatedAt
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@map("user_images")
 }
 
 model UserStripe {
@@ -415,20 +447,6 @@ model ShippingAddress {
   
   @@index([user_id])
   @@map("shipping_addresses")
-}
-
-// ユーザーのアイコン画像のファイルパス参照用
-model UserImage {
-  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  user_id         String   @unique @db.Uuid
-  file_path       String?  @unique
-  created_at      DateTime @default(now())
-  updated_at      DateTime @default(now()) @updatedAt
-
-  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
-
-  @@index([user_id])
-  @@map("user_images")
 }
 
 // ユーザーのブックマーク（中間テーブル）

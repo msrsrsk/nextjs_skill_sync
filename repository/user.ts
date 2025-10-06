@@ -11,34 +11,13 @@ interface CreateUserWithTransactionProps {
 }
 
 interface GetUserProps extends UserIdProps {
-    getType: GetUserDataTypes;
+    getType?: GetUserDataTypes;
 }
 
 interface UpdatedUserPasswordWithTransactionProps {
     tx: TransactionClient;
     verificationToken: VerificationData;
     password: UserPassword;
-}
-
-const defaultUserSelectFields = {
-    icon_url: true,
-    lastname: true,
-    firstname: true,
-    email: true,
-    tel: true,
-    shipping_addresses: {
-        where: {
-            is_default: true
-        },
-        select: {
-            name: true,
-            postal_code: true,
-            state: true,
-            city: true,
-            address_line1: true,
-            address_line2: true
-        }
-    }
 }
 
 export const createUserRepository = () => {
@@ -60,21 +39,18 @@ export const getUserRepository = () => {
         // ユーザーデータの有無確認
         getUserByEmail: async ({ email }: { email: string }) => {
             return await prisma.user.findUnique({
-                where: { email }
+                where: { email },
+                include: {
+                    user_profiles: true
+                }
             })
         },
         // ユーザーのデータの取得
         getUser: async ({
             userId,
-            getType
+            getType = EMAIL_DATA
         }: GetUserProps) => {
-            const getSelectFields = () => {
-                if (getType === EMAIL_DATA) {
-                    return {
-                        email: true,
-                    };
-                }
-        
+            const getSelectFields = () => {        
                 if (getType === CUSTOMER_ID_DATA) {
                     return {
                         user_stripes: {
@@ -84,10 +60,10 @@ export const getUserRepository = () => {
                         }
                     };
                 }
-        
+
                 return {
-                    ...defaultUserSelectFields
-                };
+                    email: true,
+                }
             }
         
             return await prisma.user.findUnique({
@@ -100,11 +76,15 @@ export const getUserRepository = () => {
             return await prisma.user.findUnique({
                 where: { id: userId },
                 select: {
-                    icon_url: true,
-                    lastname: true,
-                    firstname: true,
                     email: true,
-                    tel: true,
+                    user_profiles: {
+                        select: {
+                            icon_url: true,
+                            lastname: true,
+                            firstname: true,
+                            tel: true,
+                        }
+                    },
                     shipping_addresses: {
                         where: {
                             is_default: true
@@ -126,37 +106,6 @@ export const getUserRepository = () => {
 
 export const updateUserRepository = () => {
     return {
-        // ユーザーのアイコン画像の更新
-        updateUserIconUrl: async ({
-            userId,
-            iconUrl
-        }: UpdateUserIconUrlProps) => {
-            return await prisma.user.update({
-                where: { id: userId },
-                data: { icon_url: iconUrl }
-            })
-        },
-        // ユーザーの名前の更新
-        updateUserName: async ({
-            userId,
-            lastname,
-            firstname
-        }: UpdateUserNameProps) => {
-            return await prisma.user.update({
-                where: { id: userId },
-                data: { lastname, firstname }
-            })
-        },
-        // ユーザーの電話番号の更新
-        updateUserTel: async ({
-            userId,
-            tel
-        }: UpdateUserTelProps) => {
-            return await prisma.user.update({
-                where: { id: userId },
-                data: { tel }
-            })
-        },
         // ユーザーのメールアドレスの更新
         updateUserEmail: async ({
             userId,
@@ -172,7 +121,10 @@ export const updateUserRepository = () => {
             userId,
             password
         }: UpdateUserPasswordProps) => {
-            const hashedPassword = await bcrypt.hash(password, PASSWORD_HASH_ROUNDS);
+            const hashedPassword = await bcrypt.hash(
+                password, 
+                PASSWORD_HASH_ROUNDS
+            );
 
             return await prisma.user.update({
                 where: { id: userId },
