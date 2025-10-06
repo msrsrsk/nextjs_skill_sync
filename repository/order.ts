@@ -69,6 +69,11 @@ export const getOrderRepository = () => {
                                 unit_price: true,
                                 subscription_id: true,
                                 remarks: true,
+                                order_item_stripes: {
+                                    select: {
+                                        subscription_id: true,
+                                    }
+                                },
                                 product: {
                                     select: {
                                         title: true,
@@ -123,10 +128,14 @@ export const getOrderRepository = () => {
                             product_id: true,
                             quantity: true,
                             unit_price: true,
-                            subscription_id: true,
                             subscription_status: true,
                             subscription_next_payment: true,
                             remarks: true,
+                            order_item_stripes: {
+                                select: {
+                                    subscription_id: true,
+                                }
+                            },
                             product: {
                                 select: {
                                     title: true,
@@ -137,7 +146,7 @@ export const getOrderRepository = () => {
                                 }
                             },
                             ...(isSubscription && {
-                                subscriptionPayments: {
+                                subscription_payments: {
                                     select: {
                                         id: true,
                                         payment_date: true,

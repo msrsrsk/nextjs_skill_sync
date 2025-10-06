@@ -9,7 +9,7 @@ import { SITE_MAP } from "@/constants/index"
 
 const { ORDER_HISTORY_PATH } = SITE_MAP;
 
-const OrderCard = ({ order }: { order: OrderWithOrderItems }) => {
+const OrderCard = ({ order }: { order: OrderWithOrderItemsAndStripeData }) => {
     const { 
         created_at, 
         status, 
@@ -94,7 +94,7 @@ const OrderCard = ({ order }: { order: OrderWithOrderItems }) => {
     )
 }
 
-const MoreButton = ({ order }: { order: OrderWithOrderItems }) => (
+const MoreButton = ({ order }: { order: OrderWithOrderItemsAndStripeData }) => (
     <LinkButtonPrimary
         link={`${ORDER_HISTORY_PATH}/${order.id}`}
         ariaLabel={`注文番号${order.order_number}の詳細ページを開く`}

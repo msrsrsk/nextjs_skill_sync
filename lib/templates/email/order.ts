@@ -13,7 +13,7 @@ interface CompleteEmailProps {
     orderHistoryUrl: string;
     orderNumber: number;
     formattedOrderDate: string;
-    productDetails: OrderProductProps[];
+    productDetails: StripeProductDetailsProps[];
     subtotal: string;
     shippingFee: string;
     total: string;

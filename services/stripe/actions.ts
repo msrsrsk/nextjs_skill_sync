@@ -3,7 +3,7 @@
 import { stripe } from "@/lib/clients/stripe/client"
 
 import { getUserRepository } from "@/repository/user"
-import { updateOrderItemSubscriptionStatus } from "@/services/order/actions"
+import { updateOrderItemSubscriptionStatus } from "@/services/order-item/actions"
 import { getRecurringConfig } from "@/services/subscription-payment/format"
 import { 
     SITE_MAP, 

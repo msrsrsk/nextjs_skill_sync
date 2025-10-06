@@ -6,7 +6,11 @@ import { createCheckoutOrder } from "@/services/order/actions"
 import { createCheckoutOrderStripe } from "@/services/order/actions"
 import { deleteOrder } from "@/services/order/actions"
 import { deleteOrderStripe } from "@/services/order-stripe/actions"
-import { createCheckoutOrderItems } from "@/services/order/actions"
+import { deleteAllOrderItem } from "@/services/order-item/actions"
+import { 
+    createCheckoutOrderItems, 
+    createCheckoutOrderItemStripes 
+} from "@/services/order-item/actions"
 import { createShippingAddress } from "@/services/shipping-address/actions"
 import { getShippingAddressRepository } from "@/repository/shippingAddress"
 import { updateProductStockAndSoldCount } from "@/services/order/actions"
@@ -113,12 +117,26 @@ async function handleCheckoutSessionCompleted({
         error: orderItemsError 
     } = await createCheckoutOrderItems({
         orderId: orderData.id, 
-        productDetails: productDetails as OrderProductProps[]
+        productDetails: productDetails as StripeProductDetailsProps[]
     });
 
     if (!orderItemsSuccess) {
         await deleteOrderStripe({ orderId: orderData.id });
         throw new Error(orderItemsError as string);
+    }
+
+    // OrderItemStripes テーブルのデータ作成
+    const  { 
+        success: orderItemStripesSuccess, 
+        error: orderItemStripesError 
+    } = await createCheckoutOrderItemStripes({
+        orderItemId: orderData.id, 
+        productDetails: productDetails as StripeProductDetailsProps[]
+    });
+
+    if (!orderItemStripesSuccess) {
+        await deleteAllOrderItem({ orderId: orderData.id });
+        throw new Error(orderItemStripesError as string);
     }
 
     // 2. Supabase の在庫数と売り上げ数の更新
@@ -194,7 +212,7 @@ async function handleCheckoutSessionCompleted({
         error: orderEmailError 
     } = await sendOrderCompleteEmail({
         orderData: checkoutSessionEvent,
-        productDetails: productDetails as OrderProductProps[],
+        productDetails: productDetails as StripeProductDetailsProps[],
         orderNumber: orderData.order_number
     });
 
@@ -215,7 +233,7 @@ async function handleCheckoutSessionCompleted({
             error: paymentEmailError 
         } = await sendPaymentRequestEmail({
             orderData: checkoutSessionEvent,
-            productDetails: productDetails as OrderProductProps[],
+            productDetails: productDetails as StripeProductDetailsProps[],
             orderNumber: orderData.order_number,
             paymentIntent
         });

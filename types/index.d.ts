@@ -9,6 +9,8 @@ import type {
     VerificationToken as PrismaVerificationToken, 
     Order as PrismaOrder, 
     OrderStripe as PrismaOrderStripe,
+    OrderItem as PrismaOrderItem,
+    OrderItemStripe as PrismaOrderItemStripe,
     SubscriptionPayment as PrismaSubscriptionPayment,
     ShippingAddress as PrismaShippingAddress, 
     Notification as PrismaNotification,
@@ -132,9 +134,18 @@ declare global {
         shipping_addresses: ShippingAddress[];
     }
 
-    interface OrderWithOrderItems extends Order {
-        order_items: OrderItem[];
+    interface OrderItemWithOrderItemStripes extends OrderItem {
+        order_item_stripes: OrderItemStripe[];
+    }
+    
+    interface OrderWithOrderItemsAndStripeData extends Order {
+        order_items: OrderItemWithOrderItemStripes[];
         address: ShippingAddress | null;
+    }
+
+    interface OrderItemWithOrderItemStripesAndProduct extends OrderItem {
+        order_item_stripes: OrderItemStripe[];
+        product: Product;
     }
 
     interface ProductWithReviewsAndPricing extends Product {
@@ -504,7 +515,7 @@ declare global {
     type OrderCreateInput = Prisma.OrderCreateInput;
 
     interface OrderDataProps extends PaginationWithTotalCount {
-        orders: OrderWithOrderItems[];
+        orders: OrderWithOrderItemsAndStripeData[];
     }
 
     interface GetUserPaginatedOrdersProps {
@@ -515,32 +526,18 @@ declare global {
     }
 
     interface UpdateSubscriptionStatusProps {
-        subscriptionId: OrderItemSubscriptionId;
+        subscriptionId: OrderItemStripeSubscriptionId;
         subscriptionStatus: SubscriptionContractStatusType;
-    }
-
-    interface OrderProductProps {
-        product_id: string;
-        title: string;
-        image: string;
-        amount: number;
-        unit_price: number;
-        quantity: number;
-        stripe_price_id: string | null;
-        subscription_id: string | null;
-        subscription_status: SubscriptionContractStatusType | null;
-        subscription_interval: string | null;
-        subscription_product: boolean | null;
     }
 
     interface OrderCompleteEmailProps {
         orderData: StripeCheckoutSession;
-        productDetails: OrderProductProps[];
+        productDetails: StripeProductDetailsProps[];
         orderNumber: OrderNumber;
     }
 
     interface ReceiptPDFProps {
-        order: OrderWithOrderItems;
+        order: OrderWithOrderItemsAndStripeData;
         isSubscription?: boolean;
         subscriptionPaymentId?: PaymentSubscriptionId;
     }
@@ -557,7 +554,18 @@ declare global {
     /* ============================== 
         OrderItem 関連
     ============================== */
-    type OrderItem = OrderItem;
+    type OrderItem = PrismaOrderItem;
+    type OrderItemId = OrderItem['id'];
+    type OrderItemOrderId = OrderItem['order_id'];
+    type OrderItemProductId = OrderItem['product_id'];
+    type OrderItemQuantity = OrderItem['quantity'];
+    type OrderItemUnitPrice = OrderItem['unit_price'];
+    type OrderItemTotalPrice = OrderItem['total_price'];
+    type OrderItemSubscriptionInterval = OrderItem['subscription_interval'];
+    type OrderItemSubscriptionStatus = OrderItem['subscription_status'];
+    type OrderItemSubscriptionProduct = OrderItem['subscription_product'];
+    type OrderItemRemarks = OrderItem['remarks'];
+
     type OrderItemSubscriptionId = OrderItem['subscription_id'];
 
     type OrderItemWhereInput = Prisma.OrderItemWhereInput;
@@ -566,6 +574,16 @@ declare global {
         productId: ProductId;
         userId: UserId;
     }
+
+
+    /* ============================== 
+        OrderItemStripe 関連
+    ============================== */
+    type OrderItemStripe = PrismaOrderItemStripe;
+    type OrderItemStripeId = OrderItemStripe['id'];
+    type OrderItemStripeOrderItemId = OrderItemStripe['order_item_id'];
+    type OrderItemStripePriceId = OrderItemStripe['price_id'];
+    type OrderItemStripeSubscriptionId = OrderItemStripe['subscription_id'];
 
 
     /* ============================== 
@@ -680,6 +698,20 @@ declare global {
         address: StripeAddress;
         name: string;
         phone?: string;
+    }
+
+    interface StripeProductDetailsProps {
+        product_id: ProductId;
+        title: ProductTitle;
+        image: ProductImageUrls;
+        amount: ProductPrice;
+        unit_price: OrderItemUnitPrice;
+        quantity: OrderItemQuantity;
+        subscription_status: OrderItemSubscriptionStatus;
+        subscription_interval: OrderItemSubscriptionInterval;
+        subscription_product: OrderItemSubscriptionProduct;
+        stripe_price_id: OrderItemStripePriceId;
+        subscription_id: OrderItemStripeSubscriptionId;
     }
 
 

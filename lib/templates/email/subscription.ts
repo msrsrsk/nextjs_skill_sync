@@ -6,7 +6,7 @@ interface SubscriptionPaymentRequestEmailProps {
     subscriptionHistoryUrl: string;
     subscriptionId: string;
     formattedOrderDate: string;
-    productDetails: OrderProductProps[];
+    productDetails: StripeProductDetailsProps[];
     subtotal: string;
     shippingFee: string;
     total: string;

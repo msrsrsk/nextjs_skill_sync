@@ -134,7 +134,7 @@ export async function handleSubscriptionEvent({
             error: subscriptionPaymentEmailError 
         } = await sendSubscriptionPaymentRequestEmail({
             orderData: subscriptionEvent,
-            productDetails: productDetails as OrderProductProps[],
+            productDetails: productDetails as StripeProductDetailsProps[],
         });
 
         if (!subscriptionPaymentEmailSuccess) {

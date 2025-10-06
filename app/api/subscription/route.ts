@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 
 import { requireUserId, requireServerAuth } from "@/lib/middleware/auth"
-import { getUserSubscriptionByProduct } from "@/services/order/actions"
+import { getUserSubscriptionByProduct } from "@/services/order-item/actions"
 import { createPaymentLink, cancelSubscription } from "@/services/stripe/actions"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 

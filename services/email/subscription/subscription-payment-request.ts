@@ -13,7 +13,7 @@ const { EMAIL_ERROR } = ERROR_MESSAGES;
 
 interface SendPaymentRequestEmailProps {
     orderData: StripeSubscription;
-    productDetails: OrderProductProps[];
+    productDetails: StripeProductDetailsProps[];
 }
 
 // 未払いの場合のメール送信
