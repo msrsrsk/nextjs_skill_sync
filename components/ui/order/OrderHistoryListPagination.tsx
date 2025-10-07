@@ -22,7 +22,7 @@ const { TAB_JA } = TAB_TEXT_TYPES;
 const { ORDER_HISTORY_PATH } = SITE_MAP;
 
 interface OrderHistoryListPaginationProps {
-    orderData: OrderDataProps;
+    orderData: OrderPagenatedProps;
     currentCategory: string;
 }
 

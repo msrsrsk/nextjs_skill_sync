@@ -162,7 +162,7 @@ const ReceiptPDF = ({
                         </Text>
                     </View>
                 </View>
-                {order_items.map((item: OrderItemWithSelectFields) => {
+                {order_items.map((item: OrderHistorySelectFields) => {
                     const { product, quantity, unit_price, remarks } = item;
 
                     const isSale = unit_price < product.price;

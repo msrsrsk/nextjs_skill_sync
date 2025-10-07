@@ -2,8 +2,6 @@ import { SUBSCRIPTION_PAYMENT_STATUS } from "@/constants/index"
 
 const { PENDING, PAST_DUE, FAILED, CANCELED } = SUBSCRIPTION_PAYMENT_STATUS;
 
-type SubscriptionPaymentSelectFields = Pick<SubscriptionPayment, 'id' | 'payment_date' | 'status'>;
-
 interface SubscriptionPaymentDisplayProps {
     subscriptionPayments: SubscriptionPaymentSelectFields[];
     maxItems: number;

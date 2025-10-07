@@ -103,11 +103,11 @@ async function handleCheckoutSessionCompleted({
         error: orderStripeError, 
     } = await createCheckoutOrderStripe({ 
         session: checkoutSessionEvent, 
-        orderData: orderData 
+        orderData: orderData as CreateCheckoutOrderData
     });
 
     if (!orderStripeSuccess) {
-        await deleteOrder({ orderId: orderData.id });
+        await deleteOrder({ orderId: orderData.order.id });
         throw new Error(orderStripeError as string);
     }
 
@@ -116,12 +116,12 @@ async function handleCheckoutSessionCompleted({
         success: orderItemsSuccess, 
         error: orderItemsError 
     } = await createCheckoutOrderItems({
-        orderId: orderData.id, 
+        orderId: orderData.order.id, 
         productDetails: productDetails as StripeProductDetailsProps[]
     });
 
     if (!orderItemsSuccess) {
-        await deleteOrderStripe({ orderId: orderData.id });
+        await deleteOrderStripe({ orderId: orderData.order.id });
         throw new Error(orderItemsError as string);
     }
 
@@ -130,12 +130,12 @@ async function handleCheckoutSessionCompleted({
         success: orderItemStripesSuccess, 
         error: orderItemStripesError 
     } = await createCheckoutOrderItemStripes({
-        orderItemId: orderData.id, 
+        orderItemId: orderData.order.id, 
         productDetails: productDetails as StripeProductDetailsProps[]
     });
 
     if (!orderItemStripesSuccess) {
-        await deleteAllOrderItem({ orderId: orderData.id });
+        await deleteAllOrderItem({ orderId: orderData.order.id });
         throw new Error(orderItemStripesError as string);
     }
 
@@ -143,7 +143,7 @@ async function handleCheckoutSessionCompleted({
     const { 
         success: updateStockSuccess, 
         error: updateStockError 
-    } = await updateProductStockAndSoldCount({ orderId: orderData.id });
+    } = await updateProductStockAndSoldCount({ orderId: orderData.order.id });
 
     if (!updateStockSuccess) {
         throw new Error(updateStockError as string);
@@ -213,7 +213,7 @@ async function handleCheckoutSessionCompleted({
     } = await sendOrderCompleteEmail({
         orderData: checkoutSessionEvent,
         productDetails: productDetails as StripeProductDetailsProps[],
-        orderNumber: orderData.order_number
+        orderNumber: orderData.order.order_number
     });
 
     if (!orderEmailSuccess) {
@@ -234,7 +234,7 @@ async function handleCheckoutSessionCompleted({
         } = await sendPaymentRequestEmail({
             orderData: checkoutSessionEvent,
             productDetails: productDetails as StripeProductDetailsProps[],
-            orderNumber: orderData.order_number,
+            orderNumber: orderData.order.order_number,
             paymentIntent
         });
 

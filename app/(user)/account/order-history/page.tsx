@@ -62,7 +62,7 @@ const OrderHistoryWrapper = async ({
 
     return (
         <OrderHistoryListPagination 
-            orderData={data as OrderDataProps} 
+            orderData={data as OrderPagenatedProps} 
             currentCategory={category} 
         />
     )

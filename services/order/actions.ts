@@ -6,6 +6,7 @@ import {
     deleteOrderRepository 
 } from "@/repository/order"
 import { createOrderStripe } from "@/services/order-stripe/actions"
+import { createOrderShipping } from "@/services/order-shipping/actions"
 import { updateStockAndSoldCount } from "@/services/product/actions"
 import { ORDER_STATUS } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
@@ -14,7 +15,9 @@ const { ORDER_PENDING, ORDER_PROCESSING } = ORDER_STATUS;
 const { PRODUCT_ERROR, ORDER_ERROR, CHECKOUT_ERROR } = ERROR_MESSAGES;
 
 // 注文データの作成
-export const createOrder = async ({ orderData }: { orderData: OrderCreateInput }) => {
+export const createOrder = async ({ 
+    orderData 
+}: { orderData: CreateOrderData }) => {
     try {
         const repository = createOrderRepository();
         const order = await repository.createOrder({ orderData });
@@ -36,7 +39,9 @@ export const createOrder = async ({ orderData }: { orderData: OrderCreateInput }
 }
 
 // 注文履歴の作成
-export const createCheckoutOrder = async ({ session }: { session: StripeCheckoutSession }) => {
+export const createCheckoutOrder = async ({ 
+    session 
+}: { session: StripeCheckoutSession }) => {
     try {
         // サブスクリプションの有無の確認（配送料の取得方法が異なるため）
         let subscriptionShippingFee = null;
@@ -73,20 +78,43 @@ export const createCheckoutOrder = async ({ session }: { session: StripeCheckout
         const orderData = {
             user_id: session.metadata.userID as UserId,
             status: paymentStatus as OrderStatusType,
-            shipping_fee: subscriptionShippingFee || session.shipping_cost?.amount_total || 0,
             total_amount: session.amount_total,
             currency: session.currency,
-            address: session.customer_details?.address,
-            delivery_name: session.customer_details?.name,
             payment_method: cardBrand,
         }
 
-        const { success, error, data } = await createOrder({ orderData });
+        const { 
+            success: createOrderSuccess, 
+            error: createOrderError, 
+            data: createOrderData 
+        } = await createOrder({ orderData });
 
-        if (!success || !data) {
+        if (!createOrderSuccess || !createOrderData) {
             return {
                 success: false, 
-                error: error,
+                error: createOrderError,
+                data: null
+            }
+        }
+
+        // 注文配送情報の作成
+        const orderShippingData = {
+            order_id: createOrderData.id,
+            delivery_name: session.customer_details?.name,
+            address: session.customer_details?.address,
+            shipping_fee: subscriptionShippingFee || session.shipping_cost?.amount_total || 0,
+        }
+
+        const { 
+            success: createOrderShippingSuccess, 
+            error: createOrderShippingError, 
+            data: createOrderShippingData 
+        } = await createOrderShipping({ orderShippingData });
+
+        if (!createOrderShippingSuccess || !createOrderShippingData) {
+            return {
+                success: false, 
+                error: createOrderShippingError,
                 data: null
             }
         }
@@ -94,7 +122,10 @@ export const createCheckoutOrder = async ({ session }: { session: StripeCheckout
         return {
             success: true, 
             error: null, 
-            data: data
+            data: {
+                order: createOrderData,
+                orderShipping: createOrderShippingData
+            }
         }
     } catch (error) {
         console.error('Database : Error in createCheckoutOrder: ', error);
@@ -109,18 +140,17 @@ export const createCheckoutOrder = async ({ session }: { session: StripeCheckout
 
 interface CreateCheckoutOrderStripeProps {
     session: StripeCheckoutSession;
-    orderData: Order;
+    orderData: CreateCheckoutOrderData;
 }
 
-// 注文履歴の作成
+// Stripe注文データの作成
 export const createCheckoutOrderStripe = async ({ 
     session, 
     orderData 
 }: CreateCheckoutOrderStripeProps) => {
     try {
-        // Stripe注文データの作成
         const orderStripeData = {
-            order_id: orderData.id,
+            order_id: orderData.order.id,
             session_id: session.id,
             payment_intent_id: session.payment_intent,
         }

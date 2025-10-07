@@ -146,27 +146,6 @@ declare global {
         order_item_stripes: OrderItemStripe[];
     }
 
-    interface OrderItemWithRelations extends OrderItem {
-        order_item_stripes: OrderItemStripe[];
-        product: Product;
-        subscription_payments: SubscriptionPayment[] | null;
-    }
-
-    interface OrderWithRelations extends Order {
-        order_shippings: OrderShipping | null;
-        order_items: OrderItemWithRelations[];
-    }
-
-    interface OrderWithOrderItemsAndStripeData extends Order {
-        order_items: OrderItemWithStripes[];
-        address: ShippingAddress | null;
-    }
-
-    interface OrderItemWithOrderItemStripesAndProduct extends OrderItem {
-        order_item_stripes: OrderItemStripe[];
-        product: Product;
-    }
-
     interface ProductWithReviewsAndPricing extends Product {
         reviews: Review[];
         product_pricings: ProductPricing | null;
@@ -565,16 +544,14 @@ declare global {
     type Order = PrismaOrder;
     type OrderId = Order['id'];
     type OrderNumber = Order['order_number'];
+    type OrderUserId = Order['user_id'];
+    type OrderTotalAmount = Order['total_amount'];
+    type OrderCurrency = Order['currency'];
     type OrderStatus = Order['status'];
     type OrderCreatedAt = Order['created_at'];
     type OrderPaymentMethod = Order['payment_method'];
 
     type OrderWhereInput = Prisma.OrderWhereInput;
-    type OrderCreateInput = Prisma.OrderCreateInput;
-
-    interface OrderDataProps extends PaginationWithTotalCount {
-        orders: OrderWithOrderItemsAndStripeData[];
-    }
 
     interface GetUserPaginatedOrdersProps {
         userId: UserId;
@@ -588,19 +565,38 @@ declare global {
         subscriptionStatus: SubscriptionContractStatusType;
     }
 
-    interface OrderCompleteEmailProps {
-        orderData: StripeCheckoutSession;
-        productDetails: StripeProductDetailsProps[];
-        orderNumber: OrderNumber;
-    }
-
     interface ReceiptPDFProps {
-        order: OrderWithSelectFields;
+        order: OrderHistoryData;
         isSubscription?: boolean;
         subscriptionPaymentId?: PaymentSubscriptionId;
     }
 
-    interface OrderItemWithSelectFields {
+    interface OrderPagenatedSelectFields {
+        product_id: OrderItemOrderId;
+        quantity: OrderItemQuantity;
+        unit_price: OrderItemUnitPrice;
+        remarks: OrderItemRemarks;
+        order_item_stripes: {
+            subscription_id: OrderItemStripeSubscriptionId;
+        } | null;
+        product: {
+            title: ProductTitle;
+            image_urls: ProductImageUrls;
+            price: ProductPrice;
+            category: CategoryType;
+            slug: ProductSlug;
+        };
+    }
+
+    interface OrderPagenatedData extends Order {
+        order_items: OrderPagenatedSelectFields[];
+    }
+
+    interface OrderPagenatedProps extends PaginationWithTotalCount {
+        orders: OrderPagenatedData[];
+    }
+
+    interface OrderHistorySelectFields {
         id: OrderItemId;
         product_id: OrderItemOrderId;
         quantity: OrderItemQuantity;
@@ -618,18 +614,33 @@ declare global {
             category: CategoryType;
             slug: ProductSlug;
         };
-        subscription_payments: {
-            id: SubscriptionPaymentId;
-            payment_date: SubscriptionPaymentPaymentDate;
-            status: SubscriptionPaymentStatus;
-        }[];
+        subscription_payments: SubscriptionPaymentSelectFields[];
     }
 
-    interface OrderWithSelectFields extends Order {
-        order_items: OrderItemWithSelectFields[];
+    interface OrderHistoryData extends Order {
+        order_items: OrderHistorySelectFields[];
         order_shippings: (Omit<OrderShipping, 'address'> & {
             address: ShippingAddress;
         }) | null;
+    }
+
+    interface CreateOrderData {
+        user_id: OrderUserId;
+        status: OrderStatusType;
+        total_amount: OrderTotalAmount;
+        currency: OrderCurrency;
+        payment_method: OrderPaymentMethod;
+    }
+
+    interface CreateCheckoutOrderData {
+        order: Order;
+        orderShipping: OrderShipping;
+    }
+
+    interface OrderCompleteEmailProps {
+        orderData: StripeCheckoutSession;
+        productDetails: StripeProductDetailsProps[];
+        orderNumber: OrderNumber;
     }
 
 
@@ -637,6 +648,19 @@ declare global {
         OrderShipping 関連
     ============================== */
     type OrderShipping = PrismaOrderShipping;
+    type OrderShippingDeliveryName = OrderShipping['delivery_name'];
+    type OrderShippingShippingFee = OrderShipping['shipping_fee'];
+
+    interface CreateOrderShippingProps {
+        orderShippingData: CreateOrderShippingData;
+    }
+
+    interface CreateOrderShippingData {
+        order_id: OrderId;
+        delivery_name: OrderShippingDeliveryName;
+        address: ShippingAddress;
+        shipping_fee: OrderShippingShippingFee;
+    }
 
 
     /* ============================== 
@@ -691,6 +715,8 @@ declare global {
     type SubscriptionPaymentPaymentDate = SubscriptionPayment['payment_date'];
     type PaymentSubscriptionId = SubscriptionPayment['subscription_id'];
     type SubscriptionPaymentStatus = SubscriptionPayment['status'];
+
+    type SubscriptionPaymentSelectFields = Pick<SubscriptionPayment, 'id' | 'payment_date' | 'status'>;
 
 
     /* ============================== 

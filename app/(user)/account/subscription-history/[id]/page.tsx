@@ -62,7 +62,7 @@ const SubscriptionHistoryDetailPage = async ({ params }: { params: { id: OrderId
         total_amount,
         payment_method,
         order_shippings,
-    } = orderResult as OrderWithSelectFields;
+    } = orderResult as OrderHistoryData;
 
     const { delivery_name, address, shipping_fee } = order_shippings || {};
 

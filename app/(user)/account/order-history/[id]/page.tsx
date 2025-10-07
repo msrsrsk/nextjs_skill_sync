@@ -60,7 +60,7 @@ const OrderHistoryDetailPage = async ({ params }: { params: { id: OrderId } }) =
         created_at, 
         order_shippings,
         order_items,
-    } = orderResult as OrderWithSelectFields;
+    } = orderResult as OrderHistoryData;
 
     const { delivery_name, address, shipping_fee } = order_shippings || {};
     const isSubscription = !!order_items[0].order_item_stripes?.subscription_id;

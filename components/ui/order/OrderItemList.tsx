@@ -8,7 +8,7 @@ import { NOIMAGE_PRODUCT_IMAGE_URL, SITE_MAP } from "@/constants/index"
 const { CATEGORY_PATH } = SITE_MAP;
 
 interface OrderItemListProps {
-    orderItems: OrderItemWithSelectFields[];
+    orderItems: OrderPagenatedSelectFields[];
     customClass?: string;
 }
 

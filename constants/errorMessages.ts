@@ -228,6 +228,11 @@ export const ERROR_MESSAGES = {
         DELETE_STRIPE_FAILED: `注文履歴のStripeデータの削除に失敗しました。${RETRY}`,
     },
 
+    // 注文配送データ関連
+    ORDER_SHIPPING_ERROR: {
+        CREATE_FAILED: `注文配送情報の作成に失敗しました。${RETRY}`,
+    },
+
     // 注文商品リスト関連
     ORDER_ITEM_ERROR: {
         DELETE_FAILED: `注文商品リストの削除に失敗しました。${RETRY}`,

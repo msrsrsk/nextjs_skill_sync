@@ -23,7 +23,7 @@ export const createOrderRepository = () => {
         // 注文データの作成
         createOrder: async ({ 
             orderData 
-        }: { orderData: OrderCreateInput }) => {
+        }: { orderData: CreateOrderData }) => {
             return await prisma.order.create({
                 data: orderData
             })

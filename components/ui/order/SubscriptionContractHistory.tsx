@@ -11,7 +11,7 @@ const { DESKTOP_MAX_ITEMS, MOBILE_MAX_ITEMS } = SUBSCRIPTION_PAYMENT_DISPLAY;
 const { SUCCEEDED } = SUBSCRIPTION_PAYMENT_STATUS;
 
 interface SubscriptionContractHistoryProps {
-    order_items: OrderItemWithSelectFields[];
+    order_items: OrderHistorySelectFields[];
     orderId: OrderId;
 }
 
