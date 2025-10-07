@@ -20,8 +20,6 @@ interface CreateOrderItemsProps {
         quantity: OrderItemQuantity;
         unit_price: OrderItemUnitPrice;
         total_price: OrderItemTotalPrice;
-        subscription_interval: OrderItemSubscriptionInterval;
-        remarks: OrderItemRemarks;
     }>;
 }
 
@@ -31,9 +29,15 @@ export const createOrderItemRepository = () => {
         createOrderItems: async ({
             orderItemsData
         }: CreateOrderItemsProps) => {
-            return await prisma.orderItem.createMany({
-                data: orderItemsData
-            })
+            const createdItems = await Promise.all(
+                orderItemsData.map(itemData => 
+                    prisma.orderItem.create({
+                        data: itemData
+                    })
+                )
+            )
+            
+            return createdItems;
         }
     }
 }
@@ -166,10 +170,10 @@ export const deleteOrderItemRepository = () => {
     return {
         // 注文商品リストの削除
         deleteAllOrderItem: async ({
-            orderItemId
-        }: { orderItemId: OrderItemId }) => {
+            orderId
+        }: { orderId: OrderItemOrderId }) => {
             return await prisma.orderItem.deleteMany({
-                where: { id: orderItemId }
+                where: { order_id: orderId }
             })
         }
     }

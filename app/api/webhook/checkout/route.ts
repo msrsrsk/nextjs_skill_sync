@@ -5,12 +5,14 @@ import { verifyWebhookSignature } from "@/services/stripe/webhook/actions"
 import { createCheckoutOrder } from "@/services/order/actions"
 import { createCheckoutOrderStripe } from "@/services/order/actions"
 import { deleteOrder } from "@/services/order/actions"
-import { deleteOrderStripe } from "@/services/order-stripe/actions"
 import { deleteAllOrderItem } from "@/services/order-item/actions"
+import { deleteOrderStripe } from "@/services/order-stripe/actions"
+import { deleteOrderItemSubscription } from "@/services/order-item-subscription/actions"
 import { 
     createCheckoutOrderItems, 
-    createCheckoutOrderItemStripes 
+    createCheckoutOrderItemSubscriptions,
 } from "@/services/order-item/actions"
+import { createCheckoutOrderItemStripes } from "@/services/order-item-stripe/actions"
 import { createShippingAddress } from "@/services/shipping-address/actions"
 import { getShippingAddressRepository } from "@/repository/shippingAddress"
 import { updateProductStockAndSoldCount } from "@/services/order/actions"
@@ -114,15 +116,30 @@ async function handleCheckoutSessionCompleted({
     // OrderItems テーブルのデータ作成
     const  { 
         success: orderItemsSuccess, 
-        error: orderItemsError 
+        error: orderItemsError,
+        data: orderItemsData
     } = await createCheckoutOrderItems({
         orderId: orderData.order.id, 
         productDetails: productDetails as StripeProductDetailsProps[]
     });
 
-    if (!orderItemsSuccess) {
+    if (!orderItemsSuccess || !orderItemsData) {
         await deleteOrderStripe({ orderId: orderData.order.id });
         throw new Error(orderItemsError as string);
+    }
+
+    // OrderItemSubscriptions テーブルのデータ作成
+    const  { 
+        success: orderItemSubscriptionsSuccess, 
+        error: orderItemSubscriptionsError 
+    } = await createCheckoutOrderItemSubscriptions({
+        orderItemId: orderData.order.id, 
+        productDetails: productDetails as StripeProductDetailsProps[]
+    })
+
+    if (!orderItemSubscriptionsSuccess) {
+        await deleteAllOrderItem({ orderId: orderData.order.id });
+        throw new Error(orderItemSubscriptionsError as string);
     }
 
     // OrderItemStripes テーブルのデータ作成
@@ -130,12 +147,12 @@ async function handleCheckoutSessionCompleted({
         success: orderItemStripesSuccess, 
         error: orderItemStripesError 
     } = await createCheckoutOrderItemStripes({
-        orderItemId: orderData.order.id, 
+        orderItemIds: orderItemsData.map((item) => item.id), 
         productDetails: productDetails as StripeProductDetailsProps[]
-    });
+    })
 
     if (!orderItemStripesSuccess) {
-        await deleteAllOrderItem({ orderId: orderData.order.id });
+        await deleteOrderItemSubscription({ orderItemId: orderItemsData[0].id });
         throw new Error(orderItemStripesError as string);
     }
 

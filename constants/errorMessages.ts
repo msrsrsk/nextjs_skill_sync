@@ -208,7 +208,8 @@ export const ERROR_MESSAGES = {
         CREATE_ORDER_FAILED: `注文履歴の保存に失敗しました。${RETRY}`,
         CREATE_ORDER_STRIPE_FAILED: `注文履歴のStripeデータの作成に失敗しました。${RETRY}`,
         CREATE_ORDER_ITEMS_FAILED: `注文の商品リストの保存に失敗しました。${RETRY}`,
-        CREATE_ORDER_ITEM_STRIPES_FAILED: `注文の商品リストのStripeデータの保存に失敗しました。${RETRY}`,
+        CREATE_ORDER_ITEM_SUBSCRIPTIONS_FAILED: `サブスクリプションデータの保存に失敗しました。${RETRY}`,
+        CREATE_ORDER_ITEM_STRIPES_FAILED: `Stripeデータの保存に失敗しました。${RETRY}`,
         UPDATE_STOCK_AND_SOLD_COUNT_FAILED: `商品の在庫数と売り上げ数の更新に失敗しました。${RETRY}`,
         GET_DEFAULT_SHIPPING_ADDRESS_FAILED: `デフォルトの配送先住所の取得に失敗しました。${RETRY}`,
         CREATE_DEFAULT_SHIPPING_ADDRESS_FAILED: `デフォルトの配送先住所の保存に失敗しました。${RETRY}`,
@@ -258,6 +259,8 @@ export const ERROR_MESSAGES = {
         CANCEL_SUBSCRIPTION_FAILED: `サブスクリプションのキャンセル中にエラーが発生しました。${RETRY}`,
         UPDATE_SUBSCRIPTION_STATUS_FAILED: `サブスクリプションの契約状況の更新に失敗しました。${RETRY}`,
         CANCEL_SUBSCRIPTION_SUCCESS: 'サブスクリプションの契約をキャンセルしました',
+        
+        DELETE_FAILED: `サブスクリプションデータの削除に失敗しました。${RETRY}`,
 
         SUBSCRIPTION_PRICE_RECURRING_CONFIG_FETCH_FAILED: `サブスクリプションの価格周期データの取得に失敗しました。${RETRY}`,
         SUBSCRIPTION_PRICE_CREATE_FAILED: `サブスクリプションの価格データの作成に失敗しました。${RETRY}`,

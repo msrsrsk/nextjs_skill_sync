@@ -16,6 +16,7 @@ import type {
     OrderShipping as PrismaOrderShipping,
     OrderStripe as PrismaOrderStripe,
     OrderItem as PrismaOrderItem,
+    OrderItemSubscription as PrismaOrderItemSubscription,
     OrderItemStripe as PrismaOrderItemStripe,
     SubscriptionPayment as PrismaSubscriptionPayment,
     ShippingAddress as PrismaShippingAddress, 
@@ -696,12 +697,19 @@ declare global {
         userId: UserId;
     }
 
+    /* ============================== 
+        OrderItemSubscription 関連
+    ============================== */
+    type OrderItemSubscription = PrismaOrderItemSubscription;
+    type OrderItemSubscriptionSubscriptionId = OrderItemSubscription['subscription_id'];
+    type OrderItemSubscriptionStatus = OrderItemSubscription['status'];
+    type OrderItemSubscriptionInterval = OrderItemSubscription['interval'];
+    type OrderItemSubscriptionRemarks = OrderItemSubscription['remarks'];
 
     /* ============================== 
         OrderItemStripe 関連
     ============================== */
     type OrderItemStripe = PrismaOrderItemStripe;
-    type OrderItemStripeId = OrderItemStripe['id'];
     type OrderItemStripeOrderItemId = OrderItemStripe['order_item_id'];
     type OrderItemStripePriceId = OrderItemStripe['price_id'];
     type OrderItemStripeSubscriptionId = OrderItemStripe['subscription_id'];

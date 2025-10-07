@@ -1,21 +1,21 @@
 import prisma from "@/lib/clients/prisma/client"
 
 interface CreateOrderItemStripesDataProps {
-    orderItemStripesData: Array<{
+    orderItemStripeData: {
         order_item_id: OrderItemStripeOrderItemId;
         price_id: OrderItemStripePriceId;
         subscription_id: OrderItemStripeSubscriptionId;
-    }>;
+    }
 }
 
 export const createOrderItemStripeRepository = () => {
     return {
         // Stripe注文商品リストの作成
-        createOrderItemStripes: async ({
-            orderItemStripesData
+        createOrderItemStripe: async ({
+            orderItemStripeData
         }: CreateOrderItemStripesDataProps) => {
-            return await prisma.orderItemStripe.createMany({
-                data: orderItemStripesData
+            return await prisma.orderItemStripe.create({
+                data: orderItemStripeData
             })
         }
     }

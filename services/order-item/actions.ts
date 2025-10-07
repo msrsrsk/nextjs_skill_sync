@@ -4,8 +4,8 @@ import {
     updateOrderItemRepository,
     deleteOrderItemRepository
 } from "@/repository/orderItem"
+import { createOrderItemSubscriptionRepository } from "@/repository/orderItemSubscription"
 import { formatOrderRemarks } from "@/services/order/format"
-import { createOrderItemStripeRepository } from "@/repository/orderItemStripe"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { SUBSCRIPTION_ERROR, CHECKOUT_ERROR, ORDER_ITEM_ERROR } = ERROR_MESSAGES;
@@ -15,8 +15,8 @@ interface CreateCheckoutOrderItemsProps {
     productDetails: StripeProductDetailsProps[];
 }
 
-interface CreateCheckoutOrderItemStripesProps {
-    orderItemId: OrderItemStripeId;
+interface CreateCheckoutOrderItemRelationsProps {
+    orderItemId: OrderItemId;
     productDetails: StripeProductDetailsProps[];
 }
 
@@ -29,15 +29,14 @@ export const createCheckoutOrderItems = async ({
         // サブスクの配送料はproduct_idがnullのため、除外する
         const validProductDetails = productDetails.filter(item => item.product_id);
 
-        const orderItemsData = validProductDetails.map((item: StripeProductDetailsProps) => ({
+        const orderItemsData = validProductDetails.map((
+            item: StripeProductDetailsProps
+        ) => ({
             order_id: orderId,
             product_id: item.product_id,
             quantity: item.quantity,
             unit_price: item.unit_price,
             total_price: item.amount,
-            subscription_status: item.subscription_status,
-            subscription_interval: item.subscription_interval,
-            remarks: formatOrderRemarks(item),
         }))
 
         const repository = createOrderItemRepository();
@@ -57,41 +56,46 @@ export const createCheckoutOrderItems = async ({
             data: null
         }
     }
-};
+}
 
-// Stripe注文商品リストの作成
-export const createCheckoutOrderItemStripes = async ({ 
+// サブスクリプションの作成
+export const createCheckoutOrderItemSubscriptions = async ({ 
     orderItemId, 
     productDetails 
-}: CreateCheckoutOrderItemStripesProps) => {
+}: CreateCheckoutOrderItemRelationsProps) => {
     try {
         // サブスクの配送料はproduct_idがnullのため、除外する
         const validProductDetails = productDetails.filter(item => item.product_id);
 
-        const orderItemStripesData = validProductDetails.map((item: StripeProductDetailsProps) => ({
+        const item = validProductDetails[0];
+        const subscriptionData = {
             order_item_id: orderItemId,
-            price_id: item.stripe_price_id,
             subscription_id: item.subscription_id,
-        }))
+            status: item.subscription_status,
+            interval: item.subscription_interval,
+            remarks: formatOrderRemarks(item),
+        }
 
-        const repository = createOrderItemStripeRepository();
-        const orderItemStripes = await repository.createOrderItemStripes({ orderItemStripesData });
+        const repository = createOrderItemSubscriptionRepository();
+        const orderItemSubscriptions = await repository.createOrderItemSubscriptions({ 
+            subscriptionData 
+        })
 
         return {
             success: true, 
             error: null, 
-            data: orderItemStripes
+            data: orderItemSubscriptions
         }
     } catch (error) {
-        console.error('Database : Error in createCheckoutOrderItemStripes: ', error);
+        console.error('Database : Error in createCheckoutOrderItemSubscriptions: ', error);
 
         return {
             success: false, 
-            error: CHECKOUT_ERROR.CREATE_ORDER_ITEM_STRIPES_FAILED,
+            error: CHECKOUT_ERROR.CREATE_ORDER_ITEM_SUBSCRIPTIONS_FAILED,
             data: null
         }
     }
-};
+}
 
 // サブスクリプションの注文商品数の取得
 export const getUserSubscriptionByProduct = async ({ 

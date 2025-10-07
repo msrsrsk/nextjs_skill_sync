@@ -93,7 +93,7 @@ export const formatPaymentCardBrand = (cardBrand?: string | null): string => {
 export const formatOrderRemarks = (item: {
     subscription_interval: string | null;
     subscription_product: boolean | null;
-}): string | null => {
+}): string => {
     if (!item.subscription_interval && item.subscription_product) {
         return '通常購入：1回のみの購入';
     }
@@ -102,7 +102,7 @@ export const formatOrderRemarks = (item: {
         return formatSubscriptionIntervalForOrder(item.subscription_interval);
     }
     
-    return null;
+    return '';
 }
 
 export const formatOrderDateTime = (
