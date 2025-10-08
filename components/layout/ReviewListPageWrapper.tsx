@@ -3,7 +3,7 @@ import Pagination from "@/components/ui/navigation/Pagination"
 import SearchForm from "@/components/common/forms/SearchForm"
 import ErrorMessage from "@/components/common/display/ErrorMessage"
 import NoDataText from "@/components/common/display/NoDataText"
-import { requireServerAuth } from "@/lib/middleware/auth"
+import { requireUser } from "@/lib/middleware/auth"
 import { getReviewRepository } from "@/repository/review"
 import { REVIEW_DISPLAY_CONFIG, PAGINATION_CONFIG } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
@@ -28,7 +28,7 @@ const ReviewListPageWrapper = async ({
     let userId: UserId | undefined;
     
     if (isPrivate) {
-        const { userId: privateUserId } = await requireServerAuth();
+        const { userId: privateUserId } = await requireUser();
         userId = privateUserId;
     }
 

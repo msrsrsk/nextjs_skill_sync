@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 
-import { requireServerAuth } from "@/lib/middleware/auth"
+import { requireUser } from "@/lib/middleware/auth"
 import { createCheckoutSession } from "@/services/stripe/actions"
 import { CHECKOUT_INITIAL_QUANTITY } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
@@ -10,7 +10,7 @@ const { CHECKOUT_ERROR } = ERROR_MESSAGES;
 export const dynamic = "force-dynamic"
 
 export async function POST(request: NextRequest) {
-    const { userId } = await requireServerAuth();
+    const { userId } = await requireUser();
 
     const { cartItems } = await request.json();
 

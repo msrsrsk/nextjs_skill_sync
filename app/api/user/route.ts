@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 
-import { requireUserId } from "@/lib/middleware/auth"
+import { requireUser } from "@/lib/middleware/auth"
 import { deleteUser } from "@/services/user/actions"
 import { deleteUserImage } from "@/services/cloudflare/actions"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
@@ -10,7 +10,7 @@ const { USER_ERROR } = ERROR_MESSAGES;
 export const dynamic = "force-dynamic"
 
 export async function DELETE(request: NextRequest) {
-    const { userId } = await requireUserId();
+    const { userId } = await requireUser();
 
     try {
         // ユーザーのアイコン画像をストレージから削除

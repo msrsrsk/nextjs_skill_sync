@@ -5,7 +5,7 @@ import Breadcrumb from "@/components/ui/navigation/Breadcrumb"
 import PageTitle from "@/components/common/display/PageTitle"
 import AccountLogoutButton from "@/components/ui/auth/AccountLogoutButton"
 import { generatePageMetadata } from "@/lib/metadata/page"
-import { requireServerAuth } from "@/lib/middleware/auth"
+import { requireUser } from "@/lib/middleware/auth"
 import { accountLinks } from "@/data/links"
 import { USER_METADATA } from "@/constants/metadata/user"
 
@@ -14,7 +14,7 @@ export const metadata: Metadata = generatePageMetadata({
 })
 
 const AccountPage = async () => {
-    const { user } = await requireServerAuth();
+    const { user } = await requireUser();
 
     return <>
         <Breadcrumb />

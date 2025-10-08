@@ -1,6 +1,6 @@
 import { createR2Client } from "@/lib/clients/cloudflare/client"
 
-import { requireServerAuth } from "@/lib/middleware/auth"
+import { requireUser } from "@/lib/middleware/auth"
 import { PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3"
 import { getUserImageRepository } from "@/repository/userImage"
 import { updateUserImageFilePath } from "@/services/user-image/actions"
@@ -109,7 +109,7 @@ const authenticateAndAuthorizeUserImage = async ({
     userImageId
 }: { userImageId: UserImageId }) => {
     // ユーザー認証
-    const { session } = await requireServerAuth();
+    const { session } = await requireUser();
     const userId = session.user.id;
 
     if (!userId) {

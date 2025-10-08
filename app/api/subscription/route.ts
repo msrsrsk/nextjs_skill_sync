@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 
-import { requireUserId, requireServerAuth } from "@/lib/middleware/auth"
+import { requireUser } from "@/lib/middleware/auth"
 import { getUserSubscriptionByProduct } from "@/services/order-item/actions"
 import { createPaymentLink, cancelSubscription } from "@/services/stripe/actions"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic"
 
 // GET: サブスクリプション状況の確認
 export async function GET(request: NextRequest) {
-    const { userId } = await requireUserId();
+    const { userId } = await requireUser();
 
     const { searchParams } = new URL(request.url);
     const productId = searchParams.get('productId');
@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
 
 // POST: サブスクリプションの支払いリンクの作成
 export async function POST(request: NextRequest) {
-    const { user } = await requireServerAuth();
+    const { user } = await requireUser();
     const userId = user?.id as UserId;
     const userEmail = user?.email as UserEmail;
 

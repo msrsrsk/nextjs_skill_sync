@@ -5,7 +5,7 @@ import PageTitle from "@/components/common/display/PageTitle"
 import DeleteAccountContent from "@/components/ui/other/DeleteAccountContent"
 import LoadingSpinner from "@/components/common/display/LoadingSpinner"
 import ErrorMessage from "@/components/common/display/ErrorMessage"
-import { requireServerAuth } from "@/lib/middleware/auth"
+import { requireUser } from "@/lib/middleware/auth"
 import { getOrderRepository } from "@/repository/order"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
@@ -29,7 +29,7 @@ const PrivateDeleteAccount = () => {
 }
 
 const DeleteAccountWrapper = async () => {
-    const { userId } = await requireServerAuth();
+    const { userId } = await requireUser();
 
     const repository = getOrderRepository();
     const unshippedOrdersCount = await repository.getUnshippedOrdersCount({ userId });

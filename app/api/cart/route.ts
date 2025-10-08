@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 
-import { requireUserId } from "@/lib/middleware/auth"
+import { requireUser } from "@/lib/middleware/auth"
 import { getCartItemRepository } from "@/repository/cartItem"
 import { 
     createCartItems, 
@@ -16,7 +16,7 @@ export const dynamic = "force-dynamic"
 
 // GET: カートのデータを取得
 export async function GET(request: NextRequest) {
-    const { userId } = await requireUserId();
+    const { userId } = await requireUser();
 
     try {
         // throw new Error('test error');
@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
 
 // POST: カートに商品を追加
 export async function POST(request: NextRequest) {
-    const { userId } = await requireUserId();
+    const { userId } = await requireUser();
 
     const { productId, quantity } = await request.json();
 
@@ -142,7 +142,7 @@ export async function POST(request: NextRequest) {
 
 // PUT: カートの商品数量を更新
 export async function PUT(request: NextRequest) {
-    const { userId } = await requireUserId();
+    const { userId } = await requireUser();
 
     const { productId, quantity } = await request.json();
 
@@ -182,7 +182,7 @@ export async function PUT(request: NextRequest) {
 
 // DELETE: カートの商品を削除
 export async function DELETE(request: NextRequest) {
-    const { userId } = await requireUserId();
+    const { userId } = await requireUser();
 
     const { searchParams } = new URL(request.url);
     const action = searchParams.get('action');

@@ -7,7 +7,7 @@ import ErrorMessage from "@/components/common/display/ErrorMessage"
 import OrderHistoryListPagination from "@/components/ui/order/OrderHistoryListPagination"
 import LoadingSpinner from "@/components/common/display/LoadingSpinner"
 import { generatePageMetadata } from "@/lib/metadata/page"
-import { requireServerAuth } from "@/lib/middleware/auth"
+import { requireUser } from "@/lib/middleware/auth"
 import { getOrderRepository } from "@/repository/order"
 import { ORDER_HISTORY_CATEGORIES, ORDER_HISTORY_PAGE_LIMIT, DEFAULT_PAGE } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
@@ -47,7 +47,7 @@ const OrderHistoryWrapper = async ({
     page,
     category
 }: SearchParamsPageCategory) => {
-    const { userId } = await requireServerAuth();
+    const { userId } = await requireUser();
 
     const repository = getOrderRepository();
     const { data } = await repository.getUserPaginatedOrders({

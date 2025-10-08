@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 
-import { requireUserId } from "@/lib/middleware/auth"
+import { requireUser } from "@/lib/middleware/auth"
 import { 
     addBookmark, 
     removeBookmark, 
@@ -16,7 +16,7 @@ export const dynamic = "force-dynamic"
 
 // GET: お気に入りデータの取得
 export async function GET(request: NextRequest) {
-    const { userId } = await requireUserId();
+    const { userId } = await requireUser();
 
     const { searchParams } = new URL(request.url);
     const productId = searchParams.get('productId');
@@ -82,7 +82,7 @@ export async function GET(request: NextRequest) {
 
 // POST: お気に入り状態の変更
 export async function POST(request: NextRequest) {
-    const { userId } = await requireUserId();
+    const { userId } = await requireUser();
     const { productId } = await request.json();
 
     if (!productId) {
@@ -121,7 +121,7 @@ export async function POST(request: NextRequest) {
 
 // DELETE: お気に入り削除（個別 or 全て）
 export async function DELETE(request: NextRequest) {
-    const { userId } = await requireUserId();
+    const { userId } = await requireUser();
 
     const { searchParams } = new URL(request.url);
     const action = searchParams.get('action');

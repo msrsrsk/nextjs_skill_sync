@@ -7,7 +7,7 @@ import ErrorMessage from "@/components/common/display/ErrorMessage"
 import SubscriptionListPagination from "@/components/ui/order/SubscriptionListPagination"
 import LoadingSpinner from "@/components/common/display/LoadingSpinner"
 import { generatePageMetadata } from "@/lib/metadata/page"
-import { requireServerAuth } from "@/lib/middleware/auth"
+import { requireUser } from "@/lib/middleware/auth"
 import { getOrderItemRepository } from "@/repository/orderItem"
 import { 
     SUBSCRIPTION_ORDER_HISTORY_PAGE_LIMIT, 
@@ -51,7 +51,7 @@ const SubscriptionWrapper = async ({
     page,
     category
 }: SearchParamsPageCategory) => {
-    const { userId } = await requireServerAuth();
+    const { userId } = await requireUser();
 
     const repository = getOrderItemRepository();
     const { data } = await repository.getUserPaginatedSubscription({

@@ -7,7 +7,7 @@ import ShippingInfoContent from "@/components/ui/other/ShippingInfoContent"
 import LoadingSpinner from "@/components/common/display/LoadingSpinner"
 import ErrorMessage from "@/components/common/display/ErrorMessage"
 import { generatePageMetadata } from "@/lib/metadata/page"
-import { requireServerAuth } from "@/lib/middleware/auth"
+import { requireUser } from "@/lib/middleware/auth"
 import { getShippingAddressRepository } from "@/repository/shippingAddress"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 import { USER_METADATA } from "@/constants/metadata/user"
@@ -36,7 +36,7 @@ const ShippingInfoPage = () => {
 }
 
 const ShippingInfoWrapper = async () => {
-    const { userId } = await requireServerAuth();
+    const { userId } = await requireUser();
 
     const repository = getShippingAddressRepository();
     const { data } = await repository.getUserAllShippingAddresses({ userId });

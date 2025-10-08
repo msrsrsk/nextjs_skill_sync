@@ -1,12 +1,9 @@
 import { 
     formatNumber, 
 } from "@/lib/utils/format"
-import { 
-    formatPaymentDueDate, 
-    formatOrderRemarks, 
-    formatOrderNumber 
-} from "@/services/order/format"
-import { getPaymentErrorDetails } from "@/services/order/format"
+import { formatOrderNumber } from "@/services/order/format"
+import { formatOrderRemarks } from "@/services/order-item-subscription/format"
+import { formatPaymentDueDate, getPaymentErrorDetails } from "@/services/order/format"
 import { LOGO_IMAGE_PATH } from "@/constants/index"
 
 interface CompleteEmailProps {

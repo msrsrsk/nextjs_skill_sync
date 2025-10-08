@@ -7,7 +7,7 @@ import SupportChatContent from "@/components/ui/other/SupportChatContent"
 import LoadingSpinner from "@/components/common/display/LoadingSpinner"
 import ErrorMessage from "@/components/common/display/ErrorMessage"
 import { generatePageMetadata } from "@/lib/metadata/page"
-import { requireServerAuth } from "@/lib/middleware/auth"
+import { requireUser } from "@/lib/middleware/auth"
 import { getChatRoomRepository } from "@/repository/chatRoom"
 import { BUSINESS_HOURS_CONFIG } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
@@ -38,7 +38,7 @@ const SupportChatPage = () => {
 }
 
 const SupportChatWrapper = async () => {
-    const { userId } = await requireServerAuth();
+    const { userId } = await requireUser();
 
     const chatRoomRepository = getChatRoomRepository();
     const chatResult = await chatRoomRepository.getChatRoom({ userId });

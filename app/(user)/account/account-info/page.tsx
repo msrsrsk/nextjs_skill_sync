@@ -7,7 +7,7 @@ import AccountInfoContent from "@/components/ui/auth/AccountInfoContent"
 import LoadingSpinner from "@/components/common/display/LoadingSpinner"
 import ErrorMessage from "@/components/common/display/ErrorMessage"
 import { generatePageMetadata } from "@/lib/metadata/page"
-import { requireServerAuth } from "@/lib/middleware/auth"
+import { requireUser } from "@/lib/middleware/auth"
 import { getUserRepository } from "@/repository/user"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 import { USER_METADATA } from "@/constants/metadata/user"
@@ -36,7 +36,7 @@ const AccountInfoPage = () => {
 }
 
 const AccountInfoWrapper = async () => {
-    const { userId } = await requireServerAuth();
+    const { userId } = await requireUser();
 
     const repository = getUserRepository();
     const userResult = await repository.getUserById({ userId });

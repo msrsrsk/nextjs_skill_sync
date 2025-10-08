@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 
-import { requireUserId } from "@/lib/middleware/auth"
+import { requireUser } from "@/lib/middleware/auth"
 import { createChatMessageByUserId } from "@/services/chat/actions"
 import { CHAT_SENDER_TYPES } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
@@ -11,7 +11,7 @@ const { CHAT_ERROR } = ERROR_MESSAGES;
 export const dynamic = "force-dynamic"
 
 export async function POST(request: NextRequest) {
-    const { userId } = await requireUserId();
+    const { userId } = await requireUser();
 
     try {
         // メッセージの内容を取得
