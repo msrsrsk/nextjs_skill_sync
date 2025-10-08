@@ -13,7 +13,7 @@ export const urlToFile = async (
     filename?: string
 ): Promise<UrlToFileResult> => {
     if (url.startsWith('data:')) {
-        const extension = getFileExtension(dataUrlToFile(url, 'temp').type);
+        const extension = getFileExtension(dataUrlToFile(url, 'temp').type as FileMimeType);
         const defaultFilename = `icon.${extension}`;
         
         return {
@@ -26,7 +26,7 @@ export const urlToFile = async (
     try {
         const response = await fetch(url);
         const blob = await response.blob();
-        const extension = getFileExtension(blob.type);
+        const extension = getFileExtension(blob.type as FileMimeType);
         const defaultFilename = `icon.${extension}`;
         
         return {
@@ -43,4 +43,4 @@ export const urlToFile = async (
             data: null
         }
     }
-};
+}

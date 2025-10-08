@@ -60,7 +60,22 @@ export const getUserBookmarkRepository = () => {
             productId 
         }: BookmarkProps) => {
             const bookmarks = await prisma.userBookmark.findFirst({
-                where: { user_id: userId, product_id: productId }
+                where: { 
+                    user_id: userId, 
+                    product_id: productId 
+                },
+                include: {
+                    product: {
+                        select: {
+                            id: true,
+                            title: true,
+                            price: true,
+                            category: true,
+                            image_urls: true,
+                            slug: true
+                        }
+                    }
+                }
             });
         
             return { isBookmarked: !!bookmarks };

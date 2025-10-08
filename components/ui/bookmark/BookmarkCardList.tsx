@@ -16,7 +16,7 @@ const { CATEGORY_PATH } = SITE_MAP;
 const { BOOKMARK_ERROR } = ERROR_MESSAGES;
 
 interface BookmarkCardListProps {
-    bookmarks: UserBookmark[];
+    bookmarks: BookmarkItemWithProduct[];
     handleOptimisticRemove: (productId: ProductId) => void;
 }
 
@@ -54,13 +54,14 @@ const BookmarkCardList = ({
     return (
         bookmarks.map((bookmark) => {
             const { product } = bookmark;
+
             const { 
                 id: productId,
                 title, 
-                slug,
                 image_urls, 
-                category,
                 price, 
+                category,
+                slug,
             } = product;
 
             return (

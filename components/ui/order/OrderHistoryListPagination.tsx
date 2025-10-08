@@ -23,14 +23,14 @@ const { ORDER_HISTORY_PATH } = SITE_MAP;
 
 interface OrderHistoryListPaginationProps {
     orderData: OrderPagenatedProps;
-    currentCategory: string;
+    currentCategory: OrderHistoryCategoryType;
 }
 
 const OrderHistoryListPagination = ({
     orderData,
     currentCategory
 }: OrderHistoryListPaginationProps) => {
-    const { activeTab, handleTabChange } = useTabPagination({
+    const { activeTab, handleTabChange } = useTabPagination<OrderHistoryCategoryType>({
         currentCategory,
         basePath: ORDER_HISTORY_PATH
     });

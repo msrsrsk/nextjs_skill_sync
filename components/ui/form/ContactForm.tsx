@@ -27,7 +27,7 @@ interface ContactFormProps {
     handleEmailChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     handleTextareaChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
     isValid: boolean;
-    setContactStep: (step: string) => void;
+    setContactStep: (step: ContactFormStepType) => void;
 }
 
 const ContactForm = ({ 

@@ -7,8 +7,9 @@ import { getShippingRateAmount } from "@/services/stripe/actions"
 import { formatNumber } from "@/lib/utils/format"
 import { formatOrderDateTime, formatPaymentMethodType } from "@/services/order/format"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
-import { SITE_MAP } from "@/constants/index"
+import { DATE_FORMAT_TYPES, SITE_MAP } from "@/constants/index"
 
+const { DATE_SLASH } = DATE_FORMAT_TYPES;
 const { ORDER_HISTORY_PATH } = SITE_MAP;
 const { EMAIL_ERROR } = ERROR_MESSAGES;
 
@@ -37,7 +38,7 @@ export async function sendOrderCompleteEmail({
     const subscriptionShippingFee = orderData.mode === 'subscription' ? shippingRateAmount?.data : null;
     const sessionShippingFee = orderData.total_details?.amount_shipping ?? 0;
 
-    const formattedOrderDate = formatOrderDateTime(orderData.created, true);
+    const formattedOrderDate = formatOrderDateTime(orderData.created, DATE_SLASH);
     const shippingDetails = orderData.customer_details?.address as StripeCheckoutSessionCustomerDetails;
 
     const shippingFeeAmount = subscriptionShippingFee || sessionShippingFee;

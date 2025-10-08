@@ -52,6 +52,7 @@ export const registerUserWithChat = async (
             const userProfileRepository = createUserProfileRepository();
             await userProfileRepository.createUserProfileWithTransaction({ 
                 tx, 
+                userId: user.id,
                 userProfileData 
             });
 
@@ -188,7 +189,7 @@ export async function verifyEmailToken(
                 token
             )
 
-            if (!resisterSuccess) {
+            if (!resisterSuccess || !user) {
                 return {
                     success: false, 
                     error: resisterError,

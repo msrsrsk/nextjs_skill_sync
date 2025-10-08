@@ -2,6 +2,7 @@ import prisma from "@/lib/clients/prisma/client"
 
 interface CreateUserProfileWithTransactionProps {
     tx: TransactionClient;
+    userId: UserProfileId;
     userProfileData: CreateUserProfileData;
 }
 
@@ -10,10 +11,14 @@ export const createUserProfileRepository = () => {
         // ユーザープロフィールの作成
         createUserProfileWithTransaction: async ({
             tx,
+            userId,
             userProfileData 
         }: CreateUserProfileWithTransactionProps) => {
             return await tx.userProfile.create({
-                data: userProfileData
+                data: {
+                    user_id: userId,
+                    ...userProfileData
+                }
             })
         }
     }

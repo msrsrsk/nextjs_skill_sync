@@ -16,7 +16,7 @@ import { CONTACT_FORM_STEP } from "@/constants/index"
 const { CONTACT_FORM, CONTACT_CHECK, CONTACT_THANKS } = CONTACT_FORM_STEP;
 
 const ContactPage = () => {
-    const [contactStep, setContactStep] = useState(CONTACT_FORM);
+    const [contactStep, setContactStep] = useState<ContactFormStepType>(CONTACT_FORM);
     const [files, setFiles] = useState<File[]>([]);
     
     const { 

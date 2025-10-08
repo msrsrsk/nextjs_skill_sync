@@ -22,7 +22,7 @@ const { AUTH_REAUTHENTICATE } = AUTH_TYPES;
 const { ACCOUNT_INFO_PATH } = SITE_MAP;
 
 const EditEmailPage = () => {
-    const [step, setStep] = useState(EMAIL_REAUTHENTICATE);
+    const [step, setStep] = useState<EditEmailStepType>(EMAIL_REAUTHENTICATE);
 
     const {
         signInSuccess,

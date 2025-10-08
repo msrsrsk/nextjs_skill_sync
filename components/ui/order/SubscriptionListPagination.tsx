@@ -27,14 +27,14 @@ interface SubscriptionDataProps extends PaginationWithTotalCount {
 
 interface SubscriptionListPaginationProps {
     subscriptionData: SubscriptionDataProps;
-    currentCategory: string;
+    currentCategory: SubscriptionHistoryCategoryType;
 }
 
 const SubscriptionListPagination = ({
     subscriptionData,
     currentCategory
 }: SubscriptionListPaginationProps) => {
-    const { activeTab, handleTabChange } = useTabPagination({
+    const { activeTab, handleTabChange } = useTabPagination<SubscriptionHistoryCategoryType>({
         currentCategory,
         basePath: SUBSCRIPTION_HISTORY_PATH
     });

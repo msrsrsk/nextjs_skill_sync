@@ -2,21 +2,21 @@ import { TAB_TEXT_TYPES } from "@/constants/index"
 
 const { TAB_EN } = TAB_TEXT_TYPES;
 
-interface TabSwitcherProps {
+interface TabSwitcherProps<T extends string = string> {
     categories: Record<string, string>;
-    activeTab: string;
-    setActiveTab: (tab: string) => void;
+    activeTab: T;
+    setActiveTab: (tab: T) => void;
     text?: TabTextType;
     customClass?: string;
 }
 
-const TabSwitcher = ({ 
+const TabSwitcher = <T extends string = string> ({ 
     categories,
     activeTab, 
     setActiveTab,
     text = TAB_EN,
     customClass
-}: TabSwitcherProps) => {
+}: TabSwitcherProps<T>) => {
     const isEnglish = text === TAB_EN;
     
     return (
@@ -32,7 +32,7 @@ const TabSwitcher = ({
                             isEnglish ? " uppercase font-poppins" : " font-zen"}${
                             value === activeTab ? ' is-active' : ''
                         }`}
-                        onClick={() => setActiveTab(value)}
+                        onClick={() => setActiveTab(value as T)}
                     >
                         {value}
                     </li>

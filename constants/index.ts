@@ -736,7 +736,7 @@ export const ORDER_HISTORY_CATEGORIES = {
     CATEGORY_ALL: '全て',
     CATEGORY_NOT_SHIPPED: '未発送',
     CATEGORY_SHIPPED: '発送済み',
-};
+} as const;
 
 // 注文履歴のページの表示制限
 export const ORDER_HISTORY_PAGE_LIMIT = 8;
@@ -851,7 +851,7 @@ export const SUBSCRIPTION_STATUS = {
 export const SUBSCRIPTION_HISTORY_CATEGORIES = {
     CATEGORY_SUBS_ACTIVE: '契約中',
     CATEGORY_SUBS_CANCELLED: '解約済み',
-};
+} as const;
 
 
 /* ============================== 
@@ -880,7 +880,7 @@ export const CONTACT_FORM_STEP = {
     CONTACT_FORM: 'contact-form',
     CONTACT_CHECK: 'contact-check',
     CONTACT_THANKS: 'contact-thanks',
-};
+} as const;
 
 // フォームのデフォルトの都道府県
 export const FORM_DEFAULT_STATE = '北海道';

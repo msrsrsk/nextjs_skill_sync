@@ -6,8 +6,9 @@ import { paymentRequestEmailTemplate } from "@/lib/templates/email/order"
 import { formatOrderDateTime } from "@/services/order/format"
 import { formatNumber } from "@/lib/utils/format"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
-import { SITE_MAP } from "@/constants/index"
+import { DATE_FORMAT_TYPES, SITE_MAP } from "@/constants/index"
 
+const { DATE_SLASH } = DATE_FORMAT_TYPES;
 const { ORDER_HISTORY_PATH } = SITE_MAP;
 const { EMAIL_ERROR } = ERROR_MESSAGES;
 
@@ -34,7 +35,7 @@ export async function sendPaymentRequestEmail({
     const orderHistoryUrl = `${process.env.NEXT_PUBLIC_BASE_URL}${ORDER_HISTORY_PATH}`;
 
     const email = orderData.customer_details?.email as UserEmail;
-    const formattedOrderDate = formatOrderDateTime(orderData.created, true);
+    const formattedOrderDate = formatOrderDateTime(orderData.created, DATE_SLASH);
     const shippingFee = formatNumber((orderData.total_details?.amount_shipping ?? 0));
     const subtotal = formatNumber((orderData.amount_subtotal ?? 0));
     const total = formatNumber((orderData.amount_total ?? 0));

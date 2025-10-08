@@ -11,13 +11,18 @@ import SyncLogCard from "@/components/ui/other/SyncLogCard"
 import { LinkButtonPrimary } from "@/components/common/buttons/Button"
 import { syncLogConfig } from "@/data"
 import { MoreIcon } from "@/components/common/icons/SvgIcons"
-import { SYNC_LOG_CATEGORIES, SYNC_LOG_DISPLAY_CONFIG } from "@/constants/index"
+import { 
+    SYNC_LOG_CATEGORIES, 
+    SYNC_LOG_DISPLAY_CONFIG,
+    SITE_MAP,
+} from "@/constants/index"
 
 const { SYNC_ALL } = SYNC_LOG_CATEGORIES;
 const { SECTION_LIMIT } = SYNC_LOG_DISPLAY_CONFIG;
+const { SYNC_LOG_PATH } = SITE_MAP;
 
 const SyncLogSectionContent = ({ categoryData }: { categoryData: SyncLogListsData }) => {
-    const [activeTab, setActiveTab] = useState(SYNC_ALL);
+    const [activeTab, setActiveTab] = useState<SyncLogCategoryType>(SYNC_ALL);
 
     const { logLists } = categoryData;
 
@@ -80,7 +85,7 @@ const SyncLogSectionContent = ({ categoryData }: { categoryData: SyncLogListsDat
             
                                         {totalCount > SECTION_LIMIT && (
                                             <LinkButtonPrimary
-                                                link={syncLogConfig[activeTab]?.path || '/sync-log'}
+                                                link={syncLogConfig[activeTab]?.path || SYNC_LOG_PATH}
                                                 customClass="button-space-default uppercase"
                                                 ariaLabel={`${
                                                     activeTab === SYNC_ALL ? 

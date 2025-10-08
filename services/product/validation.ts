@@ -19,5 +19,5 @@ export const isValidProductCategory = (
         UNIQUE_TAG 
     ]
     
-    return validCategories.includes(query);
+    return validCategories.some(category => category === query);
 }

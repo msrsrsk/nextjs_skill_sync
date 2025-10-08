@@ -18,7 +18,7 @@ const { PASSWORD_REAUTHENTICATE, PASSWORD_EDIT } = EDIT_PASSWORD_STEP;
 const { EDIT_PASSWORD_PAGE } = UPDATE_PASSWORD_PAGE_TYPES;
 
 const EditPasswordPage = () => {
-    const [step, setStep] = useState(PASSWORD_REAUTHENTICATE);
+    const [step, setStep] = useState<EditPasswordStepType>(PASSWORD_REAUTHENTICATE);
 
     const {
         signInSuccess,

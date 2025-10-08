@@ -76,8 +76,17 @@ import {
     PRODUCT_STATUS_SIZES,
     PRODUCT_PRICE_TYPES,
     PRICE_RANGE_DRAGGING_TYPES,
+    SYNC_LOG_CATEGORIES,
+    TREND_CATEGORIES,
+    EDIT_PASSWORD_STEP,
+    ORDER_HISTORY_CATEGORIES,
+    SUBSCRIPTION_HISTORY_CATEGORIES,
+    CONTACT_FORM_STEP,
+    EDIT_EMAIL_STEP
 } from "@/constants"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
+
+const { ALL_TAG } = CATEGORY_TAGS;
 
 declare global {
     /* ============================== 
@@ -333,6 +342,7 @@ declare global {
     type OptimalSyncTagType = typeof OPTIMAL_SYNC_TAG_TYPES[keyof typeof OPTIMAL_SYNC_TAG_TYPES];
     type CollectionSortType = typeof COLLECTION_SORT_TYPES[keyof typeof COLLECTION_SORT_TYPES];
     type TrendStatusSizeType = typeof TREND_STATUS_SIZES[keyof typeof TREND_STATUS_SIZES];
+    type TrendCategoryType = typeof TREND_CATEGORIES[keyof typeof TREND_CATEGORIES];
 
     type Product = PrismaProduct;
     type ProductTitle = Product['title'];
@@ -345,6 +355,7 @@ declare global {
     type CategoryType = Product['category'];
 
     type ProductWhereInput = Prisma.ProductWhereInput;
+    type ExcludeProductCategoryTagType = Exclude<ProductCategoryTagType, typeof ALL_TAG>;
 
     interface ProductPriceBounds {
         minPrice: number;
@@ -566,6 +577,7 @@ declare global {
     type OrderStatusType = typeof ORDER_STATUS[keyof typeof ORDER_STATUS];
     type OrderDisplayType = typeof ORDER_DISPLAY_TYPES[keyof typeof ORDER_DISPLAY_TYPES];
     type OrderStatusDisplayType = typeof ORDER_STATUS_DISPLAY_TYPES[keyof typeof ORDER_STATUS_DISPLAY_TYPES];
+    type OrderHistoryCategoryType = typeof ORDER_HISTORY_CATEGORIES[keyof typeof ORDER_HISTORY_CATEGORIES];
 
     type Order = PrismaOrder;
     type OrderId = Order['id'];
@@ -704,6 +716,7 @@ declare global {
     type SubscriptionStatusType = typeof SUBSCRIPTION_STATUS[keyof typeof SUBSCRIPTION_STATUS];
     type StripeSubscriptionIntervalType = typeof STRIPE_SUBSCRIPTION_INTERVALS[keyof typeof STRIPE_SUBSCRIPTION_INTERVALS];
     type SubscriptionPurchaseType = typeof SUBSCRIPTION_PURCHASE_TYPES[keyof typeof SUBSCRIPTION_PURCHASE_TYPES];
+    type SubscriptionHistoryCategoryType = typeof SUBSCRIPTION_HISTORY_CATEGORIES[keyof typeof SUBSCRIPTION_HISTORY_CATEGORIES];
     
     type OrderItemSubscription = PrismaOrderItemSubscription;
     type OrderItemSubscriptionSubscriptionId = OrderItemSubscription['subscription_id'];
@@ -803,6 +816,7 @@ declare global {
         Sync Log 関連
     ============================== */
     type SyncLogTagSizeType = typeof SYNC_LOG_TAG_SIZES[keyof typeof SYNC_LOG_TAG_SIZES];
+    type SyncLogCategoryType = typeof SYNC_LOG_CATEGORIES[keyof typeof SYNC_LOG_CATEGORIES];
 
     interface SyncLogCardProps {
         id: string;
@@ -884,6 +898,8 @@ declare global {
     type VerifyEmailType = typeof VERIFY_EMAIL_TYPES[keyof typeof VERIFY_EMAIL_TYPES];
     type EmailVerificationPageType = typeof EMAIL_VERIFICATION_PAGE_TYPES[keyof typeof EMAIL_VERIFICATION_PAGE_TYPES];
     type EmailVerificationType = typeof EMAIL_VERIFICATION_TYPES[keyof typeof EMAIL_VERIFICATION_TYPES];
+    type EditEmailStepType = typeof EDIT_EMAIL_STEP[keyof typeof EDIT_EMAIL_STEP];
+    type EditPasswordStepType = typeof EDIT_PASSWORD_STEP[keyof typeof EDIT_PASSWORD_STEP];
 
 
     /* ============================== 
@@ -893,6 +909,7 @@ declare global {
     type ContactStepsType = typeof CONTACT_STEPS[keyof typeof CONTACT_STEPS];
     type TextareaSchemaType = typeof TEXTAREA_SCHEMA_TYPES[keyof typeof TEXTAREA_SCHEMA_TYPES];
     type CloudflareBucketType = typeof CLOUDFLARE_BUCKET_TYPES[keyof typeof CLOUDFLARE_BUCKET_TYPES];
+    type ContactFormStepType = typeof CONTACT_FORM_STEP[keyof typeof CONTACT_FORM_STEP];
 
     interface CheckoutLineItem {
         price: string;

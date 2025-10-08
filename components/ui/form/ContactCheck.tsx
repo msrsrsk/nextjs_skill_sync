@@ -17,7 +17,7 @@ const { SUBMIT_TYPE } = BUTTON_TYPES;
 const { CONFIRM } = CONTACT_STEPS;
 
 interface ContactCheckProps {
-    setContactStep: (step: string) => void;
+    setContactStep: (step: ContactFormStepType) => void;
     lastName: string;
     firstName: string;
     email: string;

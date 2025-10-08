@@ -66,9 +66,9 @@ const SubscriptionHistoryDetailPage = async ({ params }: { params: { id: OrderId
 
     const { delivery_name, address, shipping_fee } = order_shippings || {};
 
-    const subscriptionId = order_items[0].order_item_stripes?.subscription_id;
-    const subscriptionStatus = order_items[0].subscription_status;
-    const nextPaymentDate = order_items[0].subscription_next_payment;
+    const subscriptionId = order_items[0].order_item_subscriptions?.subscription_id;
+    const subscriptionStatus = order_items[0].order_item_subscriptions?.status;
+    const nextPaymentDate = order_items[0].order_item_subscriptions?.next_payment_date;
     const formattedNextPaymentDate = nextPaymentDate ? formatDate(nextPaymentDate) : 'No data';
 
     const isActive = subscriptionStatus === SUBS_ACTIVE;

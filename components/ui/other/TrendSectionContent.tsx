@@ -24,7 +24,7 @@ interface TrendSectionInnerProps {
 }
 
 const TrendSectionContent = ({ productData }: TrendSectionContentProps) => {
-    const [activeTab, setActiveTab] = useState(ACTIVE);
+    const [activeTab, setActiveTab] = useState<TrendCategoryType>(ACTIVE);
 
     if (productData.length === 0) return <NoDataText />
 

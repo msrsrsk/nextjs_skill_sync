@@ -67,7 +67,7 @@ const SubscriptionWrapper = async ({
     return (
         <SubscriptionListPagination 
             subscriptionData={data} 
-            currentCategory={category}
+            currentCategory={category as SubscriptionHistoryCategoryType}
         />
     )
 }

@@ -6,6 +6,7 @@ import {
 } from "@/constants/index"
 
 const { 
+    ALL_TAG,
     ACTIVE_TAG, 
     EXPLORER_TAG, 
     CREATIVE_TAG, 
@@ -24,7 +25,7 @@ const {
     PRICE_DESCENDING 
 } = COLLECTION_SORT_TYPES;
 
-export const formatCategory = (category: Exclude<ProductCategoryTagType, 'ALL_TAG'>): string => {
+export const formatCategory = (category: Exclude<ProductCategoryTagType, typeof ALL_TAG>): string => {
     if (!category) return '';
     
     const categoryMap = {

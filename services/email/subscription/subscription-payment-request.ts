@@ -6,8 +6,9 @@ import { subscriptionPaymentRequestEmailTemplate } from "@/lib/templates/email/s
 import { formatOrderDateTime } from "@/services/order/format"
 import { formatNumber } from "@/lib/utils/format"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
-import { SITE_MAP } from "@/constants/index"
+import { DATE_FORMAT_TYPES, SITE_MAP } from "@/constants/index"
 
+const { DATE_SLASH } = DATE_FORMAT_TYPES;
 const { SUBSCRIPTION_HISTORY_PATH } = SITE_MAP;
 const { EMAIL_ERROR } = ERROR_MESSAGES;
 
@@ -34,7 +35,7 @@ export async function sendSubscriptionPaymentRequestEmail({
 
     const email = orderData.metadata?.userEmail as UserEmail;
     const shippingFee = formatNumber((Number(orderData.metadata?.subscription_shipping_fee) ?? 0));
-    const formattedOrderDate = formatOrderDateTime(orderData.created, true);
+    const formattedOrderDate = formatOrderDateTime(orderData.created, DATE_SLASH);
     const subtotal = formatNumber((orderData.plan.amount ?? 0));
     const total = formatNumber((orderData.plan.amount ?? 0));
     const subscriptionId = orderData.id;

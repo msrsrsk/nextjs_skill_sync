@@ -23,7 +23,7 @@ export async function GET(request: Request) {
         const repository = getProductRepository();
         const productsResult = await repository.getProductsByIds({
             ids,
-            pageType
+            pageType: pageType as GetProductsPageType
         });
 
         return NextResponse.json({ 

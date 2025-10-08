@@ -3,28 +3,28 @@ import { useRouter, useSearchParams } from "next/navigation"
 
 import { DEFAULT_PAGE } from "@/constants/index"
 
-interface UseTabPaginationProps {
-    currentCategory: string;
+interface UseTabPaginationProps<T extends string = string> {
+    currentCategory: T;
     basePath: string;
 }
 
-const useTabPagination = ({
+const useTabPagination = <T extends string = string>({
     currentCategory, 
     basePath 
-}: UseTabPaginationProps) => {
-    const [activeTab, setActiveTab] = useState(currentCategory);
+}: UseTabPaginationProps<T>) => {
+    const [activeTab, setActiveTab] = useState<T>(currentCategory);
 
     const router = useRouter();
     const searchParams = useSearchParams();
 
-    const createTabUrl = useCallback((category: string) => {
+    const createTabUrl = useCallback((category: T) => {
         const params = new URLSearchParams(searchParams.toString());
         params.set('category', category);
         params.set('page', DEFAULT_PAGE);
         return `${basePath}?${params.toString()}`;
     }, [basePath, searchParams])
 
-    const handleTabChange = useCallback((category: string) => {
+    const handleTabChange = useCallback((category: T) => {
         setActiveTab(category);
         router.push(createTabUrl(category));
     }, [createTabUrl, router])

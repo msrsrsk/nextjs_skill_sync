@@ -59,7 +59,10 @@ export const formatCreateSubscriptionNickname = (interval: string): string => {
     return intervalMap[interval] || interval;
 }
 
-export const getRecurringConfig = (interval: string) => {
+export const getRecurringConfig = (interval: string): {
+    interval: StripeSubscriptionIntervalType;
+    interval_count?: number;
+} | null => {
     switch (interval) {
         case INTERVAL_DAY:
             return { interval: 'day' };
