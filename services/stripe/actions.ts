@@ -3,7 +3,7 @@
 import { stripe } from "@/lib/clients/stripe/client"
 
 import { getUserRepository } from "@/repository/user"
-import { updateOrderItemSubscriptionStatus } from "@/services/order-item/actions"
+import { updateOrderItemSubscriptionStatus } from "@/services/order-item-subscription/actions"
 import { getRecurringConfig } from "@/services/subscription-payment/format"
 import { 
     SITE_MAP, 
@@ -36,7 +36,7 @@ interface StripePriceCreateParams {
     currency: string;
     nickname?: string;
     recurring?: {
-        interval: StripeSubscriptionInterval;
+        interval: StripeSubscriptionIntervalType;
         interval_count?: number;
     };
 }
@@ -349,7 +349,7 @@ export const updateCustomerShippingAddress = async (
 ============================== */
 export const cancelSubscription = async ({ 
     subscriptionId, 
-}: { subscriptionId: OrderItemSubscriptionId }) => {
+}: { subscriptionId: OrderItemSubscriptionSubscriptionId }) => {
     try {
         const updatedSubscription = await stripe.subscriptions.update(subscriptionId, {
             cancel_at_period_end: true,
@@ -357,30 +357,30 @@ export const cancelSubscription = async ({
                 canceled_at: new Date().toISOString(),
                 cancel_reason: 'user_requested'
             }
-        });
+        })
 
         const { success, error } = await updateOrderItemSubscriptionStatus({
             subscriptionId,
             subscriptionStatus: SUBS_CANCELLED
-        });
+        })
 
         if (!success) {
             await stripe.subscriptions.update(subscriptionId, {
                 cancel_at_period_end: false,
-            });
+            })
 
             return {
                 success: false,
                 error: error,
                 data: null
-            };
+            }
         }
 
         return {
             success: true,
             error: null,
             data: updatedSubscription
-        };
+        }
     } catch (error) {
         console.error('Actions Error - Cancel Subscription error:', error);
         

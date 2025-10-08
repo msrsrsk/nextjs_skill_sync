@@ -44,14 +44,18 @@ export const getOrderRepository = () => {
 
             const whereCondition: OrderWhereInput = {
                 user_id: userId,
-            };
+            }
+
+            const statusCondition = whereCondition.status as {
+                status: OrderStatusType;
+            }
 
             switch (category) {
                 case CATEGORY_NOT_SHIPPED:
-                    whereCondition.status = ORDER_PROCESSING;
+                    statusCondition.status = ORDER_PROCESSING;
                     break;
                 case CATEGORY_SHIPPED:
-                    whereCondition.status = ORDER_SHIPPED;
+                    statusCondition.status = ORDER_SHIPPED;
                     break;
                 case CATEGORY_ALL:
                 default:
@@ -67,10 +71,10 @@ export const getOrderRepository = () => {
                                 product_id: true,
                                 quantity: true,
                                 unit_price: true,
-                                remarks: true,
-                                order_item_stripes: {
+                                order_item_subscriptions: {
                                     select: {
                                         subscription_id: true,
+                                        remarks: true,
                                     }
                                 },
                                 product: {
@@ -129,12 +133,12 @@ export const getOrderRepository = () => {
                             product_id: true,
                             quantity: true,
                             unit_price: true,
-                            subscription_status: true,
-                            subscription_next_payment: true,
-                            remarks: true,
-                            order_item_stripes: {
+                            order_item_subscriptions: {
                                 select: {
                                     subscription_id: true,
+                                    status: true,
+                                    next_payment_date: true,
+                                    remarks: true,
                                 }
                             },
                             product: {

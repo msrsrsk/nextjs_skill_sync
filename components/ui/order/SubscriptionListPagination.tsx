@@ -78,7 +78,7 @@ const SubscriptionListPagination = ({
                         <div className="grid gap-6 md:gap-x-[42px] md:gap-y-14 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
                             {orderItems.map((orderItem, index) => (
                                 <SubscriptionCard 
-                                    orderItem={orderItem}
+                                    orderItem={orderItem as OrderItemPagenatedData}
                                     key={index} 
                                 />
                             ))}

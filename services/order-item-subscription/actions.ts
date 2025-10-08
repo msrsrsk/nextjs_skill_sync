@@ -1,5 +1,6 @@
 import { 
     createOrderItemSubscriptionRepository, 
+    updateOrderItemSubscriptionRepository,
     deleteOrderItemSubscriptionRepository 
 } from "@/repository/orderItemSubscription"
 import { formatOrderRemarks } from "@/services/order/format"
@@ -46,6 +47,34 @@ export const createCheckoutOrderItemSubscriptions = async ({
         return {
             success: false, 
             error: CHECKOUT_ERROR.CREATE_ORDER_ITEM_SUBSCRIPTIONS_FAILED,
+            data: null
+        }
+    }
+}
+
+// サブスクリプションの契約状況の更新
+export const updateOrderItemSubscriptionStatus = async ({
+    subscriptionId,
+    subscriptionStatus
+}: UpdateSubscriptionStatusProps) => {
+    try {
+        const repository = updateOrderItemSubscriptionRepository();
+        const orderItemSubscriptionStatus = await repository.updateSubscriptionStatus({ 
+            subscriptionId, 
+            subscriptionStatus 
+        })
+
+        return {
+            success: true,
+            error: null,
+            data: orderItemSubscriptionStatus
+        }
+    } catch (error) {
+        console.error('Database : Error in updateOrderItemSubscriptionStatus: ', error);
+
+        return {
+            success: false, 
+            error: SUBSCRIPTION_ERROR.UPDATE_SUBSCRIPTION_STATUS_FAILED,
             data: null
         }
     }

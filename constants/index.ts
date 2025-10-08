@@ -473,7 +473,7 @@ export const CATEGORY_TAGS = {
     WISDOM_TAG: 'Wisdom',
     UNIQUE_TAG: 'Unique',
     RANDOM_TAG: 'Random',
-};
+} as const;
 
 // セクションのカテゴリー
 export const SECTION_CATEGORIES = {
@@ -757,7 +757,7 @@ export const ORDER_STATUS = {
     ORDER_DELIVERED: 'delivered',  // 配送完了
     ORDER_CANCELLED: 'cancelled',  // キャンセル
     ORDER_REFUNDED: 'refunded',   // 返金済み
-}
+} as const;
 
 // 注文履歴のカテゴリー
 export const ORDER_HISTORY_CATEGORIES = {
@@ -854,7 +854,14 @@ export const SUBSCRIPTION_INTERVALS = {
     INTERVAL_3MONTH: '3month',
     INTERVAL_6MONTH: '6month',
     INTERVAL_YEAR: 'year',
-}
+};
+
+export const STRIPE_SUBSCRIPTION_INTERVALS = {
+    INTERVAL_DAY: 'day',
+    INTERVAL_WEEK: 'week',
+    INTERVAL_MONTH: 'month',
+    INTERVAL_YEAR: 'year',
+} as const;
 
 // サブスクリプションの間隔の閾値
 export const SUBSCRIPTION_INTERVAL_THRESHOLDS = {
@@ -866,7 +873,7 @@ export const SUBSCRIPTION_INTERVAL_THRESHOLDS = {
 export const SUBSCRIPTION_STATUS = {
     SUBS_ACTIVE: 'active',
     SUBS_CANCELLED: 'cancelled',
-}
+} as const;
 
 // サブスクリプションの契約履歴のカテゴリー
 export const SUBSCRIPTION_HISTORY_CATEGORIES = {

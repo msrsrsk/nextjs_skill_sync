@@ -418,40 +418,52 @@ model OrderItem {
   quantity              Int
   unit_price            Int      // 購入時の単価
   total_price           Int      // 単価×数量
-  remarks               String?  // 備考テキスト
-  subscription_status   SubscriptionContractStatusType?
-  subscription_interval String?  // サブスクの周期
-  subscription_next_payment DateTime?  // サブスクの次回支払日
   created_at            DateTime @default(now())
   updated_at            DateTime @default(now()) @updatedAt
 
-  stripe_price_id       String?  // 使用Stripe価格ID
-  subscription_id       String?  @unique  // Stripe subscription ID
-  
   // Relations
-  order                 Order    @relation(fields: [order_id], references: [id], onDelete: Cascade)
-  product               Product  @relation(fields: [product_id], references: [id], onDelete: Restrict)
-  order_item_stripes    OrderItemStripe?
-  subscriptionPayments  SubscriptionPayment[] @relation("OrderItemSubscriptionPayment")
+  order                     Order    @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  product                   Product  @relation(fields: [product_id], references: [id], onDelete: Restrict)
+  order_item_stripes        OrderItemStripe?
+  order_item_subscriptions  OrderItemSubscription?
   
   @@index([order_id])
   @@index([product_id])
-  @@index([product_id, subscription_id, subscription_status])
-  @@index([subscription_id])
-  @@index([subscription_status])
   @@index([order_id, product_id])
   @@index([created_at])
   @@map("order_items")
 }
 
+// 注文詳細サブスク情報
+model OrderItemSubscription {
+  id                    String                          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  order_item_id         String                          @unique @db.Uuid
+  subscription_id       String                          @unique         // Stripe subscription ID
+  status                SubscriptionContractStatusType
+  interval              String
+  next_payment_date     DateTime?                       // サブスクの次回支払日
+  remarks               String                          // 備考テキスト
+  created_at            DateTime                        @default(now())
+  updated_at            DateTime                        @default(now()) @updatedAt
+
+  // Relations
+  order_item            OrderItem                       @relation(fields: [order_item_id], references: [id], onDelete: Cascade)
+  subscription_payments SubscriptionPayment[]
+
+  @@index([order_item_id])
+  @@index([subscription_id])
+  @@index([status])
+  @@index([subscription_id, status])
+  @@map("order_item_subscriptions")
+}
+
 model OrderItemStripe {
-  id                     String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  order_item_id          String @unique @db.Uuid
+  id                     String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  order_item_id          String   @unique @db.Uuid
   price_id               String?                    // Stripe Price ID
-  subscription_id        String?  @unique           // Stripe subscription ID
   created_at             DateTime @default(now())
-  updated_at             DateTime @default(now()) @updatedAt
-  
+  updated_at             DateTime @default(now())   @updatedAt
+
   // Relations
   order_items            OrderItem @relation(fields: [order_item_id], references: [id], onDelete: Cascade)
 
@@ -459,19 +471,19 @@ model OrderItemStripe {
 }
 
 model SubscriptionPayment {
-  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  user_id         String?   @db.Uuid
-  payment_date    DateTime
-  status          SubscriptionStatusType   @default(pending)
-  subscription_id String   // Stripe subscription ID
-  created_at      DateTime @default(now())
-  updated_at      DateTime @default(now()) @updatedAt
+  id                          String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id                     String?                  @db.Uuid
+  subscription_id             String                   // Stripe subscription ID
+  payment_date                DateTime
+  status                      SubscriptionStatusType   @default(pending)
+  created_at                  DateTime @default(now())
+  updated_at                  DateTime @default(now()) @updatedAt
 
-  user User? @relation(fields: [user_id], references: [id], onDelete: SetNull)
-  orderItem OrderItem? @relation("OrderItemSubscriptionPayment", fields: [subscription_id], references: [subscription_id], onDelete: Cascade)
+  user                        User?                    @relation(fields: [user_id], references: [id], onDelete: SetNull)
+  order_item_subscriptions    OrderItemSubscription    @relation(fields: [subscription_id], references: [subscription_id], onDelete: Cascade)
 
   @@index([user_id])
-  @@index([subscription_id])
+  @@index([subscription_id]) 
   @@index([status])
   @@index([payment_date])
   @@index([created_at])
@@ -479,6 +491,8 @@ model SubscriptionPayment {
   @@index([subscription_id, status])
   @@map("subscription_payments")
 }
+
+// ==================== Shipping Address Model ====================
 
 model ShippingAddress {
   id                    String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid

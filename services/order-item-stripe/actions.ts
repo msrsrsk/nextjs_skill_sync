@@ -25,7 +25,6 @@ export const createCheckoutOrderItemStripes = async ({
                 const orderItemStripeData = {
                     order_item_id: orderItemId,
                     price_id: item.stripe_price_id,
-                    subscription_id: item.subscription_id,
                 }
 
                 return await repository.createOrderItemStripe({ 

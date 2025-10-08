@@ -4,7 +4,6 @@ interface CreateOrderItemStripesDataProps {
     orderItemStripeData: {
         order_item_id: OrderItemStripeOrderItemId;
         price_id: OrderItemStripePriceId;
-        subscription_id: OrderItemStripeSubscriptionId;
     }
 }
 

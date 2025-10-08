@@ -108,9 +108,9 @@ export async function handleSubscriptionEvent({
     } = await createSubscriptionPayment({
         subscriptionPaymentData: {
             user_id: subscriptionEvent?.metadata?.userID as UserId,
+            subscription_id: subscriptionEvent.id,
             payment_date: new Date(),
             status: subscriptionStatus,
-            subscription_id: subscriptionEvent.id,
         } as SubscriptionPayment
     });
 

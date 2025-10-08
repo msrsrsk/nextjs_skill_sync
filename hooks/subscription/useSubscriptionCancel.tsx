@@ -8,7 +8,7 @@ const { SUBSCRIPTION_ERROR } = ERROR_MESSAGES;
 
 const useSubscriptionCancel = ({ 
     subscriptionId 
-}: { subscriptionId: OrderItemSubscriptionId }) => {
+}: { subscriptionId: OrderItemSubscriptionSubscriptionId }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);

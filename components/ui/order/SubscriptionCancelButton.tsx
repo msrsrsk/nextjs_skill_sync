@@ -24,7 +24,7 @@ const { SUBSCRIPTION_HISTORY_PATH } = SITE_MAP;
 const { SUBSCRIPTION_ERROR } = ERROR_MESSAGES;
 
 interface SubscriptionCancelButtonProps {
-    subscriptionId: OrderItemSubscriptionId;
+    subscriptionId: OrderItemSubscriptionSubscriptionId;
     createdAt: OrderCreatedAt;
     isCancelled: boolean;
 }

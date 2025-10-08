@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client"
 import type { 
     User as PrismaUser, 
     UserProfile as PrismaUserProfile,
@@ -25,6 +26,59 @@ import type {
 } from "@prisma/client"
 import { Session } from "next-auth"
 import { openai } from "@/lib/clients/openai/client"
+
+import { 
+    BUTTON_SIZES,
+    BUTTON_TEXT_TYPES,
+    BUTTON_POSITIONS,
+    BUTTON_TYPES,
+    BUTTON_VARIANTS,
+    UNDERLINE_LINK_POSITIONS,
+    MODAL_SIZES,
+    OVERLAY_TYPES,
+    FILE_STATUS_TYPES,
+    ERROR_MESSAGE_POSITIONS,
+    TAB_TEXT_TYPES,
+    DROPZONE_TYPES,
+    LOADING_SPINNER_SIZES,
+    DATE_FORMAT_TYPES,
+    FILE_MIME_TYPES,
+    METADATA_TYPES,
+    GET_USER_DATA_TYPES,
+    UPDATE_PASSWORD_PAGE_TYPES,
+    PRODUCT_QUANTITY_SIZES,
+    GET_PRODUCTS_PAGE_TYPES,
+    OPTIMAL_SYNC_TAG_TYPES,
+    COLLECTION_SORT_TYPES,
+    TREND_STATUS_SIZES,
+    SUBSCRIPTION_PURCHASE_TYPES,
+    SUBSCRIPTION_CONTRACT_STATUS_TYPES,
+    CART_OPERATION_TYPES,
+    STAR_RATING_SIZES_TYPES,
+    STAR_RATING_TYPES,
+    CHAT_SOURCE,
+    ORDER_STATUS,
+    ORDER_DISPLAY_TYPES,
+    ORDER_STATUS_DISPLAY_TYPES,
+    SUBSCRIPTION_STATUS,
+    BOOKMARK_OPERATION_TYPES,
+    VERIFICATION_STATUS,
+    SYNC_LOG_TAG_SIZES,
+    AUTH_TYPES,
+    VERIFY_EMAIL_TYPES,
+    EMAIL_VERIFICATION_PAGE_TYPES,
+    EMAIL_VERIFICATION_TYPES,
+    SEARCH_FORM_SIZES,
+    CONTACT_STEPS,
+    TEXTAREA_SCHEMA_TYPES,
+    CLOUDFLARE_BUCKET_TYPES,
+    STRIPE_SUBSCRIPTION_INTERVALS,
+    PRODUCT_PRICE_STATUS,
+    CATEGORY_TAGS,
+    PRODUCT_STATUS_SIZES,
+    PRODUCT_PRICE_TYPES,
+    PRICE_RANGE_DRAGGING_TYPES,
+} from "@/constants"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 declare global {
@@ -181,7 +235,6 @@ declare global {
     interface ProductWithOptimalSyncs extends Product {
         product_relations: ProductRelation;
     }
-
 
     /* ============================== 
         User 関連
@@ -341,6 +394,8 @@ declare global {
     interface TrendSectionContentProps {
         productData: TrendCategoryData[];
     }
+
+    type ProductSelectFields = Pick<Product, 'title' | 'image_urls' | 'price' | 'category' | 'slug'>;
 
 
     /* ============================== 
@@ -561,11 +616,6 @@ declare global {
         limit: number;
     }
 
-    interface UpdateSubscriptionStatusProps {
-        subscriptionId: OrderItemStripeSubscriptionId;
-        subscriptionStatus: SubscriptionContractStatusType;
-    }
-
     interface ReceiptPDFProps {
         order: OrderHistoryData;
         isSubscription?: boolean;
@@ -576,17 +626,11 @@ declare global {
         product_id: OrderItemOrderId;
         quantity: OrderItemQuantity;
         unit_price: OrderItemUnitPrice;
-        remarks: OrderItemRemarks;
-        order_item_stripes: {
+        order_item_subscriptions: {
             subscription_id: OrderItemStripeSubscriptionId;
-        } | null;
-        product: {
-            title: ProductTitle;
-            image_urls: ProductImageUrls;
-            price: ProductPrice;
-            category: CategoryType;
-            slug: ProductSlug;
+            remarks: OrderItemSubscriptionRemarks;
         };
+        product: ProductSelectFields;
     }
 
     interface OrderPagenatedData extends Order {
@@ -602,19 +646,8 @@ declare global {
         product_id: OrderItemOrderId;
         quantity: OrderItemQuantity;
         unit_price: OrderItemUnitPrice;
-        subscription_status: OrderItemSubscriptionStatus;
-        subscription_next_payment: OrderItemSubscriptionNextPayment;
-        remarks: OrderItemRemarks;
-        order_item_stripes: {
-            subscription_id: OrderItemStripeSubscriptionId;
-        } | null;
-        product: {
-            title: ProductTitle;
-            image_urls: ProductImageUrls;
-            price: ProductPrice;
-            category: CategoryType;
-            slug: ProductSlug;
-        };
+        order_item_subscriptions: OrderItemSubscriptionSelectFields;
+        product: ProductSelectFields;
         subscription_payments: SubscriptionPaymentSelectFields[];
     }
 
@@ -682,13 +715,6 @@ declare global {
     type OrderItemQuantity = OrderItem['quantity'];
     type OrderItemUnitPrice = OrderItem['unit_price'];
     type OrderItemTotalPrice = OrderItem['total_price'];
-    type OrderItemSubscriptionInterval = OrderItem['subscription_interval'];
-    type OrderItemSubscriptionStatus = OrderItem['subscription_status'];
-    type OrderItemSubscriptionProduct = OrderItem['subscription_product'];
-    type OrderItemSubscriptionNextPayment = OrderItem['subscription_next_payment'];
-    type OrderItemRemarks = OrderItem['remarks'];
-
-    type OrderItemSubscriptionId = OrderItem['subscription_id'];
 
     type OrderItemWhereInput = Prisma.OrderItemWhereInput;
 
@@ -696,15 +722,31 @@ declare global {
         productId: ProductId;
         userId: UserId;
     }
+    
+    interface OrderItemPagenatedData extends OrderItem {
+        order_item_subscriptions: OrderItemSubscriptionSelectFields;
+        product: ProductSelectFields;
+    }
 
     /* ============================== 
         OrderItemSubscription 関連
     ============================== */
+    type SubscriptionStatusType = typeof SUBSCRIPTION_STATUS[keyof typeof SUBSCRIPTION_STATUS];
+    type StripeSubscriptionIntervalType = typeof STRIPE_SUBSCRIPTION_INTERVALS[keyof typeof STRIPE_SUBSCRIPTION_INTERVALS];
+    
     type OrderItemSubscription = PrismaOrderItemSubscription;
     type OrderItemSubscriptionSubscriptionId = OrderItemSubscription['subscription_id'];
     type OrderItemSubscriptionStatus = OrderItemSubscription['status'];
     type OrderItemSubscriptionInterval = OrderItemSubscription['interval'];
+    type OrderItemSubscriptionNextPayment = OrderItemSubscription['next_payment_date'];
     type OrderItemSubscriptionRemarks = OrderItemSubscription['remarks'];
+
+    type OrderItemSubscriptionSelectFields = Pick<OrderItemSubscription, 'subscription_id' | 'status' | 'next_payment_date' | 'remarks'>;
+
+    interface UpdateSubscriptionStatusProps {
+        subscriptionId: OrderItemSubscriptionSubscriptionId;
+        subscriptionStatus: OrderItemSubscriptionStatus;
+    }
 
     /* ============================== 
         OrderItemStripe 関連
@@ -720,8 +762,8 @@ declare global {
     ============================== */
     type SubscriptionPayment = PrismaSubscriptionPayment;
     type SubscriptionPaymentId = SubscriptionPayment['id'];
-    type SubscriptionPaymentPaymentDate = SubscriptionPayment['payment_date'];
     type PaymentSubscriptionId = SubscriptionPayment['subscription_id'];
+    type SubscriptionPaymentPaymentDate = SubscriptionPayment['payment_date'];
     type SubscriptionPaymentStatus = SubscriptionPayment['status'];
 
     type SubscriptionPaymentSelectFields = Pick<SubscriptionPayment, 'id' | 'payment_date' | 'status'>;
@@ -858,7 +900,7 @@ declare global {
         quantity: OrderItemQuantity;
         subscription_status: OrderItemSubscriptionStatus;
         subscription_interval: OrderItemSubscriptionInterval;
-        subscription_product: OrderItemSubscriptionProduct;
+        subscription_product: boolean;
         stripe_price_id: OrderItemStripePriceId;
         subscription_id: OrderItemStripeSubscriptionId;
     }
@@ -880,7 +922,6 @@ declare global {
     type ContactStepsType = typeof CONTACT_STEPS[keyof typeof CONTACT_STEPS];
     type TextareaSchemaType = typeof TEXTAREA_SCHEMA_TYPES[keyof typeof TEXTAREA_SCHEMA_TYPES];
     type CloudflareBucketType = typeof CLOUDFLARE_BUCKET_TYPES[keyof typeof CLOUDFLARE_BUCKET_TYPES];
-    type StripeSubscriptionInterval = typeof SUBSCRIPTION_INTERVALS[keyof typeof SUBSCRIPTION_INTERVALS];
 
     type OpenAIClient = typeof openai;
 

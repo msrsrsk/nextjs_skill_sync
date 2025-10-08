@@ -21,7 +21,7 @@ export const createSubscriptionPayment = async ({
         const repository = createSubscriptionPaymentRepository();
         const subscriptionPayment = await repository.createSubscriptionPayment({ 
             subscriptionPaymentData 
-        });
+        })
 
         return {
             success: true, 

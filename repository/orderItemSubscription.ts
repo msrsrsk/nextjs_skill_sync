@@ -23,6 +23,21 @@ export const createOrderItemSubscriptionRepository = () => {
     }
 }
 
+export const updateOrderItemSubscriptionRepository = () => {
+    return {
+        // サブスクリプションの契約状況の更新
+        updateSubscriptionStatus: async ({
+            subscriptionId,
+            subscriptionStatus
+        }: UpdateSubscriptionStatusProps) => {
+            return await prisma.orderItemSubscription.update({
+                where: { subscription_id: subscriptionId },
+                data: { status: subscriptionStatus }
+            })
+        }
+    }
+}
+
 export const deleteOrderItemSubscriptionRepository = () => {
     return {
         // サブスクリプションデータの削除

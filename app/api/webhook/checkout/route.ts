@@ -8,10 +8,8 @@ import { deleteOrder } from "@/services/order/actions"
 import { deleteAllOrderItem } from "@/services/order-item/actions"
 import { deleteOrderStripe } from "@/services/order-stripe/actions"
 import { deleteOrderItemSubscription } from "@/services/order-item-subscription/actions"
-import { 
-    createCheckoutOrderItems, 
-    createCheckoutOrderItemSubscriptions,
-} from "@/services/order-item/actions"
+import { createCheckoutOrderItems } from "@/services/order-item/actions"
+import { createCheckoutOrderItemSubscriptions } from "@/services/order-item-subscription/actions"
 import { createCheckoutOrderItemStripes } from "@/services/order-item-stripe/actions"
 import { createShippingAddress } from "@/services/shipping-address/actions"
 import { getShippingAddressRepository } from "@/repository/shippingAddress"

@@ -52,13 +52,10 @@ export const getOrderItemRepository = () => {
             return await prisma.orderItem.count({
                 where: {
                     product_id: productId,
-                    order_item_stripes: {
-                        subscription_id: {
-                            not: null
-                        }
-                    },
-                    subscription_status: {
-                        not: SUBS_CANCELLED as SubscriptionContractStatusType
+                    order_item_subscriptions: {
+                        status: {
+                            not: SUBS_CANCELLED as SubscriptionContractStatusType
+                        },
                     },
                     order: {
                         user_id: userId
@@ -79,20 +76,23 @@ export const getOrderItemRepository = () => {
                 order: {
                     user_id: userId
                 },
-                order_item_stripes: {
-                    subscription_id: {
-                        not: null
-                    }
+                order_item_subscriptions: {
+                    isNot: null
                 }
-            };
+            }
 
+            const subscriptionCondition = whereCondition.order_item_subscriptions as {
+                isNot: null;
+                status?: SubscriptionStatusType;
+            }
+            
             switch (category) {
                 case CATEGORY_SUBS_CANCELLED:
-                    whereCondition.subscription_status = SUBS_CANCELLED;
+                    subscriptionCondition.status = SUBS_CANCELLED;
                     break;
                 case CATEGORY_SUBS_ACTIVE:
                 default:
-                    whereCondition.subscription_status = SUBS_ACTIVE;
+                    subscriptionCondition.status = SUBS_ACTIVE;
                     break;
             }
 
@@ -100,6 +100,14 @@ export const getOrderItemRepository = () => {
                 prisma.orderItem.findMany({
                     where: whereCondition,
                     include: {
+                        order_item_subscriptions: {
+                            select: {
+                                subscription_id: true,
+                                status: true,
+                                next_payment_date: true,
+                                remarks: true,
+                            }
+                        },
                         product: {
                             select: {
                                 title: true,
@@ -121,12 +129,10 @@ export const getOrderItemRepository = () => {
                         order: {
                             user_id: userId
                         },
-                        order_item_stripes: {
-                            subscription_id: {
-                                not: null
-                            }
+                        order_item_subscriptions: {
+                            isNot: null,
+                            status: SUBS_ACTIVE as SubscriptionContractStatusType
                         },
-                        subscription_status: SUBS_ACTIVE as SubscriptionContractStatusType
                     }
                 })
             ])
@@ -143,25 +149,6 @@ export const getOrderItemRepository = () => {
                     hasPrevPage: page > INITIAL_PAGE
                 }
             }
-        }
-    }
-}
-
-export const updateOrderItemRepository = () => {
-    return {
-        // 注文商品リストのサブスクリプションの契約状況の更新
-        updateSubscriptionStatus: async ({
-            subscriptionId,
-            subscriptionStatus
-        }: UpdateSubscriptionStatusProps) => {
-            return await prisma.orderItem.updateMany({
-                where: { 
-                    order_item_stripes: {
-                        subscription_id: subscriptionId
-                    }
-                },
-                data: { subscription_status: subscriptionStatus }
-            })
         }
     }
 }

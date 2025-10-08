@@ -7,24 +7,27 @@ import { SUBSCRIPTION_PAYMENT_STATUS, SITE_MAP } from "@/constants/index"
 const { CANCELED } = SUBSCRIPTION_PAYMENT_STATUS;
 const { SUBSCRIPTION_HISTORY_PATH } = SITE_MAP;
 
-const SubscriptionCard = async ({ orderItem }: { orderItem: OrderItem }) => {
+const SubscriptionCard = async ({ 
+    orderItem 
+}: { orderItem: OrderItemPagenatedData }) => {
     const {
         order_id,
-        subscription_next_payment,
-        subscription_status
+        order_item_subscriptions,
     } = orderItem;
 
-    const formattedNextPaymentDate = subscription_status !== CANCELED 
-        ? subscription_next_payment 
-        ? formatDate(subscription_next_payment) 
+    const { subscription_id, status, next_payment_date } = order_item_subscriptions;
+
+    const formattedNextPaymentDate = status !== CANCELED 
+        ? next_payment_date 
+        ? formatDate(next_payment_date) 
         : 'No data' : '解約済み';
 
-    const isCanceled = subscription_status === CANCELED;
+    const isCanceled = status === CANCELED;
 
     return (
         <div className="bg-form-bg rounded-[20px] xl:max-w-[372px] w-full pt-6 px-5 pb-7 md:px-6">
             <OrderItemList 
-                orderItems={[orderItem]} 
+                orderItems={[orderItem as OrderPagenatedSelectFields]} 
                 customClass="grid gap-6"
             />
             <hr className="separate-border my-4 md:my-5" />
@@ -39,7 +42,7 @@ const SubscriptionCard = async ({ orderItem }: { orderItem: OrderItem }) => {
                 </div>
                 <LinkButtonPrimary
                     link={`${SUBSCRIPTION_HISTORY_PATH}/${order_id}`}
-                    ariaLabel={`契約番号${orderItem.subscription_number}の詳細ページを開く`}
+                    ariaLabel={`契約ID:${subscription_id}の詳細ページを開く`}
                 >
                     <span aria-hidden="true">MORE</span>
                     <MoreIcon />
