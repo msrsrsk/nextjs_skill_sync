@@ -466,26 +466,10 @@ declare global {
     type CartItem = PrismaCartItem;
     type CartItemQuantity = CartItem['quantity'];
 
-    type CartItemCreateInput = Prisma.CartItemCreateInput;
-
     interface UpdateCartItemQuantityProps {
         userId: UserId,
         productId: ProductId,
         quantity: number
-    }
-
-    interface CartItem {
-        id: ProductId;
-        title: ProductTitle;
-        image_urls: ProductImageUrls;
-        price: ProductPrice;
-        sale_price: ProductSalePrice;
-        category: ProductCategory;
-        slug: ProductSlug;
-        stock: ProductStock;
-        quantity: CartItemQuantity;
-        addedAt: number;
-        isSubscriptionOneTime?: boolean;
     }
 
 

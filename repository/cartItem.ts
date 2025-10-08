@@ -15,7 +15,7 @@ export const createCartItemRepository = () => {
             cartItemsData
         }: { cartItemsData: CartItem }) => {
             return await prisma.cartItem.createMany({
-                data: cartItemsData as CartItemCreateInput
+                data: cartItemsData
             });
         }
     }
