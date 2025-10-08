@@ -9,7 +9,7 @@ import PendingContent from "@/components/common/buttons/PendingContent"
 import useToastNotifications from "@/hooks/notification/useToastNotifications"
 import { EventButtonPrimary } from "@/components/common/buttons/Button"
 import { showSuccessToast } from "@/components/common/display/Toasts"
-import { isWithinThreshold } from "@/services/order/calculation"
+import { isWithinThreshold } from "@/services/order-item-subscription/calculation"
 import { 
     BUTTON_SIZES, 
     BUTTON_TEXT_TYPES, 

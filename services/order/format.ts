@@ -90,21 +90,6 @@ export const formatPaymentCardBrand = (cardBrand?: string | null): string => {
     return brandMap[cardBrand as keyof typeof brandMap] || cardBrand;
 }
 
-export const formatOrderRemarks = (item: {
-    subscription_interval: string | null;
-    subscription_product: boolean | null;
-}): string => {
-    if (!item.subscription_interval && item.subscription_product) {
-        return '通常購入：1回のみの購入';
-    }
-    
-    if (item.subscription_interval && item.subscription_product) {
-        return formatSubscriptionIntervalForOrder(item.subscription_interval);
-    }
-    
-    return '';
-}
-
 export const formatOrderDateTime = (
     timestamp: number, 
     type: DateFormatType = DATE_DOT

@@ -3,7 +3,7 @@ import {
     updateOrderItemSubscriptionRepository,
     deleteOrderItemSubscriptionRepository 
 } from "@/repository/orderItemSubscription"
-import { formatOrderRemarks } from "@/services/order/format"
+import { formatOrderRemarks } from "@/services/order-item-subscription/format"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { SUBSCRIPTION_ERROR, CHECKOUT_ERROR } = ERROR_MESSAGES;

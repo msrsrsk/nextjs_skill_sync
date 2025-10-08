@@ -14,7 +14,7 @@ import {
     getAuthenticatedProfileImageUrl, 
     deleteProfileImage 
 } from "@/services/cloudflare/actions"
-import { isDefaultIcon } from "@/services/user/validation"
+import { isDefaultIcon } from "@/services/user-profile/validation"
 import { CLOUDFLARE_BUCKET_TYPES } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
