@@ -13,18 +13,20 @@ const ProductStatus = ({
     status, 
     size = STATUS_SMALL
 }: ProductStatusProps) => {
-    return (
-        <div 
-            className={`product-status${
-                status === PRODUCT_SALE ? ' is-sale' : ''}${
-                status === PRODUCT_SOLDOUT ? ' is-soldout' : ''}${
-                size === STATUS_SMALL ? ' is-small' : ' is-medium'
-            }`}
-            aria-label={formatProductPriceStatus(status)}
-        >
-            <span aria-hidden="true">{status}</span>
-        </div>
-    )
+    return <>
+        {status && (
+            <div 
+                className={`product-status${
+                    status === PRODUCT_SALE ? ' is-sale' : ''}${
+                    status === PRODUCT_SOLDOUT ? ' is-soldout' : ''}${
+                    size === STATUS_SMALL ? ' is-small' : ' is-medium'
+                }`}
+                aria-label={formatProductPriceStatus(status)}
+            >
+                <span aria-hidden="true">{status}</span>
+            </div>
+        )}
+    </>
 }
 
 export default ProductStatus

@@ -24,8 +24,7 @@ import type {
     UserBookmark as PrismaUserBookmark,
     VerificationToken as PrismaVerificationToken, 
 } from "@prisma/client"
-import { Session } from "next-auth"
-import { openai } from "@/lib/clients/openai/client"
+import { Session as NextAuthSession } from "next-auth"
 
 import { 
     BUTTON_SIZES,
@@ -52,7 +51,6 @@ import {
     COLLECTION_SORT_TYPES,
     TREND_STATUS_SIZES,
     SUBSCRIPTION_PURCHASE_TYPES,
-    SUBSCRIPTION_CONTRACT_STATUS_TYPES,
     CART_OPERATION_TYPES,
     STAR_RATING_SIZES_TYPES,
     STAR_RATING_TYPES,
@@ -102,7 +100,7 @@ declare global {
     type FileMimeType = typeof FILE_MIME_TYPES[keyof typeof FILE_MIME_TYPES];
     type MetadataType = typeof METADATA_TYPES[keyof typeof METADATA_TYPES];
 
-    type Session = Session;
+    type Session = NextAuthSession;
     type ModalActive = boolean;
     type SetModalActive = (active: boolean) => void;
     type Files = File[];
@@ -151,12 +149,6 @@ declare global {
         timestamp: number;
     }
 
-    interface ParamsCategoryProps {
-        params: {
-            category: string;
-        };
-    }
-
     interface SearchParamsProps {
         searchParams: {
             page?: string;
@@ -195,10 +187,6 @@ declare global {
     interface UserWithShippingAddressesAndProfile extends User {
         shipping_addresses: ShippingAddress[];
         user_profiles: UserProfile;
-    }
-
-    interface OrderItemWithStripes extends OrderItem {
-        order_item_stripes: OrderItemStripe[];
     }
 
     interface ProductWithReviewsAndPricing extends Product {
@@ -341,8 +329,6 @@ declare global {
     type OptimalSyncTagType = typeof OPTIMAL_SYNC_TAG_TYPES[keyof typeof OPTIMAL_SYNC_TAG_TYPES];
     type CollectionSortType = typeof COLLECTION_SORT_TYPES[keyof typeof COLLECTION_SORT_TYPES];
     type TrendStatusSizeType = typeof TREND_STATUS_SIZES[keyof typeof TREND_STATUS_SIZES];
-    type SubscriptionPurchaseType = typeof SUBSCRIPTION_PURCHASE_TYPES[keyof typeof SUBSCRIPTION_PURCHASE_TYPES];
-    type SubscriptionContractStatusType = typeof SUBSCRIPTION_CONTRACT_STATUS_TYPES[keyof typeof SUBSCRIPTION_CONTRACT_STATUS_TYPES];
 
     type Product = PrismaProduct;
     type ProductTitle = Product['title'];
@@ -469,7 +455,7 @@ declare global {
     interface UpdateCartItemQuantityProps {
         userId: UserId,
         productId: ProductId,
-        quantity: number
+        quantity: CartItemQuantity
     }
 
 
@@ -519,10 +505,6 @@ declare global {
         rating: ReviewRating;
         comment: ReviewComment;
         files: Files;
-    }
-
-    interface ReviewNotificationData extends ReviewData {
-        created_at: ReviewCreatedAt;
     }
 
     interface ReviewStatsProps {
@@ -717,6 +699,7 @@ declare global {
     ============================== */
     type SubscriptionStatusType = typeof SUBSCRIPTION_STATUS[keyof typeof SUBSCRIPTION_STATUS];
     type StripeSubscriptionIntervalType = typeof STRIPE_SUBSCRIPTION_INTERVALS[keyof typeof STRIPE_SUBSCRIPTION_INTERVALS];
+    type SubscriptionPurchaseType = typeof SUBSCRIPTION_PURCHASE_TYPES[keyof typeof SUBSCRIPTION_PURCHASE_TYPES];
     
     type OrderItemSubscription = PrismaOrderItemSubscription;
     type OrderItemSubscriptionSubscriptionId = OrderItemSubscription['subscription_id'];
@@ -906,8 +889,6 @@ declare global {
     type ContactStepsType = typeof CONTACT_STEPS[keyof typeof CONTACT_STEPS];
     type TextareaSchemaType = typeof TEXTAREA_SCHEMA_TYPES[keyof typeof TEXTAREA_SCHEMA_TYPES];
     type CloudflareBucketType = typeof CLOUDFLARE_BUCKET_TYPES[keyof typeof CLOUDFLARE_BUCKET_TYPES];
-
-    type OpenAIClient = typeof openai;
 
     interface CheckoutLineItem {
         price: string;

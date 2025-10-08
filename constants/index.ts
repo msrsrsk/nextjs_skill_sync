@@ -1,32 +1,4 @@
 /* ============================== 
-    共通定数
-============================== */
-
-const BASE_SIZE = {
-    SMALL: 'small',
-    MEDIUM: 'medium',
-    LARGE: 'large',
-}
-
-const BASE_POSITION = {
-    CENTER: 'center',
-    LEFT: 'left',
-    RIGHT: 'right',
-}
-
-const BASE_STATUS = {
-    LOADING: 'loading',
-    SUCCESS: 'success',
-    ERROR: 'error',
-}
-
-const BASE_TEXT = {
-    EN: 'en',
-    JA: 'ja',
-}
-
-
-/* ============================== 
     サイト情報
 ============================== */
 
@@ -145,13 +117,13 @@ export const RECEIPT_CONFIG = {
 export const CLOUDFLARE_BUCKET_TYPES = {
     BUCKET_REVIEW: 'review',
     BUCKET_PROFILE: 'profile',
-}
+} as const;
 
 // メタデータのタイプ
 export const METADATA_TYPES = {
     WEBSITE: 'website',
     ARTICLE: 'article',
-}
+} as const;
 
 
 /* ============================== 
@@ -221,7 +193,7 @@ export const DATE_FORMAT_TYPES = {
     DATE_SLASH: 'slash',
     DATE_FULL: 'full',
     DATE_OMISSION: 'omission',
-}
+} as const;
 
 // 日付のフォーマットの設定
 export const DATE_FORMAT_CONFIG = {
@@ -239,7 +211,7 @@ export const FILE_MIME_TYPES = {
     IMAGE_JPEG: 'image/jpeg',
     IMAGE_JPG: 'image/jpg',
     IMAGE_PNG: 'image/png',
-}
+} as const;
 
 // デフォルトの画像URL
 export const DEFAULT_ACCOUNT_ICON_URL = `${SITE_MAP.ICON_PATH}/avatar04.png`;
@@ -249,85 +221,85 @@ export const LOGO_IMAGE_PATH = `${SITE_MAP.IMAGE_PATH}/logo.png`
 
 // アップロードファイルのステータス
 export const FILE_STATUS_TYPES = {
-    FILE_LOADING: BASE_STATUS.LOADING,
-    FILE_SUCCESS: BASE_STATUS.SUCCESS,
-    FILE_ERROR: BASE_STATUS.ERROR,
-};
+    FILE_LOADING: 'loading',
+    FILE_SUCCESS: 'success',
+    FILE_ERROR: 'error',
+} as const;
 
 // 共通ボタンのサイズ
 export const BUTTON_SIZES = {
-    BUTTON_SMALL: BASE_SIZE.SMALL,
-    BUTTON_MEDIUM: BASE_SIZE.MEDIUM,
-    BUTTON_LARGE: BASE_SIZE.LARGE,
-};
+    BUTTON_SMALL: 'small',
+    BUTTON_MEDIUM: 'medium',
+    BUTTON_LARGE: 'large',
+} as const;
 
 // 共通ボタンのテキスト
 export const BUTTON_TEXT_TYPES = {
-    BUTTON_EN: BASE_TEXT.EN,
-    BUTTON_JA: BASE_TEXT.JA,
-};
+    BUTTON_EN: 'en',
+    BUTTON_JA: 'ja',
+} as const;
 
 // 共通ボタンのポジション
 export const BUTTON_POSITIONS = {
-    POSITION_CENTER: BASE_POSITION.CENTER,
-    POSITION_LEFT: BASE_POSITION.LEFT,
-    POSITION_RIGHT: BASE_POSITION.RIGHT,
-};
+    POSITION_CENTER: 'center',
+    POSITION_LEFT: 'left',
+    POSITION_RIGHT: 'right',
+} as const;
 
 // 共通ボタンのタイプ
 export const BUTTON_TYPES = {
     BUTTON_TYPE: 'button',
     SUBMIT_TYPE: 'submit',
-};
+} as const;
 
 // 共通ボタンのバリエーション
 export const BUTTON_VARIANTS = {
     BUTTON_PRIMARY: 'primary',
     BUTTON_SECONDARY: 'secondary',
-};
+} as const;
 
 // アンダーラインリンクのポジション
 export const UNDERLINE_LINK_POSITIONS = {
-    POSITION_CENTER: BUTTON_POSITIONS.POSITION_CENTER,
-    POSITION_LEFT: BUTTON_POSITIONS.POSITION_LEFT,
-    POSITION_RIGHT: BUTTON_POSITIONS.POSITION_RIGHT,
-};
+    POSITION_CENTER: 'center',
+    POSITION_LEFT: 'left',
+    POSITION_RIGHT: 'right',
+} as const;
 
 // モーダルのサイズ
 export const MODAL_SIZES = {
-    MODAL_SMALL: BASE_SIZE.SMALL,
-    MODAL_MEDIUM: BASE_SIZE.MEDIUM,
-};
+    MODAL_SMALL: 'small',
+    MODAL_MEDIUM: 'medium',
+} as const;
 
 // エラーメッセージのポジション
 export const ERROR_MESSAGE_POSITIONS = {
-    ERROR_LEFT: BASE_POSITION.LEFT,
-    ERROR_CENTER: BASE_POSITION.CENTER,
-};
+    ERROR_LEFT: 'left',
+    ERROR_CENTER: 'center',
+} as const;
 
 // オーバーレイのタイプ
 export const OVERLAY_TYPES = {
     WITH_HEADER: 'withHeader',
     WITHOUT_HEADER: 'withoutHeader',
-};
+} as const;
 
 // タブのテキストの種類
 export const TAB_TEXT_TYPES = {
-    TAB_EN: BASE_TEXT.EN,
-    TAB_JA: BASE_TEXT.JA,
-};
+    TAB_EN: 'en',
+    TAB_JA: 'ja',
+} as const;
 
 // ドロップゾーンのタイプ
 export const DROPZONE_TYPES = {
     DROPZONE_REVIEW: 'review',
     DROPZONE_CONTACT: 'contact',
-};
+} as const;
 
 // ローディングスピナーのサイズ
 export const LOADING_SPINNER_SIZES = {
-    LOADING_SMALL: BASE_SIZE.SMALL,
-    LOADING_MEDIUM: BASE_SIZE.MEDIUM,
-};
+    LOADING_SMALL: 'small',
+    LOADING_MEDIUM: 'medium',
+} as const;
 
 // JWTの有効期限
 export const JWT_CONFIG = {
@@ -343,24 +315,24 @@ export const JWT_CONFIG = {
 export const EMAIL_VERIFICATION_PAGE_TYPES = {
     EMAIL_RESET_PASSWORD_PAGE: 'reset-password',
     EMAIL_UPDATE_EMAIL_PAGE: 'update-email',
-};
+} as const;
 
 export const EMAIL_VERIFICATION_TYPES = {
     CREATE_ACCOUNT_TYPE: 'create-account',
-    RESET_PASSWORD_TYPE: EMAIL_VERIFICATION_PAGE_TYPES.EMAIL_RESET_PASSWORD_PAGE,
-    UPDATE_EMAIL_TYPE: EMAIL_VERIFICATION_PAGE_TYPES.EMAIL_UPDATE_EMAIL_PAGE,
-};
+    RESET_PASSWORD_TYPE: 'reset-password',
+    UPDATE_EMAIL_TYPE: 'update-email',
+} as const;
 
 export const VERIFY_EMAIL_TYPES = {
-    VERIFY_CREATE_ACCOUNT: EMAIL_VERIFICATION_TYPES.CREATE_ACCOUNT_TYPE,
-    VERIFY_UPDATE_EMAIL: EMAIL_VERIFICATION_PAGE_TYPES.EMAIL_UPDATE_EMAIL_PAGE,
-};
+    VERIFY_CREATE_ACCOUNT: 'create-account',
+    VERIFY_UPDATE_EMAIL: 'update-email',
+} as const;
 
 export const VERIFICATION_STATUS = {
-    STATUS_LOADING: BASE_STATUS.LOADING,
-    STATUS_SUCCESS: BASE_STATUS.SUCCESS,
-    STATUS_ERROR: BASE_STATUS.ERROR,
-};
+    STATUS_LOADING: 'loading',
+    STATUS_SUCCESS: 'success',
+    STATUS_ERROR: 'error',
+} as const;
 
 
 /* ============================== 
@@ -387,7 +359,7 @@ export const EMAIL_VERIFICATION_TOKEN_CONFIG = {
 export const AUTH_TYPES = {
     AUTH_LOGIN: 'login',
     AUTH_REAUTHENTICATE: 'reauthenticate'
-};
+} as const;
 
 
 /* ============================== 
@@ -398,25 +370,25 @@ export const AUTH_TYPES = {
 export const EDIT_EMAIL_STEP = {
     EMAIL_REAUTHENTICATE: 'reauthenticate',
     EMAIL_EDIT: 'edit-email',
-};
+} as const;
 
 // パスワードの編集のステップ
 export const EDIT_PASSWORD_STEP = {
-    PASSWORD_REAUTHENTICATE: EDIT_EMAIL_STEP.EMAIL_REAUTHENTICATE,
+    PASSWORD_REAUTHENTICATE: 'reauthenticate',
     PASSWORD_EDIT: 'edit-password',
-};
+} as const;
 
 // パスワード編集ページの種類
 export const UPDATE_PASSWORD_PAGE_TYPES = {
     RESET_PASSWORD_PAGE: 'reset-password',
-    EDIT_PASSWORD_PAGE: EDIT_PASSWORD_STEP.PASSWORD_EDIT,
-};
+    EDIT_PASSWORD_PAGE: 'edit-password',
+} as const;
 
 // ユーザーデータの取得の種類
 export const GET_USER_DATA_TYPES = {
     EMAIL_DATA: 'email',
     CUSTOMER_ID_DATA: 'customerId',
-};
+} as const;
 
 
 /* ============================== 
@@ -435,13 +407,13 @@ export const SYNC_LOG_CATEGORIES = {
     SYNC_UPDATES: 'Updates',
     SYNC_VOICES: 'Voices',
     SYNC_EXTRAS: 'Extras',
-};
+} as const;
 
 // SYNC LOG のタグのサイズ
 export const SYNC_LOG_TAG_SIZES = {
-    TAG_SMALL: BASE_SIZE.SMALL,
-    TAG_MEDIUM: BASE_SIZE.MEDIUM,
-};
+    TAG_SMALL: 'small',
+    TAG_MEDIUM: 'medium',
+} as const;
 
 // MicroCMSの設定
 export const MICROCMS_CONFIG = {
@@ -462,7 +434,7 @@ export const CATEGORY_LABELS = {
     CREATIVE_SKILLS: 'Creative Skills',
     WISDOM_SKILLS: 'Wisdom Skills',
     UNIQUE_SKILLS: 'Unique Skills',
-}
+} as const;
 
 // 商品タグのカテゴリー
 export const CATEGORY_TAGS = {
@@ -477,12 +449,12 @@ export const CATEGORY_TAGS = {
 
 // セクションのカテゴリー
 export const SECTION_CATEGORIES = {
-    ACTIVE: CATEGORY_TAGS.ACTIVE_TAG,
-    EXPLORER: CATEGORY_TAGS.EXPLORER_TAG,
-    CREATIVE: CATEGORY_TAGS.CREATIVE_TAG,
-    WISDOM: CATEGORY_TAGS.WISDOM_TAG,
-    UNIQUE: CATEGORY_TAGS.UNIQUE_TAG,
-}
+    ACTIVE: 'Active',
+    EXPLORER: 'Explorer',
+    CREATIVE: 'Creative',
+    WISDOM: 'Wisdom',
+    UNIQUE: 'Unique',
+} as const;
 
 // カテゴリーのサブタイトル
 export const CATEGORY_SUBTITLES = {
@@ -492,7 +464,7 @@ export const CATEGORY_SUBTITLES = {
     CREATIVE_SUBTITLE: 'アイデアを研ぎ澄ませて想像力を形に',
     WISDOM_SUBTITLE: '最も鋭い知識を身に付ける',
     UNIQUE_SUBTITLE: '特殊スキルで未開拓の世界へ',
-}
+} as const;
 
 // コレクションの並び替え
 export const COLLECTION_SORT_TYPES = {
@@ -502,32 +474,32 @@ export const COLLECTION_SORT_TYPES = {
     TITLE_DESCENDING: 'title-descending',
     PRICE_ASCENDING: 'price-ascending',
     PRICE_DESCENDING: 'price-descending',
-};
+} as const;
 
 // 商品のステータス
 export const PRODUCT_PRICE_STATUS = {
     PRODUCT_SALE: 'Sale',
     PRODUCT_SOLDOUT: 'Sold Out',
-};
+} as const;
 
 // 商品ステータスのサイズ
 export const PRODUCT_STATUS_SIZES = {
-    STATUS_SMALL: BASE_SIZE.SMALL,
-    STATUS_MEDIUM: BASE_SIZE.MEDIUM,
-};
+    STATUS_SMALL: 'small',
+    STATUS_MEDIUM: 'medium',
+} as const;
 
 // 商品価格のタイプ
 export const PRODUCT_PRICE_TYPES = {
     PRICE_LIST: 'list',
     PRICE_DETAIL: 'detail',
     PRICE_CART: 'cart',
-};
+} as const;
 
 // 商品の数量項目のサイズ
 export const PRODUCT_QUANTITY_SIZES = {
-    QUANTITY_MEDIUM: BASE_SIZE.MEDIUM,
-    QUANTITY_LARGE: BASE_SIZE.LARGE,
-};
+    QUANTITY_MEDIUM: 'medium',
+    QUANTITY_LARGE: 'large',
+} as const;
 
 // 商品の数量項目の設定
 export const PRODUCT_QUANTITY_CONFIG = {
@@ -565,16 +537,16 @@ export const PRICE_SLIDER_CONFIG = {
 export const PRICE_RANGE_DRAGGING_TYPES = {
     DRAGGING_MIN: 'min',
     DRAGGING_MAX: 'max',
-};
+} as const;
 
 // 割引率の乗算値
 export const DISCOUNT_PERCENTAGE_MULTIPLIER = 100;
 
 // トレンド商品のステータスのサイズ
 export const TREND_STATUS_SIZES = {
-    TREND_STATUS_MEDIUM: BASE_SIZE.MEDIUM,
-    TREND_STATUS_LARGE: BASE_SIZE.LARGE,
-};
+    TREND_STATUS_MEDIUM: 'medium',
+    TREND_STATUS_LARGE: 'large',
+} as const;
 
 // 商品一覧の取得データの種類
 export const GET_PRODUCTS_PAGE_TYPES = {
@@ -582,7 +554,7 @@ export const GET_PRODUCTS_PAGE_TYPES = {
     SKILL_TRAIL: 'skillTrail',
     OPTIMAL_SYNCS: 'optimalSyncs',
     CART: 'cart',
-};
+} as const;
 
 // トレンド商品のカテゴリー
 export const TREND_CATEGORIES = Object.fromEntries(
@@ -604,7 +576,7 @@ export const OPTIMAL_SYNC_TAG_TYPES = {
     REQUIRED_TAG: 'Required',
     OPTION_TAG: 'Option',
     PICKUP_TAG: 'Pickup',
-};
+} as const;
 
 // スキルの売り切れ数の表示制限
 export const SYNC_SOLD_OUT_CONFIG = {
@@ -656,16 +628,16 @@ export const INITIAL_REVIEW_STAT_CONFIG = {
 
 // 評価の星のサイズ
 export const STAR_RATING_SIZES_TYPES = {
-    STAR_SMALL: BASE_SIZE.SMALL,
-    STAR_MEDIUM: BASE_SIZE.MEDIUM,
-    STAR_LARGE: BASE_SIZE.LARGE,
-};
+    STAR_SMALL: 'small',
+    STAR_MEDIUM: 'medium',
+    STAR_LARGE: 'large',
+} as const;
 
 // 評価の星のタイプ
 export const STAR_RATING_TYPES = {
     STAR_COLOR: 'color',
     STAR_MONOCHROME: 'monochrome',
-};
+} as const;
 
 
 /* ============================== 
@@ -682,7 +654,7 @@ export const BOOKMARK_URL_UPDATE_DELAY = 100;
 export const BOOKMARK_OPERATION_TYPES = {
     BOOKMARK_POST: 'POST',
     BOOKMARK_DELETE: 'DELETE',
-}
+} as const;
 
 
 /* ============================== 
@@ -718,7 +690,7 @@ export const CHAT_CONFIG = {
 export const CHAT_SENDER_TYPES = {
     SENDER_USER: 'user',
     SENDER_ADMIN: 'admin',
-}
+};
 
 // チャットのソース
 export const CHAT_SOURCE = {
@@ -728,7 +700,7 @@ export const CHAT_SOURCE = {
     STAFF_CONFIRMING: 'staff_confirming',
     HUMAN_SUPPORT: 'human_support',
     CHAT_USER: 'user',
-};
+} as const;
 
 export const EMBEDDING_CONFIG = {
     INITIAL_USAGE: 0,
@@ -782,13 +754,13 @@ export const CHECKOUT_SHOW_TOAST_DELAY = 100;
 export const ORDER_DISPLAY_TYPES = {
     ORDER_LIST: 'list',
     ORDER_DETAIL: 'detail',
-}
+} as const;
 
 // 注文のステータスの表示タイプ
 export const ORDER_STATUS_DISPLAY_TYPES = {
     STATUS: 'status',
     CARD: 'card',
-}
+} as const;
 
 // カート追加時の数量の初期値
 export const INITIAL_CART_QUANTITY = 1;
@@ -804,7 +776,7 @@ export const CART_QUANTITY_CONFIG = {
 export const CART_OPERATION_TYPES = {
     CART_POST: 'POST',
     CART_DELETE: 'DELETE',
-}
+} as const;
 
 
 /* ============================== 
@@ -844,7 +816,7 @@ export const SUBSCRIPTION_CANCEL_THRESHOLD = 3;
 export const SUBSCRIPTION_PURCHASE_TYPES = {
     ONE_TIME: 'one-time',
     SUBSCRIPTION: 'subscription',
-};
+} as const;
 
 // サブスクリプションの間隔
 export const SUBSCRIPTION_INTERVALS = {
@@ -891,7 +863,7 @@ export const CONTACT_STEPS = {
     INPUT: 0,
     CONFIRM: 1,
     COMPLETE: 2
-}
+} as const;
 
 // お問い合わせフォームのステップのオフセット
 export const CONTACT_STEP_OFFSET = 1;
@@ -901,7 +873,7 @@ export const CONTACT_ACCEPTED_FILE_TYPES = {
     [FILE_MIME_TYPES.IMAGE_JPEG]: ['.jpg', '.jpeg'],
     [FILE_MIME_TYPES.IMAGE_PNG]: ['.png'],
     'application/pdf': ['.pdf'],
-}
+};
 
 // お問い合わせフォームのステップ
 export const CONTACT_FORM_STEP = {
@@ -918,15 +890,15 @@ export const SEARCH_PAGE_DISPLAY_LIMIT = 16;
 
 // 検索フォームのサイズ
 export const SEARCH_FORM_SIZES = {
-    SEARCH_MEDIUM: BASE_SIZE.MEDIUM,
-    SEARCH_LARGE: BASE_SIZE.LARGE,
-};
+    SEARCH_MEDIUM: 'medium',
+    SEARCH_LARGE: 'large',
+} as const;
 
 // テキストエリアのスキーマのタイプ
 export const TEXTAREA_SCHEMA_TYPES = {
     TEXTAREA_TYPE: 'textarea',
     REVIEW_TYPE: 'review',
-};
+} as const;
 
 // ドロワーの閉じる時の遅延
 export const DRAWER_CLOSE_DELAY = 500;
