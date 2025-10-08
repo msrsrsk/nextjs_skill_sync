@@ -155,7 +155,7 @@ const ReviewDetailModal = ({
                                         <div className="review-list-userbox">
                                             <Image 
                                                 className="image-common max-w-[56px] max-h-[56px] md:max-w-[72px] md:max-h-[72px]" 
-                                                src={user?.icon_url || ANONYMOUS_USER_ICON_URL} 
+                                                src={user?.user_profiles?.icon_url || ANONYMOUS_USER_ICON_URL} 
                                                 alt={`${name}のアイコン画像`} 
                                                 width={80} 
                                                 height={80} 

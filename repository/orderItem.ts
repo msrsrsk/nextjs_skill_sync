@@ -54,7 +54,7 @@ export const getOrderItemRepository = () => {
                     product_id: productId,
                     order_item_subscriptions: {
                         status: {
-                            not: SUBS_CANCELLED as SubscriptionContractStatusType
+                            not: SUBS_CANCELLED as SubscriptionStatusType
                         },
                     },
                     order: {
@@ -130,8 +130,7 @@ export const getOrderItemRepository = () => {
                             user_id: userId
                         },
                         order_item_subscriptions: {
-                            isNot: null,
-                            status: SUBS_ACTIVE as SubscriptionContractStatusType
+                            status: SUBS_ACTIVE as SubscriptionStatusType
                         },
                     }
                 })

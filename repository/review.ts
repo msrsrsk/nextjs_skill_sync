@@ -15,7 +15,11 @@ interface GetPaginatedReviewsProps {
 const defaultReviewIncludeFields = {
     user: {
         select: {
-            icon_url: true
+            user_profiles: {
+                select: {
+                    icon_url: true
+                }
+            }
         }
     },
     product: {
@@ -49,7 +53,11 @@ export const getReviewRepository = () => {
                 include: {
                     user: {
                         select: {
-                            icon_url: true
+                            user_profiles: {
+                                select: {
+                                    icon_url: true
+                                }
+                            }
                         }
                     },
                     product: {

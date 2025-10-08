@@ -39,7 +39,7 @@ const ReviewCard = ({ review, setModalActive }: ReviewCardProps) => {
             <div className="review-list-userbox">
                 <Image 
                     className="review-list-avatar" 
-                    src={user?.icon_url || ANONYMOUS_USER_ICON_URL} 
+                    src={user?.user_profiles?.icon_url || ANONYMOUS_USER_ICON_URL} 
                     alt={`${name}のアイコン画像`} 
                     width={80} 
                     height={80} 

@@ -11,7 +11,12 @@ import useChatSend from "@/hooks/chat/useChatSend"
 import useChatMessageValidation from "@/hooks/validation/useChatMessageValidation"
 import useScrollToBottom from "@/hooks/utils/useScrollToBottom"
 import { formatDateTime } from "@/lib/utils/format"
-import { CHAT_HISTORY_DELETE_MONTH, CHAT_SENDER_TYPES, CHAT_SOURCE } from "@/constants/index"
+import { 
+    CHAT_HISTORY_DELETE_MONTH, 
+    CHAT_SENDER_TYPES, 
+    CHAT_SOURCE,
+    ANONYMOUS_USER_ICON_URL
+} from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { SENDER_USER, SENDER_ADMIN } = CHAT_SENDER_TYPES;
@@ -20,7 +25,11 @@ const { CHAT_ERROR } = ERROR_MESSAGES;
 
 interface SupportChatContentProps {
     chats: ChatProps[]
-    user: { icon_url: UserId }
+    user: {
+        user_profiles: {
+            icon_url: string;
+        } | null;
+    }
 }
 
 const SupportChatContent = ({ chats, user }: SupportChatContentProps) => {
@@ -42,13 +51,13 @@ const SupportChatContent = ({ chats, user }: SupportChatContentProps) => {
     
     const { scrollRef, scrollToBottom } = useScrollToBottom();
 
+    if (error) return <ErrorMessage message={error} />
+
     const isAIResponse = (chat: ChatProps) => {
         return chat.sender_type === SENDER_ADMIN && 
             (chat.source === RULE_BASED || chat.source === EMBEDDING_SEARCH || chat.source === STAFF_CONFIRMING);
-    };
-
-    const isDisabled = !isValid || loading || isChatLimitReached;
-
+    }
+    
     const handleSendMessage = async () => {
         const result = await sendMessage(chatMessage);
         if (result.success) {
@@ -57,7 +66,9 @@ const SupportChatContent = ({ chats, user }: SupportChatContentProps) => {
         };
     }
 
-    if (error) return <ErrorMessage message={error} />
+    const iconUrl = user?.user_profiles?.icon_url || ANONYMOUS_USER_ICON_URL;
+
+    const isDisabled = !isValid || loading || isChatLimitReached;
 
     return <>
         <p className="text-sm leading-[26px] font-medium text-center mb-4">
@@ -98,7 +109,7 @@ const SupportChatContent = ({ chats, user }: SupportChatContentProps) => {
                                             src={
                                                 isAdmin 
                                                 ? "/assets/icons/support-chat-icon.png"
-                                                : user?.icon_url
+                                                : iconUrl
                                             }
                                             alt="アイコン画像"
                                             width={56}

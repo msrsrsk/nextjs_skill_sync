@@ -46,7 +46,13 @@ export const getChatRoomRepository = () => {
                         orderBy: { sent_at: 'asc' }
                     },
                     user: {
-                        select: { icon_url: true }
+                        select: {
+                            user_profiles: {
+                                select: {
+                                    icon_url: true
+                                }
+                            }
+                        }
                     }
                 }
             })

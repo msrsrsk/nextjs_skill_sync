@@ -184,6 +184,10 @@ declare global {
         y: number;
     }
 
+    interface UserWithProfile extends User {
+        user_profiles: UserProfile;
+    }
+
     interface UserWithShippingAddressesAndProfile extends User {
         shipping_addresses: ShippingAddress[];
         user_profiles: UserProfile;
@@ -192,22 +196,6 @@ declare global {
     interface ProductWithReviewsAndPricing extends Product {
         reviews: Review[];
         product_pricings: ProductPricing | null;
-    }
-
-    interface ReviewWithUser extends Review {
-        user: User;
-    }
-
-    interface ReviewWithUserAndProduct extends ReviewWithUser {
-        product: Product;
-    }
-
-    interface CartItemWithProduct extends CartItem {
-        product: ProductWithRelations;
-    }
-
-    interface BookmarkItemWithProduct extends UserBookmark {
-        product: Product;
     }
 
     interface ProductWithRelations extends Product {
@@ -222,6 +210,22 @@ declare global {
 
     interface ProductWithOptimalSyncs extends Product {
         product_relations: ProductRelation;
+    }
+
+    interface ReviewWithUser extends Review {
+        user: UserWithProfile;
+    }
+
+    interface ReviewWithUserAndProduct extends ReviewWithUser {
+        product: Product;
+    }
+
+    interface CartItemWithProduct extends CartItem {
+        product: ProductWithRelations;
+    }
+
+    interface BookmarkItemWithProduct extends UserBookmark {
+        product: Product;
     }
 
     /* ============================== 
