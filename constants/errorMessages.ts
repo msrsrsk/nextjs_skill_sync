@@ -216,14 +216,18 @@ export const ERROR_MESSAGES = {
         HISTORY_FETCH_FAILED: `注文履歴の取得に失敗しました。${RETRY}`,
         DETAIL_FETCH_FAILED: `注文の詳細データの取得に失敗しました。${RETRY}`,
         CREATE_FAILED: `注文履歴の作成に失敗しました。${RETRY}`,
-        CREATE_STRIPE_FAILED: `注文履歴のStripeデータの作成に失敗しました。${RETRY}`,
         DELETE_FAILED: `注文の削除に失敗しました。${RETRY}`,
-        DELETE_STRIPE_FAILED: `注文履歴のStripeデータの削除に失敗しました。${RETRY}`,
     },
 
     // 注文配送データ関連
     ORDER_SHIPPING_ERROR: {
         CREATE_FAILED: `注文配送情報の作成に失敗しました。${RETRY}`,
+    },
+
+    // 注文Stripeデータ関連
+    ORDER_STRIPE_ERROR: {
+        CREATE_FAILED: `注文履歴のStripeデータの作成に失敗しました。${RETRY}`,
+        DELETE_FAILED: `注文履歴のStripeデータの削除に失敗しました。${RETRY}`,
     },
 
     // 注文商品リスト関連

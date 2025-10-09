@@ -5,9 +5,9 @@ import {
 
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
-const { ORDER_ERROR } = ERROR_MESSAGES;
+const { ORDER_STRIPE_ERROR } = ERROR_MESSAGES;
 
-// Stripe注文データの作成
+// 注文履歴のStripeデータの作成
 export const createOrderStripe = async ({ 
     orderStripeData 
 }: { orderStripeData: CreateOrderStripeProps }) => {
@@ -24,12 +24,12 @@ export const createOrderStripe = async ({
 
         return {
             success: false, 
-            error: ORDER_ERROR.CREATE_STRIPE_FAILED
+            error: ORDER_STRIPE_ERROR.CREATE_FAILED
         }
     }
 }
 
-// Stripe注文履歴の削除
+// 注文履歴のStripeデータの削除
 export const deleteOrderStripe = async ({ orderId }: { orderId: OrderId }) => {
     try {
         const repository = deleteOrderStripeRepository();
@@ -44,7 +44,7 @@ export const deleteOrderStripe = async ({ orderId }: { orderId: OrderId }) => {
         
         return {
             success: false, 
-            error: ORDER_ERROR.DELETE_STRIPE_FAILED
+            error: ORDER_STRIPE_ERROR.DELETE_FAILED
         }
     }
 }
