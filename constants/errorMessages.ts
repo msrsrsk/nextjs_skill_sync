@@ -33,14 +33,10 @@ export const ERROR_MESSAGES = {
         
         TOKEN_CREATE_FAILED: `認証メールの送信に必要な情報がありません。${FIRST}`,
         TOKEN_SEND_FAILED: `認証メールの送信に失敗しました。${FIRST}`,
-        NOT_FOUND_TOKEN: `メール認証のための必要な\n情報が見つかりませんでした。${FIRST}`,
-        EXPIRED_EMAIL_TOKEN: `メール認証の有効期限が過ぎたため、\nアカウントの作成ができませんでした。${FIRST}`,
         REAUTHENTICATE_FAILED: `認証に失敗しました。${FIRST}`,
         FAILED_EMAIL_TOKEN_PROCESS: `メールアドレスの認証処理中にエラーが発生しました。${FIRST}`,
 
         PASSWORD_NOT_FOUND: `パスワード情報が見つかりませんでした。${FIRST}`,
-        NOT_FOUND_PASSWORD_TOKEN: `パスワードリセットのための\n必要な情報が見つかりませんでした。${FIRST}`,
-        EXPIRED_PASSWORD_TOKEN: `パスワードリセットの有効期限が過ぎました。${FIRST}`,
         FAILED_PASSWORD_TOKEN_PROCESS: `パスワードリセットの認証処理中にエラーが発生しました。${FIRST}`,
     },
 

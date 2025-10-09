@@ -145,10 +145,11 @@ export const registerUserWithChat = async (
 export async function createVerificationTokenWithPassword(
     userData: UserData & UserProfileData
 ) {
+    const token = crypto.randomBytes(AUTH_TOKEN_BYTES).toString('hex');
+    const expires = new Date(new Date().getTime() + EXPIRATION_TIME);
+    const hashedPassword = await bcrypt.hash(userData.password, PASSWORD_HASH_ROUNDS);
+
     try {
-        const token = crypto.randomBytes(AUTH_TOKEN_BYTES).toString('hex');
-        const expires = new Date(new Date().getTime() + EXPIRATION_TIME);
-        const hashedPassword = await bcrypt.hash(userData.password, PASSWORD_HASH_ROUNDS);
 
         const { success, error, data } = await createVerificationToken({
             verificationData: {
@@ -337,9 +338,11 @@ export async function verifyEmailToken(
     メールアドレスの認証用のトークンの作成
 ==================================== */
 export async function createVerificationTokenWithEmail(email: UserEmail) {
+    
+    const token = crypto.randomBytes(AUTH_TOKEN_BYTES).toString('hex');
+    const expires = new Date(new Date().getTime() + EXPIRATION_TIME);
+
     try {
-        const token = crypto.randomBytes(AUTH_TOKEN_BYTES).toString('hex');
-        const expires = new Date(new Date().getTime() + EXPIRATION_TIME);
 
         const { success, error, data } = await createVerificationToken({
             verificationData: {

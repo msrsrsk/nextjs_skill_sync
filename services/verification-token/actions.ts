@@ -81,6 +81,7 @@ export const getVerificationTokenAndVerify = async ({
     }
 }
 
+// パスワードの更新
 export const updatePasswordWithToken = async (
     token: string, 
     password: string

@@ -8,7 +8,7 @@ import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { STATUS_LOADING, STATUS_SUCCESS, STATUS_ERROR } = VERIFICATION_STATUS;
 const { NOT_FOUND_PATH } = SITE_MAP;
-const { AUTH_ERROR } = ERROR_MESSAGES;
+const { VERIFICATION_TOKEN_ERROR } = ERROR_MESSAGES;
 
 const useResetPasswordVerification = () => {
     const [
@@ -24,7 +24,7 @@ const useResetPasswordVerification = () => {
 
     const handleTokenExpiry = () => {
         setVerificationStatus(STATUS_ERROR);
-        setErrorMessage(AUTH_ERROR.EXPIRED_PASSWORD_TOKEN);
+        setErrorMessage(VERIFICATION_TOKEN_ERROR.EXPIRED_PASSWORD_TOKEN);
     }
 
     useEffect(() => {

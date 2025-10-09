@@ -15,15 +15,13 @@ import {
     AUTH_TYPES, 
     EMAIL_VERIFICATION_TYPES, 
     EMAIL_VERIFICATION_PAGE_TYPES,
-    UPDATE_PASSWORD_PAGE_TYPES,
-    GET_USER_DATA_TYPES,
+    UPDATE_PASSWORD_PAGE_TYPES
 } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { AUTH_LOGIN, AUTH_REAUTHENTICATE } = AUTH_TYPES;
 const { RESET_PASSWORD_PAGE } = UPDATE_PASSWORD_PAGE_TYPES;
-const { EMAIL_DATA } = GET_USER_DATA_TYPES;
-const { AUTH_ERROR, USER_ERROR, EMAIL_ERROR } = ERROR_MESSAGES;
+const { AUTH_ERROR, USER_ERROR } = ERROR_MESSAGES;
 const { EMAIL_RESET_PASSWORD_PAGE } = EMAIL_VERIFICATION_PAGE_TYPES;
 const { 
     CREATE_ACCOUNT_TYPE, 
@@ -31,24 +29,28 @@ const {
     UPDATE_EMAIL_TYPE
 } = EMAIL_VERIFICATION_TYPES;
 
-// アカウント作成（メールアドレス）
+/* ==================================== 
+    アカウント作成（メールアドレス）
+==================================== */
 export async function createAccountWithEmailAction(
     prevState: ActionStateWithEmailAndTimestamp,
     formData: FormData
 ): Promise<ActionStateWithEmailAndTimestamp> {
+
+    const lastname = formData.get('lastname');
+    const firstname = formData.get('firstname');
+    const email = formData.get('email');
+    const password = formData.get('password');
+
+    const userData = { 
+        email, 
+        lastname, 
+        firstname, 
+        password 
+    } as UserData & UserProfileData;
+
     try {
-        const lastname = formData.get('lastname');
-        const firstname = formData.get('firstname');
-        const email = formData.get('email');
-        const password = formData.get('password');
-
-        const userData = { 
-            email, 
-            lastname, 
-            firstname, 
-            password 
-        } as UserData & UserProfileData;
-
+        // 1. ユーザーデータのチェック
         const repository = getUserRepository();
         const existingUser = await repository.getUserByEmail({
             email: userData.email
@@ -63,6 +65,7 @@ export async function createAccountWithEmailAction(
             }
         }
 
+        // 2. 認証トークンの作成
         const { 
             success: createTokenSuccess, 
             error: createTokenError, 
@@ -74,7 +77,7 @@ export async function createAccountWithEmailAction(
         if (!createTokenSuccess) {
             return {
                 success: false, 
-                error: createTokenError || AUTH_ERROR.CREATE_ACCOUNT_PROCESS_FAILED,
+                error: createTokenError,
                 email: undefined,
                 timestamp: Date.now()
             }
@@ -89,6 +92,7 @@ export async function createAccountWithEmailAction(
             }
         }
 
+        // 3. 認証メールの送信
         const { 
             success: sendVerificationSuccess, 
             error: sendVerificationError 
@@ -101,7 +105,7 @@ export async function createAccountWithEmailAction(
         if (!sendVerificationSuccess) {
             return {
                 success: false, 
-                error: sendVerificationError || EMAIL_ERROR.AUTH_SEND_FAILED,
+                error: sendVerificationError,
                 email: undefined,
                 timestamp: Date.now()
             }
@@ -116,49 +120,59 @@ export async function createAccountWithEmailAction(
     } catch (error) {
         console.error('Actions Error - Create Account With Email error:', error);
 
+        const errorMessage = error instanceof Error 
+            ? error.message 
+            : AUTH_ERROR.CREATE_ACCOUNT_FAILED;
+
         return {
             success: false, 
-            error: AUTH_ERROR.CREATE_ACCOUNT_FAILED,
+            error: errorMessage,
             email: undefined,
             timestamp: Date.now()
         }
     }
 }
 
-// メールアドレスの確認
+/* ==================================== 
+    メールアドレスの確認
+==================================== */
 export async function sendVerificationEmailAction(
     prevState: ActionStateWithEmailAndTimestamp,
     formData: FormData,
     type: EmailVerificationPageType
 ): Promise<ActionStateWithEmailAndTimestamp> {
+
     const email = formData.get('email') as UserEmail;
 
+    const emailType = type === EMAIL_RESET_PASSWORD_PAGE 
+        ? RESET_PASSWORD_TYPE 
+        : UPDATE_EMAIL_TYPE;
+
     try {
+        // 1. ユーザーデータのチェック
         const repository = getUserRepository();
         const existingUser = await repository.getUserByEmail({ email });
 
-        if (type === EMAIL_RESET_PASSWORD_PAGE) {
-            if (!existingUser) {
-                return {
-                    success: false, 
-                    error: AUTH_ERROR.EMAIL_EXISTS,
-                    email: undefined,
-                    timestamp: Date.now()
-                }
-            }
-        } else {
-            if (existingUser) {
-                return {
-                    success: false, 
-                    error: AUTH_ERROR.EMAIL_EXISTS,
-                    email: undefined,
-                    timestamp: Date.now()
-                }
+        const errorResponse = () => {
+            return {
+                success: false, 
+                error: AUTH_ERROR.EMAIL_EXISTS,
+                email: undefined,
+                timestamp: Date.now()
             }
         }
 
-        let emailSuccess;
+        if (type === EMAIL_RESET_PASSWORD_PAGE) {
+            if (!existingUser) {
+                return errorResponse();
+            }
+        } else {
+            if (existingUser) {
+                return errorResponse();
+            }
+        }
 
+        // 2. 認証トークンの作成
         const { 
             success: tokenSuccess, 
             token
@@ -173,26 +187,20 @@ export async function sendVerificationEmailAction(
             }
         }
 
-        if (type === EMAIL_RESET_PASSWORD_PAGE) {
-            const { success } = await sendVerificationEmail({ 
-                email, 
-                token,
-                type: RESET_PASSWORD_TYPE
-            });
-            emailSuccess = success;
-        } else {
-            const { success } = await sendVerificationEmail({ 
-                email, 
-                token,
-                type: UPDATE_EMAIL_TYPE
-            });
-            emailSuccess = success;
-        }
+        // 3. 認証メールの送信
+        const { 
+            success: sendMailSuccess, 
+            error: sendMainError 
+        } = await sendVerificationEmail({ 
+            email, 
+            token,
+            type: emailType
+        });
 
-        if (!emailSuccess) {
+        if (!sendMailSuccess) {
             return {
                 success: false, 
-                error: AUTH_ERROR.TOKEN_SEND_FAILED,
+                error: sendMainError,
                 email: undefined,
                 timestamp: Date.now()
             }
@@ -207,28 +215,43 @@ export async function sendVerificationEmailAction(
     } catch (error) {
         console.error('Actions Error - Send Verification Email error:', error);
 
+        const errorMessage = error instanceof Error 
+            ? error.message 
+            : AUTH_ERROR.TOKEN_SEND_FAILED;
+
         return {
             success: false, 
-            error: AUTH_ERROR.TOKEN_SEND_FAILED,
+            error: errorMessage,
             email: undefined,
             timestamp: Date.now()
         }
     }
 }
 
-// パスワードの更新
+/* ==================================== 
+    パスワードの更新
+==================================== */
 export async function updatePasswordAction(
     prevState: ActionStateWithEmailAndTimestamp,
     formData: FormData,
     type: UpdatePasswordPageType
 ): Promise<ActionStateWithEmailAndTimestamp> {
+    
     const password = formData.get('confirmPassword') as UserPassword;
 
-    let token = '';
-    if (type === RESET_PASSWORD_PAGE) token = formData.get('token') as string;
+    const token = type === RESET_PASSWORD_PAGE 
+        ? formData.get('token') as string 
+        : '';
 
     try {
         // throw new Error('test');
+        const errorResponse = (error: string) => {
+            return {
+                success: false, 
+                error,
+                timestamp: Date.now()
+            }
+        }
         
         if (type === RESET_PASSWORD_PAGE) {
             const { success, error } = await updatePasswordWithToken(
@@ -237,11 +260,7 @@ export async function updatePasswordAction(
             );
 
             if (!success) {
-                return {
-                    success: false, 
-                    error,
-                    timestamp: Date.now()
-                }
+                return errorResponse(error as string);
             }
         } else {
             const { userId } = await actionAuth(AUTH_ERROR.SESSION_NOT_FOUND);
@@ -252,11 +271,7 @@ export async function updatePasswordAction(
             });
 
             if (!success) {
-                return {
-                    success: false, 
-                    error,
-                    timestamp: Date.now()
-                }
+                return errorResponse(error as string);
             }
         }
 
@@ -267,30 +282,38 @@ export async function updatePasswordAction(
         }
     } catch (error) {
         console.error('Actions Error - Update Password error:', error);
+
+        const errorMessage = error instanceof Error 
+            ? error.message 
+            : USER_ERROR.PASSWORD_UPDATE_FAILED;
         
         return {
             success: false, 
-            error: USER_ERROR.PASSWORD_UPDATE_FAILED,
+            error: errorMessage,
             timestamp: Date.now()
         }
     }
 }
 
-// ログイン
+/* ==================================== 
+    ログイン
+==================================== */
 export async function signInWithCredentialsAction(
     prevState: ActionStateWithTimestamp,
     formData: FormData,
     type: AuthType
 ): Promise<ActionStateWithTimestamp> {
+
     const errorText = type === AUTH_LOGIN 
         ? AUTH_ERROR.SIGN_IN_FAILED 
         : AUTH_ERROR.REAUTHENTICATE_FAILED;
     
-    try {
-        const email = formData.get('email') as UserEmail;
-        const password = formData.get('password') as UserPassword;
+    const email = formData.get('email') as UserEmail;
+    const password = formData.get('password') as UserPassword;
 
+    try {
         if (type === AUTH_REAUTHENTICATE) {
+            // セッションチェック
             const { user } = await actionAuth(AUTH_ERROR.SESSION_NOT_FOUND);
 
             const repository = getUserRepository();
@@ -315,53 +338,44 @@ export async function signInWithCredentialsAction(
             }
         }
 
-        const signInResult = await signIn('credentials', {
+        // サインインの実行
+        const result = await signIn('credentials', {
             email,
             password,
             redirect: false,
         });
 
-        if (typeof signInResult === 'string') {
+        if (result?.error) {
             return {
-                success: true, 
-                error: null, 
-                timestamp: Date.now()
-            }
-        }
-
-        if (signInResult && typeof signInResult === 'object') {
-            if (signInResult.error) {
-                return {
-                    success: false, 
-                    error: AUTH_ERROR.INCORRECT_EMAIL_OR_PASSWORD,
-                    timestamp: Date.now()
-                }
-            }
-
-            return {
-                success: true, 
-                error: null, 
+                success: false, 
+                error: AUTH_ERROR.INCORRECT_EMAIL_OR_PASSWORD,
                 timestamp: Date.now()
             }
         }
 
         return {
-            success: false, 
-            error: errorText,
+            success: true, 
+            error: null, 
             timestamp: Date.now()
         }
     } catch (error) {
         console.error('Actions Error - SignIn error:', error);
 
+        const errorMessage = error instanceof Error 
+            ? error.message 
+            : errorText;
+
         return {
             success: false, 
-            error: errorText,
+            error: errorMessage,
             timestamp: Date.now()
         }
     }
 }
 
-// ログアウト
+/* ==================================== 
+    ログアウト
+==================================== */
 export async function signOutAction() {
     await signOut();
 }
