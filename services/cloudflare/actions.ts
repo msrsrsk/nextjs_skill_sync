@@ -9,12 +9,95 @@ import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { BUCKET_REVIEW, BUCKET_PROFILE } = CLOUDFLARE_BUCKET_TYPES;
 const { RANDOM_RADIX, RANDOM_START_INDEX, RANDOM_LENGTH } = FILE_UPLOAD_RANDOM_ID;
-const { USER_IMAGE_ERROR, CLOUDFLARE_ERROR, REVIEW_ERROR } = ERROR_MESSAGES;
+const { USER_IMAGE_ERROR, CLOUDFLARE_ERROR } = ERROR_MESSAGES;
 
-interface UploadImageToR2Props {
-    files: File[],
+interface UploadImageProps {
     bucketType: CloudflareBucketType;
     userId: UserId;
+}
+
+interface UploadImageToR2Props extends UploadImageProps {
+    files: File[],
+}
+
+interface UploadSingleFileProps extends UploadImageProps {
+    file: File;
+    userImageId: UserImageId,
+}
+
+interface DeleteObjectFromR2Props {
+    bucketType: CloudflareBucketType;
+    filePath: UserImagePath;
+}
+
+export const uploadSingleFile = async ({
+    file,
+    userImageId,
+    bucketType,
+    userId
+}: UploadSingleFileProps) => {
+
+    const timestamp = Date.now();
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const randomId = Math.random().toString(RANDOM_RADIX).substring(RANDOM_START_INDEX, RANDOM_LENGTH);
+    const filePath = `${bucketType}/${userImageId}/${timestamp}-${randomId}-${file.name}`;
+
+    try {
+        // 1. Cloudflare R2にアップロード
+        const { client, bucketName } = createR2Client(bucketType);
+        
+        const command = new PutObjectCommand({
+            Bucket: bucketName,
+            Key: filePath,
+            Body: buffer,
+            ContentType: file.type,
+            Metadata: {
+                'user-image-id': userImageId,
+                'bucket-type': bucketType,
+                'uploaded-at': timestamp.toString()
+            }
+        });
+
+        await client.send(command);
+
+        // 2. プロフィール画像の場合はファイルのURLを更新
+        if (bucketType === BUCKET_PROFILE) {
+            const { 
+                success: updateFilePathSuccess, 
+                error: updateFilePathError, 
+            } = await updateUserImageFilePath({
+                userId,
+                filePath: filePath
+            });
+    
+            if (!updateFilePathSuccess) {
+                return {
+                    success: false, 
+                    error: updateFilePathError,
+                    data: null
+                }
+            }
+        }
+        
+        // 3. URLの生成
+        const imageUrl = bucketType === BUCKET_REVIEW 
+            ? `${process.env.CLOUDFLARE_R2_PUBLIC_DOMAIN}/${filePath}`
+            : userImageId;
+        
+        return {
+            success: true,
+            error: null,
+            data: imageUrl
+        }
+    } catch (error) {
+        console.error('Storage Error - Upload Single File error:', error);
+
+        return {
+            success: false, 
+            error: CLOUDFLARE_ERROR.R2_UPLOAD_PROCESS_FAILED,
+            data: null
+        }
+    }
 }
 
 export const uploadImageToR2 = async ({
@@ -39,61 +122,35 @@ export const uploadImageToR2 = async ({
 
         const userImageId = userImageResult.id;
 
+        // 2. ファイルをアップロード
         for (const file of files) {
-            const { client, bucketName } = createR2Client(bucketType);
-            const buffer = Buffer.from(await file.arrayBuffer());
-
-            const timestamp = Date.now();
-            const randomId = Math.random().toString(RANDOM_RADIX).substring(RANDOM_START_INDEX, RANDOM_LENGTH);
-            const filePath = `${bucketType}/${userImageId}/${timestamp}-${randomId}-${file.name}`;
-            
-            const command = new PutObjectCommand({
-                Bucket: bucketName,
-                Key: filePath,
-                Body: buffer,
-                ContentType: file.type,
-                Metadata: {
-                    'user-image-id': userImageId,
-                    'bucket-type': bucketType,
-                    'uploaded-at': timestamp.toString()
-                }
+            const {
+                success,
+                error,
+                data
+            } = await uploadSingleFile({
+                file,
+                userImageId,
+                bucketType,
+                userId
             });
 
-            // 2. Cloudflare R2にアップロード
-            await client.send(command);
-
-            // 3. プロフィール画像の場合はファイルのURLを更新
-            if (bucketType === BUCKET_PROFILE) {
-                const { 
-                    success: updateIconUrlSuccess, 
-                    error: updateIconUrlError, 
-                } = await updateUserImageFilePath({
-                    userId,
-                    filePath: filePath
-                });
-        
-                if (!updateIconUrlSuccess) {
-                    return {
-                        success: false, 
-                        error: updateIconUrlError,
-                        data: null
-                    }
+            if (!success || !data) {
+                return {
+                    success: false,
+                    error: error,
+                    data: null
                 }
             }
-            
-            // 4. URLを生成
-            const imageUrl = bucketType === BUCKET_REVIEW 
-                ? `${process.env.CLOUDFLARE_R2_PUBLIC_DOMAIN}/${filePath}`
-                : userImageId;
 
-            uploadedUrls.push(imageUrl);
+            uploadedUrls.push(data);
         }
 
         return {
             success: true,
             error: null,
             data: uploadedUrls
-        };
+        }
     } catch (error) {
         console.error(`Storage Error - R2 Upload Error for ${bucketType}:`, error);
 
@@ -101,71 +158,75 @@ export const uploadImageToR2 = async ({
             success: false, 
             error: CLOUDFLARE_ERROR.R2_UPLOAD_FAILED,
             data: null
-        };
+        }
     }
 }
 
 const authenticateAndAuthorizeUserImage = async ({
     userImageId
 }: { userImageId: UserImageId }) => {
-    // ユーザー認証
-    const { session } = await requireUser();
-    const userId = session.user.id;
+    try {
+        // 1. ユーザーIDの取得
+        const { session } = await requireUser();
+        const userId = session.user.id;
 
-    if (!userId) {
+        // 2. ユーザー画像の取得
+        const repository = getUserImageRepository();
+        const userImageResult = await repository.getUserImageByImageId({ userImageId });
+
+        if (!userImageResult) {
+            return {
+                success: false,
+                error: USER_IMAGE_ERROR.USER_REQUIRED_DATA_NOT_FOUND,
+                data: null
+            }
+        }
+
+        // 3. ユーザー画像の所有者チェック
+        const fileOwnerId = userImageResult.user_id;
+        const filePath = userImageResult.file_path;
+
+        if (!fileOwnerId || !filePath) {
+            return {
+                success: false,
+                error: USER_IMAGE_ERROR.USER_REQUIRED_DATA_NOT_FOUND,
+                data: null
+            }
+        }
+
+        if (fileOwnerId !== userId) {
+            return {
+                success: false,
+                error: CLOUDFLARE_ERROR.PROFILE_ACCESS_DENIED,
+                data: null
+            }
+        }
+
+        return {
+            success: true,
+            error: null,
+            data: {
+                fileOwnerId,
+                filePath
+            }
+        }
+    } catch (error) {
+        console.error('Storage Error - Authenticate and Authorize User Image error:', error);
+
         return {
             success: false,
-            error: CLOUDFLARE_ERROR.USER_ID_NOT_FOUND,
+            error: CLOUDFLARE_ERROR.AUTHENTICATION_FAILED,
             data: null
-        }
-    }
-
-    const repository = getUserImageRepository();
-    const userImageResult = await repository.getUserImageByImageId({ userImageId });
-
-    if (!userImageResult) {
-        return {
-            success: false,
-            error: USER_IMAGE_ERROR.USER_REQUIRED_DATA_NOT_FOUND,
-            data: null
-        }
-    }
-
-    const fileOwnerId = userImageResult.user_id;
-    const filePath = userImageResult.file_path;
-
-    if (!fileOwnerId || !filePath) {
-        return {
-            success: false,
-            error: USER_IMAGE_ERROR.USER_REQUIRED_DATA_NOT_FOUND,
-            data: null
-        }
-    }
-
-    // 所有者チェック
-    if (fileOwnerId !== userId) {
-        return {
-            success: false,
-            error: CLOUDFLARE_ERROR.PROFILE_ACCESS_DENIED,
-            data: null
-        }
-    }
-
-    return {
-        success: true,
-        error: null,
-        data: {
-            fileOwnerId,
-            filePath
         }
     }
 }
 
-// 認証済みのプロフィール画像のURLを生成
+// 認証済みのプロフィール画像のURLの生成
 export const getAuthenticatedProfileImageUrl = async ({
     userImageId, 
 }: { userImageId: UserImageId }) => {
     try {
+        // 1. ユーザー画像の認証と権限確認
         const { 
             success, 
             error, 
@@ -180,7 +241,7 @@ export const getAuthenticatedProfileImageUrl = async ({
             }
         }
 
-        // 画像データの取得
+        // 2. 画像データの取得
         const { client, bucketName } = createR2Client(BUCKET_PROFILE);
         
         const command = new GetObjectCommand({
@@ -210,34 +271,71 @@ export const getAuthenticatedProfileImageUrl = async ({
     }
 }
 
+// R2画像の削除
+const deleteObjectFromR2 = async ({
+    bucketType,
+    filePath
+}: DeleteObjectFromR2Props) => {
+    try {
+        const { client, bucketName } = createR2Client(bucketType);
+        
+        const command = new DeleteObjectCommand({
+            Bucket: bucketName,
+            Key: filePath!,
+        });
+
+        await client.send(command);
+
+        return {
+            success: true,
+            error: null
+        }
+    } catch (error) {
+        console.error(`Storage Error - Delete Object from R2 error:`, error);
+        
+        return {
+            success: false,
+            error: CLOUDFLARE_ERROR.DELETE_FAILED
+        }
+    }
+}
+
 // プロフィール画像の削除
 export const deleteProfileImage = async ({
     userImageId
 }: { userImageId: UserImageId }) => {
     try {
+        // 1. ユーザー画像の認証と権限確認
         const { 
-            success, 
-            error, 
-            data 
+            success: authUserImageSuccess, 
+            error: authUserImageError, 
+            data: authUserImageData
         } = await authenticateAndAuthorizeUserImage({ userImageId });
         
-        if (!success) {
+        if (!authUserImageSuccess || !authUserImageData?.filePath) {
             return {
                 success: false,
-                error: error,
+                error: authUserImageError,
                 data: null
             }
         }
 
-        // Cloudflare R2からの削除
-        const { client, bucketName } = createR2Client(BUCKET_PROFILE);
-        
-        const command = new DeleteObjectCommand({
-            Bucket: bucketName,
-            Key: data?.filePath,
+        // 2. Cloudflare R2からの削除
+        const {
+            success: deleteObjectSuccess,
+            error: deleteObjectError,
+        } = await deleteObjectFromR2({
+            bucketType: BUCKET_PROFILE,
+            filePath: authUserImageData?.filePath
         });
 
-        await client.send(command);
+        if (!deleteObjectSuccess) {
+            return {
+                success: false,
+                error: deleteObjectError,
+                data: null
+            }
+        }
 
         return {
             success: true,
@@ -301,6 +399,7 @@ export const deleteUserImage = async ({
     userId
 }: { userId: UserId }) => {
     try {
+        // 1. ユーザー画像の取得
         const repository = getUserImageRepository();
         const userImageResult = await repository.getUserImageFilePath({ userId });
 
@@ -311,17 +410,22 @@ export const deleteUserImage = async ({
             }
         }
         
-        // Cloudflare R2からの削除
-        const { client, bucketName } = createR2Client(BUCKET_PROFILE);
-
-        const filePath = userImageResult.file_path
-            
-        const command = new DeleteObjectCommand({
-            Bucket: bucketName,
-            Key: filePath,
+        // 2. Cloudflare R2からの削除
+        const {
+            success: deleteObjectSuccess,
+            error: deleteObjectError,
+        } = await deleteObjectFromR2({
+            bucketType: BUCKET_PROFILE,
+            filePath: userImageResult?.file_path
         });
 
-        await client.send(command);
+        if (!deleteObjectSuccess) {
+            return {
+                success: false,
+                error: deleteObjectError,
+                data: null
+            }
+        }
 
         return {
             success: true,

@@ -375,6 +375,8 @@ export const ERROR_MESSAGES = {
 
     // Cloudflare関連
     CLOUDFLARE_ERROR: {
+        AUTHENTICATION_FAILED: `画像ストレージへのアクセス権限がありません。${AUTH}`,
+        R2_UPLOAD_PROCESS_FAILED: `ストレージへの画像アップロード処理中にエラーが発生しました。${RETRY}`,
         R2_UPLOAD_FAILED: `ストレージへの画像アップロードに失敗しました。${RETRY}`,
         PROFILE_ACCESS_DENIED: 'プロフィール画像へのアクセスが拒否されました。',
         FETCH_FAILED: `プロフィール画像の取得に失敗しました。${RETRY}`,

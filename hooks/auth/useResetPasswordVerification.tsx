@@ -8,7 +8,7 @@ import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { STATUS_LOADING, STATUS_SUCCESS, STATUS_ERROR } = VERIFICATION_STATUS;
 const { NOT_FOUND_PATH } = SITE_MAP;
-const { VERIFICATION_TOKEN_ERROR } = ERROR_MESSAGES;
+const { AUTH_ERROR, VERIFICATION_TOKEN_ERROR } = ERROR_MESSAGES;
 
 const useResetPasswordVerification = () => {
     const [
