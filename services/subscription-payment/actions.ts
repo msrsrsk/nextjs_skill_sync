@@ -6,7 +6,7 @@ import {
 
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
-const { SUBSCRIPTION_ERROR } = ERROR_MESSAGES;
+const { SUBSCRIPTION_PAYMENT_ERROR } = ERROR_MESSAGES;
 
 interface updateSubscriptionPaymentStatusProps {
     subscriptionId: PaymentSubscriptionId;
@@ -33,7 +33,7 @@ export const createSubscriptionPayment = async ({
 
         return {
             success: false, 
-            error: SUBSCRIPTION_ERROR.CREATE_FAILED,
+            error: SUBSCRIPTION_PAYMENT_ERROR.CREATE_FAILED,
             data: null
         }
     }
@@ -50,7 +50,7 @@ export const updateSubscriptionPaymentStatus = async ({
         if (!latestPayment) {
             return {
                 success: false, 
-                error: SUBSCRIPTION_ERROR.GET_LATEST_FAILED,
+                error: SUBSCRIPTION_PAYMENT_ERROR.GET_LATEST_FAILED,
                 data: null
             }
         }
@@ -71,7 +71,7 @@ export const updateSubscriptionPaymentStatus = async ({
 
         return {
             success: false, 
-            error: SUBSCRIPTION_ERROR.CREATE_FAILED,
+            error: SUBSCRIPTION_PAYMENT_ERROR.CREATE_FAILED,
             data: null
         }
     }

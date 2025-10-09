@@ -8,8 +8,8 @@ import { deleteAllOrderItem } from "@/services/order-item/actions"
 import { createOrderStripe, deleteOrderStripe } from "@/services/order-stripe/actions"
 import { deleteOrderItemSubscription } from "@/services/order-item-subscription/actions"
 import { createOrderItems } from "@/services/order-item/actions"
-import { createCheckoutOrderItemSubscriptions } from "@/services/order-item-subscription/actions"
-import { createCheckoutOrderItemStripes } from "@/services/order-item-stripe/actions"
+import { createOrderItemSubscriptions } from "@/services/order-item-subscription/actions"
+import { createOrderItemStripes } from "@/services/order-item-stripe/actions"
 import { createShippingAddress } from "@/services/shipping-address/actions"
 import { getShippingAddressRepository } from "@/repository/shippingAddress"
 import { updateProductStockAndSoldCount } from "@/services/order/actions"
@@ -132,7 +132,7 @@ async function handleCheckoutSessionCompleted({
     const  { 
         success: orderItemSubscriptionsSuccess, 
         error: orderItemSubscriptionsError 
-    } = await createCheckoutOrderItemSubscriptions({
+    } = await createOrderItemSubscriptions({
         orderItemId: orderData.order.id, 
         productDetails: productDetails as StripeProductDetailsProps[]
     })
@@ -146,7 +146,7 @@ async function handleCheckoutSessionCompleted({
     const  { 
         success: orderItemStripesSuccess, 
         error: orderItemStripesError 
-    } = await createCheckoutOrderItemStripes({
+    } = await createOrderItemStripes({
         orderItemIds: orderItemsData.map((item) => item.id), 
         productDetails: productDetails as StripeProductDetailsProps[]
     })

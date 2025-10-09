@@ -5,7 +5,7 @@ import {
 } from "@/repository/orderItem"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
-const { SUBSCRIPTION_ERROR, CHECKOUT_ERROR, ORDER_ITEM_ERROR } = ERROR_MESSAGES;
+const { SUBSCRIPTION_ERROR, ORDER_ITEM_ERROR } = ERROR_MESSAGES;
 
 interface CreateCheckoutOrderItemsProps {
     orderId: OrderId;
@@ -40,11 +40,11 @@ export const createOrderItems = async ({
             data: orderItems
         }
     } catch (error) {
-        console.error('Database : Error in createCheckoutOrderItems: ', error);
+        console.error('Database : Error in createOrderItems: ', error);
 
         return {
             success: false, 
-            error: CHECKOUT_ERROR.CREATE_ORDER_ITEMS_FAILED,
+            error: ORDER_ITEM_ERROR.CREATE_FAILED,
             data: null
         }
     }

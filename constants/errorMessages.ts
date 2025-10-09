@@ -160,9 +160,6 @@ export const ERROR_MESSAGES = {
         GET_ORDER_DATA_FAILED: `注文データの取得に失敗しました。${RETRY}`,
         CREATE_ORDER_FAILED: `注文履歴の保存に失敗しました。${RETRY}`,
         CREATE_ORDER_STRIPE_FAILED: `注文履歴のStripeデータの作成に失敗しました。${RETRY}`,
-        CREATE_ORDER_ITEMS_FAILED: `注文の商品リストの保存に失敗しました。${RETRY}`,
-        CREATE_ORDER_ITEM_SUBSCRIPTIONS_FAILED: `サブスクリプションデータの保存に失敗しました。${RETRY}`,
-        CREATE_ORDER_ITEM_STRIPES_FAILED: `Stripeデータの保存に失敗しました。${RETRY}`,
         UPDATE_STOCK_AND_SOLD_COUNT_FAILED: `商品の在庫数と売り上げ数の更新に失敗しました。${RETRY}`,
         GET_DEFAULT_SHIPPING_ADDRESS_FAILED: `デフォルトの配送先住所の取得に失敗しました。${RETRY}`,
         CREATE_DEFAULT_SHIPPING_ADDRESS_FAILED: `デフォルトの配送先住所の保存に失敗しました。${RETRY}`,
@@ -231,15 +228,19 @@ export const ERROR_MESSAGES = {
 
     // 注文商品リスト関連
     ORDER_ITEM_ERROR: {
+        CREATE_FAILED: `注文の商品リストの保存に失敗しました。${RETRY}`,
         DELETE_FAILED: `注文商品リストの削除に失敗しました。${RETRY}`,
+    },
+
+    // 注文商品Stripeデータ関連
+    ORDER_ITEM_STRIPE_ERROR: {
+        CREATE_FAILED: `注文の商品リストのStripeデータの保存に失敗しました。${RETRY}`,
     },
     
     // サブスクリプション関連
     SUBSCRIPTION_ERROR: {
         NO_SUBSCRIPTION_ID: `サブスクリプションのIDが見つかりませんでした。${RETRY}`,
-        CREATE_FAILED: `サブスクリプションの支払いデータの作成に失敗しました。${RETRY}`,
         GET_LATEST_FAILED: `サブスクリプションの最新の支払いデータの取得に失敗しました。${RETRY}`,
-        UPDATE_FAILED: `サブスクリプションの支払いデータの更新に失敗しました。${RETRY}`,
         FAILED_CHECK_SUBSCRIPTION: `サブスクリプションの注文状況の取得に失敗しました。${RETRY}`,
         NO_SUBSCRIPTION_ORDER_NUMBER: `サブスクリプションの注文番号が見つかりませんでした。${RETRY}`,
         NEXT_PAYMENT_DATE_FAILED: `次回支払日の取得に失敗しました。${RETRY}`,
@@ -248,10 +249,17 @@ export const ERROR_MESSAGES = {
         UPDATE_SUBSCRIPTION_STATUS_FAILED: `サブスクリプションの契約状況の更新に失敗しました。${RETRY}`,
         CANCEL_SUBSCRIPTION_SUCCESS: 'サブスクリプションの契約をキャンセルしました',
         
+        CREATE_FAILED: `サブスクリプションデータの保存に失敗しました。${RETRY}`,
         DELETE_FAILED: `サブスクリプションデータの削除に失敗しました。${RETRY}`,
 
         SUBSCRIPTION_PRICE_RECURRING_CONFIG_FETCH_FAILED: `サブスクリプションの価格周期データの取得に失敗しました。${RETRY}`,
         SUBSCRIPTION_PRICE_CREATE_FAILED: `サブスクリプションの価格データの作成に失敗しました。${RETRY}`,
+    },
+
+    // サブスクリプションの支払い関連
+    SUBSCRIPTION_PAYMENT_ERROR: {
+        CREATE_FAILED: `サブスクリプションの支払いデータの作成に失敗しました。${RETRY}`,
+        GET_LATEST_FAILED: `サブスクリプションの最新の支払いデータの取得に失敗しました。${RETRY}`,
     },
     
     // 住所関連

@@ -6,7 +6,7 @@ import {
 import { formatOrderRemarks } from "@/services/order-item-subscription/format"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
-const { SUBSCRIPTION_ERROR, CHECKOUT_ERROR } = ERROR_MESSAGES;
+const { SUBSCRIPTION_ERROR } = ERROR_MESSAGES;
 
 interface CreateCheckoutOrderItemSubscriptionProps {
     orderItemId: OrderItemId;
@@ -14,7 +14,7 @@ interface CreateCheckoutOrderItemSubscriptionProps {
 }
 
 // サブスクリプションの作成
-export const createCheckoutOrderItemSubscriptions = async ({ 
+export const createOrderItemSubscriptions = async ({ 
     orderItemId, 
     productDetails 
 }: CreateCheckoutOrderItemSubscriptionProps) => {
@@ -42,11 +42,11 @@ export const createCheckoutOrderItemSubscriptions = async ({
             data: orderItemSubscriptions
         }
     } catch (error) {
-        console.error('Database : Error in createCheckoutOrderItemSubscriptions: ', error);
+        console.error('Database : Error in createOrderItemSubscriptions: ', error);
 
         return {
             success: false, 
-            error: CHECKOUT_ERROR.CREATE_ORDER_ITEM_SUBSCRIPTIONS_FAILED,
+            error: SUBSCRIPTION_ERROR.CREATE_FAILED,
             data: null
         }
     }

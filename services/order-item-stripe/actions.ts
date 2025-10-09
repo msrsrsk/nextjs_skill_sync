@@ -1,7 +1,7 @@
 import { createOrderItemStripeRepository } from "@/repository/orderItemStripe"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
-const { CHECKOUT_ERROR } = ERROR_MESSAGES;
+const { ORDER_ITEM_STRIPE_ERROR } = ERROR_MESSAGES;
 
 interface CreateCheckoutOrderItemStripeProps {
     orderItemIds: OrderItemId[];
@@ -9,7 +9,7 @@ interface CreateCheckoutOrderItemStripeProps {
 }
 
 // Stripe注文商品リストの作成
-export const createCheckoutOrderItemStripes = async ({ 
+export const createOrderItemStripes = async ({ 
     orderItemIds, 
     productDetails 
 }: CreateCheckoutOrderItemStripeProps) => {
@@ -39,11 +39,11 @@ export const createCheckoutOrderItemStripes = async ({
             data: createdStripes
         }
     } catch (error) {
-        console.error('Database : Error in createCheckoutOrderItemStripes: ', error);
+        console.error('Database : Error in createOrderItemStripes: ', error);
 
         return {
             success: false, 
-            error: CHECKOUT_ERROR.CREATE_ORDER_ITEM_STRIPES_FAILED,
+            error: ORDER_ITEM_STRIPE_ERROR.CREATE_FAILED,
             data: null
         }
     }
