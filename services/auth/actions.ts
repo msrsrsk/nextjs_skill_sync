@@ -126,10 +126,14 @@ export const registerUserWithChat = async (
         });
     } catch (error) {
         console.error('Actions Error - Register User With Chat error:', error);
+
+        const errorMessage = error instanceof Error 
+            ? error.message 
+            : AUTH_ERROR.CREATE_ACCOUNT_PROCESS_FAILED;
         
         return {
             success: false, 
-            error: AUTH_ERROR.CREATE_ACCOUNT_PROCESS_FAILED,
+            error: errorMessage,
             data: null
         }
     }
@@ -319,7 +323,8 @@ export async function verifyEmailToken(
         
         const errorMessage = error instanceof Error 
             ? error.message 
-            : String(error);
+            : AUTH_ERROR.FAILED_EMAIL_TOKEN_PROCESS;
+
         return {
             success: false, 
             error: errorMessage,
@@ -406,10 +411,14 @@ export const resetPassword = async (
         })
     } catch (error) {
         console.error('Actions Error - Reset Password error:', error);
+
+        const errorMessage = error instanceof Error 
+            ? error.message 
+            : AUTH_ERROR.RESET_PASSWORD_PROCESS_FAILED;
         
         return {
             success: false, 
-            error: AUTH_ERROR.RESET_PASSWORD_PROCESS_FAILED,
+            error: errorMessage,
             data: null
         }
     }

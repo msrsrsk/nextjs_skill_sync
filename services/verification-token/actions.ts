@@ -6,7 +6,7 @@ import {
 import { resetPassword } from "@/services/auth/actions"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
-const { USER_ERROR, VERIFICATION_TOKEN_ERROR } = ERROR_MESSAGES;
+const { AUTH_ERROR, VERIFICATION_TOKEN_ERROR } = ERROR_MESSAGES;
 
 interface GetVerificationTokenAndVerifyProps extends TokenProps {
     notFoundErrorMessage: string;
@@ -86,21 +86,40 @@ export const updatePasswordWithToken = async (
     password: string
 ) => {
     try {
-        const repository = getVerificationTokenRepository();
-        const verificationToken = await repository.getVerificationToken({ token });
+        const { 
+            success: verificationSuccess, 
+            error: verificationError, 
+            data: verificationToken 
+        } = await getVerificationTokenAndVerify({
+            token,
+            notFoundErrorMessage: VERIFICATION_TOKEN_ERROR.NOT_FOUND_PASSWORD_TOKEN,
+            expiredErrorMessage: VERIFICATION_TOKEN_ERROR.EXPIRED_PASSWORD_TOKEN
+        });
 
-        if (!verificationToken) {
-            throw new Error(USER_ERROR.PASSWORD_RESET_MISSING_DATA);
+        if (!verificationSuccess || !verificationToken) {
+            return {
+                success: false, 
+                error: verificationError,
+                data: null
+            }
         }
 
-        if (verificationToken.expires < new Date()) {
-            throw new Error(USER_ERROR.EXPIRED_PASSWORD_TOKEN);
-        }
-
-        const updatedUser = await resetPassword(
+        const { 
+            success: resetPasswordSuccess, 
+            error: resetPasswordError, 
+            data: updatedUser 
+        } = await resetPassword(
             verificationToken, 
             password
         );
+
+        if (!resetPasswordSuccess || !updatedUser) {
+            return {
+                success: false, 
+                error: resetPasswordError,
+                data: null
+            }
+        }
 
         return {
             success: true, 
@@ -108,7 +127,11 @@ export const updatePasswordWithToken = async (
             data: updatedUser
         }
     } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : USER_ERROR.PASSWORD_UPDATE_FAILED;
+        console.error('Database : Error in updatePasswordWithToken: ', error);
+        
+        const errorMessage = error instanceof Error 
+            ? error.message 
+            : AUTH_ERROR.RESET_PASSWORD_PROCESS_FAILED;
 
         return {
             success: false, 
