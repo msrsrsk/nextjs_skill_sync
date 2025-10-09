@@ -2,7 +2,7 @@ import { updateProductStripeRepository } from "@/repository/productStripe"
 
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
-const { PRODUCT_ERROR } = ERROR_MESSAGES;
+const { PRODUCT_STRIPE_ERROR } = ERROR_MESSAGES;
 
 // Stripe商品データの更新
 export const updateProductStripe = async ({
@@ -22,7 +22,7 @@ export const updateProductStripe = async ({
 
         return {
             success: false, 
-            error: PRODUCT_ERROR.UPDATE_FAILED,
+            error: PRODUCT_STRIPE_ERROR.UPDATE_FAILED,
         }
     }
 }

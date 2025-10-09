@@ -14,7 +14,7 @@ const { TREND_LIMIT, OPTIMAL_SYNCS_LIMIT } = PRODUCTS_DISPLAY_CONFIG;
 const { CREATED_DESCENDING } = COLLECTION_SORT_TYPES;
 const { PRODUCT_ERROR } = ERROR_MESSAGES;
 
-// 商品詳細ページ：slugで商品データを取得
+// 商品詳細ページのデータ取得
 export const getProductBySlug = async ({
     slug,
 }: { slug: ProductSlug }) => {

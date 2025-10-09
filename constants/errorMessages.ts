@@ -104,14 +104,17 @@ export const ERROR_MESSAGES = {
         SKILL_TRAIL_FETCH_FAILED: `最近見た商品のデータ取得に失敗しました。${RETRY}`,
         ADD_SKILL_TRAIL_FAILED: `最近見た商品の追加に失敗しました。${RETRY}`,
         DELETE_SKILL_TRAIL_FAILED: `最近見た商品の削除に失敗しました。${RETRY}`,
-
-        UPDATE_FAILED: `商品の更新に失敗しました。${RETRY}`,
         UPDATE_STOCK_AND_SOLD_COUNT_FAILED: `商品の在庫数と売り上げ数の更新に失敗しました。${RETRY}`,
 
         REMOVE_SUCCESS: 'スキルを削除しました',
 
         STOCK_WEBHOOK_PROCESS_FAILED: '商品在庫のWebhook処理中にエラーが発生しました。',
         STRIPE_WEBHOOK_PROCESS_FAILED: 'Stripeデータ作成のWebhook処理中にエラーが発生しました。',
+    },
+
+    // 商品Stripeデータ関連
+    PRODUCT_STRIPE_ERROR: {
+        UPDATE_FAILED: `商品のStripeデータの更新に失敗しました。${RETRY}`,
     },
 
     // カート関連
