@@ -119,10 +119,10 @@ export async function getAllSyncLogLists(limit: number) {
             success: true, 
             error: null, 
             data: {
-                [SYNC_ALL]: allLogs,
-                [SYNC_UPDATES]: updatesLogs,
-                [SYNC_VOICES]: voicesLogs,
-                [SYNC_EXTRAS]: extrasLogs
+                [SYNC_ALL]: allLogs.data,
+                [SYNC_UPDATES]: updatesLogs.data,
+                [SYNC_VOICES]: voicesLogs.data,
+                [SYNC_EXTRAS]: extrasLogs.data
             }
         }
     } catch (error) {

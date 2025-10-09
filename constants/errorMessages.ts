@@ -363,6 +363,8 @@ export const ERROR_MESSAGES = {
         CUSTOMER_CREATE_FAILED: `Stripeの顧客データの作成に失敗しました。${RETRY}`,
         PRODUCT_CREATE_FAILED: `Stripeの商品データの作成に失敗しました。${RETRY}`,
         PRICE_CREATE_FAILED: `Stripeの価格データの作成に失敗しました。${RETRY}`,
+        SUBSCRIPTION_SHIPPING_FEE_FAILED: `サブスクリプションの配送料の取得に失敗しました。${RETRY}`,
+        PAYMENT_METHOD_FAILED: `支払い方法の取得に失敗しました。${RETRY}`,
         SHIPPING_RATE_AMOUNT_FETCH_FAILED: `配送料の金額の取得に失敗しました。${RETRY}`,
         CANCEL_SUBSCRIPTION_FAILED: `サブスクリプションのキャンセルに失敗しました。${RETRY}`,
         CUSTOMER_DELETE_FAILED: `Stripeの顧客データの削除に失敗しました。${RETRY}`,

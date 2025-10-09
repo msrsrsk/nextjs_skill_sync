@@ -1,13 +1,14 @@
-import { stripe } from "@/lib/clients/stripe/client"
-
 import { 
     createOrderRepository, 
     getOrderRepository, 
     deleteOrderRepository 
 } from "@/repository/order"
-import { createOrderStripe } from "@/services/order-stripe/actions"
 import { createOrderShipping } from "@/services/order-shipping/actions"
 import { updateStockAndSoldCount } from "@/services/product/actions"
+import { 
+    getSubscriptionShippingFee, 
+    getPaymentMethod 
+} from "@/services/stripe/checkout-actions"
 import { ORDER_STATUS } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
@@ -42,52 +43,52 @@ export const createOrder = async ({
 export const createCheckoutOrder = async ({ 
     session 
 }: { session: StripeCheckoutSession }) => {
+
+    let subscriptionShippingFee = 0;
+    let cardBrand = 'card';
+
+    const paymentStatus = session.payment_status === 'paid' 
+        ? ORDER_PROCESSING : ORDER_PENDING;
+
     try {
-        // サブスクリプションの有無の確認（配送料の取得方法が異なるため）
-        let subscriptionShippingFee = null;
-
+        // 1. サブスクリプションの有無の確認（配送料の取得方法が異なるため）
         if (session.subscription) {
-            const subscription = await stripe.subscriptions.retrieve(session.subscription);
+            const subscriptionResult = await getSubscriptionShippingFee({
+                session,
+                subscriptionShippingFee
+            });
 
-            if (subscription.latest_invoice) {
-                const invoice = await stripe.invoices.retrieve(subscription.latest_invoice as string);
-                const invoiceData = invoice as StripeInvoice;
-                
-                const subscriptionMetadata = invoiceData.parent?.subscription_details?.metadata;
-                subscriptionShippingFee = Number(subscriptionMetadata?.subscription_shipping_fee);
-            }
+            subscriptionShippingFee = subscriptionResult 
+                && subscriptionResult.data 
+                ? subscriptionResult.data : 0;
         }
 
-        // 支払い方法の取得
-        let cardBrand = 'card';
-        
-        const paymentStatus = session.payment_status === 'paid' ? ORDER_PROCESSING : ORDER_PENDING;
-
+        // 2. 支払い方法の取得
         if (session.payment_intent) {
-            const sessionWithPaymentMethod = await stripe.paymentIntents.retrieve(
-                session.payment_intent,
-                { expand: ['payment_method'] }
-            );
+            const paymentMethodResult = await getPaymentMethod({
+                session,
+                cardBrand
+            });
 
-            if (sessionWithPaymentMethod.payment_method) {
-                cardBrand = (sessionWithPaymentMethod.payment_method as StripePaymentMethod).card?.brand || 'card';
-            }
+            cardBrand = paymentMethodResult 
+                && paymentMethodResult.data 
+                ? paymentMethodResult.data : 'card';
         }
         
-        // 注文データの作成
-        const orderData = {
-            user_id: session.metadata.userID as UserId,
-            status: paymentStatus as OrderStatusType,
-            total_amount: session.amount_total,
-            currency: session.currency,
-            payment_method: cardBrand,
-        }
-
+        // 3. 注文データの作成
         const { 
             success: createOrderSuccess, 
             error: createOrderError, 
             data: createOrderData 
-        } = await createOrder({ orderData });
+        } = await createOrder({ 
+            orderData: {
+                user_id: session.metadata.userID as UserId,
+                status: paymentStatus as OrderStatusType,
+                total_amount: session.amount_total,
+                currency: session.currency,
+                payment_method: cardBrand,
+            }
+        });
 
         if (!createOrderSuccess || !createOrderData) {
             return {
@@ -97,19 +98,21 @@ export const createCheckoutOrder = async ({
             }
         }
 
-        // 注文配送情報の作成
-        const orderShippingData = {
-            order_id: createOrderData.id,
-            delivery_name: session.customer_details?.name,
-            address: session.customer_details?.address,
-            shipping_fee: subscriptionShippingFee || session.shipping_cost?.amount_total || 0,
-        }
-
+        // 4. 注文配送情報の作成
         const { 
             success: createOrderShippingSuccess, 
             error: createOrderShippingError, 
             data: createOrderShippingData 
-        } = await createOrderShipping({ orderShippingData });
+        } = await createOrderShipping({ 
+            orderShippingData: {
+                order_id: createOrderData.id,
+                delivery_name: session.customer_details?.name,
+                address: session.customer_details?.address,
+                shipping_fee: subscriptionShippingFee 
+                    || session.shipping_cost?.amount_total 
+                    || 0,
+            }
+        });
 
         if (!createOrderShippingSuccess || !createOrderShippingData) {
             return {
@@ -130,63 +133,24 @@ export const createCheckoutOrder = async ({
     } catch (error) {
         console.error('Database : Error in createCheckoutOrder: ', error);
 
-        return {
-            success: false, 
-            error: CHECKOUT_ERROR.CREATE_ORDER_FAILED,
-            data: null
-        }
-    }
-}
-
-interface CreateCheckoutOrderStripeProps {
-    session: StripeCheckoutSession;
-    orderData: CreateCheckoutOrderData;
-}
-
-// Stripe注文データの作成
-export const createCheckoutOrderStripe = async ({ 
-    session, 
-    orderData 
-}: CreateCheckoutOrderStripeProps) => {
-    try {
-        const orderStripeData = {
-            order_id: orderData.order.id,
-            session_id: session.id,
-            payment_intent_id: session.payment_intent,
-        }
-
-        const { 
-            success: orderStripeSuccess, 
-            error: orderStripeError, 
-        } = await createOrderStripe({ orderStripeData });
-
-        if (!orderStripeSuccess) {
-            return {
-                success: false, 
-                error: orderStripeError,
-                data: null
-            }
-        }
-
-        return {
-            success: true, 
-            error: null, 
-            data: null
-        }
-    } catch (error) {
-        console.error('Database : Error in createCheckoutOrderStripe: ', error);
+        const errorMessage = error instanceof Error 
+            ? error.message 
+            : CHECKOUT_ERROR.CREATE_ORDER_FAILED;
 
         return {
             success: false, 
-            error: CHECKOUT_ERROR.CREATE_ORDER_STRIPE_FAILED,
+            error: errorMessage,
             data: null
         }
     }
 }
 
 // 注文履歴の情報から商品の在庫数と売り上げ数を更新
-export const updateProductStockAndSoldCount = async ({ orderId }: { orderId: OrderId }) => {
+export const updateProductStockAndSoldCount = async ({ 
+    orderId 
+}: { orderId: OrderId }) => {
     try {
+        // 1. 注文データの取得
         const repository = getOrderRepository();
         const orderItemsResult = await repository.getOrderByIdWithOrderItems({
             orderId
@@ -199,6 +163,7 @@ export const updateProductStockAndSoldCount = async ({ orderId }: { orderId: Ord
             }
         }
 
+        // 2. 商品の在庫数と売り上げ数の更新
         const productUpdates = orderItemsResult.order_items.map((item) => ({
             productId: item.product_id,
             quantity: item.quantity

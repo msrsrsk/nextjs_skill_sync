@@ -1,5 +1,4 @@
 import { convertToJST, formatDateCommon } from "@/lib/utils/format"
-import { formatSubscriptionIntervalForOrder } from "@/services/subscription-payment/format"
 import { 
     ORDER_STATUS, 
     ORDER_HISTORY_CATEGORIES,

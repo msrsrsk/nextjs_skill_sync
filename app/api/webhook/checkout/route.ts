@@ -3,10 +3,9 @@ import { NextRequest, NextResponse } from "next/server"
 
 import { verifyWebhookSignature } from "@/services/stripe/webhook/actions"
 import { createCheckoutOrder } from "@/services/order/actions"
-import { createCheckoutOrderStripe } from "@/services/order/actions"
 import { deleteOrder } from "@/services/order/actions"
 import { deleteAllOrderItem } from "@/services/order-item/actions"
-import { deleteOrderStripe } from "@/services/order-stripe/actions"
+import { createOrderStripe, deleteOrderStripe } from "@/services/order-stripe/actions"
 import { deleteOrderItemSubscription } from "@/services/order-item-subscription/actions"
 import { createCheckoutOrderItems } from "@/services/order-item/actions"
 import { createCheckoutOrderItemSubscriptions } from "@/services/order-item-subscription/actions"
@@ -101,9 +100,12 @@ async function handleCheckoutSessionCompleted({
     const { 
         success: orderStripeSuccess, 
         error: orderStripeError, 
-    } = await createCheckoutOrderStripe({ 
-        session: checkoutSessionEvent, 
-        orderData: orderData as CreateCheckoutOrderData
+    } = await createOrderStripe({ 
+        orderStripeData: {
+            order_id: orderData.order.id,
+            session_id: checkoutSessionEvent.id,
+            payment_intent_id: checkoutSessionEvent.payment_intent,
+        }
     });
 
     if (!orderStripeSuccess) {
