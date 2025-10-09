@@ -179,6 +179,7 @@ export const ERROR_MESSAGES = {
         FETCH_FAILED: `レビューデータの取得に失敗しました。${RETRY}`,
         REVIEW_IMAGE_FETCH_FAILED: `レビューの画像データの取得に失敗しました。${RETRY}`,
         POST_FAILED: `レビューの投稿に失敗しました。${FIRST}`,
+        POST_MISSING_DATA: `レビューの投稿に必要な情報が不足しています。${RETRY}`,
         CREATE_FAILED: `レビューの保存に失敗しました。${RETRY}`,
         INDIVIDUAL_FETCH_FAILED: `個別商品のレビューの取得に失敗しました。${RETRY}`,
 

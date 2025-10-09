@@ -45,21 +45,21 @@ export async function createReviewAction(
         if (!productId) {
             return {
                 success: false, 
-                error: REVIEW_ERROR.POST_FAILED,
+                error: REVIEW_ERROR.POST_MISSING_DATA,
                 timestamp: Date.now()
             }
         }
 
-        const reviewData = { 
-            rating, 
-            name, 
-            comment, 
-            image_urls,
-            user_id: userId,
-            product_id: productId,
-        } as Review;
-
-        await createReview({ reviewData });
+        await createReview({ 
+            reviewData: { 
+                rating, 
+                name, 
+                comment, 
+                image_urls,
+                user_id: userId,
+                product_id: productId,
+            } as Review
+        });
 
         return {
             success: true, 
