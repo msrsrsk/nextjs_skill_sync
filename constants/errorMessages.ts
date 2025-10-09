@@ -27,13 +27,14 @@ export const ERROR_MESSAGES = {
         EMAIL_NOT_MATCH: `現在のメールアドレスと一致しません。${FIRST}`,
         INCORRECT_EMAIL_OR_PASSWORD: `メールアドレスまたはパスワードが正しくありません。${FIRST}`,
         CREATE_ACCOUNT_PROCESS_FAILED: `アカウントの作成中に問題が発生しました。${FIRST}`,
+        CREATE_VERIFICATION_TOKEN_PROCESS_FAILED: `認証トークンの作成中に問題が発生しました。${FIRST}`,
+        RESET_PASSWORD_PROCESS_FAILED: `パスワードリセット中に問題が発生しました。${FIRST}`,
         CREATE_ACCOUNT_FAILED: `アカウント作成が上手くいきませんでした。${FIRST}`,
         
         TOKEN_CREATE_FAILED: `認証メールの送信に必要な情報がありません。${FIRST}`,
         TOKEN_SEND_FAILED: `認証メールの送信に失敗しました。${FIRST}`,
         NOT_FOUND_TOKEN: `メール認証のための必要な\n情報が見つかりませんでした。${FIRST}`,
         EXPIRED_EMAIL_TOKEN: `メール認証の有効期限が過ぎたため、\nアカウントの作成ができませんでした。${FIRST}`,
-        TOKEN_SEND_PROCESS_FAILED: `認証メールの送信時に問題が発生しました。${FIRST}`,
         REAUTHENTICATE_FAILED: `認証に失敗しました。${FIRST}`,
         FAILED_EMAIL_TOKEN_PROCESS: `メールアドレスの認証処理中にエラーが発生しました。${FIRST}`,
 
@@ -78,7 +79,17 @@ export const ERROR_MESSAGES = {
         NAME_UPDATE_FAILED: `お名前の更新に失敗しました。${RETRY}`,
         TEL_UPDATE_FAILED: `電話番号の更新に失敗しました。${RETRY}`,
 
+        CREATE_PROFILE_FAILED: `ユーザープロフィールの作成に失敗しました。${RETRY}`,
         DELETE_FAILED: `ユーザープロフィールの削除に失敗しました。${RETRY}`,
+    },
+
+    // ユーザー画像関連
+    USER_IMAGE_ERROR: {
+        CREATE_FAILED: `ユーザー画像の作成に失敗しました。${RETRY}`,
+
+        FILE_PATH_UPDATE_FAILED: `画像ファイルのパスの更新に失敗しました。${RETRY}`,
+        USER_REQUIRED_DATA_NOT_FOUND: `画像ストレージのアクセスに必要なデータが不足しています。${RETRY}`,
+        USER_ID_NOT_FOUND: `画像ストレージへのアクセス権限がありません。ログインをして再度お試しください。`,
     },
 
     // 商品関連
@@ -105,61 +116,6 @@ export const ERROR_MESSAGES = {
 
         STOCK_WEBHOOK_PROCESS_FAILED: '商品在庫のWebhook処理中にエラーが発生しました。',
         STRIPE_WEBHOOK_PROCESS_FAILED: 'Stripeデータ作成のWebhook処理中にエラーが発生しました。',
-    },
-
-    // レビュー関連
-    REVIEW_ERROR: {
-        FETCH_FAILED: `レビューデータの取得に失敗しました。${RETRY}`,
-        REVIEW_IMAGE_FETCH_FAILED: `レビューの画像データの取得に失敗しました。${RETRY}`,
-        POST_FAILED: `レビューの投稿に失敗しました。${FIRST}`,
-        CREATE_FAILED: `レビューの保存に失敗しました。${RETRY}`,
-        INDIVIDUAL_FETCH_FAILED: `個別商品のレビューの取得に失敗しました。${RETRY}`,
-
-        WEBHOOK_PROCESS_FAILED: 'レビューのWebhook処理中にエラーが発生しました。',
-        WEBHOOK_INSERT_FAILED: 'レビュー作成時のデータが見つかりませんでした。',
-        WEBHOOK_INSERT_PROCESS_FAILED: 'レビュー作成時のWebhook処理中にエラーが発生しました。',
-        WEBHOOK_DELETE_FAILED: 'レビュー削除時のデータが見つかりませんでした。',
-        WEBHOOK_DELETE_PROCESS_FAILED: 'レビュー削除時のWebhook処理中にエラーが発生しました。',
-    },
-
-    // お気に入り関連
-    BOOKMARK_ERROR: {
-        ADD_UNAUTHORIZED: `お気に入りの登録はログインが必要です。${LOGIN}`,
-        REMOVE_UNAUTHORIZED: `お気に入りの削除はログインが必要です。${LOGIN}`,
-
-        OPERATION_FAILED: `お気に入りボタンの操作に失敗しました。${RETRY}`,
-
-        FETCH_FAILED: `お気に入りデータの取得に失敗しました。${RETRY}`,
-        ADD_MISSING_DATA: `お気に入りデータの変更に必要な情報が不足しています。${RETRY}`,
-        REMOVE_MISSING_DATA: `お気に入りデータの削除に必要な情報が不足しています。${RETRY}`,
-        FETCH_PRODUCT_FAILED: `お気に入り状態の取得に失敗しました。${RETRY}`,
-
-        ADD_FAILED: `お気に入りの追加に失敗しました。${RETRY}`,
-
-        REMOVE_FAILED: `お気に入りの削除に失敗しました。${RETRY}`,
-        REMOVE_ALL_FAILED: `全てのお気に入りの削除に失敗しました。${RETRY}`,
-        
-        REMOVE_INDIVIDUAL_SUCCESS: 'お気に入りを削除しました',
-        REMOVE_ALL_SUCCESS: '全てのお気に入りを削除しました',
-    },
-
-    // チャット関連
-    CHAT_ERROR: {
-        UNAUTHORIZED: `チャットはログインが必要です。${LOGIN}`,
-        MISSING_DATA: `メッセージが入力されていません。${FIRST}`,
-        SEND_FAILED: `チャットメッセージの送信に失敗しました。${RETRY}`,
-        MISSING_CHAT_ROOM: `チャットルームが見つかりません。${LOGIN}`,
-        CREATE_FAILED: `チャットメッセージの保存に失敗しました。${RETRY}`,
-        FETCH_FAILED: `チャット履歴の取得に失敗しました。${RETRY}`,
-
-        FAILED_SAVE_AI_MESSAGE: `AIからの回答の保存に失敗しました。${RETRY}`,
-        
-        MONTHLY_LIMIT_EXCEEDED: `月間使用量の上限に達しました。\nまた翌月お試しください。`,
-        LIMIT_WARNING: `チャットメッセージの送信は履歴も含めて最大${MAX_CHAT_MESSAGES}件までです。古いメッセージが自動削除されるまでしばらくお待ちください。`,
-        EMBEDDING_SEARCH_FAILED: `類似テンプレートの検索に失敗しました。${RETRY}`,
-        OPENAI_API_KEY_NOT_SET: `OpenAIのAPIキーが設定されていません。`,
-
-        WEBHOOK_PROCESS_FAILED: 'チャットのWebhook処理中にエラーが発生しました。',
     },
 
     // カート関連
@@ -219,6 +175,46 @@ export const ERROR_MESSAGES = {
         SEND_PAYMENT_REQUEST_EMAIL_FAILED: `お支払いのお願いメールの送信に失敗しました。${RETRY}`,
     },
 
+    // レビュー関連
+    REVIEW_ERROR: {
+        FETCH_FAILED: `レビューデータの取得に失敗しました。${RETRY}`,
+        REVIEW_IMAGE_FETCH_FAILED: `レビューの画像データの取得に失敗しました。${RETRY}`,
+        POST_FAILED: `レビューの投稿に失敗しました。${FIRST}`,
+        CREATE_FAILED: `レビューの保存に失敗しました。${RETRY}`,
+        INDIVIDUAL_FETCH_FAILED: `個別商品のレビューの取得に失敗しました。${RETRY}`,
+
+        WEBHOOK_PROCESS_FAILED: 'レビューのWebhook処理中にエラーが発生しました。',
+        WEBHOOK_INSERT_FAILED: 'レビュー作成時のデータが見つかりませんでした。',
+        WEBHOOK_INSERT_PROCESS_FAILED: 'レビュー作成時のWebhook処理中にエラーが発生しました。',
+        WEBHOOK_DELETE_FAILED: 'レビュー削除時のデータが見つかりませんでした。',
+        WEBHOOK_DELETE_PROCESS_FAILED: 'レビュー削除時のWebhook処理中にエラーが発生しました。',
+    },
+
+    // チャットルーム関連
+    CHAT_ROOM_ERROR: {
+        CREATE_ROOM_FAILED: `チャットルームの作成に失敗しました。${RETRY}`,
+    },
+
+    // チャット関連
+    CHAT_ERROR: {
+        UNAUTHORIZED: `チャットはログインが必要です。${LOGIN}`,
+        MISSING_DATA: `メッセージが入力されていません。${FIRST}`,
+        SEND_FAILED: `チャットメッセージの送信に失敗しました。${RETRY}`,
+        MISSING_CHAT_ROOM: `チャットルームが見つかりません。${LOGIN}`,
+        CREATE_INITIAL_FAILED: `初期チャットメッセージの作成に失敗しました。${RETRY}`,
+        CREATE_FAILED: `チャットメッセージの保存に失敗しました。${RETRY}`,
+        FETCH_FAILED: `チャット履歴の取得に失敗しました。${RETRY}`,
+
+        FAILED_SAVE_AI_MESSAGE: `AIからの回答の保存に失敗しました。${RETRY}`,
+        
+        MONTHLY_LIMIT_EXCEEDED: `月間使用量の上限に達しました。\nまた翌月お試しください。`,
+        LIMIT_WARNING: `チャットメッセージの送信は履歴も含めて最大${MAX_CHAT_MESSAGES}件までです。古いメッセージが自動削除されるまでしばらくお待ちください。`,
+        EMBEDDING_SEARCH_FAILED: `類似テンプレートの検索に失敗しました。${RETRY}`,
+        OPENAI_API_KEY_NOT_SET: `OpenAIのAPIキーが設定されていません。`,
+
+        WEBHOOK_PROCESS_FAILED: 'チャットのWebhook処理中にエラーが発生しました。',
+    },
+
     // 注文関連
     ORDER_ERROR: {
         HISTORY_FETCH_FAILED: `注文履歴の取得に失敗しました。${RETRY}`,
@@ -237,13 +233,6 @@ export const ERROR_MESSAGES = {
     // 注文商品リスト関連
     ORDER_ITEM_ERROR: {
         DELETE_FAILED: `注文商品リストの削除に失敗しました。${RETRY}`,
-    },
-
-    // ユーザー画像関連
-    USER_IMAGE_ERROR: {
-        FILE_PATH_UPDATE_FAILED: `画像ファイルのパスの更新に失敗しました。${RETRY}`,
-        USER_REQUIRED_DATA_NOT_FOUND: `画像ストレージのアクセスに必要なデータが不足しています。${RETRY}`,
-        USER_ID_NOT_FOUND: `画像ストレージへのアクセス権限がありません。ログインをして再度お試しください。`,
     },
     
     // サブスクリプション関連
@@ -286,6 +275,40 @@ export const ERROR_MESSAGES = {
         DELETE_UNAUTHORIZED: `住所の削除はログインが必要です。${LOGIN}`,
         DELETE_MISSING_DATA: `住所の削除に必要な情報が不足しています。${RETRY}`,
         DELETE_FAILED: `住所の削除に失敗しました。${RETRY}`,
+    },
+
+    // お気に入り関連
+    BOOKMARK_ERROR: {
+        ADD_UNAUTHORIZED: `お気に入りの登録はログインが必要です。${LOGIN}`,
+        REMOVE_UNAUTHORIZED: `お気に入りの削除はログインが必要です。${LOGIN}`,
+
+        OPERATION_FAILED: `お気に入りボタンの操作に失敗しました。${RETRY}`,
+
+        FETCH_FAILED: `お気に入りデータの取得に失敗しました。${RETRY}`,
+        ADD_MISSING_DATA: `お気に入りデータの変更に必要な情報が不足しています。${RETRY}`,
+        REMOVE_MISSING_DATA: `お気に入りデータの削除に必要な情報が不足しています。${RETRY}`,
+        FETCH_PRODUCT_FAILED: `お気に入り状態の取得に失敗しました。${RETRY}`,
+
+        ADD_FAILED: `お気に入りの追加に失敗しました。${RETRY}`,
+
+        REMOVE_FAILED: `お気に入りの削除に失敗しました。${RETRY}`,
+        REMOVE_ALL_FAILED: `全てのお気に入りの削除に失敗しました。${RETRY}`,
+        
+        REMOVE_INDIVIDUAL_SUCCESS: 'お気に入りを削除しました',
+        REMOVE_ALL_SUCCESS: '全てのお気に入りを削除しました',
+    },
+
+    // トークン関連
+    VERIFICATION_TOKEN_ERROR: {
+        CREATE_FAILED: `認証トークンの作成に失敗しました。${RETRY}`,
+        DELETE_FAILED: `認証トークンの削除に失敗しました。${RETRY}`,
+
+        NOT_FOUND_EMAIL_TOKEN: `メール認証のための必要な\n情報が見つかりませんでした。${FIRST}`,
+        EXPIRED_EMAIL_TOKEN: `メール認証の有効期限が過ぎたため、\nアカウントの作成ができませんでした。${FIRST}`,
+        NOT_FOUND_PASSWORD_TOKEN: `パスワードリセットのための\n必要な情報が見つかりませんでした。${FIRST}`,
+        EXPIRED_PASSWORD_TOKEN: `パスワードリセットの有効期限が過ぎました。${FIRST}`,
+
+        VERIFY_TOKEN_FAILED: `認証確認の処理中にエラーが発生しました。${FIRST}`,
     },
 
     // 記事関連
@@ -345,6 +368,7 @@ export const ERROR_MESSAGES = {
         PRICE_CREATE_FAILED: `Stripeの価格データの作成に失敗しました。${RETRY}`,
         SHIPPING_RATE_AMOUNT_FETCH_FAILED: `配送料の金額の取得に失敗しました。${RETRY}`,
         CANCEL_SUBSCRIPTION_FAILED: `サブスクリプションのキャンセルに失敗しました。${RETRY}`,
+        CUSTOMER_DELETE_FAILED: `Stripeの顧客データの削除に失敗しました。${RETRY}`,
     },
 
     // Webhook関連（共通）

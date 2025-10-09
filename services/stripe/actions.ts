@@ -102,7 +102,7 @@ export const createStripePrice = async (data: StripePriceCreateParams) => {
     }
 }
 
-export const createCustomer = async ({
+export const createStripeCustomer = async ({
     email,
     lastname, 
     firstname,
@@ -125,6 +125,26 @@ export const createCustomer = async ({
             success: false, 
             error: STRIPE_ERROR.CUSTOMER_CREATE_FAILED,
             data: null
+        }
+    }
+}
+
+export const deleteStripeCustomer = async ({
+    customerId
+}: { customerId: StripeCustomerId }) => {
+    try {
+        await stripe.customers.del(customerId);
+
+        return {
+            success: true, 
+            error: null
+        }
+    } catch (error) {
+        console.error('Actions Error - Delete Customer error:', error);
+
+        return {
+            success: false, 
+            error: STRIPE_ERROR.CUSTOMER_DELETE_FAILED
         }
     }
 }

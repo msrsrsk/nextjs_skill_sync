@@ -1,10 +1,5 @@
 import prisma from "@/lib/clients/prisma/client"
 
-interface CreateChatRoomWithTransactionProps {
-    tx: TransactionClient;
-    userId: UserId;
-}
-
 export const createChatRoomRepository = () => {
     return {
         // チャットルームの作成（初期設定）

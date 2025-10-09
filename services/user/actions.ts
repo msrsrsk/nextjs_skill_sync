@@ -1,9 +1,41 @@
 "use server"
 
-import { updateUserRepository, deleteUserRepository } from "@/repository/user"
+import { 
+    createUserRepository, 
+    updateUserRepository, 
+    deleteUserRepository 
+} from "@/repository/user"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { USER_ERROR } = ERROR_MESSAGES;
+
+// ユーザーの作成
+export const createUser = async ({ 
+    tx,
+    userData 
+}: CreateUserWithTransactionProps) => {
+    try {
+        const repository = createUserRepository();
+        const user = await repository.createUserWithTransaction({ 
+            tx, 
+            userData 
+        });
+
+        return {
+            success: true, 
+            error: null, 
+            data: user
+        }
+    } catch (error) {
+        console.error('Database : Error in createUserWithTransaction: ', error);
+
+        return {
+            success: false, 
+            error: USER_ERROR.CREATE_ACCOUNT_FAILED,
+            data: null
+        }
+    }
+}
 
 // ユーザーのメールアドレスの更新
 export const updateUserEmail = async ({
@@ -48,6 +80,35 @@ export const updateUserPassword = async ({
         }
     } catch (error) {
         console.error('Database : Error in updateUserPassword:', error);
+
+        return {
+            success: false, 
+            error: USER_ERROR.PASSWORD_UPDATE_FAILED
+        }
+    }
+}
+
+// ユーザーのパスワードの更新（トークンの更新）
+export const updateUserPasswordWithTransaction = async ({
+    tx,
+    verificationToken,
+    password
+}: UpdatedUserPasswordWithTransactionProps) => {
+    try {
+        const repository = updateUserRepository();
+        const user = await repository.updateUserPasswordWithTransaction({
+            tx, 
+            verificationToken, 
+            password
+        });
+
+        return {
+            success: true, 
+            error: null, 
+            data: user
+        }
+    } catch (error) {
+        console.error('Database : Error in updateUserPasswordWithTransaction:', error);
 
         return {
             success: false, 

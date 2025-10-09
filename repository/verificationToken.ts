@@ -1,13 +1,5 @@
 import prisma from "@/lib/clients/prisma/client"
 
-interface TokenProps {
-    token: string;
-}
-
-interface DeleteVerificationTokenWithTransactionProps extends TokenProps {
-    tx: TransactionClient;
-}
-
 export const createVerificationTokenRepository = () => {
     return {
         // トークンの作成

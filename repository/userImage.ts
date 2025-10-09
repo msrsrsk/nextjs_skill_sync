@@ -1,10 +1,5 @@
 import prisma from "@/lib/clients/prisma/client"
 
-interface CreateUserImageWithTransactionProps {
-    tx: TransactionClient;
-    userId: UserId;
-}
-
 export const createUserImageRepository = () => {
     return {
         // アイコン画像のデータ作成（初期設定）

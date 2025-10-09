@@ -5,23 +5,20 @@ import bcrypt from "bcryptjs"
 import prisma from "@/lib/clients/prisma/client"
 
 import { actionAuth } from "@/lib/middleware/auth"
-import { createUserRepository, updateUserRepository } from "@/repository/user"
+import { createUser, updateUserPasswordWithTransaction } from "@/services/user/actions"
+import { createUserProfile } from "@/services/user-profile/actions"
+import { createUserImage } from "@/services/user-image/actions"
+import { createChatRoom } from "@/services/chat-room/actions"
+import { createInitialChat } from "@/services/chat/actions"
+import { 
+    createVerificationToken, 
+    getVerificationTokenAndVerify,
+    deleteVerificationToken 
+} from "@/services/verification-token/actions"
+import { createStripeCustomer, deleteStripeCustomer } from "@/services/stripe/actions"
 import { updateUserEmail, deleteUser } from "@/services/user/actions"
 import { createUserStripeCustomerId } from "@/services/user-stripe/actions"
-import { createUserProfileRepository } from "@/repository/userProfile"
-import { createChatRoomRepository } from "@/repository/chatRoom"
-import { createChatRepository } from "@/repository/chat"
 import { 
-    createVerificationTokenRepository, 
-    getVerificationTokenRepository,
-    deleteVerificationTokenRepository
-} from "@/repository/verificationToken"
-import { createCustomer } from "@/services/stripe/actions"
-import { createUserImageRepository } from "@/repository/userImage"
-import { 
-    CHAT_SENDER_TYPES,
-    CHAT_SOURCE,
-    CHAT_HISTORY_INITIAL_MESSAGE,
     DEFAULT_ACCOUNT_ICON_URL,
     EMAIL_VERIFICATION_TOKEN_CONFIG,
     VERIFY_EMAIL_TYPES,
@@ -30,12 +27,13 @@ import {
 } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
-const { SENDER_ADMIN } = CHAT_SENDER_TYPES;
-const { AUTH_ERROR, USER_ERROR } = ERROR_MESSAGES;
 const { EXPIRATION_TIME } = EMAIL_VERIFICATION_TOKEN_CONFIG;
 const { VERIFY_CREATE_ACCOUNT } = VERIFY_EMAIL_TYPES;
+const { AUTH_ERROR, VERIFICATION_TOKEN_ERROR } = ERROR_MESSAGES;
 
-// ユーザー登録（初期チャットデータ込み）
+/* ==================================== 
+    ユーザー登録（初期チャットデータ込み）
+==================================== */
 export const registerUserWithChat = async (
     userData: CreateUserData,
     userProfileData: CreateUserProfileData,
@@ -43,42 +41,79 @@ export const registerUserWithChat = async (
 ) => {
     try {
         return await prisma.$transaction(async (tx) => {
-            const userRepository = createUserRepository();
-            const user = await userRepository.createUserWithTransaction({ 
+            // 1. ユーザーの作成
+            const userResult = await createUser({
                 tx, 
                 userData 
             });
 
-            const userProfileRepository = createUserProfileRepository();
-            await userProfileRepository.createUserProfileWithTransaction({ 
+            if (!userResult.success || !userResult.data) {
+                return {
+                    success: false, 
+                    error: userResult.error,
+                    data: null
+                }
+            }
+
+            // 2. ユーザープロフィールの作成
+            const userProfileResult = await createUserProfile({ 
                 tx, 
-                userId: user.id,
+                userId: userResult.data.id,
                 userProfileData 
             });
 
-            const chatRoomRepository = createChatRoomRepository();
-            const chatRoom = await chatRoomRepository.createChatRoomWithTransaction({
+            if (!userProfileResult.success) {
+                return {
+                    success: false, 
+                    error: userProfileResult.error,
+                    data: null
+                }
+            }
+
+            // 3. ユーザー画像の作成
+            const userImageResult = await createUserImage({
+                tx,
+                userId: userResult.data.id
+            });
+
+            if (!userImageResult.success) {
+                return {
+                    success: false, 
+                    error: userImageResult.error,
+                    data: null
+                }
+            }
+
+            // 4. チャットルームの作成
+            const chatRoomResult = await createChatRoom({
                 tx, 
-                userId: user.id
+                userId: userResult.data.id
             });
             
-            const chatRepository = createChatRepository();
-            await chatRepository.createChatMessageWithTransaction({
+            if (!chatRoomResult.success || !chatRoomResult.data) {
+                return {
+                    success: false, 
+                    error: chatRoomResult.error,
+                    data: null
+                }
+            }
+
+            // 5. 初期チャットメッセージの作成
+            const chatResult = await createInitialChat({
                 tx, 
-                chatRoomId: chatRoom.id, 
-                message: CHAT_HISTORY_INITIAL_MESSAGE, 
-                senderType: SENDER_ADMIN as ChatSenderType,
-                source: CHAT_SOURCE.INITIAL
+                chatRoomId: chatRoomResult.data.id
             });
 
-            const userImageRepository = createUserImageRepository();
-            await userImageRepository.createUserImageWithTransaction({
-                tx,
-                userId: user.id
-            });
+            if (!chatResult.success) {
+                return {
+                    success: false, 
+                    error: chatResult.error,
+                    data: null
+                }
+            }
 
-            const verificationTokenRepository = deleteVerificationTokenRepository();
-            await verificationTokenRepository.deleteVerificationTokenWithTransaction({
+            // 6. 認証トークンの削除
+            await deleteVerificationToken({
                 tx,
                 token
             });
@@ -86,7 +121,7 @@ export const registerUserWithChat = async (
             return {
                 success: true, 
                 error: null, 
-                data: user,
+                data: userResult,
             }
         });
     } catch (error) {
@@ -94,23 +129,24 @@ export const registerUserWithChat = async (
         
         return {
             success: false, 
-            error: USER_ERROR.CREATE_ACCOUNT_FAILED,
+            error: AUTH_ERROR.CREATE_ACCOUNT_PROCESS_FAILED,
             data: null
         }
     }
 }
 
-// アカウント作成用の認証トークンの作成（パスワード含む）
+/* ==================================== 
+    アカウント作成用の認証トークンの作成
+==================================== */
 export async function createVerificationTokenWithPassword(
     userData: UserData & UserProfileData
 ) {
-    const token = crypto.randomBytes(AUTH_TOKEN_BYTES).toString('hex');
-    const expires = new Date(new Date().getTime() + EXPIRATION_TIME);
-    const hashedPassword = await bcrypt.hash(userData.password, PASSWORD_HASH_ROUNDS);
-
     try {
-        const repository = createVerificationTokenRepository();
-        await repository.createVerificationToken({
+        const token = crypto.randomBytes(AUTH_TOKEN_BYTES).toString('hex');
+        const expires = new Date(new Date().getTime() + EXPIRATION_TIME);
+        const hashedPassword = await bcrypt.hash(userData.password, PASSWORD_HASH_ROUNDS);
+
+        const { success, error, data } = await createVerificationToken({
             verificationData: {
                 identifier: userData.email,
                 token,
@@ -123,37 +159,55 @@ export async function createVerificationTokenWithPassword(
             }
         })
 
+        if (!success || !data) {
+            return {
+                success: false, 
+                error: error,
+                token: null
+            }
+        }
+
         return {
             success: true, 
             error: null, 
-            token
+            token: data
         }
     } catch (error) {
         console.error('Actions Error - Create Verification Token With Password error:', error);
         
         return {
             success: false, 
-            error: AUTH_ERROR.CREATE_ACCOUNT_PROCESS_FAILED,
+            error: AUTH_ERROR.CREATE_VERIFICATION_TOKEN_PROCESS_FAILED,
             token: null
         }
     }
 }
 
-// メールアドレスの認証
+/* ==================================== 
+    メールアドレスの認証
+==================================== */
 export async function verifyEmailToken(
     token: string,
     verifyEmailType: VerifyEmailType
 ) {
     try {
-        const repository = getVerificationTokenRepository();
-        const verificationToken = await repository.getVerificationToken({ token });
+        // 1. 認証トークンの取得&検証
+        const { 
+            success: verificationSuccess, 
+            error: verificationError, 
+            data: verificationToken 
+        } = await getVerificationTokenAndVerify({
+            token,
+            notFoundErrorMessage: VERIFICATION_TOKEN_ERROR.NOT_FOUND_EMAIL_TOKEN,
+            expiredErrorMessage: VERIFICATION_TOKEN_ERROR.EXPIRED_EMAIL_TOKEN
+        });
 
-        if (!verificationToken) {
-            throw new Error(AUTH_ERROR.NOT_FOUND_TOKEN)
-        }
-
-        if (verificationToken.expires < new Date()) {
-            throw new Error(AUTH_ERROR.EXPIRED_EMAIL_TOKEN)
+        if (!verificationSuccess || !verificationToken) {
+            return {
+                success: false, 
+                error: verificationError,
+                expires: null
+            }
         }
 
         const email = verificationToken.identifier;
@@ -163,29 +217,29 @@ export async function verifyEmailToken(
             const hashedPassword = verificationToken.password;
     
             if (!hashedPassword) {
-                throw new Error(AUTH_ERROR.PASSWORD_NOT_FOUND)
+                return {
+                    success: false, 
+                    error: AUTH_ERROR.PASSWORD_NOT_FOUND,
+                    expires: null
+                }
             }
 
-            // 1. ユーザーの作成(チャットルーム込み)
-            const userData = {
-                email: email,
-                password: hashedPassword,
-                emailVerified: new Date(),
-            }
-
-            const userProfileData = {
-                lastname: tokenUserData.lastname,
-                firstname: tokenUserData.firstname,
-                icon_url: DEFAULT_ACCOUNT_ICON_URL,
-            }
-
+            // 2. ユーザーの作成(チャットルーム込み)
             const { 
                 success: resisterSuccess, 
                 error: resisterError,
                 data: user 
             } = await registerUserWithChat(
-                userData,
-                userProfileData,
+                {
+                    email: email,
+                    password: hashedPassword,
+                    emailVerified: new Date(),
+                },
+                {
+                    lastname: tokenUserData.lastname,
+                    firstname: tokenUserData.firstname,
+                    icon_url: DEFAULT_ACCOUNT_ICON_URL,
+                },
                 token
             )
 
@@ -197,38 +251,19 @@ export async function verifyEmailToken(
                 }
             }
 
-            // 2. Stripe顧客の作成
+            // 3. Stripeの顧客データの作成
             const { 
-                success: createCustomerSuccess, 
-                error: createCustomerError,
-                data: stripeCustomer 
-            } = await createCustomer({ 
+                success: createStripeSuccess, 
+                error: createStripeError,
+                data: createStripeData 
+            } = await createStripeCustomer({ 
                 email,
                 lastname: tokenUserData.lastname,
                 firstname: tokenUserData.firstname,
             });
 
-            if (!createCustomerSuccess || !stripeCustomer) {
-                await deleteUser({ userId: user.id });
-
-                return {
-                    success: false, 
-                    error: createCustomerError,
-                    expires: null
-                }
-            }
-
-            // 3. SupabaseユーザーのStripe顧客IDの更新
-            const { 
-                success: createStripeSuccess, 
-                error: createStripeError 
-            } = await createUserStripeCustomerId({
-                userId: user.id,
-                customerId: stripeCustomer.id
-            });
-
-            if (!createStripeSuccess) {
-                await deleteUser({ userId: user.id });
+            if (!createStripeSuccess || !createStripeData) {
+                await deleteUser({ userId: user.data.id });
 
                 return {
                     success: false, 
@@ -236,7 +271,28 @@ export async function verifyEmailToken(
                     expires: null
                 }
             }
+
+            // 4. SupabaseユーザーのStripe顧客IDの作成
+            const { 
+                success: createCustomerIdSuccess, 
+                error: createCustomerIdError 
+            } = await createUserStripeCustomerId({
+                userId: user.data.id,
+                customerId: createStripeData.id
+            });
+
+            if (!createCustomerIdSuccess) {
+                await deleteUser({ userId: user.data.id });
+                await deleteStripeCustomer({ customerId: createStripeData.id });
+
+                return {
+                    success: false, 
+                    error: createCustomerIdError,
+                    expires: null
+                }
+            }
         } else {
+            // メールアドレスの更新
             const { userId } = await actionAuth(AUTH_ERROR.SESSION_NOT_FOUND);
 
             const { success, error } = await updateUserEmail({
@@ -272,88 +328,123 @@ export async function verifyEmailToken(
     }
 }
 
-// メールアドレス変更用の認証トークンの作成
-export async function createEmailVerificationTokenWithEmail(email: UserEmail) {
-    const token = crypto.randomBytes(AUTH_TOKEN_BYTES).toString('hex');
-    const expires = new Date(new Date().getTime() + EXPIRATION_TIME);
-
+/* ==================================== 
+    メールアドレスの認証用のトークンの作成
+==================================== */
+export async function createVerificationTokenWithEmail(email: UserEmail) {
     try {
-        const repository = createVerificationTokenRepository();
-        await repository.createEmailVerificationToken({
-            emailVerificationData: {
+        const token = crypto.randomBytes(AUTH_TOKEN_BYTES).toString('hex');
+        const expires = new Date(new Date().getTime() + EXPIRATION_TIME);
+
+        const { success, error, data } = await createVerificationToken({
+            verificationData: {
                 identifier: email,
                 token,
                 expires
             }
         })
 
+        if (!success || !data) {
+            return {
+                success: false, 
+                error: error,
+                token: null
+            }
+        }
+
         return {
             success: true, 
             error: null, 
-            token
+            token: data
         }
     } catch (error) {
         console.error('Actions Error - Create Email Verification Token With Email error:', error);
         
         return {
             success: false, 
-            error: AUTH_ERROR.TOKEN_SEND_PROCESS_FAILED,
+            error: AUTH_ERROR.CREATE_VERIFICATION_TOKEN_PROCESS_FAILED,
             token: null
         }
     }
 }
 
-// パスワードのリセット
+/* ==================================== 
+    パスワードのリセット
+==================================== */
 export const resetPassword = async (
     verificationToken: VerificationData,
     password: UserPassword
 ) => {
-    return await prisma.$transaction(async (tx) => {
-        const userRepository = updateUserRepository();
-        const user = await userRepository.updateUserPasswordWithTransaction({
-            tx, 
-            verificationToken, 
-            password
-        });
+    try {
+        return await prisma.$transaction(async (tx) => {
+            // 1. ユーザーのパスワードの更新
+            const userResult = await updateUserPasswordWithTransaction({
+                tx, 
+                verificationToken, 
+                password
+            });
 
-        const verificationTokenRepository = deleteVerificationTokenRepository();
-        await verificationTokenRepository.deleteVerificationTokenWithTransaction({
-            tx,
-            token: verificationToken.token
-        });
+            if (!userResult.success || !userResult.data) {
+                return {
+                    success: false, 
+                    error: userResult.error,
+                    data: null
+                }
+            }
+
+            // 2. 認証トークンの削除
+            await deleteVerificationToken({
+                tx,
+                token: verificationToken.token
+            });
+            
+            return {
+                success: true, 
+                error: null, 
+                data: userResult.data
+            }
+        })
+    } catch (error) {
+        console.error('Actions Error - Reset Password error:', error);
         
-        return user;
-    })
+        return {
+            success: false, 
+            error: AUTH_ERROR.RESET_PASSWORD_PROCESS_FAILED,
+            data: null
+        }
+    }
 }
 
-// パスワードリセット用のトークンの認証
-export async function verifyResetPasswordToken(token: string) {
+/* ==================================== 
+    パスワードリセット用のトークンの認証
+==================================== */
+export async function verifyResetPasswordToken(token: VerificationTokenValue) {
     try {
-        const repository = getVerificationTokenRepository();
-        const resetToken = await repository.getVerificationToken({ token });
+        const { success, error, data } = await getVerificationTokenAndVerify({
+            token,
+            notFoundErrorMessage: VERIFICATION_TOKEN_ERROR.NOT_FOUND_PASSWORD_TOKEN,
+            expiredErrorMessage: VERIFICATION_TOKEN_ERROR.EXPIRED_PASSWORD_TOKEN
+        });
 
-        if (!resetToken) {
-            throw new Error(AUTH_ERROR.NOT_FOUND_PASSWORD_TOKEN)
-        }
-
-        if (resetToken.expires < new Date()) {
-            throw new Error(AUTH_ERROR.EXPIRED_PASSWORD_TOKEN)
+        if (!success || !data) {
+            return {
+                success: false, 
+                error: error,
+                expires: null
+            }
         }
 
         return {
             success: true, 
             error: null, 
-            expires: resetToken.expires
+            expires: data.expires
         }
     } catch (error) {
         console.error('Actions Error - Verify Reset Password Token error:', error);
         
-        const errorMessage = error instanceof Error 
-            ? error.message 
-            : String(error);
         return {
             success: false, 
-            error: errorMessage,
+            error: VERIFICATION_TOKEN_ERROR.VERIFY_TOKEN_FAILED,
             expires: null
         }
     }

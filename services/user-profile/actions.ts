@@ -1,12 +1,41 @@
 "use server"
 
 import { 
+    createUserProfileRepository, 
     updateUserProfileRepository, 
     deleteUserProfileRepository 
 } from "@/repository/userProfile"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { USER_PROFILE_ERROR } = ERROR_MESSAGES;
+
+// ユーザープロフィールの作成
+export const createUserProfile = async ({ 
+    tx,
+    userId,
+    userProfileData 
+}: CreateUserProfileWithTransactionProps) => {
+    try {
+        const repository = createUserProfileRepository();
+        await repository.createUserProfileWithTransaction({ 
+            tx, 
+            userId,
+            userProfileData 
+        });
+
+        return {
+            success: true, 
+            error: null
+        }
+    } catch (error) {
+        console.error('Database : Error in createUserProfile: ', error);
+
+        return {
+            success: false, 
+            error: USER_PROFILE_ERROR.CREATE_PROFILE_FAILED,
+        }
+    }
+}
 
 // ユーザーのアイコン画像の更新
 export const updateUserProfileIconUrl = async ({

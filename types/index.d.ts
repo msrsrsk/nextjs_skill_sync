@@ -12,6 +12,7 @@ import type {
     CartItem as PrismaCartItem,
     Notification as PrismaNotification,
     Review as PrismaReview, 
+    ChatRoom as PrismaChatRoom,
     Chat as PrismaChat, 
     Order as PrismaOrder, 
     OrderShipping as PrismaOrderShipping,
@@ -270,6 +271,17 @@ declare global {
         password: UserPassword;
     }
 
+    interface CreateUserWithTransactionProps {
+        tx: TransactionClient;
+        userData: CreateUserData;
+    }
+    
+    interface UpdatedUserPasswordWithTransactionProps {
+        tx: TransactionClient;
+        verificationToken: VerificationData;
+        password: UserPassword;
+    }
+
     /* ============================== 
         UserProfile 関連
     ============================== */
@@ -306,17 +318,29 @@ declare global {
         tel: UserProfileTel;
     }
 
+    interface CreateUserProfileWithTransactionProps {
+        tx: TransactionClient;
+        userId: UserProfileId;
+        userProfileData: CreateUserProfileData;
+    }
+
 
     /* ============================== 
         UserImage 関連
     ============================== */
     type UserImage = PrismaUserImage;
     type UserImageId = UserImage['id'];
+    type UserImageUserId = UserImage['user_id'];
     type UserImagePath = UserImage['file_path'];
 
     interface UpdateUserImageFilePathProps {
         userId: UserId;
         filePath: UserImagePath;
+    }
+
+    interface CreateUserImageWithTransactionProps {
+        tx: TransactionClient;
+        userId: UserImageUserId;
     }
 
 
@@ -542,6 +566,18 @@ declare global {
     interface ReviewFormProps {
         productReviewsCount: number;
         productReviewStats?: ReviewStatsProps;
+    }
+
+
+    /* ============================== 
+        ChatRoom 関連
+    ============================== */
+    type ChatRoom = PrismaChatRoom;
+    type ChatRoomUserId = ChatRoom['user_id'];
+
+    interface CreateChatRoomWithTransactionProps {
+        tx: TransactionClient;
+        userId: ChatRoomUserId;
     }
 
 
@@ -797,11 +833,16 @@ declare global {
     ============================== */
     type VerificationStatusType = typeof VERIFICATION_STATUS[keyof typeof VERIFICATION_STATUS];
 
+    type VerificationToken = PrismaVerificationToken;
     type VerificationIdentifier = VerificationToken['identifier'];
     type VerificationTokenValue = VerificationToken['token'];
     type VerificationExpires = VerificationToken['expires'];
     type VerificationPassword = VerificationToken['password'];
     type VerificationUserData = VerificationToken['userData'];
+
+    interface TokenProps {
+        token: VerificationTokenValue;
+    }
 
     interface VerificationData {
         identifier: VerificationIdentifier;
@@ -809,6 +850,10 @@ declare global {
         expires: VerificationExpires;
         password?: VerificationPassword;
         userData?: VerificationUserData;
+    }
+    
+    interface DeleteVerificationTokenWithTransactionProps extends TokenProps {
+        tx: TransactionClient;
     }
 
 

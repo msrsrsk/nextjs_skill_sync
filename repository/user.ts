@@ -5,19 +5,8 @@ import { GET_USER_DATA_TYPES, PASSWORD_HASH_ROUNDS } from "@/constants/index"
 
 const { EMAIL_DATA, CUSTOMER_ID_DATA } = GET_USER_DATA_TYPES;
 
-interface CreateUserWithTransactionProps {
-    tx: TransactionClient;
-    userData: CreateUserData;
-}
-
 interface GetUserProps extends UserIdProps {
     getType?: GetUserDataTypes;
-}
-
-interface UpdatedUserPasswordWithTransactionProps {
-    tx: TransactionClient;
-    verificationToken: VerificationData;
-    password: UserPassword;
 }
 
 export const createUserRepository = () => {

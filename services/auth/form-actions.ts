@@ -5,7 +5,7 @@ import { signIn, signOut } from "@/lib/auth"
 import { actionAuth } from "@/lib/middleware/auth"
 import { 
     createVerificationTokenWithPassword, 
-    createEmailVerificationTokenWithEmail 
+    createVerificationTokenWithEmail 
 } from "@/services/auth/actions"
 import { sendVerificationEmail } from "@/services/email/auth/verification"
 import { updatePasswordWithToken } from "@/services/verification-token/actions"
@@ -162,7 +162,7 @@ export async function sendVerificationEmailAction(
         const { 
             success: tokenSuccess, 
             token
-        } = await createEmailVerificationTokenWithEmail(email);
+        } = await createVerificationTokenWithEmail(email);
 
         if (!tokenSuccess || !token) {
             return {
