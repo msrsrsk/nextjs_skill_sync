@@ -310,6 +310,7 @@ export const ERROR_MESSAGES = {
     // 記事関連
     LOG_ERROR: {
         FETCH_FAILED: `記事ログの取得に失敗しました。${RETRY}`,
+        FETCH_ALL_FAILED: `全ての記事ログの取得に失敗しました。${RETRY}`,
         DETAIL_FETCH_FAILED: `記事ログの詳細データの取得に失敗しました。${RETRY}`,
     },
 

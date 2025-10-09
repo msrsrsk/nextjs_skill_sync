@@ -61,16 +61,24 @@ export async function getSyncLogList({
         });
         
         return {
-            logList: data.contents,
-            totalCount: data.totalCount,
-        };
+            success: true,
+            error: null,
+            data: {
+                logList: data.contents,
+                totalCount: data.totalCount,
+            }
+        }
     } catch (error) {
         console.error('Actions Error - Get Sync Log List error:', error);
 
         return {
-            logList: [],
-            totalCount: INITIAL_OFFSET,
-        };
+            success: false,
+            error: LOG_ERROR.FETCH_FAILED,
+            data: {
+                logList: [],
+                totalCount: INITIAL_OFFSET,
+            }
+        }
     }
 }
 
@@ -91,7 +99,8 @@ export async function getSyncLogDetail(id: string) {
         
         return {
             success: false, 
-            error: LOG_ERROR.DETAIL_FETCH_FAILED
+            error: LOG_ERROR.DETAIL_FETCH_FAILED,
+            data: null
         }
     }
 }
@@ -121,7 +130,8 @@ export async function getAllSyncLogLists(limit: number) {
 
         return {
             success: false, 
-            error: LOG_ERROR.FETCH_FAILED
+            error: LOG_ERROR.FETCH_ALL_FAILED,
+            data: null
         }
     }
 }
@@ -135,11 +145,19 @@ export async function getPaginatedSyncLogByCategory({
     try {
         const offset = (page - PAGE_OFFSET) * limit;
         
-        const data = await getSyncLogList({ 
+        const { success, error, data } = await getSyncLogList({ 
             limit, 
             category, 
             offset 
         });
+
+        if (!success || !data) {
+            return {
+                success: false,
+                error: error,
+                data: null
+            }
+        }
         
         const totalPages = Math.ceil(data.totalCount / limit);
         
