@@ -2,7 +2,7 @@ import { stripe } from "@/lib/clients/stripe/client"
 
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
-const { STRIPE_ERROR } = ERROR_MESSAGES;
+const { CHECKOUT_ERROR } = ERROR_MESSAGES;
 
 interface GetSubscriptionShippingFeeProps {
     session: StripeCheckoutSession;
@@ -46,7 +46,7 @@ export const getSubscriptionShippingFee = async ({
 
         return {
             success: false,
-            error: STRIPE_ERROR.SUBSCRIPTION_SHIPPING_FEE_FAILED,
+            error: CHECKOUT_ERROR.SUBSCRIPTION_SHIPPING_FEE_FAILED,
             data: 0
         }
     }
@@ -85,7 +85,7 @@ export const getPaymentMethod = async ({
 
         return {
             success: false,
-            error: STRIPE_ERROR.PAYMENT_METHOD_FAILED,
+            error: CHECKOUT_ERROR.PAYMENT_METHOD_FAILED,
             data: 'card'
         }
     }

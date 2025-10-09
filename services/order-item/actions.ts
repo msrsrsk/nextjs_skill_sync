@@ -13,7 +13,7 @@ interface CreateCheckoutOrderItemsProps {
 }
 
 // 注文商品リストの作成
-export const createCheckoutOrderItems = async ({ 
+export const createOrderItems = async ({ 
     orderId, 
     productDetails 
 }: CreateCheckoutOrderItemsProps) => {

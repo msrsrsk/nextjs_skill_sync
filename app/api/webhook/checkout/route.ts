@@ -7,7 +7,7 @@ import { deleteOrder } from "@/services/order/actions"
 import { deleteAllOrderItem } from "@/services/order-item/actions"
 import { createOrderStripe, deleteOrderStripe } from "@/services/order-stripe/actions"
 import { deleteOrderItemSubscription } from "@/services/order-item-subscription/actions"
-import { createCheckoutOrderItems } from "@/services/order-item/actions"
+import { createOrderItems } from "@/services/order-item/actions"
 import { createCheckoutOrderItemSubscriptions } from "@/services/order-item-subscription/actions"
 import { createCheckoutOrderItemStripes } from "@/services/order-item-stripe/actions"
 import { createShippingAddress } from "@/services/shipping-address/actions"
@@ -118,7 +118,7 @@ async function handleCheckoutSessionCompleted({
         success: orderItemsSuccess, 
         error: orderItemsError,
         data: orderItemsData
-    } = await createCheckoutOrderItems({
+    } = await createOrderItems({
         orderId: orderData.order.id, 
         productDetails: productDetails as StripeProductDetailsProps[]
     });

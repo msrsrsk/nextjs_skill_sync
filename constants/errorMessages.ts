@@ -155,6 +155,7 @@ export const ERROR_MESSAGES = {
         PAYMENT_LINK_DEACTIVATE_FAILED: `サブスクリプションの支払いリンクの無効化に失敗しました。${RETRY}`,
         NOT_PROCEED_PAYMENTLINK: `サブスクリプションの支払いリンクの作成に進めませんでした。${RETRY}`,
         ALREADY_SUBSCRIBED: `既に該当商品のサブスクリプションを契約済みです。変更や解除はアカウントページで行ってください。`,
+        SUBSCRIPTION_SHIPPING_FEE_FAILED: `サブスクリプションの配送料の取得に失敗しました。${RETRY}`,
 
         GET_ORDER_DATA_FAILED: `注文データの取得に失敗しました。${RETRY}`,
         CREATE_ORDER_FAILED: `注文履歴の保存に失敗しました。${RETRY}`,
@@ -169,6 +170,8 @@ export const ERROR_MESSAGES = {
         UPDATE_CUSTOMER_ADDRESS_FAILED: `顧客の配送先住所の更新に失敗しました。${RETRY}`,
         SEND_ORDER_COMPLETE_EMAIL_FAILED: `注文完了メールの送信に失敗しました。${RETRY}`,
         SEND_PAYMENT_REQUEST_EMAIL_FAILED: `お支払いのお願いメールの送信に失敗しました。${RETRY}`,
+        PAYMENT_METHOD_FAILED: `支払い方法の取得に失敗しました。${RETRY}`,
+
     },
 
     // レビュー関連
@@ -363,8 +366,6 @@ export const ERROR_MESSAGES = {
         CUSTOMER_CREATE_FAILED: `Stripeの顧客データの作成に失敗しました。${RETRY}`,
         PRODUCT_CREATE_FAILED: `Stripeの商品データの作成に失敗しました。${RETRY}`,
         PRICE_CREATE_FAILED: `Stripeの価格データの作成に失敗しました。${RETRY}`,
-        SUBSCRIPTION_SHIPPING_FEE_FAILED: `サブスクリプションの配送料の取得に失敗しました。${RETRY}`,
-        PAYMENT_METHOD_FAILED: `支払い方法の取得に失敗しました。${RETRY}`,
         SHIPPING_RATE_AMOUNT_FETCH_FAILED: `配送料の金額の取得に失敗しました。${RETRY}`,
         CANCEL_SUBSCRIPTION_FAILED: `サブスクリプションのキャンセルに失敗しました。${RETRY}`,
         CUSTOMER_DELETE_FAILED: `Stripeの顧客データの削除に失敗しました。${RETRY}`,
