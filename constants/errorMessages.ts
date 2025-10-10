@@ -34,8 +34,8 @@ export const ERROR_MESSAGES = {
         TOKEN_CREATE_FAILED: `認証メールの送信に必要な情報がありません。${FIRST}`,
         TOKEN_SEND_FAILED: `認証メールの送信に失敗しました。${FIRST}`,
         REAUTHENTICATE_FAILED: `認証に失敗しました。${FIRST}`,
-        FAILED_EMAIL_TOKEN_PROCESS: `メールアドレスの認証処理中にエラーが発生しました。${FIRST}`,
 
+        FAILED_EMAIL_TOKEN_PROCESS: `メールアドレスの認証処理中にエラーが発生しました。${FIRST}`,
         PASSWORD_NOT_FOUND: `パスワード情報が見つかりませんでした。${FIRST}`,
         FAILED_PASSWORD_TOKEN_PROCESS: `パスワードリセットの認証処理中にエラーが発生しました。${FIRST}`,
     },
@@ -43,17 +43,10 @@ export const ERROR_MESSAGES = {
     // ユーザー関連
     USER_ERROR: {
         UNAUTHORIZED: `アカウントの削除はログインが必要です。${LOGIN}`,
-        ICON_UPDATE_UNAUTHORIZED: `アイコンの更新はログインが必要です。${LOGIN}`,
-        NAME_UPDATE_UNAUTHORIZED: `お名前の更新はログインが必要です。${LOGIN}`,
-        TEL_UPDATE_UNAUTHORIZED: `電話番号の更新はログインが必要です。${LOGIN}`,
-
         CREATE_ACCOUNT_FAILED: `アカウントの作成に失敗しました。${RETRY}`,
         FETCH_FAILED: `ユーザー情報の取得に失敗しました。${RETRY}`,
 
         CUSTOMER_ID_FETCH_FAILED: `お届け先の設定に必要な情報が不足しています。${RETRY}`,
-        ICON_UPDATE_MISSING_DATA: `アイコンの更新に必要なデータの取得ができませんでした。${RETRY}`,
-        NAME_UPDATE_MISSING_DATA: `お名前の更新に必要なデータの取得ができませんでした。${RETRY}`,
-        TEL_UPDATE_MISSING_DATA: `電話番号の更新に必要なデータの取得ができませんでした。${RETRY}`,
         PASSWORD_RESET_MISSING_DATA: `パスワードリセットのための\n必要な情報が見つかりませんでした。${RETRY}`,
         
         MAIL_UPDATE_FAILED: `メールアドレスの更新に失敗しました。${RETRY}`,
@@ -61,7 +54,6 @@ export const ERROR_MESSAGES = {
 
         EXPIRED_PASSWORD_TOKEN: `パスワードリセットの有効期限が過ぎました。${FIRST}`,
         DELETE_FAILED: `アカウントの削除に失敗しました。${RETRY}`,
-        DELETE_IMAGE_FAILED: `アイコンの削除に失敗しました。${RETRY}`,
 
         UNSHIPPED_ORDERS_COUNT_MISSING_DATA: `アカウントの削除に必要なデータの取得に失敗しました。${RETRY}`,
         UNSHIPPED_ORDERS_COUNT_WARNING: `未発送の注文が残っています。全て発送済みであることをご確認の上、退会手続を進めてください。`,
@@ -71,6 +63,14 @@ export const ERROR_MESSAGES = {
 
     // ユーザープロフィール関連
     USER_PROFILE_ERROR: {
+        ICON_UPDATE_UNAUTHORIZED: `アイコンの更新はログインが必要です。${LOGIN}`,
+        NAME_UPDATE_UNAUTHORIZED: `お名前の更新はログインが必要です。${LOGIN}`,
+        TEL_UPDATE_UNAUTHORIZED: `電話番号の更新はログインが必要です。${LOGIN}`,
+
+        ICON_UPDATE_MISSING_DATA: `アイコンの更新に必要なデータの取得ができませんでした。${RETRY}`,
+        NAME_UPDATE_MISSING_DATA: `お名前の更新に必要なデータの取得ができませんでした。${RETRY}`,
+        TEL_UPDATE_MISSING_DATA: `電話番号の更新に必要なデータの取得ができませんでした。${RETRY}`,
+
         ICON_UPDATE_FAILED: `アイコンの更新に失敗しました。${RETRY}`,
         NAME_UPDATE_FAILED: `お名前の更新に失敗しました。${RETRY}`,
         TEL_UPDATE_FAILED: `電話番号の更新に失敗しました。${RETRY}`,
@@ -82,6 +82,7 @@ export const ERROR_MESSAGES = {
     // ユーザー画像関連
     USER_IMAGE_ERROR: {
         CREATE_FAILED: `ユーザー画像の作成に失敗しました。${RETRY}`,
+        DELETE_IMAGE_FAILED: `アイコンの削除に失敗しました。${RETRY}`,
 
         FILE_PATH_UPDATE_FAILED: `画像ファイルのパスの更新に失敗しました。${RETRY}`,
         USER_REQUIRED_DATA_NOT_FOUND: `画像ストレージのアクセスに必要なデータが不足しています。${RETRY}`,

@@ -5,7 +5,7 @@ import { deleteUser } from "@/services/user/actions"
 import { deleteUserImage } from "@/services/cloudflare/actions"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
-const { USER_ERROR } = ERROR_MESSAGES;
+const { USER_ERROR, USER_IMAGE_ERROR } = ERROR_MESSAGES;
 
 export const dynamic = "force-dynamic"
 
@@ -29,7 +29,7 @@ export async function DELETE(request: NextRequest) {
         console.error('API Error - Delete User Image error:', error);
 
         return NextResponse.json(
-            { message: USER_ERROR.DELETE_IMAGE_FAILED }, 
+            { message: USER_IMAGE_ERROR.DELETE_IMAGE_FAILED }, 
             { status: 500 }
         );
     }

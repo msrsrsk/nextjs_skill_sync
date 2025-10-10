@@ -47,7 +47,7 @@ export async function updateIconImageAction(
         if (!iconUrl) {
             return {
                 success: false, 
-                error: USER_ERROR.ICON_UPDATE_MISSING_DATA,
+                error: USER_PROFILE_ERROR.ICON_UPDATE_MISSING_DATA,
                 data: null,
                 timestamp: Date.now()
             }
@@ -55,7 +55,7 @@ export async function updateIconImageAction(
 
         // 2. ユーザー認証
         const { userId } = await actionAuth<UserProfileIconUrl>(
-            USER_ERROR.ICON_UPDATE_UNAUTHORIZED,
+            USER_PROFILE_ERROR.ICON_UPDATE_UNAUTHORIZED,
             true
         );
 
@@ -128,7 +128,7 @@ export async function updateNameAction(
         if (!session?.user?.id) {
             return {
                 success: false,
-                error: USER_ERROR.NAME_UPDATE_UNAUTHORIZED,
+                error: USER_PROFILE_ERROR.NAME_UPDATE_UNAUTHORIZED,
                 data: {
                     lastname: null,
                     firstname: null
@@ -140,7 +140,7 @@ export async function updateNameAction(
         if (!lastname || !firstname) {
             return {
                 success: false,
-                error: USER_ERROR.NAME_UPDATE_MISSING_DATA,
+                error: USER_PROFILE_ERROR.NAME_UPDATE_MISSING_DATA,
                 data: {
                     lastname: null,
                     firstname: null
@@ -209,7 +209,7 @@ export async function updateTelAction(
         if (!tel) {
             return {
                 success: false, 
-                error: USER_ERROR.TEL_UPDATE_MISSING_DATA,
+                error: USER_PROFILE_ERROR.TEL_UPDATE_MISSING_DATA,
                 data: null,
                 timestamp: Date.now()
             }
@@ -217,7 +217,7 @@ export async function updateTelAction(
 
         // 2. ユーザー認証
         const { userId } = await actionAuth<UserProfileTel>(
-            USER_ERROR.TEL_UPDATE_UNAUTHORIZED,
+            USER_PROFILE_ERROR.TEL_UPDATE_UNAUTHORIZED,
             true
         );
 
