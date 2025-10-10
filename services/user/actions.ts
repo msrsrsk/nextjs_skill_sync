@@ -11,7 +11,7 @@ import { ERROR_MESSAGES } from "@/constants/errorMessages"
 const { USER_ERROR } = ERROR_MESSAGES;
 
 interface GetUserAndVerifyAuthProps extends UserIdProps {
-    getType: GetUserDataTypes;
+    getType?: GetUserDataTypes;
     errorMessage: string;
 }
 
@@ -51,7 +51,7 @@ export const getUser = async ({
     const repository = getUserRepository();
     const user = await repository.getUser({
         userId: userId as UserId,
-        getType
+        ...(getType && { getType })
     });
 
     if (!user) {

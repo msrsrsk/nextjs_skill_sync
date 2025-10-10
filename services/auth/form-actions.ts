@@ -10,7 +10,7 @@ import {
 import { sendVerificationEmail } from "@/services/email/auth/verification"
 import { updatePasswordWithToken } from "@/services/verification-token/actions"
 import { getUserRepository } from "@/repository/user"
-import { updateUserPassword} from "@/services/user/actions"
+import { getUser, updateUserPassword } from "@/services/user/actions"
 import { 
     AUTH_TYPES, 
     EMAIL_VERIFICATION_TYPES, 
@@ -316,18 +316,10 @@ export async function signInWithCredentialsAction(
             // セッションチェック
             const { user } = await actionAuth(AUTH_ERROR.SESSION_NOT_FOUND);
 
-            const repository = getUserRepository();
-            const userData = await repository.getUser({
-                userId: user?.id as UserId
+            const userData = await getUser({
+                userId: user?.id as UserId,
+                errorMessage: AUTH_ERROR.USER_NOT_FOUND
             });
-
-            if (!userData) {
-                return {
-                    success: false, 
-                    error: AUTH_ERROR.USER_NOT_FOUND,
-                    timestamp: Date.now()
-                }
-            }
 
             if (userData?.email !== email) {
                 return {

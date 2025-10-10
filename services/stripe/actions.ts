@@ -2,7 +2,7 @@
 
 import { stripe } from "@/lib/clients/stripe/client"
 
-import { getUserRepository } from "@/repository/user"
+import { getUser } from "@/services/user/actions"
 import { updateOrderItemSubscriptionStatus } from "@/services/order-item-subscription/actions"
 import { getRecurringConfig } from "@/services/subscription-payment/format"
 import { 
@@ -160,19 +160,11 @@ export const createCheckoutSession = async ({
 }: CreateCheckoutSessionProps) => {
     try {
         // ユーザーのStripe顧客IDを取得
-        const repository = getUserRepository();
-        const user = await repository.getUser({
-            userId,
-            getType: CUSTOMER_ID_DATA
+        const user = await getUser({
+            userId: userId as UserId,
+            getType: CUSTOMER_ID_DATA,
+            errorMessage: USER_ERROR.CUSTOMER_ID_FETCH_FAILED
         });
-
-        if (!user) {
-            return {
-                success: false, 
-                error: USER_ERROR.CUSTOMER_ID_FETCH_FAILED,
-                data: null
-            }
-        }
 
         const customerId = user.user_stripes?.customer_id;
 

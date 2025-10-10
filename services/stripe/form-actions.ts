@@ -1,10 +1,10 @@
 "use server"
 
 import { actionAuth } from "@/lib/middleware/auth"
-import { updateCustomerShippingAddress } from "@/services/stripe/actions"
-import { getUserRepository } from "@/repository/user"
 import { getShippingAddressRepository } from "@/repository/shippingAddress"
+import { getUser } from "@/services/user/actions"
 import { setDefaultShippingAddress } from "@/services/shipping-address/actions"
+import { updateCustomerShippingAddress } from "@/services/stripe/actions"
 import { GET_USER_DATA_TYPES } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
@@ -48,19 +48,11 @@ export async function setDefaultShippingAddressAction(
             }
         }
 
-        const userRepository = getUserRepository();
-        const userResult = await userRepository.getUser({
+        const userResult = await getUser({
             userId: userId as UserId,
-            getType: CUSTOMER_ID_DATA
+            getType: CUSTOMER_ID_DATA,
+            errorMessage: USER_ERROR.CUSTOMER_ID_FETCH_FAILED
         });
-
-        if (!userResult) {
-            return {
-                success: false, 
-                error: USER_ERROR.CUSTOMER_ID_FETCH_FAILED,
-                timestamp: Date.now()
-            }
-        }
 
         const customerId = userResult.user_stripes?.customer_id;
 
