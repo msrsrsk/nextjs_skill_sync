@@ -88,6 +88,11 @@ export const ERROR_MESSAGES = {
         USER_ID_NOT_FOUND: `画像ストレージへのアクセス権限がありません。ログインをして再度お試しください。`,
     },
 
+    // ユーザーStripe関連
+    USER_STRIPE_ERROR: {
+        CUSTOMER_ID_UPDATE_FAILED: `StripeIDの更新に失敗しました。${FIRST}`,
+    },
+
     // 商品関連
     PRODUCT_ERROR: {
         NOT_FOUND: `商品が見つかりません。${RETRY}`,
@@ -137,7 +142,6 @@ export const ERROR_MESSAGES = {
 
         NO_PRODUCT_DATA: `商品データが見つかりません。${RETRY}`,
         NO_PRICE_ID: `商品の価格データが見つかりません。${RETRY}`,
-        CUSTOMER_ID_UPDATE_FAILED: `StripeIDの更新に失敗しました。${FIRST}`,
 
         STOCK_CHECK_FAILED: `在庫チェックのための必要な情報が不足しています。${RETRY}`,
         FAILED_CHECK_STOCK: `商品の在庫チェックに失敗しました。${RETRY}`,

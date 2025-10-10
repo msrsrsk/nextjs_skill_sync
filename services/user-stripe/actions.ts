@@ -1,7 +1,7 @@
 import { createUserStripeRepository } from "@/repository/userStripe"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
-const { CHECKOUT_ERROR } = ERROR_MESSAGES;
+const { USER_STRIPE_ERROR } = ERROR_MESSAGES;
 
 // ユーザーのStripeIDの作成（デフォルト住所の設定による更新）
 export const createUserStripeCustomerId = async ({
@@ -21,7 +21,7 @@ export const createUserStripeCustomerId = async ({
 
         return {
             success: false, 
-            error: CHECKOUT_ERROR.CUSTOMER_ID_UPDATE_FAILED
+            error: USER_STRIPE_ERROR.CUSTOMER_ID_UPDATE_FAILED
         }
     }
 }
