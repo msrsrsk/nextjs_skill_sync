@@ -221,3 +221,23 @@ export const cancelSubscription = async ({
         }
     }
 }
+
+export const deactivatePaymentLink = async ({
+    checkoutSessionEvent
+}: { checkoutSessionEvent: StripeCheckoutSession }) => {
+    try {
+        await stripe.paymentLinks.update(checkoutSessionEvent.payment_link, {
+            active: false
+        });
+
+        return {
+            success: true,
+            error: null
+        }
+    } catch (error) {
+        return {
+            success: false,
+            error: STRIPE_ERROR.PAYMENT_LINK_DEACTIVATE_FAILED
+        }
+    }
+}
