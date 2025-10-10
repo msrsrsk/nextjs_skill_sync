@@ -584,7 +584,7 @@ declare global {
     /* ============================== 
         Chat 関連
     ============================== */
-    type CHAT_SOURCE_TYPE = typeof CHAT_SOURCE[keyof typeof CHAT_SOURCE];
+    type ChatSourceType = typeof CHAT_SOURCE[keyof typeof CHAT_SOURCE];
     
     type Chat = PrismaChat;
     type ChatId = Chat['id'];
@@ -592,7 +592,7 @@ declare global {
     type ChatMessage = Chat['message'];
     type ChatSenderType = Chat['sender_type'];
     type ChatSentAt = Chat['sent_at'];
-    type ChatSource = CHAT_SOURCE_TYPE;
+    type ChatSource = ChatSourceType;
 
     interface ChatProps {
         id: ChatId;

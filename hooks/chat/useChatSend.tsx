@@ -10,6 +10,8 @@ const { CHAT_USER } = CHAT_SOURCE;
 const { CHAT_API_PATH } = SITE_MAP;
 const { CHAT_ERROR } = ERROR_MESSAGES;
 
+type ChatMessageType = string;
+
 const useChatSend = ({ chats }: { chats: ChatProps[] }) => {
     const [chatMessages, setChatMessages] = useState(chats);
     const [isChatLimitReached, setIsChatLimitReached] = useState(false);
@@ -22,7 +24,80 @@ const useChatSend = ({ chats }: { chats: ChatProps[] }) => {
         );
     }, [chatMessages.length]);
 
-    const sendMessage = async (message: string) => {
+    const addUserMessageToUI = (message: ChatMessageType) => {
+        const userMessage: ChatProps = {
+            id: `temp-${Date.now()}`,
+            message,
+            sent_at: new Date(),
+            sender_type: SENDER_USER as ChatSenderType,
+            source: CHAT_USER
+        };
+    
+        setChatMessages(prev => [...prev, userMessage]);
+    }
+
+    const saveUserMessageToDB = async (message: ChatMessageType) => {
+        const response = await fetch(CHAT_API_PATH, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+                message, 
+                senderType: SENDER_USER,
+                source: CHAT_USER
+            })
+        });
+    
+        const { 
+            success: saveUserSuccess, 
+            message: saveUserError 
+        } = await response.json();
+    
+        if (!saveUserSuccess) {
+            setError(saveUserError);
+            return { success: false };
+        }
+    
+        return { success: true };
+    }
+
+    const addAIMessageToUI = (message: ChatMessageType, source: ChatSourceType) => {
+        const aiMessage: ChatProps = {
+            id: `ai-${Date.now()}`,
+            message,
+            sender_type: SENDER_ADMIN as ChatSenderType,
+            sent_at: new Date(),
+            source
+        };
+        
+        setChatMessages(prev => [...prev, aiMessage]);
+    }
+
+    const saveAIMessageToDB = async (message: ChatMessageType, source: ChatSourceType) => {
+        const response = await fetch(CHAT_API_PATH, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+                message,
+                senderType: SENDER_ADMIN,
+                source
+            })
+        });
+    
+        const { success: saveAiSuccess } = await response.json();
+    
+        if (!saveAiSuccess) {
+            setError(CHAT_ERROR.FAILED_SAVE_AI_MESSAGE); // AIメッセージの送信エラー
+            return { success: false };
+        }
+    
+        return { success: true };
+    }
+
+    const sendMessage = async (message: ChatMessageType) => {
         setLoading(true);
         setError(null);
 
@@ -34,36 +109,11 @@ const useChatSend = ({ chats }: { chats: ChatProps[] }) => {
 
         try {
             // ユーザーメッセージを楽観的UIで表示
-            const userMessage: ChatProps = {
-                id: `temp-${Date.now()}`,
-                message,
-                sent_at: new Date(),
-                sender_type: SENDER_USER as ChatSenderType,
-                source: CHAT_USER
-            };
-
-            setChatMessages(prev => [...prev, userMessage]);
+            addUserMessageToUI(message);
 
             // ユーザーメッセージをデータベースに保存
-            const saveUserMessage = await fetch(CHAT_API_PATH, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ 
-                    message, 
-                    senderType: SENDER_USER,
-                    source: CHAT_USER
-                })
-            });
-
-            const { 
-                success: saveUserSuccess, 
-                message: saveUserError 
-            } = await saveUserMessage.json();
-
-            if (!saveUserSuccess) {
-                setError(saveUserError);
+            const saveUserResult = await saveUserMessageToDB(message);
+            if (!saveUserResult.success) {
                 return { success: false };
             }
 
@@ -75,32 +125,13 @@ const useChatSend = ({ chats }: { chats: ChatProps[] }) => {
             } = await handleChatMessage(message);
 
             if (aiResponseSuccess) {
-                const aiMessage: ChatProps = {
-                    id: `ai-${Date.now()}`,
-                    message: aiResponseError,
-                    sender_type: SENDER_ADMIN as ChatSenderType,
-                    sent_at: new Date(),
-                    source: aiResponseSource 
-                };
+                addAIMessageToUI(aiResponseError, aiResponseSource);
                 
-                setChatMessages(prev => [...prev, aiMessage]);
-
-                const saveAiMessage = await fetch(CHAT_API_PATH, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ 
-                        message: aiResponseError,
-                        senderType: SENDER_ADMIN,
-                        source: aiResponseSource
-                    })
-                });
-
-                const { success: saveAiSuccess } = await saveAiMessage.json();
-
-                if (!saveAiSuccess) {
-                    setError(CHAT_ERROR.FAILED_SAVE_AI_MESSAGE); // AIメッセージの送信エラー
+                const saveAiResult = await saveAIMessageToDB(
+                    aiResponseError, 
+                    aiResponseSource
+                );
+                if (!saveAiResult.success) {
                     return { success: false };
                 }
             }
