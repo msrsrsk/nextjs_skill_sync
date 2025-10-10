@@ -1,5 +1,3 @@
-import { headers } from "next/headers"
-import { NextRequest, NextResponse } from "next/server"
 import { stripe } from "@/lib/clients/stripe/client"
 
 import { sendSubscriptionPaymentRequestEmail } from "@/services/email/subscription/subscription-payment-request"
@@ -9,42 +7,10 @@ import { NOIMAGE_PRODUCT_IMAGE_URL, SUBSCRIPTION_STATUS } from "@/constants/inde
 
 const { SUBS_ACTIVE } = SUBSCRIPTION_STATUS;
 
-interface verifyWebhookSignature {
-    request: NextRequest;
-    endpointSecret: string;
-    errorMessage: string;
-}
-
 interface CreateProductDetailsProps {
     lineItems: StripeCheckoutSessionLineItem[] | StripeSubscriptionItem[];
     subscriptionId: string;
     isCheckout: boolean;
-}
-
-// Webhookの署名の認証
-export async function verifyWebhookSignature({
-    request,
-    endpointSecret,
-    errorMessage
-}: verifyWebhookSignature) {
-    const signature = headers().get(process.env.STRIPE_SIGNATURE_HEADER as string);
-
-    if (!signature || !endpointSecret) {
-        if (!signature) console.error('Stripe signature not found');
-        if (!endpointSecret) console.error('Stripe endpointSecret not found');
-        return NextResponse.json(
-            { message: errorMessage }, 
-            { status: 400 }) 
-    }
-
-    const body = await request.text();
-    const event = stripe.webhooks.constructEvent(
-        body,
-        signature,
-        endpointSecret
-    );
-
-    return event;
 }
 
 // 商品詳細データの作成
@@ -80,19 +46,19 @@ export async function createProductDetails({
                 return {
                     ...baseProductData,
                     title: product.name
-                };
+                }
             } catch (error) {
                 console.error('Webhook Error - Error in Subscription Retrieving Product:', error);
                 
                 return {
                     ...baseProductData,
                     title: 'No Product Title'
-                };
+                }
             }
         })
-    );
+    )
 
-    return productDetails;
+    return productDetails
 }
 
 // サブスクリプションの支払いデータの作成と未払い通知メールの送信

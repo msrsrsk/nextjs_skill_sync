@@ -10,7 +10,7 @@ import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { SHIPPING_ADDRESS_ERROR } = ERROR_MESSAGES;
 
-interface UpdateStripeAndDefaultShippingAddressProps {
+interface UpdateStripeAndShippingAddressProps {
     id: ShippingAddressId;
     customerId: StripeCustomerId;
     shippingAddress: ShippingAddress;
@@ -68,12 +68,13 @@ export const updateShippingAddress = async ({
     }
 }
 
-export const updateStripeAndDefaultShippingAddress = async ({
+// 住所の更新 & Stripe顧客情報の更新
+export const updateStripeAndShippingAddress = async ({
     id,
     customerId,
     shippingAddress
-}: UpdateStripeAndDefaultShippingAddressProps) => {
-    const [stripeResult, setDefaultAddressResult] = await Promise.all([
+}: UpdateStripeAndShippingAddressProps) => {
+    const [stripeResult, setAddressResult] = await Promise.all([
         customerId ? updateCustomerShippingAddress(
             customerId,
             {
@@ -101,11 +102,47 @@ export const updateStripeAndDefaultShippingAddress = async ({
         throw new Error(stripeResult.error as string);
     }
 
+    if (!setAddressResult.success) {
+        throw new Error(setAddressResult.error as string);
+    }
+
+    return setAddressResult.data;
+}
+
+// デフォルト住所の更新 & Stripe顧客情報の更新
+export const updateStripeAndDefaultShippingAddress = async ({
+    id,
+    customerId,
+    shippingAddress
+}: UpdateStripeAndShippingAddressProps) => {
+    const [stripeResult, setDefaultAddressResult] = await Promise.all([
+        customerId ? updateCustomerShippingAddress(
+            customerId,
+            {
+                address: {
+                    line1: shippingAddress.address_line1,
+                    line2: shippingAddress.address_line2 || '',
+                    city: shippingAddress.city || '',
+                    state: shippingAddress.state,
+                    postal_code: shippingAddress.postal_code
+                },
+                name: shippingAddress.name,
+            }
+        ) : Promise.resolve({ 
+            success: true, 
+            error: null, 
+            data: null 
+        }),
+        setDefaultShippingAddress({ addressId: id })
+    ]);
+
+    if (!stripeResult.success) {
+        throw new Error(stripeResult.error as string);
+    }
+
     if (!setDefaultAddressResult.success) {
         throw new Error(setDefaultAddressResult.error as string);
     }
-
-    return setDefaultAddressResult.data;
 }
 
 // デフォルト住所の設定

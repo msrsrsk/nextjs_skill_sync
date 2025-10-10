@@ -3,8 +3,7 @@
 import { actionAuth } from "@/lib/middleware/auth"
 import { getShippingAddressRepository } from "@/repository/shippingAddress"
 import { getUser } from "@/services/user/actions"
-import { setDefaultShippingAddress } from "@/services/shipping-address/actions"
-import { updateCustomerShippingAddress } from "@/services/stripe/actions"
+import { updateStripeAndDefaultShippingAddress } from "@/services/shipping-address/actions"
 import { GET_USER_DATA_TYPES } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
@@ -18,15 +17,13 @@ export async function setDefaultShippingAddressAction(
     prevState: ActionState,
     formData: FormData
 ): Promise<ActionStateWithTimestamp> {
+
+    const newDefaultAddressId = formData.get('newDefaultAddressId') as ShippingAddressId;
+
     try {
         // throw new Error('お届け先として設定ができませんでした。\n時間をおいて再度お試しください。');
 
-        const { userId } = await actionAuth(
-            SHIPPING_ADDRESS_ERROR.UPDATE_DEFAULT_UNAUTHORIZED,
-        );
-    
-        const newDefaultAddressId = formData.get('newDefaultAddressId') as ShippingAddressId;
-    
+        // 1. 住所IDの確認
         if (!newDefaultAddressId) {
             return {
                 success: false, 
@@ -48,6 +45,11 @@ export async function setDefaultShippingAddressAction(
             }
         }
 
+        // 2. ユーザー認証 & Stripe顧客IDの取得
+        const { userId } = await actionAuth(
+            SHIPPING_ADDRESS_ERROR.UPDATE_DEFAULT_UNAUTHORIZED,
+        );
+
         const userResult = await getUser({
             userId: userId as UserId,
             getType: CUSTOMER_ID_DATA,
@@ -56,42 +58,12 @@ export async function setDefaultShippingAddressAction(
 
         const customerId = userResult.user_stripes?.customer_id;
 
-        const [stripeResult, setDefaultAddressResult] = await Promise.all([
-            customerId ? updateCustomerShippingAddress(
-                customerId,
-                {
-                    address: {
-                        line1: newDefaultAddressResult.address_line1,
-                        line2: newDefaultAddressResult.address_line2 || '',
-                        city: newDefaultAddressResult.city || '',
-                        state: newDefaultAddressResult.state,
-                        postal_code: newDefaultAddressResult.postal_code
-                    },
-                    name: newDefaultAddressResult.name,
-                }
-            ) : Promise.resolve({ 
-                success: true, 
-                error: null, 
-                data: null 
-            }),
-            setDefaultShippingAddress({ addressId: newDefaultAddressId })
-        ]);
-
-        if (!stripeResult.success) {
-            return {
-                success: false, 
-                error: stripeResult.error,
-                timestamp: Date.now()
-            }
-        }
-
-        if (!setDefaultAddressResult.success) {
-            return {
-                success: false, 
-                error: setDefaultAddressResult.error,
-                timestamp: Date.now()
-            }
-        }
+        // 3. 住所の更新
+        await updateStripeAndDefaultShippingAddress({
+            id: newDefaultAddressId,
+            customerId,
+            shippingAddress: newDefaultAddressResult
+        });
 
         return {
             success: true, 
@@ -101,9 +73,13 @@ export async function setDefaultShippingAddressAction(
     } catch (error) {
         console.error('Actions Error - Set Default Shipping Address error:', error);
 
+        const errorMessage = error instanceof Error 
+            ? error.message 
+            : SHIPPING_ADDRESS_ERROR.SET_DEFAULT_FAILED;
+
         return {
             success: false, 
-            error: SHIPPING_ADDRESS_ERROR.SET_DEFAULT_FAILED,
+            error: errorMessage,
             timestamp: Date.now()
         }
     }

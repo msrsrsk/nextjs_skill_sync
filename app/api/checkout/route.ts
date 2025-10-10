@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 
 import { requireUser } from "@/lib/middleware/auth"
-import { createCheckoutSession } from "@/services/stripe/actions"
+import { createCheckoutSession } from "@/services/stripe/checkout-actions"
 import { CHECKOUT_INITIAL_QUANTITY } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 

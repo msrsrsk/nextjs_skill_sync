@@ -4,7 +4,7 @@ import { actionAuth } from "@/lib/middleware/auth"
 import { 
     createShippingAddress, 
     updateShippingAddress, 
-    updateStripeAndDefaultShippingAddress 
+    updateStripeAndShippingAddress 
 } from "@/services/shipping-address/actions"
 import { getUser } from "@/services/user/actions"
 import { GET_USER_DATA_TYPES } from "@/constants/index"
@@ -205,7 +205,7 @@ export async function updateDefaultShippingAddressAction(
             is_default: true,
         } as ShippingAddress;
 
-        await updateStripeAndDefaultShippingAddress({
+        await updateStripeAndShippingAddress({
             id,
             customerId,
             shippingAddress
