@@ -4,6 +4,7 @@ import { requireUser } from "@/lib/middleware/auth"
 import { PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3"
 import { getUserImageRepository } from "@/repository/userImage"
 import { updateUserImageFilePath } from "@/services/user-image/actions"
+import { urlToFile } from "@/services/file/actions"
 import { CLOUDFLARE_BUCKET_TYPES, FILE_UPLOAD_RANDOM_ID } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
@@ -23,6 +24,11 @@ interface UploadImageToR2Props extends UploadImageProps {
 interface UploadSingleFileProps extends UploadImageProps {
     file: File;
     userImageId: UserImageId,
+}
+
+interface UploadImageIfNeededProps extends UploadImageProps {
+    iconUrl: string;
+    bucketType: CloudflareBucketType;
 }
 
 interface DeleteObjectFromR2Props {
@@ -160,6 +166,50 @@ export const uploadImageToR2 = async ({
             data: null
         }
     }
+}
+
+export const uploadImageIfNeeded = async ({
+    userId,
+    iconUrl,
+    bucketType
+}: UploadImageIfNeededProps) => {
+    const isDataUrl = iconUrl.startsWith('data:');
+    
+    if (!isDataUrl) return iconUrl
+
+    const file = await urlToFile(iconUrl);
+    
+    if (!file.success || !file.data) {
+        throw new Error(file.error as string);
+    }
+
+    const { 
+        success: uploadImageSuccess, 
+        error: uploadImageError, 
+        data: uploadImageData 
+    } = await uploadImageToR2({
+        files: [file.data],
+        bucketType,
+        userId: userId as UserId
+    });
+
+    if (!uploadImageSuccess) {
+        throw new Error(uploadImageError as string);
+    }
+
+    const {
+        success: getImageUrlSuccess,
+        error: getImageUrlError,
+        data: getImageUrlData
+    } = await getAuthenticatedProfileImageUrl({
+        userImageId: uploadImageData?.[0] || ''
+    });
+
+    if (!getImageUrlSuccess) {
+        throw new Error(getImageUrlError as string);
+    }
+
+    return getImageUrlData || iconUrl;
 }
 
 const authenticateAndAuthorizeUserImage = async ({

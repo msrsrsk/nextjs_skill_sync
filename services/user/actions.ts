@@ -33,7 +33,7 @@ export const createUser = async ({
             data: user
         }
     } catch (error) {
-        console.error('Database : Error in createUserWithTransaction: ', error);
+        console.error('Database : Error in createUser: ', error);
 
         return {
             success: false, 
