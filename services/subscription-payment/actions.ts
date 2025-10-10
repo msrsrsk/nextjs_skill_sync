@@ -45,7 +45,9 @@ export const updateSubscriptionPaymentStatus = async ({
 }: updateSubscriptionPaymentStatusProps) => {
     try {
         const getRepository = getSubscriptionPaymentRepository();
-        const latestPayment = await getRepository.getSubscriptionPayment({ subscriptionId });
+        const latestPayment = await getRepository.getSubscriptionPayment({ 
+            subscriptionId 
+        });
     
         if (!latestPayment) {
             return {
@@ -71,7 +73,7 @@ export const updateSubscriptionPaymentStatus = async ({
 
         return {
             success: false, 
-            error: SUBSCRIPTION_PAYMENT_ERROR.CREATE_FAILED,
+            error: SUBSCRIPTION_PAYMENT_ERROR.UPDATE_FAILED,
             data: null
         }
     }

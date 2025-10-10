@@ -267,6 +267,7 @@ export const ERROR_MESSAGES = {
     // サブスクリプションの支払い関連
     SUBSCRIPTION_PAYMENT_ERROR: {
         CREATE_FAILED: `サブスクリプションの支払いデータの作成に失敗しました。${RETRY}`,
+        UPDATE_FAILED: `サブスクリプションの支払いデータの更新に失敗しました。${RETRY}`,
         GET_LATEST_FAILED: `サブスクリプションの最新の支払いデータの取得に失敗しました。${RETRY}`,
     },
     
