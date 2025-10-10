@@ -13,7 +13,12 @@ import {
 } from "@/services/order-item-subscription/actions"
 import { getShippingAddressRepository } from "@/repository/shippingAddress"
 import { createShippingAddress } from "@/services/shipping-address/actions"
-import { updateCustomerShippingAddress } from "@/services/stripe/actions"
+import { 
+    createStripeProduct, 
+    createStripePrice, 
+    createSubscriptionPrices,
+    updateCustomerShippingAddress,
+} from "@/services/stripe/actions"
 import { sendPaymentRequestEmail } from "@/services/email/order/payment-request"
 import { NOIMAGE_PRODUCT_IMAGE_URL, SUBSCRIPTION_STATUS } from "@/constants/index"
 
@@ -28,6 +33,20 @@ interface CreateProductDetailsProps {
 interface ProcessShippingAddressProps {
     checkoutSessionEvent: StripeCheckoutSession, 
     userId: UserId
+}
+
+interface SendOrderEmailsProps {
+    checkoutSessionEvent: StripeCheckoutSession,
+    productDetails: StripeProductDetailsProps[],
+    orderData: CreateCheckoutOrderData
+}
+
+interface CreateStripeProductDataProps {
+    title: ProductTitle;
+    productId: ProductId;
+    price: ProductPrice;
+    salePrice: ProductSalePrice;
+    subscriptionPriceIds: StripeSubscriptionPriceIds;
 }
 
 // 商品詳細データの作成
@@ -236,12 +255,6 @@ export async function processShippingAddress({
     }
 }
 
-interface SendOrderEmailsProps {
-    checkoutSessionEvent: StripeCheckoutSession,
-    productDetails: StripeProductDetailsProps[],
-    orderData: CreateCheckoutOrderData
-}
-
 // 未払いの場合のメール送信
 export async function sendOrderEmails({
     checkoutSessionEvent,
@@ -312,5 +325,87 @@ export async function handleSubscriptionEvent({
         if (!subscriptionPaymentEmailSuccess) {
             throw new Error(subscriptionPaymentEmailError as string);
         }
+    }
+}
+
+// Stripe商品データの作成
+export async function createStripeProductData({
+    title,
+    productId,
+    price,
+    salePrice,
+    subscriptionPriceIds
+}: CreateStripeProductDataProps) {
+
+    let stripeSalePriceId = null;
+
+    // 1. Stripe商品の作成
+    const { 
+        success: productSuccess, 
+        data: productData, 
+        error: productError 
+    }  = await createStripeProduct({
+        name: title,
+        metadata: {
+            supabase_id: productId,
+            ...(subscriptionPriceIds && {
+                subscription_product: true
+            })
+        }
+    })
+
+    if (!productSuccess || !productData) {
+        throw new Error(productError as string);
+    }
+
+    // 2. Stripe価格の作成
+    const { 
+        success: priceSuccess, 
+        data: priceData, 
+        error: priceError 
+    } = await createStripePrice({
+        product: productData.id,
+        unit_amount: price,
+        currency: 'jpy',
+        ...(salePrice && {
+            nickname: '通常価格',
+        })
+    });
+
+    if (!priceSuccess || !priceData) {
+        throw new Error(priceError as string);
+    }
+
+    // 3. Stripeセール価格の作成
+    if (salePrice) {
+        const { 
+            success: salePriceSuccess, 
+            data: salePriceData, 
+            error: salePriceError 
+        } = await createStripePrice({
+            product: productData.id,
+            unit_amount: salePrice,
+            currency: 'jpy',
+            nickname: 'セール価格',
+        });
+
+        if (!salePriceSuccess || !salePriceData) {
+            throw new Error(salePriceError as string);
+        }
+
+        stripeSalePriceId = salePriceData.id;
+    }
+
+    // 4. Stripeサブスクリプション価格の作成
+    const updatedSubscriptionPriceIds = await createSubscriptionPrices({
+        productData,
+        subscriptionPriceIds
+    });
+
+    return {
+        productData,
+        priceData,
+        stripeSalePriceId,
+        updatedSubscriptionPriceIds
     }
 }

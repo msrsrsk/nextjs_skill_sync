@@ -1,36 +1,21 @@
 import { NextRequest, NextResponse } from "next/server"
-import { headers } from "next/headers"
 
 import { getProductRepository } from "@/repository/product"
-import { createStripeProduct, createStripePrice } from "@/services/stripe/actions"
 import { updateProductStripe } from "@/services/product-stripe/actions"
-import {
-    getRecurringConfig, 
-    formatCreateSubscriptionNickname 
-} from "@/services/subscription-payment/format"
-import { 
-    extractCreateSubscriptionPrices, 
-    extractUpdatedSubscriptionPriceIds 
-} from "@/services/subscription-payment/extractors"
+import { createStripeProductData } from "@/services/stripe/webhook-actions"
+import { verifySupabaseWebhookAuth } from "@/lib/utils/webhook"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
-const { PRODUCT_ERROR, SUBSCRIPTION_ERROR } = ERROR_MESSAGES;
+const { PRODUCT_ERROR } = ERROR_MESSAGES;
 
 export async function POST(request: NextRequest) {   
     try {
-        const headersList = await headers();
-    
-        const authHeader = headersList.get('authorization');
-        const signatureHeader = headersList.get('x-webhook-signature');
+        // 1. 認証処理
+        const authError = await verifySupabaseWebhookAuth({
+            errorMessage: PRODUCT_ERROR.STRIPE_WEBHOOK_PROCESS_FAILED
+        });
         
-        const expectedAuth = `Bearer ${process.env.SUPABASE_WEBHOOK_SECRET_KEY}`;
-        const expectedSignature = process.env.SUPABASE_WEBHOOK_SIGNATURE;
-        
-        if (authHeader !== expectedAuth || signatureHeader !== expectedSignature) {
-            return NextResponse.json(
-                { message: PRODUCT_ERROR.STRIPE_WEBHOOK_PROCESS_FAILED }, 
-                { status: 400 }) 
-        }
+        if (authError) return authError;
 
         const { record } = await request.json();
 
@@ -39,9 +24,11 @@ export async function POST(request: NextRequest) {
             subscription_price_ids
         } = record;
 
-        // DBから商品データの取得
+        // 2. DBから商品データの取得
         const repository = getProductRepository();
-        const productResult = await repository.getProductByProductId({ productId: product_id });
+        const productResult = await repository.getProductByProductId({ 
+            productId: product_id 
+        });
 
         if (!productResult) {
             return NextResponse.json(
@@ -52,120 +39,21 @@ export async function POST(request: NextRequest) {
         const { title, price, product_pricings } = productResult;
         const sale_price = product_pricings?.sale_price;
 
-        // Stripe商品の作成
+        // 3. Stripeデータの作成
         const { 
-            success: productSuccess, 
-            data: productData, 
-            error: productError 
-        }  = await createStripeProduct({
-            name: title,
-            metadata: {
-                supabase_id: product_id,
-                ...(subscription_price_ids && {
-                    subscription_product: true
-                })
-            }
+            productData,
+            priceData,
+            stripeSalePriceId, 
+            updatedSubscriptionPriceIds 
+        } = await createStripeProductData({
+            title,
+            productId: product_id,
+            price,
+            salePrice: sale_price ?? null,
+            subscriptionPriceIds: subscription_price_ids
         })
 
-        if (!productSuccess || !productData) {
-            return NextResponse.json(
-                { message: productError },
-                { status: 500 }) 
-        }
-
-        // Stripe価格の作成
-        const { 
-            success: priceSuccess, 
-            data: priceData, 
-            error: priceError 
-        } = await createStripePrice({
-            product: productData.id,
-            unit_amount: price,
-            currency: 'jpy',
-            ...(sale_price && {
-                nickname: '通常価格',
-            })
-        });
-
-        if (!priceSuccess || !priceData) {
-            return NextResponse.json(
-                { message: priceError },
-                { status: 500 }) 
-        }
-
-        let stripeSalePriceId = null;
-
-        // Stripeセール価格の作成
-        if (sale_price) {
-            const { 
-                success: salePriceSuccess, 
-                data: salePriceData, 
-                error: salePriceError 
-            } = await createStripePrice({
-                product: productData.id,
-                unit_amount: sale_price,
-                currency: 'jpy',
-                nickname: 'セール価格',
-            });
-
-            if (!salePriceSuccess || !salePriceData) {
-                return NextResponse.json(
-                    { message: salePriceError },
-                    { status: 500 }) 
-            }
-
-            stripeSalePriceId = salePriceData.id;
-        }
-
-        let updatedSubscriptionPriceIds = subscription_price_ids;
-
-        // Stripeサブスクリプション価格の作成
-        if (subscription_price_ids) {
-            const subscriptionPrices = extractCreateSubscriptionPrices(subscription_price_ids);
-            
-            const subscriptionPriceResults = await Promise.all(
-                subscriptionPrices.map(async (priceData) => {
-                    const { interval, price } = priceData as CreateSubscriptionOption;
-                    
-                    const getNickname = formatCreateSubscriptionNickname(interval);
-                    
-                    const recurringConfig = getRecurringConfig(interval);
-                    
-                    if (!recurringConfig) {
-                        console.error(SUBSCRIPTION_ERROR.SUBSCRIPTION_PRICE_RECURRING_CONFIG_FETCH_FAILED);
-                        return null;
-                    }
-                    
-                    const { success, data } = await createStripePrice({
-                        product: productData.id,
-                        unit_amount: price!,
-                        currency: 'jpy',
-                        nickname: getNickname,
-                        recurring: recurringConfig
-                    });
-                    
-                    if (!success || !data) {
-                        console.error(SUBSCRIPTION_ERROR.SUBSCRIPTION_PRICE_CREATE_FAILED);
-                        return null;
-                    }
-
-                    return {
-                        interval,
-                        priceId: data.id,
-                        price
-                    };
-                })
-            )
-
-            const successfulPrices = subscriptionPriceResults.filter(result => result !== null);
-
-            updatedSubscriptionPriceIds = extractUpdatedSubscriptionPriceIds(
-                subscription_price_ids, 
-                successfulPrices
-            )
-        }
-
-        // DBのStripe商品データの更新
+        // 4. DBのStripe商品データの更新
         const { 
             success: updateSuccess, 
             error: updateError 
@@ -193,13 +81,13 @@ export async function POST(request: NextRequest) {
     } catch (error) {
         console.error('Webhook Error - Product POST error:', error);
 
-        const errorMessage = 
-            error instanceof Error 
-            ? error.message : PRODUCT_ERROR.STRIPE_WEBHOOK_PROCESS_FAILED;
+        const errorMessage = error instanceof Error 
+            ? error.message 
+            : PRODUCT_ERROR.STRIPE_WEBHOOK_PROCESS_FAILED;
 
         return NextResponse.json(
             { message: errorMessage }, 
             { status: 500 }
-        );
+        )
     } 
 }

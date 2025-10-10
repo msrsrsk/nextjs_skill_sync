@@ -3,12 +3,21 @@
 import { stripe } from "@/lib/clients/stripe/client"
 
 import { updateOrderItemSubscriptionStatus } from "@/services/order-item-subscription/actions"
+import {
+    getRecurringConfig, 
+    formatCreateSubscriptionNickname 
+} from "@/services/subscription-payment/format"
+import { 
+    extractCreateSubscriptionPrices, 
+    extractUpdatedSubscriptionPriceIds 
+} from "@/services/subscription-payment/extractors"
 import { SUBSCRIPTION_STATUS } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { SUBS_CANCELLED } = SUBSCRIPTION_STATUS;
 const { 
     SHIPPING_ADDRESS_ERROR, 
+    SUBSCRIPTION_ERROR,
     STRIPE_ERROR, 
 } = ERROR_MESSAGES;
 
@@ -32,6 +41,11 @@ interface StripePriceCreateParams {
 
 interface CreateCustomerProps extends UserProfileData {
     email: UserEmail;
+}
+
+interface CreateSubscriptionPricesProps {
+    productData: StripeProduct;
+    subscriptionPriceIds: StripeSubscriptionPriceIds;
 }
 
 export const createStripeProduct = async (data: StripeProductCreateParams) => {
@@ -101,6 +115,63 @@ export const createStripeCustomer = async ({
     }
 }
 
+export const createSubscriptionPrices = async ({
+    productData,
+    subscriptionPriceIds,
+}: CreateSubscriptionPricesProps) => {
+    if (!subscriptionPriceIds) return subscriptionPriceIds;
+
+    try {
+        const subscriptionPrices = extractCreateSubscriptionPrices(subscriptionPriceIds);
+        
+        const subscriptionPriceResults = await Promise.all(
+            subscriptionPrices.map(async (priceData) => {
+                const { interval, price } = priceData as CreateSubscriptionOption;
+                
+                const getNickname = formatCreateSubscriptionNickname(interval);
+                
+                const recurringConfig = getRecurringConfig(interval);
+                
+                if (!recurringConfig) {
+                    console.error(SUBSCRIPTION_ERROR.SUBSCRIPTION_PRICE_RECURRING_CONFIG_FETCH_FAILED);
+                    return null;
+                }
+                
+                const { success, data } = await createStripePrice({
+                    product: productData.id,
+                    unit_amount: price!,
+                    currency: 'jpy',
+                    nickname: getNickname,
+                    recurring: recurringConfig
+                });
+                
+                if (!success || !data) {
+                    console.error(SUBSCRIPTION_ERROR.SUBSCRIPTION_PRICE_CREATE_FAILED);
+                    return null;
+                }
+    
+                return {
+                    interval,
+                    priceId: data.id,
+                    price
+                }
+            })
+        )
+    
+        const successfulPrices = subscriptionPriceResults
+            .filter(result => result !== null);
+    
+        return extractUpdatedSubscriptionPriceIds(
+            subscriptionPriceIds, 
+            successfulPrices
+        )
+    } catch (error) {
+        console.error('Error in createSubscriptionPrices:', error);
+        throw error;
+    }
+}
+
+
 export const getShippingRateAmount = async (shippingRateId: string) => {
     try {
         const shippingRate = await stripe.shippingRates.retrieve(shippingRateId);
@@ -116,7 +187,6 @@ export const getShippingRateAmount = async (shippingRateId: string) => {
         return null;
     } catch (error) {
         console.error('Actions Error - Get Shipping Rate Amount error:', error);
-
         return null;
     }
 }
