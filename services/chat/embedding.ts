@@ -19,7 +19,7 @@ export const findSimilarTemplate = async (userMessage: string) => {
             success: false,
             error: CHAT_ERROR.OPENAI_API_KEY_NOT_SET,
             message: null,
-        };
+        }
     }
 
     // 使用量のチェック
@@ -28,7 +28,7 @@ export const findSimilarTemplate = async (userMessage: string) => {
             success: false,
             error: CHAT_ERROR.MONTHLY_LIMIT_EXCEEDED,
             message: null,
-        };
+        }
     }
 
     try {
@@ -69,7 +69,7 @@ export const findSimilarTemplate = async (userMessage: string) => {
                     success: true,
                     error: null,
                     message: document.metadata.answer,
-                };
+                }
             }
         }
 
@@ -77,7 +77,7 @@ export const findSimilarTemplate = async (userMessage: string) => {
             success: false,
             error: null,
             message: null,
-        };
+        }
     } catch (error) {
         console.error('Actions Error - Embedding search error:', error);
 
@@ -85,14 +85,14 @@ export const findSimilarTemplate = async (userMessage: string) => {
             success: false,
             error: CHAT_ERROR.EMBEDDING_SEARCH_FAILED,
             message: null,
-        };
+        }
     }
-};
+}
 
 // 使用量のリセット（月次）
 export const resetMonthlyUsage = () => {
     monthlyUsage = INITIAL_USAGE;
-};
+}
 
 // 使用量の取得
 export const getUsageStats = () => {
@@ -100,5 +100,5 @@ export const getUsageStats = () => {
         currentUsage: monthlyUsage,
         limit: CHAT_CONFIG.MONTHLY_LIMIT,
         remaining: CHAT_CONFIG.MONTHLY_LIMIT - monthlyUsage
-    };
-};
+    }
+}

@@ -26,5 +26,5 @@ export const getRuleBasedAnswer = (userMessage: string) => {
     return {
         success: false,
         message: null,
-    };
-};
+    }
+}

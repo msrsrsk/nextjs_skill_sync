@@ -13,7 +13,7 @@ export const handleChatMessage = async (userMessage: string) => {
                 ...ruleBasedResult,
                 isAutoReply: true,
                 source: RULE_BASED
-            };
+            }
         }
     }
 
@@ -26,7 +26,7 @@ export const handleChatMessage = async (userMessage: string) => {
                 message: embeddingResult.message,
                 isAutoReply: true,
                 source: EMBEDDING_SEARCH
-            };
+            }
         }
     }
 
@@ -36,5 +36,5 @@ export const handleChatMessage = async (userMessage: string) => {
         message: CHAT_CONFIG.DEFAULT_HUMAN_RESPONSE,
         isAutoReply: false,
         source: STAFF_CONFIRMING
-    };
-};
+    }
+}

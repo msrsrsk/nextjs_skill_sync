@@ -1,10 +1,16 @@
 import { 
+    getUserImageRepository,
     createUserImageRepository, 
     updateUserImageRepository 
 } from "@/repository/userImage"
+import { deleteProfileImage } from "@/services/cloudflare/actions"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { USER_IMAGE_ERROR } = ERROR_MESSAGES;
+
+interface DeleteExistingImageProps extends UserIdProps {
+    isDefault: boolean;
+}
 
 // ユーザー画像の作成
 export const createUserImage = async ({ 
@@ -32,6 +38,7 @@ export const createUserImage = async ({
     }
 }
 
+// ユーザー画像のパスの更新
 export const updateUserImageFilePath = async ({
     userId,
     filePath
@@ -51,5 +58,34 @@ export const updateUserImageFilePath = async ({
             success: false,
             error: USER_IMAGE_ERROR.FILE_PATH_UPDATE_FAILED
         }
+    }
+}
+
+// 既存画像の削除
+export const deleteExistingImage = async ({ 
+    userId,
+    isDefault
+}: DeleteExistingImageProps) => {
+    if (isDefault) return;
+
+    const repository = getUserImageRepository();
+    const userImageIdResult = await repository.getUserImageId({ 
+        userId: userId as UserId 
+    });
+
+    if (!userImageIdResult) {
+        throw new Error(USER_IMAGE_ERROR.USER_REQUIRED_DATA_NOT_FOUND);
+    }
+
+    const { 
+        success: deleteImageSuccess, 
+        error: deleteImageError 
+    } = await deleteProfileImage({ userImageId: userImageIdResult.id });
+
+    if (!deleteImageSuccess) {
+        console.error(
+            'Error deleting image from storage:', 
+            deleteImageError
+        )
     }
 }
