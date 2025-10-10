@@ -80,9 +80,13 @@ export const createChatMessageByUserId = async ({
     } catch (error) {
         console.error('Database : Error in createChatMessageByUserId: ', error);
 
+        const errorMessage = error instanceof Error 
+            ? error.message 
+            : CHAT_ERROR.CREATE_FAILED;
+
         return {
             success: false, 
-            error: CHAT_ERROR.CREATE_FAILED
+            error: errorMessage
         }
     }
 }

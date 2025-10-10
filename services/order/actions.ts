@@ -185,9 +185,13 @@ export const updateProductStockAndSoldCount = async ({
     } catch (error) {
         console.error('Actions Error - Update Product Stock And Sold Count error:', error);
 
+        const errorMessage = error instanceof Error 
+            ? error.message 
+            : PRODUCT_ERROR.UPDATE_STOCK_AND_SOLD_COUNT_FAILED;
+
         return {
             success: false, 
-            error: PRODUCT_ERROR.UPDATE_STOCK_AND_SOLD_COUNT_FAILED
+            error: errorMessage,
         }
     }
 }

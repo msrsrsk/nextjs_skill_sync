@@ -98,9 +98,13 @@ export const uploadSingleFile = async ({
     } catch (error) {
         console.error('Storage Error - Upload Single File error:', error);
 
+        const errorMessage = error instanceof Error 
+            ? error.message 
+            : CLOUDFLARE_ERROR.R2_UPLOAD_PROCESS_FAILED;
+
         return {
             success: false, 
-            error: CLOUDFLARE_ERROR.R2_UPLOAD_PROCESS_FAILED,
+            error: errorMessage,
             data: null
         }
     }
@@ -159,10 +163,14 @@ export const uploadImageToR2 = async ({
         }
     } catch (error) {
         console.error(`Storage Error - R2 Upload Error for ${bucketType}:`, error);
+        
+        const errorMessage = error instanceof Error 
+            ? error.message 
+            : CLOUDFLARE_ERROR.R2_UPLOAD_FAILED;
 
         return { 
             success: false, 
-            error: CLOUDFLARE_ERROR.R2_UPLOAD_FAILED,
+            error: errorMessage,
             data: null
         }
     }
@@ -263,9 +271,13 @@ const authenticateAndAuthorizeUserImage = async ({
     } catch (error) {
         console.error('Storage Error - Authenticate and Authorize User Image error:', error);
 
+        const errorMessage = error instanceof Error 
+            ? error.message 
+            : CLOUDFLARE_ERROR.AUTHENTICATION_FAILED;
+
         return {
             success: false,
-            error: CLOUDFLARE_ERROR.AUTHENTICATION_FAILED,
+            error: errorMessage,
             data: null
         }
     }
@@ -313,9 +325,13 @@ export const getAuthenticatedProfileImageUrl = async ({
     } catch (error) {
         console.error('Storage Error - Get Authenticated Profile Image URL error:', error);
 
+        const errorMessage = error instanceof Error 
+            ? error.message 
+            : CLOUDFLARE_ERROR.FETCH_FAILED;
+
         return {
             success: false,
-            error: CLOUDFLARE_ERROR.FETCH_FAILED,
+            error: errorMessage,
             data: null
         }
     }
@@ -395,9 +411,13 @@ export const deleteProfileImage = async ({
     } catch (error) {
         console.error('Storage Error - Delete Profile Image error:', error);
 
+        const errorMessage = error instanceof Error 
+            ? error.message 
+            : CLOUDFLARE_ERROR.DELETE_FAILED;
+
         return {
             success: false,
-            error: CLOUDFLARE_ERROR.DELETE_FAILED
+            error: errorMessage,
         }
     }
 }
@@ -484,9 +504,13 @@ export const deleteUserImage = async ({
     } catch (error) {
         console.error('Storage Error - Delete User Image error:', error);
 
+        const errorMessage = error instanceof Error 
+            ? error.message 
+            : CLOUDFLARE_ERROR.DELETE_FAILED;
+
         return {
             success: false,
-            error: CLOUDFLARE_ERROR.DELETE_FAILED
+            error: errorMessage,
         }
     }
 }
