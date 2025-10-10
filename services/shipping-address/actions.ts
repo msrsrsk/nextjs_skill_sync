@@ -5,9 +5,16 @@ import {
     updateShippingAddressRepository, 
     deleteShippingAddressRepository 
 } from "@/repository/shippingAddress"
+import { updateCustomerShippingAddress } from "@/services/stripe/actions"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { SHIPPING_ADDRESS_ERROR } = ERROR_MESSAGES;
+
+interface UpdateStripeAndDefaultShippingAddressProps {
+    id: ShippingAddressId;
+    customerId: StripeCustomerId;
+    shippingAddress: ShippingAddress;
+}
 
 // 配送先住所の作成
 export const createShippingAddress = async ({
@@ -59,6 +66,46 @@ export const updateShippingAddress = async ({
             data: null
         }
     }
+}
+
+export const updateStripeAndDefaultShippingAddress = async ({
+    id,
+    customerId,
+    shippingAddress
+}: UpdateStripeAndDefaultShippingAddressProps) => {
+    const [stripeResult, setDefaultAddressResult] = await Promise.all([
+        customerId ? updateCustomerShippingAddress(
+            customerId,
+            {
+                address: {
+                    line1: shippingAddress.address_line1,
+                    line2: shippingAddress.address_line2 || '',
+                    city: shippingAddress.city || '',
+                    state: shippingAddress.state,
+                    postal_code: shippingAddress.postal_code
+                },
+                name: shippingAddress.name,
+            }
+        ) : Promise.resolve({ 
+            success: true, 
+            error: null, 
+            data: null 
+        }),
+        updateShippingAddress({
+            id,
+            shippingAddress
+        })
+    ]);
+
+    if (!stripeResult.success) {
+        throw new Error(stripeResult.error as string);
+    }
+
+    if (!setDefaultAddressResult.success) {
+        throw new Error(setDefaultAddressResult.error as string);
+    }
+
+    return setDefaultAddressResult.data;
 }
 
 // デフォルト住所の設定

@@ -2,12 +2,18 @@
 
 import { 
     createUserRepository, 
+    getUserRepository,
     updateUserRepository, 
     deleteUserRepository 
 } from "@/repository/user"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { USER_ERROR } = ERROR_MESSAGES;
+
+interface GetUserAndVerifyAuthProps extends UserIdProps {
+    getType: GetUserDataTypes;
+    errorMessage: string;
+}
 
 // ユーザーの作成
 export const createUser = async ({ 
@@ -35,6 +41,24 @@ export const createUser = async ({
             data: null
         }
     }
+}
+
+export const getUser = async ({
+    userId,
+    getType,
+    errorMessage
+}: GetUserAndVerifyAuthProps) => {
+    const repository = getUserRepository();
+    const user = await repository.getUser({
+        userId: userId as UserId,
+        getType
+    });
+
+    if (!user) {
+        throw new Error(errorMessage);
+    }
+
+    return user
 }
 
 // ユーザーのメールアドレスの更新
