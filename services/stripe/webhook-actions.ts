@@ -1,7 +1,10 @@
 import { stripe } from "@/lib/clients/stripe/client"
 
 import { sendSubscriptionPaymentRequestEmail } from "@/services/email/subscription/subscription-payment-request"
-import { createSubscriptionPayment } from "@/services/subscription-payment/actions"
+import { 
+    createSubscriptionPayment, 
+    updateSubscriptionPaymentStatus 
+} from "@/services/subscription-payment/actions"
 import { formatStripeSubscriptionStatus } from "@/services/subscription-payment/format"
 import { createCheckoutOrder, deleteOrder } from "@/services/order/actions"
 import { createOrderStripe, deleteOrderStripe } from "@/services/order-stripe/actions"
@@ -39,6 +42,11 @@ interface SendOrderEmailsProps {
     checkoutSessionEvent: StripeCheckoutSession,
     productDetails: StripeProductDetailsProps[],
     orderData: CreateCheckoutOrderData
+}
+
+interface UpdateStripeProductDataProps {
+    subscriptionEvent: StripeSubscription;
+    previousAttributes: Partial<StripeSubscription> | null;
 }
 
 interface CreateStripeProductDataProps {
@@ -324,6 +332,37 @@ export async function handleSubscriptionEvent({
 
         if (!subscriptionPaymentEmailSuccess) {
             throw new Error(subscriptionPaymentEmailError as string);
+        }
+    }
+}
+
+// サブスクリプションのステータスの確認&更新
+export async function handleSubscriptionUpdate({
+    subscriptionEvent,
+    previousAttributes
+}: UpdateStripeProductDataProps) {
+    const currentStatus = subscriptionEvent.status;
+            
+    if (!previousAttributes && currentStatus === 'active') {
+        return
+    }
+    
+    const previousStatus = previousAttributes?.status;
+
+    if (previousStatus && currentStatus && previousStatus !== currentStatus) {
+        const subscriptionId = subscriptionEvent.id;
+        const subscriptionStatus = formatStripeSubscriptionStatus(currentStatus);
+
+        const { 
+            success: updatePaymentStatusSuccess, 
+            error: updatePaymentStatusError 
+        } = await updateSubscriptionPaymentStatus({
+            subscriptionId,
+            status: subscriptionStatus
+        });
+
+        if (!updatePaymentStatusSuccess) {
+            throw new Error(updatePaymentStatusError as string);
         }
     }
 }

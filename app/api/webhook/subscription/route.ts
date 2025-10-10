@@ -2,9 +2,10 @@ import { stripe } from "@/lib/clients/stripe/client"
 import { NextRequest, NextResponse } from "next/server"
 
 import { verifyWebhookSignature } from "@/lib/utils/webhook"
-import { handleSubscriptionEvent } from "@/services/stripe/webhook-actions"
-import { updateSubscriptionPaymentStatus } from "@/services/subscription-payment/actions"
-import { formatStripeSubscriptionStatus } from "@/services/subscription-payment/format"
+import { 
+    handleSubscriptionEvent, 
+    handleSubscriptionUpdate 
+} from "@/services/stripe/webhook-actions"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { SUBSCRIPTION_ERROR } = ERROR_MESSAGES;
@@ -40,44 +41,24 @@ export async function POST(request: NextRequest) {
             const subscriptionEvent = event.data.object as StripeSubscription;
             const previousAttributes = event.data.previous_attributes;
             
-            const currentStatus = subscriptionEvent.status;
-            
             // 2. サブスクリプションのステータスの確認&更新
-            if (!previousAttributes && currentStatus === 'active') {
-                return NextResponse.json({ success: true });
-            }
-            
-            const previousStatus = previousAttributes?.status;
-
-            if (previousStatus && currentStatus && previousStatus !== currentStatus) {
-                const subscriptionId = subscriptionEvent.id;
-                const subscriptionStatus = formatStripeSubscriptionStatus(currentStatus);
-
-                const { 
-                    success: updatePaymentStatusSuccess, 
-                    error: updatePaymentStatusError 
-                } = await updateSubscriptionPaymentStatus({
-                    subscriptionId,
-                    status: subscriptionStatus
-                });
-
-                if (!updatePaymentStatusSuccess) {
-                    throw new Error(updatePaymentStatusError as string);
-                }
-            }
+            await handleSubscriptionUpdate({
+                subscriptionEvent,
+                previousAttributes
+            });
         }
 
         return NextResponse.json({ success: true });
     } catch (error) {
         console.error('Webhook Error - Stripe Subscription POST error:', error);
 
-        const errorMessage = 
-            error instanceof Error ? 
-            error.message : SUBSCRIPTION_ERROR.WEBHOOK_PROCESS_FAILED;
+        const errorMessage = error instanceof Error 
+            ? error.message 
+            : SUBSCRIPTION_ERROR.WEBHOOK_PROCESS_FAILED;
 
         return NextResponse.json(
             { message: errorMessage }, 
             { status: 500 }
-        );
+        )
     } 
 }
