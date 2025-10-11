@@ -10,7 +10,7 @@ import { ERROR_MESSAGES } from "@/constants/errorMessages"
 const { CUSTOMER_ID_DATA } = GET_USER_DATA_TYPES;
 const { 
     SHIPPING_ADDRESS_ERROR, 
-    USER_ERROR 
+    USER_STRIPE_ERROR 
 } = ERROR_MESSAGES;
 
 export async function setDefaultShippingAddressAction(
@@ -53,7 +53,7 @@ export async function setDefaultShippingAddressAction(
         const userResult = await getUser({
             userId: userId as UserId,
             getType: CUSTOMER_ID_DATA,
-            errorMessage: USER_ERROR.CUSTOMER_ID_FETCH_FAILED
+            errorMessage: USER_STRIPE_ERROR.CUSTOMER_ID_FETCH_FAILED
         });
 
         const customerId = userResult.user_stripes?.customer_id;

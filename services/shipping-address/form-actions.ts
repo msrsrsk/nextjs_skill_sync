@@ -11,7 +11,7 @@ import { GET_USER_DATA_TYPES } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { CUSTOMER_ID_DATA } = GET_USER_DATA_TYPES;
-const { SHIPPING_ADDRESS_ERROR, USER_ERROR } = ERROR_MESSAGES;
+const { SHIPPING_ADDRESS_ERROR, USER_STRIPE_ERROR } = ERROR_MESSAGES;
 
 interface ShippingAddressActionState extends ActionStateWithTimestamp {
     data: ShippingAddress | null;
@@ -188,7 +188,7 @@ export async function updateDefaultShippingAddressAction(
         const user = await getUser({
             userId: userId as UserId,
             getType: CUSTOMER_ID_DATA,
-            errorMessage: USER_ERROR.CUSTOMER_ID_FETCH_FAILED
+            errorMessage: USER_STRIPE_ERROR.CUSTOMER_ID_FETCH_FAILED
         });
 
         const customerId = user.user_stripes?.customer_id;

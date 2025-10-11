@@ -13,7 +13,7 @@ import { ERROR_MESSAGES } from "@/constants/errorMessages"
 const { CUSTOMER_ID_DATA } = GET_USER_DATA_TYPES;
 const { CART_PATH, ORDER_COMPLETE_PATH } = SITE_MAP;
 const { 
-    USER_ERROR,
+    USER_STRIPE_ERROR,
     CHECKOUT_ERROR 
 } = ERROR_MESSAGES;
 
@@ -135,7 +135,7 @@ export const createCheckoutSession = async ({
         const user = await getUser({
             userId: userId as UserId,
             getType: CUSTOMER_ID_DATA,
-            errorMessage: USER_ERROR.CUSTOMER_ID_FETCH_FAILED
+            errorMessage: USER_STRIPE_ERROR.CUSTOMER_ID_FETCH_FAILED
         });
         
         const customerId = user.user_stripes?.customer_id;

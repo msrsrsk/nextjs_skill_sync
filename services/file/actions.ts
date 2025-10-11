@@ -1,7 +1,7 @@
 import { getFileExtension, dataUrlToFile } from "@/lib/utils/format"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
-const { SUPABASE_ERROR } = ERROR_MESSAGES;
+const { USER_PROFILE_ERROR } = ERROR_MESSAGES;
 
 interface UrlToFileResult extends ActionState {
     data: File | null;
@@ -39,7 +39,7 @@ export const urlToFile = async (
 
         return {
             success: false, 
-            error: SUPABASE_ERROR.CONVERT_FAILED,
+            error: USER_PROFILE_ERROR.CONVERT_FAILED,
             data: null
         }
     }

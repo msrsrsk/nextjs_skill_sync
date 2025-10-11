@@ -46,19 +46,16 @@ export const ERROR_MESSAGES = {
         CREATE_ACCOUNT_FAILED: `アカウントの作成に失敗しました。${RETRY}`,
         FETCH_FAILED: `ユーザー情報の取得に失敗しました。${RETRY}`,
 
-        CUSTOMER_ID_FETCH_FAILED: `お届け先の設定に必要な情報が不足しています。${RETRY}`,
-        PASSWORD_RESET_MISSING_DATA: `パスワードリセットのための\n必要な情報が見つかりませんでした。${RETRY}`,
-        
         MAIL_UPDATE_FAILED: `メールアドレスの更新に失敗しました。${RETRY}`,
+        PASSWORD_RESET_MISSING_DATA: `パスワードリセットのための\n必要な情報が見つかりませんでした。${RETRY}`,
         PASSWORD_UPDATE_FAILED: `パスワードの更新に失敗しました。${RETRY}`,
-
         EXPIRED_PASSWORD_TOKEN: `パスワードリセットの有効期限が過ぎました。${FIRST}`,
-        DELETE_FAILED: `アカウントの削除に失敗しました。${RETRY}`,
-
+        
         UNSHIPPED_ORDERS_COUNT_MISSING_DATA: `アカウントの削除に必要なデータの取得に失敗しました。${RETRY}`,
-        UNSHIPPED_ORDERS_COUNT_WARNING: `未発送の注文が残っています。全て発送済みであることをご確認の上、退会手続を進めてください。`,
-
+        DELETE_FAILED: `アカウントの削除に失敗しました。${RETRY}`,
+        
         FILE_SIZE_EXCEEDED: `ファイルサイズは${MAX_ACCOUNT_INFO_ICON_SIZE_TEXT}以下にしてください`,
+        UNSHIPPED_ORDERS_COUNT_WARNING: `未発送の注文が残っています。全て発送済みであることをご確認の上、退会手続を進めてください。`,
     },
 
     // ユーザープロフィール関連
@@ -77,6 +74,7 @@ export const ERROR_MESSAGES = {
 
         CREATE_PROFILE_FAILED: `ユーザープロフィールの作成に失敗しました。${RETRY}`,
         DELETE_FAILED: `ユーザープロフィールの削除に失敗しました。${RETRY}`,
+        CONVERT_FAILED: `画像の変換に失敗しました`,
     },
 
     // ユーザー画像関連
@@ -86,22 +84,22 @@ export const ERROR_MESSAGES = {
 
         FILE_PATH_UPDATE_FAILED: `画像ファイルのパスの更新に失敗しました。${RETRY}`,
         USER_REQUIRED_DATA_NOT_FOUND: `画像ストレージのアクセスに必要なデータが不足しています。${RETRY}`,
-        USER_ID_NOT_FOUND: `画像ストレージへのアクセス権限がありません。ログインをして再度お試しください。`,
     },
 
     // ユーザーStripe関連
     USER_STRIPE_ERROR: {
         CUSTOMER_ID_UPDATE_FAILED: `StripeIDの更新に失敗しました。${FIRST}`,
+        CUSTOMER_ID_FETCH_FAILED: `お届け先の設定に必要な情報が不足しています。${RETRY}`,
     },
 
     // 商品関連
     PRODUCT_ERROR: {
         NOT_FOUND: `商品が見つかりません。${RETRY}`,
         NOT_FOUND_IDS: `商品IDが見つかりませんでした。${RETRY}`,
+        REMOVE_SUCCESS: '商品を削除しました',
         
         NO_IDS: `商品IDの取得に失敗しました。${RETRY}`,
         FETCH_FAILED: `商品データの取得に失敗しました。${RETRY}`,
-        STRIPE_FETCH_FAILED: `Stripeの商品データの取得に失敗しました。${RETRY}`,
         DETAIL_FETCH_FAILED: `商品詳細データの取得に失敗しました。${RETRY}`,
         IDS_FETCH_FAILED: `商品IDによるデータ取得に失敗しました。${RETRY}`,
         PRICE_FETCH_FAILED: `商品の価格データの取得に失敗しました。${RETRY}`,
@@ -111,8 +109,6 @@ export const ERROR_MESSAGES = {
         ADD_SKILL_TRAIL_FAILED: `最近見た商品の追加に失敗しました。${RETRY}`,
         DELETE_SKILL_TRAIL_FAILED: `最近見た商品の削除に失敗しました。${RETRY}`,
         UPDATE_STOCK_AND_SOLD_COUNT_FAILED: `商品の在庫数と売り上げ数の更新に失敗しました。${RETRY}`,
-
-        REMOVE_SUCCESS: 'スキルを削除しました',
 
         STOCK_WEBHOOK_PROCESS_FAILED: '商品在庫のWebhook処理中にエラーが発生しました。',
         STRIPE_WEBHOOK_PROCESS_FAILED: 'Stripeデータ作成のWebhook処理中にエラーが発生しました。',
@@ -165,9 +161,7 @@ export const ERROR_MESSAGES = {
         ALREADY_SUBSCRIBED: `既に該当商品のサブスクリプションを契約済みです。変更や解除はアカウントページで行ってください。`,
         SUBSCRIPTION_SHIPPING_FEE_FAILED: `サブスクリプションの配送料の取得に失敗しました。${RETRY}`,
 
-        GET_ORDER_DATA_FAILED: `注文データの取得に失敗しました。${RETRY}`,
         CREATE_ORDER_FAILED: `注文履歴の保存に失敗しました。${RETRY}`,
-        CREATE_ORDER_STRIPE_FAILED: `注文履歴のStripeデータの作成に失敗しました。${RETRY}`,
         UPDATE_STOCK_AND_SOLD_COUNT_FAILED: `商品の在庫数と売り上げ数の更新に失敗しました。${RETRY}`,
         GET_DEFAULT_SHIPPING_ADDRESS_FAILED: `デフォルトの配送先住所の取得に失敗しました。${RETRY}`,
         CREATE_DEFAULT_SHIPPING_ADDRESS_FAILED: `デフォルトの配送先住所の保存に失敗しました。${RETRY}`,
@@ -211,7 +205,6 @@ export const ERROR_MESSAGES = {
         FETCH_FAILED: `チャット履歴の取得に失敗しました。${RETRY}`,
 
         FAILED_SAVE_AI_MESSAGE: `AIからの回答の保存に失敗しました。${RETRY}`,
-        
         MONTHLY_LIMIT_EXCEEDED: `月間使用量の上限に達しました。\nまた翌月お試しください。`,
         LIMIT_WARNING: `チャットメッセージの送信は履歴も含めて最大${MAX_CHAT_MESSAGES}件までです。古いメッセージが自動削除されるまでしばらくお待ちください。`,
         EMBEDDING_SEARCH_FAILED: `類似テンプレートの検索に失敗しました。${RETRY}`,
@@ -253,7 +246,6 @@ export const ERROR_MESSAGES = {
     // サブスクリプション関連
     SUBSCRIPTION_ERROR: {
         NO_SUBSCRIPTION_ID: `サブスクリプションのIDが見つかりませんでした。${RETRY}`,
-        GET_LATEST_FAILED: `サブスクリプションの最新の支払いデータの取得に失敗しました。${RETRY}`,
         FAILED_CHECK_SUBSCRIPTION: `サブスクリプションの注文状況の取得に失敗しました。${RETRY}`,
         NO_SUBSCRIPTION_ORDER_NUMBER: `サブスクリプションの注文番号が見つかりませんでした。${RETRY}`,
         NEXT_PAYMENT_DATE_FAILED: `次回支払日の取得に失敗しました。${RETRY}`,
@@ -303,14 +295,12 @@ export const ERROR_MESSAGES = {
         ADD_UNAUTHORIZED: `お気に入りの登録はログインが必要です。${LOGIN}`,
         REMOVE_UNAUTHORIZED: `お気に入りの削除はログインが必要です。${LOGIN}`,
 
+        ADD_FAILED: `お気に入りの追加に失敗しました。${RETRY}`,
         OPERATION_FAILED: `お気に入りボタンの操作に失敗しました。${RETRY}`,
-
         FETCH_FAILED: `お気に入りデータの取得に失敗しました。${RETRY}`,
         ADD_MISSING_DATA: `お気に入りデータの変更に必要な情報が不足しています。${RETRY}`,
         REMOVE_MISSING_DATA: `お気に入りデータの削除に必要な情報が不足しています。${RETRY}`,
         FETCH_PRODUCT_FAILED: `お気に入り状態の取得に失敗しました。${RETRY}`,
-
-        ADD_FAILED: `お気に入りの追加に失敗しました。${RETRY}`,
 
         REMOVE_FAILED: `お気に入りの削除に失敗しました。${RETRY}`,
         REMOVE_ALL_FAILED: `全てのお気に入りの削除に失敗しました。${RETRY}`,
@@ -375,14 +365,6 @@ export const ERROR_MESSAGES = {
         UNKNOWN: "不明なエラー",
     },
 
-    // Supabase関連
-    SUPABASE_ERROR: {
-        UPLOAD_FAILED: `画像のアップロードに失敗しました。${FIRST}`,
-        CONVERT_FAILED: `画像の変換に失敗しました`,
-        DELETE_MISSING_DATA: `画像の削除に必要なデータが不足しています。`,
-        DELETE_FAILED: `画像の削除に失敗しました`,
-    },
-
     // Stripe関連
     STRIPE_ERROR: {
         CUSTOMER_CREATE_FAILED: `Stripeの顧客データの作成に失敗しました。${RETRY}`,
@@ -408,6 +390,5 @@ export const ERROR_MESSAGES = {
         PROFILE_ACCESS_DENIED: 'プロフィール画像へのアクセスが拒否されました。',
         FETCH_FAILED: `プロフィール画像の取得に失敗しました。${RETRY}`,
         DELETE_FAILED: `プロフィール画像の削除に失敗しました。${RETRY}`,
-        USER_ID_NOT_FOUND: `画像ストレージへのアクセス権限がありません。ログインをして再度お試しください。`,
     },
 }
