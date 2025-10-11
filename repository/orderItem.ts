@@ -78,16 +78,16 @@ export const getOrderItemRepository = () => {
                 }
             }
 
-            if (whereCondition.order_item_subscriptions) {
-                switch (category) {
-                    case CATEGORY_SUBS_CANCELED:
-                        whereCondition.order_item_subscriptions.status = SUBS_CANCELED;
-                        break;
-                    case CATEGORY_SUBS_ACTIVE:
-                        whereCondition.order_item_subscriptions.status = SUBS_ACTIVE;
-                        break;
-                }
-            }
+            // if (whereCondition.order_item_subscriptions) {
+            //     switch (category) {
+            //         case CATEGORY_SUBS_CANCELED:
+            //             whereCondition.order_item_subscriptions.status = SUBS_CANCELED;
+            //             break;
+            //         case CATEGORY_SUBS_ACTIVE:
+            //             whereCondition.order_item_subscriptions.status = SUBS_ACTIVE;
+            //             break;
+            //     }
+            // }
 
             const [orderItems, totalCount] = await Promise.all([
                 prisma.orderItem.findMany({
