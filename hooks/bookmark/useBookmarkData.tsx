@@ -11,10 +11,6 @@ const useBookmarkData = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        getBookmarkData();
-    }, []);
-
     const getBookmarkData = useCallback(async () => {
         if (loading) return;
 
@@ -42,7 +38,11 @@ const useBookmarkData = () => {
         } finally {
             setLoading(false);
         }
-    }, [loading]);
+    }, []);
+
+    useEffect(() => {
+        getBookmarkData();
+    }, [getBookmarkData]);
 
     return {
         bookmarkData,
