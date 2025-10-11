@@ -64,14 +64,13 @@ const SubscriptionWrapper = async ({
 
     console.log('data', data);
 
-    // if (!data) return <ErrorMessage message={ORDER_ERROR.HISTORY_FETCH_FAILED} />
+    if (!data) return <ErrorMessage message={ORDER_ERROR.HISTORY_FETCH_FAILED} />
 
     return (
-        // <SubscriptionListPagination 
-        //     subscriptionData={data} 
-        //     currentCategory={category as SubscriptionHistoryCategoryType}
-        // />
-        <div>test</div>
+        <SubscriptionListPagination 
+            subscriptionData={data} 
+            currentCategory={category as SubscriptionHistoryCategoryType}
+        />
     )
 }
 

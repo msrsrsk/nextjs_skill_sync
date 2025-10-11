@@ -72,19 +72,16 @@ export const getOrderItemRepository = () => {
         }: GetUserPaginatedOrdersProps) => {
             const skip = (page - PAGE_OFFSET) * limit;
 
-            const whereCondition: OrderItemWhereInput = {
-                order: {
-                    user_id: userId
-                },
-                order_item_subscriptions: {
-                    isNot: null,
-                    status: category === CATEGORY_SUBS_CANCELED ? SUBS_CANCELED : SUBS_ACTIVE
-                } as OrderItemSubscriptionWhereInput
-            }
-
             const [orderItems, totalCount] = await Promise.all([
                 prisma.orderItem.findMany({
-                    where: whereCondition,
+                    where: {
+                        order: {
+                            user_id: userId
+                        },
+                        order_item_subscriptions: {
+                            status: category === CATEGORY_SUBS_CANCELED ? SUBS_CANCELED : SUBS_ACTIVE
+                        }
+                    },
                     include: {
                         order_item_subscriptions: {
                             select: {
