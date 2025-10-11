@@ -189,7 +189,7 @@ export async function processOrderData({
             success: orderItemSubscriptionsSuccess, 
             error: orderItemSubscriptionsError 
         } = await createOrderItemSubscriptions({
-            orderItemId: orderData.order.id, 
+            orderItemId: orderItemsData[0].id, 
             productDetails: productDetails as StripeProductDetailsProps[]
         })
 
