@@ -28,7 +28,10 @@ export async function POST(request: NextRequest) {
         if (event.type === 'checkout.session.completed') {
             const checkoutSessionEvent = event.data.object as StripeCheckoutSession;
 
-            await handleCheckoutSessionCompleted({
+            const { 
+                orderData, 
+                productDetails 
+            } = await handleCheckoutSessionCompleted({
                 checkoutSessionEvent
             });
 
@@ -39,7 +42,9 @@ export async function POST(request: NextRequest) {
                 );
 
                 await handleSubscriptionEvent({
-                    subscriptionEvent: subscription
+                    subscriptionEvent: subscription,
+                    orderData,
+                    productDetails
                 });
             }
         }
@@ -117,4 +122,6 @@ async function handleCheckoutSessionCompleted({
             checkoutSessionEvent
         });
     }
+
+    return { orderData, productDetails };
 }

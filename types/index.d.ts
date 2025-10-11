@@ -761,8 +761,6 @@ declare global {
     type OrderItemSubscriptionNextPayment = OrderItemSubscription['next_payment_date'];
     type OrderItemSubscriptionRemarks = OrderItemSubscription['remarks'];
 
-    type OrderItemSubscriptionWhereInput = Prisma.OrderItemSubscriptionWhereInput;
-
     type OrderItemSubscriptionSelectFields = Pick<OrderItemSubscription, 'subscription_id' | 'status' | 'next_payment_date' | 'remarks'> & {
         subscription_payments: SubscriptionPaymentSelectFields[];
     };
@@ -932,9 +930,9 @@ declare global {
         amount: ProductPrice;
         unit_price: OrderItemUnitPrice;
         quantity: OrderItemQuantity;
-        subscription_status: OrderItemSubscriptionStatus;
-        subscription_interval: OrderItemSubscriptionInterval;
-        subscription_product: boolean;
+        subscription_status?: OrderItemSubscriptionStatus;
+        subscription_interval?: OrderItemSubscriptionInterval;
+        subscription_product?: boolean;
         stripe_price_id: OrderItemStripePriceId;
         subscription_id: OrderItemStripeSubscriptionId;
     }

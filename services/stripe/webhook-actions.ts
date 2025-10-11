@@ -57,6 +57,12 @@ interface CreateStripeProductDataProps {
     subscriptionPriceIds: StripeSubscriptionPriceIds;
 }
 
+interface HandleSubscriptionEventProps {
+    subscriptionEvent: StripeSubscription;
+    orderData: CreateCheckoutOrderData;
+    productDetails: StripeProductDetailsProps[];
+}
+
 // 商品詳細データの作成
 export async function createProductDetails({
     lineItems,
@@ -77,10 +83,10 @@ export async function createProductDetails({
                 subscription_id: subscriptionId,
                 subscription_status: (item.price?.recurring?.interval_count && item.price?.recurring?.interval) 
                     ? SUBS_ACTIVE 
-                    : null,                    
+                    : undefined,                    
                 subscription_interval: (item.price?.recurring?.interval_count && item.price?.recurring?.interval) 
                     ? `${item.price?.recurring?.interval_count}${item.price?.recurring?.interval}` 
-                    : null,           
+                    : undefined,           
                 ...(product.metadata.subscription_product === 'true' && {
                     subscription_product: true
                 })         
@@ -164,22 +170,6 @@ export async function processOrderData({
         await deleteOrder({ orderId: orderData.order.id });
         await deleteOrderStripe({ orderId: orderData.order.id });
         throw new Error(orderItemsError as string);
-    }
-
-    // OrderItemSubscriptions テーブルのデータ作成
-    const  { 
-        success: orderItemSubscriptionsSuccess, 
-        error: orderItemSubscriptionsError 
-    } = await createOrderItemSubscriptions({
-        orderItemId: orderData.order.id, 
-        productDetails: productDetails as StripeProductDetailsProps[]
-    })
-
-    if (!orderItemSubscriptionsSuccess) {
-        await deleteOrder({ orderId: orderData.order.id });
-        await deleteOrderStripe({ orderId: orderData.order.id });
-        await deleteAllOrderItem({ orderId: orderData.order.id });
-        throw new Error(orderItemSubscriptionsError as string);
     }
 
     // OrderItemStripes テーブルのデータ作成
@@ -290,11 +280,33 @@ export async function sendOrderEmails({
 
 // サブスクリプションの支払いデータの作成と未払い通知メールの送信
 export async function handleSubscriptionEvent({
-    subscriptionEvent
-}: { subscriptionEvent: StripeSubscription }) {
+    subscriptionEvent,
+    orderData,
+    productDetails
+}: HandleSubscriptionEventProps) {
     const subscriptionStatus = formatStripeSubscriptionStatus(subscriptionEvent?.status);
 
-    // 1. サブスクリプションの支払いデータの作成
+    // 1. OrderItemSubscriptions テーブルのデータ作成
+    const subscriptionProducts = productDetails.filter(product => product.subscription_product);
+    
+    if (subscriptionProducts.length > 0) {
+        const  { 
+            success: orderItemSubscriptionsSuccess, 
+            error: orderItemSubscriptionsError 
+        } = await createOrderItemSubscriptions({
+            orderItemId: orderData.order.id, 
+            productDetails: productDetails as StripeProductDetailsProps[]
+        })
+
+        if (!orderItemSubscriptionsSuccess) {
+            await deleteOrder({ orderId: orderData.order.id });
+            await deleteOrderStripe({ orderId: orderData.order.id });
+            await deleteAllOrderItem({ orderId: orderData.order.id });
+            throw new Error(orderItemSubscriptionsError as string);
+        }
+    }
+
+    // 2. サブスクリプションの支払いデータの作成
     const { 
         success: subscriptionPaymentSuccess, 
         error: subscriptionPaymentError 
