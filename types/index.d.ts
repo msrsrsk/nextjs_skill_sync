@@ -379,6 +379,7 @@ declare global {
     type CategoryType = Product['category'];
 
     type ProductWhereInput = Prisma.ProductWhereInput;
+    type ProductOrderByWithRelationInput = Prisma.ProductOrderByWithRelationInput;
     type ExcludeProductCategoryTagType = Exclude<ProductCategoryTagType, typeof ALL_TAG>;
 
     interface ProductPriceBounds {
@@ -759,6 +760,8 @@ declare global {
     type OrderItemSubscriptionInterval = OrderItemSubscription['interval'];
     type OrderItemSubscriptionNextPayment = OrderItemSubscription['next_payment_date'];
     type OrderItemSubscriptionRemarks = OrderItemSubscription['remarks'];
+
+    type OrderItemSubscriptionWhereInput = Prisma.OrderItemSubscriptionWhereInput;
 
     type OrderItemSubscriptionSelectFields = Pick<OrderItemSubscription, 'subscription_id' | 'status' | 'next_payment_date' | 'remarks'> & {
         subscription_payments: SubscriptionPaymentSelectFields[];

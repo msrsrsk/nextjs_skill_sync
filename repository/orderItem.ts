@@ -77,23 +77,9 @@ export const getOrderItemRepository = () => {
                     user_id: userId
                 },
                 order_item_subscriptions: {
-                    isNot: null
-                }
-            }
-
-            const subscriptionCondition = whereCondition.order_item_subscriptions as {
-                isNot: null;
-                status?: SubscriptionStatusType;
-            }
-            
-            switch (category) {
-                case CATEGORY_SUBS_CANCELED:
-                    subscriptionCondition.status = SUBS_CANCELED;
-                    break;
-                case CATEGORY_SUBS_ACTIVE:
-                default:
-                    subscriptionCondition.status = SUBS_ACTIVE;
-                    break;
+                    isNot: null,
+                    status: category === CATEGORY_SUBS_CANCELED ? SUBS_CANCELED : SUBS_ACTIVE
+                } as OrderItemSubscriptionWhereInput
             }
 
             const [orderItems, totalCount] = await Promise.all([

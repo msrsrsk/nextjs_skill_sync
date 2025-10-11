@@ -301,7 +301,7 @@ export const getProductRepository = () => {
                 })
             }
 
-            const getOrderBy = (): Prisma.ProductOrderByWithRelationInput[] => {
+            const getOrderBy = (): ProductOrderByWithRelationInput[] => {
                 switch (sortType) {
                     case CREATED_DESCENDING:
                         return [{ created_at: "desc" }];
