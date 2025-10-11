@@ -59,8 +59,8 @@ interface CreateStripeProductDataProps {
 
 interface HandleSubscriptionEventProps {
     subscriptionEvent: StripeSubscription;
-    orderData: CreateCheckoutOrderData;
-    productDetails: StripeProductDetailsProps[];
+    orderData?: CreateCheckoutOrderData;
+    productDetails?: StripeProductDetailsProps[];
 }
 
 // 商品詳細データの作成
@@ -83,13 +83,11 @@ export async function createProductDetails({
                 subscription_id: subscriptionId,
                 subscription_status: (item.price?.recurring?.interval_count && item.price?.recurring?.interval) 
                     ? SUBS_ACTIVE 
-                    : undefined,                    
+                    : null,                    
                 subscription_interval: (item.price?.recurring?.interval_count && item.price?.recurring?.interval) 
                     ? `${item.price?.recurring?.interval_count}${item.price?.recurring?.interval}` 
-                    : undefined,           
-                ...(product.metadata.subscription_product === 'true' && {
-                    subscription_product: true
-                })         
+                    : null,           
+                subscription_product: product.metadata.subscription_product === 'true'      
             };
 
             try {
@@ -287,9 +285,9 @@ export async function handleSubscriptionEvent({
     const subscriptionStatus = formatStripeSubscriptionStatus(subscriptionEvent?.status);
 
     // 1. OrderItemSubscriptions テーブルのデータ作成
-    const subscriptionProducts = productDetails.filter(product => product.subscription_product);
+    const subscriptionProducts = productDetails?.filter(product => product.subscription_product);
     
-    if (subscriptionProducts.length > 0) {
+    if (orderData && subscriptionProducts && subscriptionProducts.length > 0) {
         const  { 
             success: orderItemSubscriptionsSuccess, 
             error: orderItemSubscriptionsError 

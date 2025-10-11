@@ -930,9 +930,9 @@ declare global {
         amount: ProductPrice;
         unit_price: OrderItemUnitPrice;
         quantity: OrderItemQuantity;
-        subscription_status?: OrderItemSubscriptionStatus;
-        subscription_interval?: OrderItemSubscriptionInterval;
-        subscription_product?: boolean;
+        subscription_status: OrderItemSubscriptionStatus | null;
+        subscription_interval: OrderItemSubscriptionInterval | null;
+        subscription_product: boolean;
         stripe_price_id: OrderItemStripePriceId;
         subscription_id: OrderItemStripeSubscriptionId;
     }
