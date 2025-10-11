@@ -1,4 +1,7 @@
-import { createOrderItemStripeRepository } from "@/repository/orderItemStripe"
+import { 
+    createOrderItemStripeRepository,
+    deleteOrderItemStripeRepository 
+} from "@/repository/orderItemStripe"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { ORDER_ITEM_STRIPE_ERROR } = ERROR_MESSAGES;
@@ -45,6 +48,28 @@ export const createOrderItemStripes = async ({
             success: false, 
             error: ORDER_ITEM_STRIPE_ERROR.CREATE_FAILED,
             data: null
+        }
+    }
+}
+
+// Stripe注文商品リストの削除
+export const deleteOrderItemStripes = async ({ 
+    orderItemId 
+}: { orderItemId: OrderItemStripeOrderItemId }) => {
+    try {
+        const repository = deleteOrderItemStripeRepository();
+        await repository.deleteOrderItemStripe({ orderItemId });
+
+        return {
+            success: true, 
+            error: null, 
+        }
+    } catch (error) {
+        console.error('Database : Error in deleteOrderItemStripes: ', error);
+        
+        return {
+            success: false, 
+            error: ORDER_ITEM_STRIPE_ERROR.DELETE_FAILED
         }
     }
 }

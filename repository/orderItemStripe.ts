@@ -19,3 +19,18 @@ export const createOrderItemStripeRepository = () => {
         }
     }
 }
+
+export const deleteOrderItemStripeRepository = () => {
+    return {
+        // Stripe注文商品リストの削除
+        deleteOrderItemStripe: async ({
+            orderItemId
+        }: { orderItemId: OrderItemStripeOrderItemId }) => {
+            return await prisma.orderItemStripe.delete({
+                where: {
+                    order_item_id: orderItemId
+                }
+            })
+        }
+    }
+}

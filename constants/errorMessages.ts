@@ -241,6 +241,7 @@ export const ERROR_MESSAGES = {
     // 注文商品Stripeデータ関連
     ORDER_ITEM_STRIPE_ERROR: {
         CREATE_FAILED: `注文の商品リストのStripeデータの保存に失敗しました。${RETRY}`,
+        DELETE_FAILED: `注文の商品リストのStripeデータの削除に失敗しました。${RETRY}`,
     },
     
     // サブスクリプション関連

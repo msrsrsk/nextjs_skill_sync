@@ -23,15 +23,6 @@ export const createOrderItemSubscriptions = async ({
         const validProductDetails = productDetails.filter(item => item.product_id);
 
         const item = validProductDetails[0];
-
-        if (!item.subscription_status || !item.subscription_interval) {
-            return {
-                success: false, 
-                error: SUBSCRIPTION_ERROR.CREATE_FAILED,
-                data: null
-            }
-        }
-
         const subscriptionData = {
             order_item_id: orderItemId,
             subscription_id: item.subscription_id,
