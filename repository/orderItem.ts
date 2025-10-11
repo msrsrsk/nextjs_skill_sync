@@ -116,11 +116,15 @@ export const getOrderItemRepository = () => {
                 })
             ])
 
+            const validOrderItems = orderItems.filter(item => 
+                item.order_item_subscriptions?.subscription_id !== null
+            );
+
             const totalPages = Math.ceil(totalCount / limit)
 
             return {
                 data: {
-                    orderItems,
+                    orderItems: validOrderItems,
                     totalCount,
                     totalPages,
                     currentPage: page,

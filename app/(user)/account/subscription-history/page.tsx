@@ -62,8 +62,6 @@ const SubscriptionWrapper = async ({
     });
     // const { data } = { data: undefined };
 
-    console.log('data', data);
-
     if (!data) return <ErrorMessage message={ORDER_ERROR.HISTORY_FETCH_FAILED} />
 
     return (
