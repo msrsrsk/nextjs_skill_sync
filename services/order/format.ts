@@ -15,7 +15,7 @@ const {
     ORDER_PROCESSING, 
     ORDER_SHIPPED, 
     ORDER_DELIVERED, 
-    ORDER_CANCELLED, 
+    ORDER_CANCELED, 
     ORDER_REFUNDED 
 } = ORDER_STATUS;
 const { 
@@ -40,7 +40,7 @@ export const formatOrderStatus = (status: OrderStatus): string => {
         [ORDER_PROCESSING]: CATEGORY_NOT_SHIPPED,
         [ORDER_SHIPPED]: CATEGORY_SHIPPED,
         [ORDER_DELIVERED]: '配送完了',
-        [ORDER_CANCELLED]: 'キャンセル',
+        [ORDER_CANCELED]: 'キャンセル',
         [ORDER_REFUNDED]: '返金済み',
     }
     
@@ -62,7 +62,7 @@ export const formatPaymentMethodType = (paymentMethodType: string): string => {
 export const formatPaymentStatus = (status: OrderStatus): string => {
     const statusMap = {
         [ORDER_PENDING]: '未払い',
-        [ORDER_CANCELLED]: 'キャンセル',
+        [ORDER_CANCELED]: 'キャンセル',
         [ORDER_REFUNDED]: '返金済み',
         [ORDER_PROCESSING]: '支払い済み',
         [ORDER_SHIPPED]: '支払い済み',

@@ -14,7 +14,7 @@ import {
 import { SUBSCRIPTION_STATUS } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
-const { SUBS_CANCELLED } = SUBSCRIPTION_STATUS;
+const { SUBS_CANCELED } = SUBSCRIPTION_STATUS;
 const { 
     SHIPPING_ADDRESS_ERROR, 
     SUBSCRIPTION_ERROR,
@@ -261,7 +261,7 @@ export const cancelSubscription = async ({
 
         const { success, error } = await updateOrderItemSubscriptionStatus({
             subscriptionId,
-            subscriptionStatus: SUBS_CANCELLED
+            subscriptionStatus: SUBS_CANCELED
         })
 
         if (!success) {

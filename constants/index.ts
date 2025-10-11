@@ -727,7 +727,7 @@ export const ORDER_STATUS = {
     ORDER_PROCESSING: 'processing', // 未発送（発送前）
     ORDER_SHIPPED: 'shipped',    // 発送済み
     ORDER_DELIVERED: 'delivered',  // 配送完了
-    ORDER_CANCELLED: 'cancelled',  // キャンセル
+    ORDER_CANCELED: 'canceled',  // キャンセル
     ORDER_REFUNDED: 'refunded',   // 返金済み
 } as const;
 
@@ -788,7 +788,7 @@ export const SUBSCRIPTION_PAYMENT_STATUS = {
     PAST_DUE: 'past_due',
     SUCCEEDED: 'succeeded',
     FAILED: 'failed',
-    CANCELED: 'cancelled',
+    CANCELED: 'canceled',
 }
 
 export const SUBSCRIPTION_PAYMENT_DISPLAY = {
@@ -844,13 +844,13 @@ export const SUBSCRIPTION_INTERVAL_THRESHOLDS = {
 // サブスクリプションのステータス
 export const SUBSCRIPTION_STATUS = {
     SUBS_ACTIVE: 'active',
-    SUBS_CANCELLED: 'cancelled',
+    SUBS_CANCELED: 'canceled',
 } as const;
 
 // サブスクリプションの契約履歴のカテゴリー
 export const SUBSCRIPTION_HISTORY_CATEGORIES = {
     CATEGORY_SUBS_ACTIVE: '契約中',
-    CATEGORY_SUBS_CANCELLED: '解約済み',
+    CATEGORY_SUBS_CANCELED: '解約済み',
 } as const;
 
 

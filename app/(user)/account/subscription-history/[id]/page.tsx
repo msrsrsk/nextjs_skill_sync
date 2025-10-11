@@ -26,7 +26,7 @@ import {
 
 const { ORDER_DETAIL } = ORDER_DISPLAY_TYPES;
 const { CARD } = ORDER_STATUS_DISPLAY_TYPES;
-const { SUBS_ACTIVE, SUBS_CANCELLED } = SUBSCRIPTION_STATUS;
+const { SUBS_ACTIVE, SUBS_CANCELED } = SUBSCRIPTION_STATUS;
 const { SUBSCRIPTION_HISTORY_PATH } = SITE_MAP;
 
 export async function generateMetadata({ 
@@ -72,7 +72,7 @@ const SubscriptionHistoryDetailPage = async ({ params }: { params: { id: OrderId
     const formattedNextPaymentDate = nextPaymentDate ? formatDate(nextPaymentDate) : 'No data';
 
     const isActive = subscriptionStatus === SUBS_ACTIVE;
-    const isCancelled = subscriptionStatus === SUBS_CANCELLED;
+    const isCanceled = subscriptionStatus === SUBS_CANCELED;
 
     return <>
         <Breadcrumb />
@@ -102,7 +102,7 @@ const SubscriptionHistoryDetailPage = async ({ params }: { params: { id: OrderId
                                 <SubscriptionCancelButton 
                                     subscriptionId={subscriptionId}
                                     createdAt={created_at}
-                                    isCancelled={isCancelled}
+                                    isCanceled={isCanceled}
                                 />
                             )}
                         </div>
@@ -138,10 +138,10 @@ const SubscriptionHistoryDetailPage = async ({ params }: { params: { id: OrderId
                                             isActive 
                                                 ? 'font-poppins' : ''
                                         }${
-                                            isCancelled ? ' text-tag-default' : ''
+                                            isCanceled ? ' text-tag-default' : ''
                                         }`}
                                     >
-                                        {isCancelled 
+                                        {isCanceled 
                                             ? '解約済み' : formattedNextPaymentDate
                                         }
                                     </OrderInfoDisplay>
@@ -206,7 +206,7 @@ const SubscriptionHistoryDetailPage = async ({ params }: { params: { id: OrderId
                             <SubscriptionCancelButton 
                                 subscriptionId={subscriptionId}
                                 createdAt={created_at}
-                                isCancelled={isCancelled}
+                                isCanceled={isCanceled}
                             />
                         )}
                     </div>

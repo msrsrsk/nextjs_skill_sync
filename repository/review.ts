@@ -122,14 +122,16 @@ export const getReviewRepository = () => {
         getProductReviews: async ({ 
             productSlug 
         }: { productSlug: ProductSlug }) => {
+            const whereCondition = {
+                is_approved: true,
+                product: {
+                    slug: productSlug
+                }
+            }
+
             const [reviews, totalCount] = await Promise.all([
                 prisma.review.findMany({
-                    where: {
-                        is_approved: true,
-                        product: {
-                            slug: productSlug
-                        }
-                    },
+                    where: whereCondition,
                     include: defaultReviewIncludeFields,
                     take: SECTION_LIMIT, 
                     orderBy: [
@@ -138,9 +140,7 @@ export const getReviewRepository = () => {
                     ]
                 }),
                 prisma.review.count({
-                    where: {
-                        is_approved: true
-                    }
+                    where: whereCondition
                 })
             ])
         

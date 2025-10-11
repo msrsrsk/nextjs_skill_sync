@@ -6,10 +6,10 @@ import {
     SUBSCRIPTION_HISTORY_CATEGORIES
 } from "@/constants/index"
 
-const { SUBS_ACTIVE, SUBS_CANCELLED } = SUBSCRIPTION_STATUS;
+const { SUBS_ACTIVE, SUBS_CANCELED } = SUBSCRIPTION_STATUS;
 const {
     CATEGORY_SUBS_ACTIVE,
-    CATEGORY_SUBS_CANCELLED
+    CATEGORY_SUBS_CANCELED
 } = SUBSCRIPTION_HISTORY_CATEGORIES;
 const { INITIAL_PAGE, PAGE_OFFSET } = PAGINATION_CONFIG;
 
@@ -54,7 +54,7 @@ export const getOrderItemRepository = () => {
                     product_id: productId,
                     order_item_subscriptions: {
                         status: {
-                            not: SUBS_CANCELLED as SubscriptionStatusType
+                            not: SUBS_CANCELED as SubscriptionStatusType
                         },
                     },
                     order: {
@@ -87,8 +87,8 @@ export const getOrderItemRepository = () => {
             }
             
             switch (category) {
-                case CATEGORY_SUBS_CANCELLED:
-                    subscriptionCondition.status = SUBS_CANCELLED;
+                case CATEGORY_SUBS_CANCELED:
+                    subscriptionCondition.status = SUBS_CANCELED;
                     break;
                 case CATEGORY_SUBS_ACTIVE:
                 default:

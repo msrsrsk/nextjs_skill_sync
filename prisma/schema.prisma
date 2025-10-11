@@ -54,14 +54,14 @@ enum OrderStatusType {
   processing // 未発送（発送前）
   shipped    // 発送済み
   delivered  // 配送完了
-  cancelled  // キャンセル
+  canceled  // キャンセル
   refunded   // 返金済み
 }
 
 // サブスクの契約状況
 enum SubscriptionContractStatusType {
   active    // 契約中
-  cancelled // 解約済み
+  canceled // 解約済み
 }
 
 // サブスクの支払い状況
