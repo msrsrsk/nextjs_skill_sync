@@ -22,7 +22,7 @@ const SubscriptionContractHistory = ({
 
     const isMobile = useIsMobile();
 
-    const subscriptionPayments = order_items[0].subscription_payments;
+    const subscriptionPayments = order_items[0].order_item_subscriptions.subscription_payments;
     const maxItems = isMobile ? MOBILE_MAX_ITEMS : DESKTOP_MAX_ITEMS;
     const shouldShowOmit = subscriptionPayments.length > maxItems;
 

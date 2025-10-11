@@ -139,6 +139,18 @@ export const getOrderRepository = () => {
                                     status: true,
                                     next_payment_date: true,
                                     remarks: true,
+                                    ...(isSubscription && {
+                                        subscription_payments: {
+                                            select: {
+                                                id: true,
+                                                payment_date: true,
+                                                status: true,
+                                            },
+                                            orderBy: {
+                                                payment_date: "asc"
+                                            }
+                                        }
+                                    })
                                 }
                             },
                             product: {
@@ -149,19 +161,7 @@ export const getOrderRepository = () => {
                                     category: true,
                                     slug: true,
                                 }
-                            },
-                            ...(isSubscription && {
-                                subscription_payments: {
-                                    select: {
-                                        id: true,
-                                        payment_date: true,
-                                        status: true,
-                                    },
-                                    orderBy: {
-                                        payment_date: "asc"
-                                    }
-                                }
-                            })
+                            }
                         },
                         orderBy: {
                             created_at: "desc"

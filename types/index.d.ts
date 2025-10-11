@@ -666,7 +666,6 @@ declare global {
         unit_price: OrderItemUnitPrice;
         order_item_subscriptions: OrderItemSubscriptionSelectFields;
         product: ProductSelectFields;
-        subscription_payments: SubscriptionPaymentSelectFields[];
     }
 
     interface OrderHistoryData extends Order {
@@ -761,7 +760,9 @@ declare global {
     type OrderItemSubscriptionNextPayment = OrderItemSubscription['next_payment_date'];
     type OrderItemSubscriptionRemarks = OrderItemSubscription['remarks'];
 
-    type OrderItemSubscriptionSelectFields = Pick<OrderItemSubscription, 'subscription_id' | 'status' | 'next_payment_date' | 'remarks'>;
+    type OrderItemSubscriptionSelectFields = Pick<OrderItemSubscription, 'subscription_id' | 'status' | 'next_payment_date' | 'remarks'> & {
+        subscription_payments: SubscriptionPaymentSelectFields[];
+    };
 
     interface UpdateSubscriptionStatusProps {
         subscriptionId: OrderItemSubscriptionSubscriptionId;
