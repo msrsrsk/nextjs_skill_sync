@@ -62,13 +62,16 @@ const SubscriptionWrapper = async ({
     });
     // const { data } = { data: undefined };
 
-    if (!data) return <ErrorMessage message={ORDER_ERROR.HISTORY_FETCH_FAILED} />
+    console.log('data', data);
+
+    // if (!data) return <ErrorMessage message={ORDER_ERROR.HISTORY_FETCH_FAILED} />
 
     return (
-        <SubscriptionListPagination 
-            subscriptionData={data} 
-            currentCategory={category as SubscriptionHistoryCategoryType}
-        />
+        // <SubscriptionListPagination 
+        //     subscriptionData={data} 
+        //     currentCategory={category as SubscriptionHistoryCategoryType}
+        // />
+        <div>test</div>
     )
 }
 
