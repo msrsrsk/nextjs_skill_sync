@@ -46,16 +46,12 @@ export const getOrderRepository = () => {
                 user_id: userId,
             }
 
-            const statusCondition = whereCondition.status as {
-                status: OrderStatusType;
-            }
-
             switch (category) {
                 case CATEGORY_NOT_SHIPPED:
-                    statusCondition.status = ORDER_PROCESSING;
+                    whereCondition.status = ORDER_PROCESSING;
                     break;
                 case CATEGORY_SHIPPED:
-                    statusCondition.status = ORDER_SHIPPED;
+                    whereCondition.status = ORDER_SHIPPED;
                     break;
                 case CATEGORY_ALL:
                 default:
