@@ -15,7 +15,7 @@ const SubscriptionCard = async ({
         order_item_subscriptions,
     } = orderItem;
 
-    const { subscription_id, status, next_payment_date } = order_item_subscriptions;
+    const { subscription_id, status, next_payment_date } = order_item_subscriptions || {};
 
     const formattedNextPaymentDate = status !== CANCELED 
         ? next_payment_date 

@@ -7,7 +7,7 @@ import {
 } from "@/constants/index"
 
 const { SUBS_ACTIVE, SUBS_CANCELED } = SUBSCRIPTION_STATUS;
-const { CATEGORY_SUBS_ACTIVE, CATEGORY_SUBS_CANCELED } = SUBSCRIPTION_HISTORY_CATEGORIES;
+const { CATEGORY_SUBS_CANCELED } = SUBSCRIPTION_HISTORY_CATEGORIES;
 const { INITIAL_PAGE, PAGE_OFFSET } = PAGINATION_CONFIG;
 
 interface CreateOrderItemsProps {
@@ -69,29 +69,16 @@ export const getOrderItemRepository = () => {
         }: GetUserPaginatedOrdersProps) => {
             const skip = (page - PAGE_OFFSET) * limit;
 
-            const whereCondition: OrderItemWhereInput = {
-                order: {
-                    user_id: userId
-                },
-                order_item_subscriptions: {
-                    isNot: null,
-                }
-            }
-
-            // if (whereCondition.order_item_subscriptions) {
-            //     switch (category) {
-            //         case CATEGORY_SUBS_CANCELED:
-            //             whereCondition.order_item_subscriptions.status = SUBS_CANCELED;
-            //             break;
-            //         case CATEGORY_SUBS_ACTIVE:
-            //             whereCondition.order_item_subscriptions.status = SUBS_ACTIVE;
-            //             break;
-            //     }
-            // }
-
             const [orderItems, totalCount] = await Promise.all([
                 prisma.orderItem.findMany({
-                    where: whereCondition,
+                    where: {
+                        order: {
+                            user_id: userId
+                        },
+                        order_item_subscriptions: {
+                            status: category === CATEGORY_SUBS_CANCELED ? SUBS_CANCELED : SUBS_ACTIVE
+                        }
+                    },
                     include: {
                         order_item_subscriptions: {
                             select: {

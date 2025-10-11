@@ -26,7 +26,7 @@ const OrderItemList = ({
                     order_item_subscriptions
                 } = item;
 
-                const { subscription_id, remarks } = order_item_subscriptions;
+                const { subscription_id, remarks } = order_item_subscriptions || {};
 
                 const isSale = unit_price < product.price;
                 const isRegularSale = isSale && !subscription_id;
