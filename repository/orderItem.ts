@@ -130,7 +130,7 @@ export const getOrderItemRepository = () => {
                             user_id: userId
                         },
                         order_item_subscriptions: {
-                            status: SUBS_ACTIVE as SubscriptionStatusType
+                            status: SUBS_ACTIVE
                         },
                     }
                 })
