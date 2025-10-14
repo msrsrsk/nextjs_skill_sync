@@ -171,11 +171,20 @@ export const setDefaultShippingAddress = async ({
 export const deleteShippingAddress = async ({ id }: { id: ShippingAddressId }) => {
     try {
         const repository = deleteShippingAddressRepository();
-        await repository.deleteShippingAddress({ id });
+        const addressResult = await repository.deleteShippingAddress({ id });
+
+        if (!addressResult) {
+            return {
+                success: false, 
+                error: SHIPPING_ADDRESS_ERROR.DELETE_FAILED,
+                status: 404
+            }
+        }
 
         return {
             success: true, 
             error: null, 
+            data: null
         }
     } catch (error) {
         console.error('Database : Error in deleteShippingAddress: ', error);
@@ -183,6 +192,7 @@ export const deleteShippingAddress = async ({ id }: { id: ShippingAddressId }) =
         return {
             success: false, 
             error: SHIPPING_ADDRESS_ERROR.DELETE_FAILED,
+            status: 500
         }
     }
 }

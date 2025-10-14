@@ -15,30 +15,17 @@ export async function DELETE(request: NextRequest) {
         return NextResponse.json(
             { message: SHIPPING_ADDRESS_ERROR.DELETE_MISSING_DATA }, 
             { status: 400 }
-        );
+        )
     }
 
-    try {
-        // throw new Error('test');
-        
-        const { success, error } = await deleteShippingAddress({
-            id: addressId
-        });
+    const result = await deleteShippingAddress({ id: addressId });
 
-        if (!success) {
-            return NextResponse.json(
-                { message: error }, 
-                { status: 404 }
-            );
-        }
-        
-        return NextResponse.json({ success: true });
-    } catch (error) {
-        console.error('API Error - Delete Shipping Address error:', error);
-
+    if (!result.success) {
         return NextResponse.json(
-            { message: SHIPPING_ADDRESS_ERROR.DELETE_FAILED }, 
-            { status: 500 }
-        );
+            { message: result.error }, 
+            { status: result.status }
+        )
     }
+
+    return NextResponse.json({ success: true })
 }
