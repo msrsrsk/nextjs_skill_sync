@@ -14,6 +14,11 @@ const { TREND_LIMIT, OPTIMAL_SYNCS_LIMIT } = PRODUCTS_DISPLAY_CONFIG;
 const { CREATED_DESCENDING } = COLLECTION_SORT_TYPES;
 const { PRODUCT_ERROR } = ERROR_MESSAGES;
 
+interface GetProductsByIdsProps {
+    ids: ProductId[];
+    pageType: GetProductsPageType;
+}
+
 // 商品詳細ページのデータ取得
 export const getProductBySlug = async ({
     slug,
@@ -87,6 +92,42 @@ export const getProductBySlug = async ({
             success: false, 
             error: PRODUCT_ERROR.FETCH_FAILED,
             data: null
+        }
+    }
+}
+
+// IDによる商品データの取得
+export const getProductsByIds = async ({
+    ids,
+    pageType,
+}: GetProductsByIdsProps) => {
+    try {
+        const repository = getProductRepository();
+        const productsResult = await repository.getProductsByIds({
+            ids,
+            pageType
+        });
+
+        if (!productsResult) {
+            return {
+                success: false, 
+                error: PRODUCT_ERROR.FETCH_FAILED,
+                status: 500
+            }
+        }
+
+        return {
+            success: true, 
+            error: null,
+            data: productsResult || []
+        }
+    } catch (error) {
+        console.error('Database : Error in getProductsByIds: ', error);
+
+        return {
+            success: false, 
+            error: PRODUCT_ERROR.FETCH_FAILED,
+            status: 500
         }
     }
 }

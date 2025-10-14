@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 
-import { getProductRepository } from "@/repository/product"
+import { getProductsByIds } from "@/services/product/actions"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { PRODUCT_ERROR } = ERROR_MESSAGES;
@@ -19,23 +19,20 @@ export async function GET(request: Request) {
         );
     }
 
-    try {
-        const repository = getProductRepository();
-        const productsResult = await repository.getProductsByIds({
-            ids,
-            pageType: pageType as GetProductsPageType
-        });
+    const result = await getProductsByIds({
+        ids,
+        pageType: pageType as GetProductsPageType
+    });
 
-        return NextResponse.json({ 
-            success: true, 
-            data: productsResult || []
-        });
-    } catch (error) {
-        console.error('API Error - Get Products error:', error);
-
+    if (!result.success) {
         return NextResponse.json(
-            { message: PRODUCT_ERROR.FETCH_FAILED }, 
-            { status: 500 }
-        );
+            { message: result.error }, 
+            { status: result.status }
+        )
     }
+
+    return NextResponse.json({
+        success: true,
+        data: result.data
+    })
 }
