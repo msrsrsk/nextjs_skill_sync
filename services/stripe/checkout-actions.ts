@@ -7,6 +7,7 @@ import {
     SITE_MAP, 
     STRIPE_SHIPPING_FREE_LIMIT, 
     GET_USER_DATA_TYPES, 
+    CHECKOUT_INITIAL_QUANTITY,
 } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
@@ -39,6 +40,10 @@ interface CreateCheckoutSessionProps extends CheckoutSessionProps {
 interface CreatePaymentLinkProps extends CheckoutSessionProps {
     userEmail: UserEmail;
     interval: string | null;
+}
+
+interface ProcessCheckoutItemsProps extends UserIdProps {
+    cartItems: CartItemWithProduct[];
 }
 
 // サブスクリプションの配送料の取得
@@ -167,6 +172,14 @@ export const createCheckoutSession = async ({
         
         const session = await stripe.checkout.sessions.create(sessionConfig);
 
+        if (!session) {
+            return {
+                success: false, 
+                error: CHECKOUT_ERROR.CHECKOUT_SESSION_FAILED,
+                status: 500
+            }
+        }
+
         return {
             success: true, 
             error: null, 
@@ -178,7 +191,7 @@ export const createCheckoutSession = async ({
         return {
             success: false, 
             error: CHECKOUT_ERROR.CHECKOUT_SESSION_FAILED,
-            data: null
+            status: 500
         }
     }
 }
@@ -263,6 +276,70 @@ export const createPaymentLink = async ({
             success: false, 
             error: CHECKOUT_ERROR.PAYMENT_LINK_FAILED,
             data: null
+        }
+    }
+}
+
+export const processCheckoutItems = async ({
+    userId,
+    cartItems
+}: ProcessCheckoutItemsProps) => {
+    try {
+        // 商品の合計数量を計算
+        const totalQuantity = cartItems.reduce((
+            sum: number, 
+            item: CartItemWithProduct
+        ) => sum + item.quantity, CHECKOUT_INITIAL_QUANTITY);
+
+        // チェックアウトの商品リストを作成
+        let lineItems: CheckoutLineItem[] = [];
+
+        for (const cartItem of cartItems) {
+            const product = cartItem.product;
+
+            if (!product) {
+                return {
+                    success: false, 
+                    error: CHECKOUT_ERROR.NO_PRODUCT_DATA,
+                    status: 404
+                }
+            }
+
+            const priceId = product.product_stripes?.sale_price_id 
+                || product.product_stripes?.regular_price_id;
+
+            if (!priceId) {
+                return {
+                    success: false, 
+                    error: CHECKOUT_ERROR.NO_PRICE_ID,
+                    status: 404
+                }
+            }
+
+            lineItems = [...lineItems, {
+                price: priceId,
+                quantity: cartItem.quantity,
+            }];
+        }
+
+        const checkoutResult = await createCheckoutSession({ 
+            lineItems, 
+            userId,
+            totalQuantity,
+        })
+
+        return {
+            success: true,
+            error: null,
+            data: checkoutResult
+        }
+    } catch (error) {
+        console.error('API Error - Process Checkout Items error:', error);
+
+        return {
+            success: false, 
+            error: CHECKOUT_ERROR.CHECKOUT_PRODUCT_CREATE_FAILED,
+            status: 500
         }
     }
 }
