@@ -6,6 +6,7 @@ import {
     updateUserRepository, 
     deleteUserRepository 
 } from "@/repository/user"
+import { deleteUserImage } from "@/services/cloudflare/actions"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { USER_ERROR } = ERROR_MESSAGES;
@@ -157,6 +158,45 @@ export const deleteUser = async ({ userId }: { userId: string }) => {
         return {
             success: false, 
             error: USER_ERROR.DELETE_FAILED
+        }
+    }
+}
+
+// ユーザーとアイコン画像データの削除
+export const deleteUserAccount = async ({ userId }: { userId: string }) => {
+    try {
+        const deleteUserImageResult = await deleteUserImage({ userId });
+
+        if (!deleteUserImageResult.success) {
+            return {
+                success: false, 
+                error: deleteUserImageResult.error,
+                status: 500
+            }
+        }
+
+        const deleteUserResult = await deleteUser({ userId });
+
+        if (!deleteUserResult.success) {
+            return {
+                success: false, 
+                error: deleteUserResult.error,
+                status: 500
+            }
+        }
+
+        return {
+            success: true, 
+            error: null, 
+            data: null
+        }
+    } catch (error) {
+        console.error('Database : Error in deleteUserAccount:', error);
+
+        return {
+            success: false, 
+            error: USER_ERROR.DELETE_FAILED,
+            status: 500
         }
     }
 }
