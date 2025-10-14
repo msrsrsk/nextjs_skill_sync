@@ -1,6 +1,10 @@
 import { getChatRoomRepository } from "@/repository/chatRoom"
 import { createChatRepository } from "@/repository/chat"
-import { CHAT_HISTORY_INITIAL_MESSAGE, CHAT_SENDER_TYPES, CHAT_SOURCE } from "@/constants/index"
+import { 
+    CHAT_HISTORY_INITIAL_MESSAGE, 
+    CHAT_SENDER_TYPES, 
+    CHAT_SOURCE 
+} from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { SENDER_ADMIN } = CHAT_SENDER_TYPES;
@@ -60,7 +64,8 @@ export const createChatMessageByUserId = async ({
         if (!chatRoom) {
             return {
                 success: false, 
-                error: CHAT_ERROR.MISSING_CHAT_ROOM
+                error: CHAT_ERROR.MISSING_CHAT_ROOM,
+                status: 404
             }
         }
 
@@ -71,6 +76,14 @@ export const createChatMessageByUserId = async ({
             senderType,
             source
         });
+
+        if (!chatMessage) {
+            return {
+                success: false, 
+                error: CHAT_ERROR.CREATE_FAILED,
+                status: 500
+            }
+        }
 
         return {
             success: true, 
@@ -86,7 +99,8 @@ export const createChatMessageByUserId = async ({
 
         return {
             success: false, 
-            error: errorMessage
+            error: errorMessage,
+            status: 500
         }
     }
 }
