@@ -24,31 +24,22 @@ export async function GET(request: NextRequest) {
         );
     }
 
-    try {
-        const { success, error, data } = await getUserSubscriptionByProduct({
-            productId,
-            userId
-        });
+    const result = await getUserSubscriptionByProduct({
+        productId,
+        userId
+    });
 
-        if (!success) {
-            return NextResponse.json(
-                { message: error }, 
-                { status: 404 }
-            );
-        }
-
-        return NextResponse.json({ 
-            success: true, 
-            data: data 
-        });
-    } catch (error) {
-        console.error('API Error - Get Subscription Data error:', error);
-
+    if (!result.success) {
         return NextResponse.json(
-            { message: CHECKOUT_ERROR.FETCH_SUBSCRIPTION_FAILED }, 
-            { status: 500 }
-        );
+            { message: result.error }, 
+            { status: result.status }
+        )
     }
+
+    return NextResponse.json({ 
+        success: true, 
+        data: result.data 
+    })
 }
 
 // POST: サブスクリプションの支払いリンクの作成
@@ -73,33 +64,24 @@ export async function POST(request: NextRequest) {
         }
     ]
 
-    try {
-        const { success, data } = await createPaymentLink({ 
-            lineItems, 
-            userId,
-            userEmail,
-            interval
-        });
+    const result = await createPaymentLink({ 
+        lineItems, 
+        userId,
+        userEmail,
+        interval
+    });
 
-        if (!success) {
-            return NextResponse.json(
-                { message: CHECKOUT_ERROR.PAYMENT_LINK_FAILED }, 
-                { status: 500 }
-            );
-        }
-
-        return NextResponse.json({ 
-            success: true, 
-            data: data 
-        });
-    } catch (error) {
-        console.error('API Error - Create Payment Link error:', error);
-
+    if (!result.success) {
         return NextResponse.json(
-            { message: CHECKOUT_ERROR.PAYMENT_LINK_FAILED }, 
-            { status: 500 }
-        );
+            { message: result.error }, 
+            { status: result.status }
+        )
     }
+
+    return NextResponse.json({ 
+        success: true, 
+        data: result.data 
+    })
 }
 
 // DELETE: サブスクリプションのキャンセル
@@ -110,28 +92,19 @@ export async function DELETE(request: NextRequest) {
         return NextResponse.json(
             { message: SUBSCRIPTION_ERROR.NO_SUBSCRIPTION_ID }, 
             { status: 400 }
-        );
+        )
     }
 
-    try {
-        const { success, error } = await cancelSubscription({
-            subscriptionId
-        });
+    const result = await cancelSubscription({
+        subscriptionId
+    });
 
-        if (!success) {
-            return NextResponse.json(
-                { message: error }, 
-                { status: 500 }
-            );
-        }
-
-        return NextResponse.json({ success: true });
-    } catch (error) {
-        console.error('API Error - Cancel Subscription error:', error);
-
+    if (!result.success) {
         return NextResponse.json(
-            { message: SUBSCRIPTION_ERROR.CANCEL_SUBSCRIPTION_FAILED }, 
-            { status: 500 }
-        );
+            { message: result.error }, 
+            { status: result.status }
+        )
     }
+
+    return NextResponse.json({ success: true });
 }

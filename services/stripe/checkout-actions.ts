@@ -213,7 +213,7 @@ export const createPaymentLink = async ({
             return {
                 success: false, 
                 error: CHECKOUT_ERROR.NO_SUBSCRIPTION_INTERVAL,
-                data: null
+                status: 400
             }
         }
 
@@ -264,6 +264,14 @@ export const createPaymentLink = async ({
         
         const paymentLink = await stripe.paymentLinks.create(paymentLinkConfig);
 
+        if (!paymentLink) {
+            return {
+                success: false, 
+                error: CHECKOUT_ERROR.PAYMENT_LINK_FAILED,
+                status: 500
+            }
+        }
+
         return {
             success: true, 
             error: null, 
@@ -275,7 +283,7 @@ export const createPaymentLink = async ({
         return {
             success: false, 
             error: CHECKOUT_ERROR.PAYMENT_LINK_FAILED,
-            data: null
+            status: 500
         }
     }
 }

@@ -62,6 +62,14 @@ export const getUserSubscriptionByProduct = async ({
             userId
         });
 
+        if (!subscriptionCount) {
+            return {
+                success: false, 
+                error: SUBSCRIPTION_ERROR.FAILED_CHECK_SUBSCRIPTION,
+                status: 404
+            }
+        }
+
         return {
             success: true,
             error: null,
@@ -73,7 +81,7 @@ export const getUserSubscriptionByProduct = async ({
         return {
             success: false, 
             error: SUBSCRIPTION_ERROR.FAILED_CHECK_SUBSCRIPTION,
-            data: null
+            status: 500
         }
     }
 }
