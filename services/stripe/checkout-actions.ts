@@ -1,7 +1,14 @@
 import { stripe } from "@/lib/clients/stripe/client"
 
 import { getUser } from "@/services/user/actions"
-import { getShippingRateAmount } from "@/services/stripe/actions"
+import { getShippingRateAmount, deactivatePaymentLink } from "@/services/stripe/actions"
+import { 
+    processOrderData, 
+    sendOrderEmails, 
+    processShippingAddress 
+} from "@/services/stripe/webhook-actions"
+import { updateProductStockAndSoldCount } from "@/services/order/actions"
+import { sendOrderCompleteEmail } from "@/services/email/order/confirmation"
 import { getRecurringConfig } from "@/services/subscription-payment/format"
 import { 
     SITE_MAP, 
@@ -331,6 +338,89 @@ export const processCheckoutItems = async ({
         return {
             success: false, 
             error: CHECKOUT_ERROR.CHECKOUT_PRODUCT_CREATE_FAILED,
+            status: 500
+        }
+    }
+}
+
+export const processCheckoutSessionCompleted = async ({
+    checkoutSessionEvent
+}: { checkoutSessionEvent: StripeCheckoutSession }) => {
+    try {
+        // 1. 注文データの処理
+        const { orderData, productDetails } = await processOrderData({
+            checkoutSessionEvent
+        });
+
+        // 2. 在庫数と売り上げ数の更新
+        const { 
+            success: updateStockSuccess, 
+            error: updateStockError 
+        } = await updateProductStockAndSoldCount({ orderId: orderData.order.id });
+
+        if (!updateStockSuccess) {
+            return {
+                success: false,
+                error: updateStockError,
+                status: 500
+            }
+        }
+
+        // 3. 配送先住所のデータ保存
+        const userId = checkoutSessionEvent?.metadata?.userID as UserId;
+
+        await processShippingAddress({
+            checkoutSessionEvent,
+            userId
+        });
+
+        // 4. 注文完了メールの送信
+        const { 
+            success: orderEmailSuccess, 
+            error: orderEmailError 
+        } = await sendOrderCompleteEmail({
+            orderData: checkoutSessionEvent,
+            productDetails: productDetails as StripeProductDetailsProps[],
+            orderNumber: orderData.order.order_number
+        });
+
+        if (!orderEmailSuccess) {
+            return {
+                success: false,
+                error: orderEmailError,
+                status: 500
+            }
+        }
+
+        const isNotEventSubscription = checkoutSessionEvent.mode !== 'subscription';
+
+        // 5. 未払いの場合のメール送信
+        if (checkoutSessionEvent.payment_status !== 'paid' && isNotEventSubscription) {
+            await sendOrderEmails({
+                checkoutSessionEvent,
+                productDetails: productDetails as StripeProductDetailsProps[],
+                orderData
+            });
+        }
+
+        // 6. Payment Link の無効化
+        if (checkoutSessionEvent.payment_link && isNotEventSubscription) {
+            await deactivatePaymentLink({
+                checkoutSessionEvent
+            });
+        }
+
+        return {
+            success: true,
+            error: null,
+            data: null
+        }
+    } catch (error) {
+        console.error('API Error - Process Checkout Session Completed:', error);
+        
+        return {
+            success: false,
+            error: CHECKOUT_ERROR.WEBHOOK_PROCESS_FAILED,
             status: 500
         }
     }
