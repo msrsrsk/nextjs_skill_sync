@@ -276,14 +276,6 @@ export const cancelSubscription = async ({
             }
         }
 
-        if (!updatedSubscription) {
-            return {
-                success: false,
-                error: STRIPE_ERROR.CANCEL_SUBSCRIPTION_FAILED,
-                status: 500
-            }
-        }
-
         return {
             success: true,
             error: null,

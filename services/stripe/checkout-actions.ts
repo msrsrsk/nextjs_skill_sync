@@ -172,14 +172,6 @@ export const createCheckoutSession = async ({
         
         const session = await stripe.checkout.sessions.create(sessionConfig);
 
-        if (!session) {
-            return {
-                success: false, 
-                error: CHECKOUT_ERROR.CHECKOUT_SESSION_FAILED,
-                status: 500
-            }
-        }
-
         return {
             success: true, 
             error: null, 
@@ -263,14 +255,6 @@ export const createPaymentLink = async ({
         }
         
         const paymentLink = await stripe.paymentLinks.create(paymentLinkConfig);
-
-        if (!paymentLink) {
-            return {
-                success: false, 
-                error: CHECKOUT_ERROR.PAYMENT_LINK_FAILED,
-                status: 500
-            }
-        }
 
         return {
             success: true, 
