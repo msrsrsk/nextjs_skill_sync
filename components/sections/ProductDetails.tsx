@@ -46,10 +46,12 @@ const ProductDetails = ({
         skill_type, 
         stock,
         product_pricings,
+        product_sales,
         product_stripes,
     } = product;
 
-    const { sold_count, sale_price } = product_pricings || {};
+    const { sale_price } = product_pricings || {};
+    const { sold_count } = product_sales || {};
 
     const isSubscription = !!product_stripes?.subscription_price_ids;
     const subscriptionOptions = extractSubscriptionPrices(

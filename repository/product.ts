@@ -48,7 +48,8 @@ const defaultProductSelectFields = {
             rating: true
         }
     },
-    product_pricings: true
+    product_pricings: true,
+    product_sales: true
 }
 
 export const getProductRepository = () => {
@@ -69,6 +70,7 @@ export const getProductRepository = () => {
                         }
                     },
                     product_pricings: true,
+                    product_sales: true,
                     product_details: true,
                     product_relations: true,
                     product_stripes: true
@@ -213,7 +215,7 @@ export const getProductRepository = () => {
                 categories.map(async (category) => {
                     const whereCondition = {
                         category: category as CategoryType,
-                        product_pricings: {
+                        product_sales: {
                             sold_count: {
                                 gte: threshold
                             }
@@ -226,7 +228,7 @@ export const getProductRepository = () => {
                             select: defaultProductSelectFields,
                             take: limit,
                             orderBy: [
-                                { product_pricings: { sold_count: "desc" } }
+                                { product_sales: { sold_count: "desc" } }
                             ]
                         }),
                         prisma.product.count({
@@ -266,7 +268,7 @@ export const getProductRepository = () => {
                     ]
                 }),
                 ...(isTrend && {
-                    product_pricings: {
+                    product_sales: {
                         sold_count: {
                             gte: TREND_PRODUCT_SALES_VOLUME_THRESHOLD
                         }
@@ -306,7 +308,7 @@ export const getProductRepository = () => {
                     case CREATED_DESCENDING:
                         return [{ created_at: "desc" }];
                     case BEST_SELLING:
-                        return [{ product_pricings: { sold_count: "desc" } }];
+                        return [{ product_sales: { sold_count: "desc" } }];
                     case TITLE_ASCENDING:
                         return [{ title: "asc" }];
                     case TITLE_DESCENDING:

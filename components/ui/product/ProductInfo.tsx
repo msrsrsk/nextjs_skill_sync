@@ -8,12 +8,12 @@ const ProductInfo = ({ product }: { product: ProductWithRelationsAndDetails }) =
 
     const { 
         category,
-        product_pricings,
+        product_sales,
         product_details,
         product_relations
     } = product;
 
-    const sold_count = product_pricings?.sold_count;
+    const sold_count = product_sales?.sold_count;
     const optimal_syncs_required_id = product_relations?.optimal_syncs_required_id;
     
     const { 

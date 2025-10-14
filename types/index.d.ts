@@ -6,6 +6,7 @@ import type {
     UserStripe as PrismaUserStripe,
     Product as PrismaProduct, 
     ProductPricing as PrismaProductPricing,
+    ProductSales as PrismaProductSales,
     ProductDetail as PrismaProductDetail,
     ProductRelation as PrismaProductRelation,
     ProductStripe as PrismaProductStripe,
@@ -206,11 +207,13 @@ declare global {
     interface ProductWithReviewsAndPricing extends Product {
         reviews: Review[];
         product_pricings: ProductPricing | null;
+        product_sales: ProductSales | null;
     }
 
     interface ProductWithRelations extends Product {
         product_stripes: ProductStripe | null;
         product_pricings: ProductPricing | null;
+        product_sales: ProductSales | null;
     }
 
     interface ProductWithRelationsAndDetails extends ProductWithRelations {
@@ -429,6 +432,12 @@ declare global {
     ============================== */
     type ProductPricing = PrismaProductPricing;
     type ProductSalePrice = ProductPricing['sale_price'];
+
+
+    /* ============================== 
+        ProductSales 関連
+    ============================== */
+    type ProductSales = PrismaProductSales;
 
 
     /* ============================== 

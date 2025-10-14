@@ -40,9 +40,11 @@ const ProductCard = ({
         slug,
         stock,
         product_pricings,
+        product_sales,
     } = product;
 
-    const { sale_price, sold_count } = product_pricings || {};
+    const { sale_price } = product_pricings || {};
+    const { sold_count } = product_sales || {};
 
     const reviews = 'reviews' in product ? product.reviews : [];
 

@@ -1,4 +1,4 @@
-export const updateProductPricingRepository = () => {
+export const updateProductSaleRepository = () => {
     return {
         // 商品の売り上げ数の更新
         updateProductSoldCountWithTransaction: async ({
@@ -10,7 +10,7 @@ export const updateProductPricingRepository = () => {
             quantity: number,
             tx: TransactionClient
         }) => {
-            return await tx.productPricing.updateMany({
+            return await tx.productSales.updateMany({
                 where: { product_id: productId },
                 data: { 
                     sold_count: {

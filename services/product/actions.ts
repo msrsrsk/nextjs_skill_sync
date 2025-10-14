@@ -1,7 +1,7 @@
 import prisma from "@/lib/clients/prisma/client"
 
 import { getProductRepository, updateProductRepository } from "@/repository/product"
-import { updateProductPricingRepository } from "@/repository/productPricing"
+import { updateProductSaleRepository } from "@/repository/productSale"
 import { calculateReviewStats } from "@/services/review/calculation"
 import { 
     PRODUCTS_DISPLAY_CONFIG, 
@@ -171,8 +171,8 @@ export const updateStockAndSoldCount = async ({
                     tx 
                 });
 
-                const pricingRepository = updateProductPricingRepository();
-                await pricingRepository.updateProductSoldCountWithTransaction({ 
+                const saleRepository = updateProductSaleRepository();
+                await saleRepository.updateProductSoldCountWithTransaction({ 
                     productId, 
                     quantity, 
                     tx 

@@ -164,6 +164,7 @@ model Product {
 
   // Relations
   product_pricings    ProductPricing?
+  product_sales       ProductSales?
   product_details     ProductDetail?
   product_relations   ProductRelation?
   product_stripes     ProductStripe?
@@ -186,6 +187,19 @@ model Product {
 model ProductPricing {
   product_id   String @unique @db.Uuid
   sale_price   Int?
+  created_at   DateTime @default(now())
+  updated_at   DateTime @default(now()) @updatedAt
+  
+  // Relations
+  product      Product @relation(fields: [product_id], references: [id], onDelete: Cascade)
+
+  @@index([sale_price])
+  @@map("product_pricings")
+}
+
+// 商品価格・販売情報
+model ProductSales {
+  product_id   String @unique @db.Uuid
   sold_count   Int      @default(0)
   created_at   DateTime @default(now())
   updated_at   DateTime @default(now()) @updatedAt
@@ -194,7 +208,7 @@ model ProductPricing {
   product      Product @relation(fields: [product_id], references: [id], onDelete: Cascade)
 
   @@index([sold_count])
-  @@map("product_pricings")
+  @@map("product_sales")
 }
 
 // 商品詳細情報（スキル情報）
