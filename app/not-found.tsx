@@ -1,20 +1,35 @@
+import { useEffect } from "react"
+import { useSearchParams } from "next/navigation"
+
 import Breadcrumb from "@/components/ui/navigation/Breadcrumb"
 import PageTitle from "@/components/common/display/PageTitle"
 import { Metadata } from "next"
 import { LinkButtonPrimary } from "@/components/common/buttons/Button"
-import { BUTTON_SIZES, BUTTON_TEXT_TYPES, SITE_MAP } from "@/constants/index"
+import { showErrorToast } from "@/components/common/display/Toasts"
 import { generatePageMetadata } from "@/lib/metadata/page"
+import { BUTTON_SIZES, BUTTON_TEXT_TYPES, SITE_MAP } from "@/constants/index"
 import { MAIN_METADATA } from "@/constants/metadata/main"
+import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { BUTTON_LARGE } = BUTTON_SIZES;
 const { BUTTON_JA } = BUTTON_TEXT_TYPES;
 const { HOME_PATH } = SITE_MAP;
+const { AUTH_ERROR } = ERROR_MESSAGES;
 
 export const metadata: Metadata = generatePageMetadata({
     ...MAIN_METADATA.NOT_FOUND
 })
 
 const NotFound = () => {
+    const searchParams = useSearchParams();
+    const error = searchParams.get('error');
+
+    useEffect(() => {
+        if (error === 'auth_required') {
+            showErrorToast(AUTH_ERROR.USER_NOT_FOUND);
+        }
+    }, [error]);
+    
     return <>
         <Breadcrumb />
 

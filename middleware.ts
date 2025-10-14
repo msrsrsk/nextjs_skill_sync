@@ -1,7 +1,6 @@
 import { auth } from "@/lib/auth"
 import { NextResponse } from "next/server"
 
-import { showErrorToast } from "@/components/common/display/Toasts"
 import { SITE_MAP } from "@/constants/index"
 const { 
     HOME_PATH,
@@ -22,7 +21,6 @@ const {
     SHIPPING_ADDRESS_API_PATH,
     USER_API_PATH
 } = SITE_MAP;
-import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 export default auth((req) => {
     const { pathname, searchParams } = req.nextUrl;
@@ -55,8 +53,9 @@ export default auth((req) => {
 
     if (isProtectedApiRoute) {
         if (!req.auth?.user?.id) {
-            showErrorToast(ERROR_MESSAGES.AUTH_ERROR.USER_NOT_FOUND);
-            return NextResponse.redirect(new URL(NOT_FOUND_PATH, req.url));
+            return NextResponse.redirect(
+                new URL(`${NOT_FOUND_PATH}?error=auth_required`, req.url)
+            )
         }
     }
 
