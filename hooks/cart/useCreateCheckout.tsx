@@ -81,8 +81,6 @@ const useCheckout = ({ cartItems }: { cartItems: CartItemWithProduct[] }) => {
                 message: stockCheckMessage 
             } = await checkStockAvailability();
 
-            console.log('stockCheckSuccess', stockCheckSuccess);
-
             if (!stockCheckSuccess) {
                 router.refresh();
                 
@@ -101,17 +99,11 @@ const useCheckout = ({ cartItems }: { cartItems: CartItemWithProduct[] }) => {
                 body: JSON.stringify({ cartItems })
             });
 
-            console.log('response', response);
-
             const { 
                 success: checkoutSuccess, 
                 data: checkoutData,
                 message: checkoutMessage
             } = await response.json();
-
-            console.log('checkoutSuccess', checkoutSuccess);
-            console.log('checkoutData', checkoutData);
-            console.log('checkoutMessage', checkoutMessage);
 
             if (checkoutSuccess && checkoutData?.url) {
                 router.push(checkoutData.url);
@@ -121,11 +113,7 @@ const useCheckout = ({ cartItems }: { cartItems: CartItemWithProduct[] }) => {
         } catch (error) {
             console.error('Hook Error - Checkout error:', error);
 
-            const errorMessage = error instanceof Error 
-                ? error.message 
-                : CHECKOUT_ERROR.NOT_PROCEED_CHECKOUT;
-
-            setError(errorMessage);
+            setError(CHECKOUT_ERROR.NOT_PROCEED_CHECKOUT);
         } finally {
             setLoading(false);
         }

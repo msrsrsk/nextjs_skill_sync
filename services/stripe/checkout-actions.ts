@@ -347,10 +347,18 @@ export const processCheckoutItems = async ({
             totalQuantity,
         })
 
+        if (!checkoutResult.success) {
+            return {
+                success: false,
+                error: checkoutResult.error,
+                status: 500
+            }
+        }
+
         return {
             success: true,
             error: null,
-            data: checkoutResult
+            data: checkoutResult.data
         }
     } catch (error) {
         console.error('API Error - Process Checkout Items error:', error);
