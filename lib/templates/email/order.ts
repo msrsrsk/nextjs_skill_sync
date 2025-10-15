@@ -18,7 +18,7 @@ interface CompleteEmailProps {
 
 interface OrderCompleteEmailProps extends CompleteEmailProps {
     name: string
-    shippingDetails: StripeCheckoutSessionCustomerDetails
+    shippingDetails: StripeAddress
     cardType: string
     paid: boolean
 }
@@ -294,10 +294,10 @@ export const orderCompleteEmailTemplate = ({
                                             お届け先
                                         </td>
                                         <td style="font-size: 14px;">
-                                            〒${shippingDetails?.address?.postal_code}<br>
-                                            ${shippingDetails?.address?.state} ${shippingDetails?.address?.city || ''}<br>
-                                            ${shippingDetails?.address?.line1}<br>
-                                            ${shippingDetails?.address?.line2 ? `${shippingDetails?.address?.line2}<br>` : ''}
+                                            〒${shippingDetails?.postal_code}<br>
+                                            ${shippingDetails?.state} ${shippingDetails?.city || ''}<br>
+                                            ${shippingDetails?.line1}<br>
+                                            ${shippingDetails?.line2 ? `${shippingDetails.line2}<br>` : ''}
                                             ${name}
                                         </td>
                                     </tr>

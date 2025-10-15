@@ -912,7 +912,7 @@ declare global {
     type StripePaymentIntent = Stripe.PaymentIntent;
     type StripeCustomerId = string;
     type StripeCheckoutSessionCreateParams = Stripe.Checkout.SessionCreateParams;
-    type StripeCheckoutSessionCustomerDetails = Stripe.Checkout.Session['customer_details'];
+    // type StripeCheckoutSessionCustomerDetails = Stripe.Checkout.Session['customer_details'];
     type StripeCheckoutSessionLineItem = Stripe.Checkout.SessionCreateParams.LineItem;
     type StripePaymentLinkCreateParams = Stripe.PaymentLinkCreateParams;
     type StripeSubscription = Stripe.Subscription;
@@ -934,6 +934,10 @@ declare global {
         address: StripeAddress;
         name: string;
         phone?: string;
+    }
+
+    interface StripeCheckoutSessionCustomerDetails extends StripeCustomerDetails {
+        address: StripeAddress;
     }
 
     interface StripeProductDetailsProps {
