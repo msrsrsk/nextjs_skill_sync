@@ -100,6 +100,9 @@ export async function createProductDetails({
                 })         
             };
 
+            console.log('baseProductData', baseProductData);
+            console.log('item.price', !item.price || typeof item.price === 'string');
+
             try {
                 return {
                     ...baseProductData,
@@ -139,6 +142,8 @@ export async function processOrderData({
         subscriptionId: subscriptionId,
         isCheckout: true
     });
+
+    console.log('productDetails', productDetails);
 
     // Order テーブルのデータ作成
     const { 
