@@ -64,21 +64,6 @@ export async function createProductDetails({
 }: CreateProductDetailsProps) {
     const productDetails = await Promise.all(
         lineItems.map(async (item) => {
-            if (!item.price || typeof item.price === 'string') {
-                return {
-                    product_id: '',
-                    image: process.env.NEXT_PUBLIC_BASE_URL + NOIMAGE_PRODUCT_IMAGE_URL,
-                    unit_price: 0,
-                    amount: 0,
-                    quantity: item.quantity,
-                    stripe_price_id: '',
-                    subscription_id: subscriptionId,
-                    subscription_status: null,
-                    subscription_interval: null,
-                    title: 'No Product Title'
-                };
-            }
-
             const product = await stripe.products.retrieve(item.price?.product as string);
             
             const baseProductData = {
@@ -99,9 +84,6 @@ export async function createProductDetails({
                     subscription_product: true
                 })         
             };
-
-            console.log('baseProductData', baseProductData);
-            console.log('item.price', !item.price || typeof item.price === 'string');
 
             try {
                 return {
@@ -142,8 +124,6 @@ export async function processOrderData({
         subscriptionId: subscriptionId,
         isCheckout: true
     });
-
-    console.log('productDetails', productDetails);
 
     // Order テーブルのデータ作成
     const { 
