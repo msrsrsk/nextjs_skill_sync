@@ -13,7 +13,8 @@ const { ORDER_HISTORY_PATH } = SITE_MAP;
 const { EMAIL_ERROR } = ERROR_MESSAGES;
 
 interface SendPaymentRequestEmailProps extends OrderCompleteEmailProps {
-    paymentIntent: StripePaymentIntent;
+    paymentIntent: StripePaymentIntent | null;
+    checkoutSessionEvent: StripeCheckoutSession;
 }
 
 // 未払いの場合のメール送信
@@ -21,7 +22,8 @@ export async function sendPaymentRequestEmail({
     orderData,
     productDetails,
     orderNumber,
-    paymentIntent
+    paymentIntent,
+    checkoutSessionEvent
 }: SendPaymentRequestEmailProps) {
     if (!orderData || !productDetails || !orderNumber) {
         return {
@@ -56,6 +58,7 @@ export async function sendPaymentRequestEmail({
                 shippingFee,
                 total,
                 errorType,
+                checkoutSessionEvent
             })
         });
         

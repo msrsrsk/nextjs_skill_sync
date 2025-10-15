@@ -297,13 +297,13 @@ export async function sendOrderEmails({
     productDetails,
     orderData
 }: SendOrderEmailsProps) {
-    if (!checkoutSessionEvent.payment_intent || typeof checkoutSessionEvent.payment_intent !== 'string') {
-        throw new Error(CHECKOUT_ERROR.NO_PAYMENT_INTENT);
-    }
+    let paymentIntent = null;
 
-    const paymentIntent = await stripe.paymentIntents.retrieve(
-        checkoutSessionEvent.payment_intent
-    );
+    if (checkoutSessionEvent.payment_intent && typeof checkoutSessionEvent.payment_intent === 'string') {
+        paymentIntent = await stripe.paymentIntents.retrieve(
+            checkoutSessionEvent.payment_intent
+        );
+    }
 
     const { 
         success: paymentEmailSuccess, 
@@ -312,7 +312,8 @@ export async function sendOrderEmails({
         orderData: checkoutSessionEvent,
         productDetails: productDetails as StripeProductDetailsProps[],
         orderNumber: orderData.order.order_number,
-        paymentIntent
+        paymentIntent,
+        checkoutSessionEvent
     });
 
     if (!paymentEmailSuccess) {

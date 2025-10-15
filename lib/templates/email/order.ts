@@ -24,8 +24,9 @@ interface OrderCompleteEmailProps extends CompleteEmailProps {
 }
 
 interface PaymentRequestEmailProps extends CompleteEmailProps {
-    paymentIntent: StripePaymentIntent;
+    paymentIntent: StripePaymentIntent | null;
     errorType: string;
+    checkoutSessionEvent: StripeCheckoutSession;
 }
 
 export const orderCompleteEmailTemplate = ({
@@ -340,7 +341,8 @@ export const paymentRequestEmailTemplate = ({
     subtotal,
     shippingFee,
     total,
-    errorType
+    errorType,
+    checkoutSessionEvent
 }: PaymentRequestEmailProps) => `
     <!DOCTYPE html>
     <html lang="ja">
@@ -418,7 +420,7 @@ export const paymentRequestEmailTemplate = ({
                                 style="text-align: center; font-size: 16px; line-height: 1.8; color: #222222; padding-top: 20px;"
                             >
                                 <span style="border: 1px solid red; padding: 8px 20px;">
-                                    振込期限：${formatPaymentDueDate(paymentIntent.created)} 23:59
+                                    振込期限：${formatPaymentDueDate(paymentIntent?.created ?? checkoutSessionEvent.created)} 23:59
                                 </span>
                             </td>
                         </tr>
