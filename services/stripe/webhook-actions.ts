@@ -137,10 +137,6 @@ export async function processOrderData({
     }
 
     // OrderStripe テーブルのデータ作成
-    if (!checkoutSessionEvent.payment_intent || typeof checkoutSessionEvent.payment_intent !== 'string') {
-        throw new Error(CHECKOUT_ERROR.NO_PAYMENT_INTENT);
-    }
-
     const { 
         success: orderStripeSuccess, 
         error: orderStripeError, 
@@ -148,7 +144,9 @@ export async function processOrderData({
         orderStripeData: {
             order_id: orderData.order.id,
             session_id: checkoutSessionEvent.id,
-            payment_intent_id: checkoutSessionEvent.payment_intent,
+            payment_intent_id: checkoutSessionEvent.payment_intent && typeof checkoutSessionEvent.payment_intent === 'string' 
+                ? checkoutSessionEvent.payment_intent 
+                : null,
         }
     });
 
