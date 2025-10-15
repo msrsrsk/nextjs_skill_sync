@@ -81,6 +81,8 @@ const useCheckout = ({ cartItems }: { cartItems: CartItemWithProduct[] }) => {
                 message: stockCheckMessage 
             } = await checkStockAvailability();
 
+            console.log('stockCheckSuccess', stockCheckSuccess);
+
             if (!stockCheckSuccess) {
                 router.refresh();
                 
@@ -99,22 +101,21 @@ const useCheckout = ({ cartItems }: { cartItems: CartItemWithProduct[] }) => {
                 body: JSON.stringify({ cartItems })
             });
 
+            console.log('response', response);
+
             const { 
                 success: checkoutSuccess, 
                 data: checkoutData,
                 message: checkoutMessage
             } = await response.json();
 
+            console.log('checkoutSuccess', checkoutSuccess);
+            console.log('checkoutData', checkoutData);
+            console.log('checkoutMessage', checkoutMessage);
+
             if (checkoutSuccess && checkoutData?.url) {
                 router.push(checkoutData.url);
             } else {
-                console.error('API Error - Checkout response error:', {
-                    success: checkoutSuccess,
-                    message: checkoutMessage,
-                    data: checkoutData,
-                    status: response.status,
-                    responseData: response.json()
-                });
                 throw new Error(checkoutMessage);
             }
         } catch (error) {
