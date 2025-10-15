@@ -24,10 +24,10 @@ import { NOIMAGE_PRODUCT_IMAGE_URL, SUBSCRIPTION_STATUS } from "@/constants/inde
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { SUBS_ACTIVE } = SUBSCRIPTION_STATUS;
-const { SUBSCRIPTION_ERROR } = ERROR_MESSAGES;
+const { SUBSCRIPTION_ERROR, CHECKOUT_ERROR } = ERROR_MESSAGES;
 
 interface CreateProductDetailsProps {
-    lineItems: StripeCheckoutSessionLineItem[] | StripeSubscriptionItem[];
+    lineItems: WebhookLineItem[] | StripeSubscriptionItem[];
     subscriptionId: string;
     isCheckout: boolean;
 }
@@ -64,13 +64,28 @@ export async function createProductDetails({
 }: CreateProductDetailsProps) {
     const productDetails = await Promise.all(
         lineItems.map(async (item) => {
+            if (!item.price || typeof item.price === 'string') {
+                return {
+                    product_id: '',
+                    image: process.env.NEXT_PUBLIC_BASE_URL + NOIMAGE_PRODUCT_IMAGE_URL,
+                    unit_price: 0,
+                    amount: 0,
+                    quantity: item.quantity,
+                    stripe_price_id: '',
+                    subscription_id: subscriptionId,
+                    subscription_status: null,
+                    subscription_interval: null,
+                    title: 'No Product Title'
+                };
+            }
+
             const product = await stripe.products.retrieve(item.price?.product as string);
             
             const baseProductData = {
                 product_id: product.metadata.supabase_id,
                 image: product.images[0] || process.env.NEXT_PUBLIC_BASE_URL + NOIMAGE_PRODUCT_IMAGE_URL,
                 unit_price: item.price?.unit_amount,
-                amount: isCheckout ? item.amount_total : item.price?.unit_amount,
+                amount: isCheckout ? (item as WebhookLineItem).amount_total : item.price?.unit_amount,
                 quantity: item.quantity,
                 stripe_price_id: item.price?.id,
                 subscription_id: subscriptionId,
@@ -115,9 +130,13 @@ export async function processOrderData({
     );
     const lineItems = sessionWithLineItems.line_items?.data || [];
 
+    const subscriptionId = typeof checkoutSessionEvent.subscription === 'string' 
+        ? checkoutSessionEvent.subscription 
+        : checkoutSessionEvent.subscription?.id || '';
+
     const productDetails = await createProductDetails({
-        lineItems,
-        subscriptionId: checkoutSessionEvent.subscription,
+        lineItems: lineItems as WebhookLineItem[],
+        subscriptionId: subscriptionId,
         isCheckout: true
     });
 
@@ -133,6 +152,10 @@ export async function processOrderData({
     }
 
     // OrderStripe テーブルのデータ作成
+    if (!checkoutSessionEvent.payment_intent || typeof checkoutSessionEvent.payment_intent !== 'string') {
+        throw new Error(CHECKOUT_ERROR.NO_PAYMENT_INTENT);
+    }
+
     const { 
         success: orderStripeSuccess, 
         error: orderStripeError, 
@@ -252,13 +275,13 @@ export async function processShippingAddress({
                 error: updateCustomerAddressError 
             } = await updateCustomerShippingAddress(customerId, {
                 address: {
-                    line1: address?.line1,
+                    line1: address?.line1 || '',
                     line2: address?.line2 || '',
                     city: address?.city || '',
-                    state: address?.state,
-                    postal_code: address?.postal_code
+                    state: address?.state || '',
+                    postal_code: address?.postal_code || '',
                 },
-                name: customerDetails.name,
+                name: customerDetails.name || '',
             });
 
             if (!updateCustomerAddressSuccess) {
@@ -274,10 +297,14 @@ export async function sendOrderEmails({
     productDetails,
     orderData
 }: SendOrderEmailsProps) {
+    if (!checkoutSessionEvent.payment_intent || typeof checkoutSessionEvent.payment_intent !== 'string') {
+        throw new Error(CHECKOUT_ERROR.NO_PAYMENT_INTENT);
+    }
+
     const paymentIntent = await stripe.paymentIntents.retrieve(
         checkoutSessionEvent.payment_intent
     );
-    
+
     const { 
         success: paymentEmailSuccess, 
         error: paymentEmailError 
@@ -466,6 +493,11 @@ export async function processSubscriptionWebhook({
             // 1. サブスクリプションのデータ作成
             if (invoiceEvent.billing_reason === 'subscription_cycle') {
                 const subscriptionId = invoiceEvent.parent?.subscription_details?.subscription;
+
+                if (!subscriptionId || typeof subscriptionId !== 'string') {
+                    throw new Error(SUBSCRIPTION_ERROR.NO_SUBSCRIPTION_ID);
+                }
+
                 const subscription = await stripe.subscriptions.retrieve(subscriptionId);
 
                 await handleSubscriptionEvent({
@@ -476,8 +508,8 @@ export async function processSubscriptionWebhook({
 
         if (event.type === 'customer.subscription.updated') {
             const subscriptionEvent = event.data.object as StripeSubscription;
-            const previousAttributes = event.data.previous_attributes;
-            
+            const previousAttributes = event.data.previous_attributes ?? null;
+
             // 2. サブスクリプションのステータスの確認&更新
             await handleSubscriptionUpdate({
                 subscriptionEvent,

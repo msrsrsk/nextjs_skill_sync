@@ -139,6 +139,7 @@ export const ERROR_MESSAGES = {
 
         NO_PRODUCT_DATA: `商品データが見つかりません。${RETRY}`,
         NO_PRICE_ID: `商品の価格データが見つかりません。${RETRY}`,
+        NO_PAYMENT_INTENT: `支払いデータが見つかりません。${RETRY}`,
 
         STOCK_CHECK_FAILED: `在庫チェックのための必要な情報が不足しています。${RETRY}`,
         FAILED_CHECK_STOCK: `商品の在庫チェックに失敗しました。${RETRY}`,
@@ -374,6 +375,7 @@ export const ERROR_MESSAGES = {
         SHIPPING_RATE_AMOUNT_FETCH_FAILED: `配送料の金額の取得に失敗しました。${RETRY}`,
         CANCEL_SUBSCRIPTION_FAILED: `サブスクリプションのキャンセルに失敗しました。${RETRY}`,
         PAYMENT_LINK_DEACTIVATE_FAILED: `支払いリンクの無効化に失敗しました。${RETRY}`,
+        NOT_FOUND_CUSTOMER_ID: `Stripeの顧客データの削除に必要な情報が見つかりませんでした。${RETRY}`,
         CUSTOMER_DELETE_FAILED: `Stripeの顧客データの削除に失敗しました。${RETRY}`,
     },
 

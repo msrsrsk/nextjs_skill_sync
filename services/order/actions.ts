@@ -13,7 +13,12 @@ import { ORDER_STATUS } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { ORDER_PENDING, ORDER_PROCESSING } = ORDER_STATUS;
-const { PRODUCT_ERROR, ORDER_ERROR, CHECKOUT_ERROR } = ERROR_MESSAGES;
+const { 
+    PRODUCT_ERROR, 
+    ORDER_ERROR, 
+    CHECKOUT_ERROR,
+    ORDER_SHIPPING_ERROR 
+} = ERROR_MESSAGES;
 
 // 注文データの作成
 export const createOrder = async ({ 
@@ -82,10 +87,10 @@ export const createCheckoutOrder = async ({
             data: createOrderData 
         } = await createOrder({ 
             orderData: {
-                user_id: session.metadata.userID as UserId,
+                user_id: session.metadata?.userID as UserId,
                 status: paymentStatus as OrderStatusType,
-                total_amount: session.amount_total,
-                currency: session.currency,
+                total_amount: session.amount_total ?? 0,
+                currency: session.currency ?? 'jpy',
                 payment_method: cardBrand,
             }
         });
@@ -94,6 +99,14 @@ export const createCheckoutOrder = async ({
             return {
                 success: false, 
                 error: createOrderError,
+                data: null
+            }
+        }
+
+        if (!session.customer_details?.name || !session.customer_details?.address) {
+            return {
+                success: false, 
+                error: ORDER_SHIPPING_ERROR.CREATE_FAILED,
                 data: null
             }
         }
@@ -107,7 +120,14 @@ export const createCheckoutOrder = async ({
             orderShippingData: {
                 order_id: createOrderData.id,
                 delivery_name: session.customer_details?.name,
-                address: session.customer_details?.address,
+                address: {
+                    line1: session.customer_details?.address?.line1,
+                    line2: session.customer_details?.address?.line2,
+                    city: session.customer_details?.address?.city,
+                    state: session.customer_details?.address?.state,
+                    postal_code: session.customer_details?.address?.postal_code,
+                    country: session.customer_details?.address?.country,
+                },
                 shipping_fee: subscriptionShippingFee 
                     || session.shipping_cost?.amount_total 
                     || 0,

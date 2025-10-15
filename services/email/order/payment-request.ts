@@ -13,7 +13,7 @@ const { ORDER_HISTORY_PATH } = SITE_MAP;
 const { EMAIL_ERROR } = ERROR_MESSAGES;
 
 interface SendPaymentRequestEmailProps extends OrderCompleteEmailProps {
-    paymentIntent: StripePaymentIntent | null;
+    paymentIntent: StripePaymentIntent;
 }
 
 // 未払いの場合のメール送信

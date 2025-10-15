@@ -10,14 +10,18 @@ export async function POST(request: NextRequest) {
     const endpointSecret = process.env.STRIPE_SUBSCRIPTION_WEBHOOK_SECRET_KEY;
 
     try {
-        const event = await verifyWebhookSignature({
+        const authResult = await verifyWebhookSignature({
             request,
             endpointSecret: endpointSecret as string,
             errorMessage: SUBSCRIPTION_ERROR.WEBHOOK_PROCESS_FAILED
         });
 
+        if (authResult instanceof NextResponse) {
+            return authResult;
+        }
+
         const result = await processSubscriptionWebhook({
-            event
+            event: authResult
         });
 
         if (!result.success) {

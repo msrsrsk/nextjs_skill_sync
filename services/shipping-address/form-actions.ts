@@ -205,11 +205,13 @@ export async function updateDefaultShippingAddressAction(
             is_default: true,
         } as ShippingAddress;
 
-        await updateStripeAndShippingAddress({
-            id,
-            customerId,
-            shippingAddress
-        });
+        if (customerId) {
+            await updateStripeAndShippingAddress({
+                id,
+                customerId,
+                shippingAddress
+            });
+        }
 
         return {
             success: true, 

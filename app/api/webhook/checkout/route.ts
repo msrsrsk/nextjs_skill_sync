@@ -37,8 +37,12 @@ export async function POST(request: NextRequest) {
 
             // サブスクリプションの注文の場合
             if (checkoutSessionEvent.subscription) {
+                const subscriptionId = typeof checkoutSessionEvent.subscription === 'string' 
+                    ? checkoutSessionEvent.subscription 
+                    : checkoutSessionEvent.subscription.id;
+
                 const subscription = await stripe.subscriptions.retrieve(
-                    checkoutSessionEvent.subscription
+                    subscriptionId
                 );
 
                 await handleSubscriptionEvent({

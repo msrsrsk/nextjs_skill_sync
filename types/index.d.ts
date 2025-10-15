@@ -1,4 +1,5 @@
 import { Prisma } from "@prisma/client"
+import { Stripe } from "stripe"
 import type { 
     User as PrismaUser, 
     UserProfile as PrismaUserProfile,
@@ -712,6 +713,8 @@ declare global {
     type OrderShippingDeliveryName = OrderShipping['delivery_name'];
     type OrderShippingShippingFee = OrderShipping['shipping_fee'];
 
+    type PrismaInputJsonValue = Prisma.InputJsonValue;
+
     interface CreateOrderShippingProps {
         orderShippingData: CreateOrderShippingData;
     }
@@ -719,7 +722,7 @@ declare global {
     interface CreateOrderShippingData {
         order_id: OrderId;
         delivery_name: OrderShippingDeliveryName;
-        address: ShippingAddress;
+        address: PrismaInputJsonValue;
         shipping_fee: OrderShippingShippingFee;
     }
 
@@ -907,7 +910,7 @@ declare global {
     type StripeProduct = Stripe.Product;
     type StripeCheckoutSession = Stripe.Checkout.Session;
     type StripePaymentIntent = Stripe.PaymentIntent;
-    type StripeCustomerId = Stripe.Checkout.Session['customer'];
+    type StripeCustomerId = string;
     type StripeCheckoutSessionCreateParams = Stripe.Checkout.SessionCreateParams;
     type StripeCheckoutSessionCustomerDetails = Stripe.Checkout.Session['customer_details'];
     type StripeCheckoutSessionLineItem = Stripe.Checkout.SessionCreateParams.LineItem;
@@ -970,6 +973,23 @@ declare global {
 
     interface CheckoutLineItem {
         price: string;
+        quantity: number;
+    }
+
+    interface WebhookLineItem {
+        id: string;
+        amount_total: number;
+        amount_subtotal: number;
+        amount_tax: number;
+        price: {
+            id: string;
+            unit_amount: number;
+            product: string;
+            recurring?: {
+                interval: string;
+                interval_count: number;
+            };
+        };
         quantity: number;
     }
 

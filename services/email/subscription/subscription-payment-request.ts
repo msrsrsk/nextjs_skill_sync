@@ -36,8 +36,8 @@ export async function sendSubscriptionPaymentRequestEmail({
     const email = orderData.metadata?.userEmail as UserEmail;
     const shippingFee = formatNumber((Number(orderData.metadata?.subscription_shipping_fee) ?? 0));
     const formattedOrderDate = formatOrderDateTime(orderData.created, DATE_SLASH);
-    const subtotal = formatNumber((orderData.plan.amount ?? 0));
-    const total = formatNumber((orderData.plan.amount ?? 0));
+    const subtotal = formatNumber((orderData.items.data[0]?.price?.unit_amount ?? 0));
+    const total = formatNumber((orderData.items.data[0]?.price?.unit_amount ?? 0));
     const subscriptionId = orderData.id;
     const createdAt = orderData.created;
 

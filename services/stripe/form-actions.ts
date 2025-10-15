@@ -59,11 +59,13 @@ export async function setDefaultShippingAddressAction(
         const customerId = userResult.user_stripes?.customer_id;
 
         // 3. 住所の更新
-        await updateStripeAndDefaultShippingAddress({
-            id: newDefaultAddressId,
-            customerId,
-            shippingAddress: newDefaultAddressResult
-        });
+        if (customerId) {
+            await updateStripeAndDefaultShippingAddress({
+                id: newDefaultAddressId,
+                customerId,
+                shippingAddress: newDefaultAddressResult
+            });
+        }
 
         return {
             success: true, 

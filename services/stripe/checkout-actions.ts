@@ -59,6 +59,14 @@ export const getSubscriptionShippingFee = async ({
     subscriptionShippingFee
 }: GetSubscriptionShippingFeeProps) => {
     try {
+        if (!session?.subscription || typeof session.subscription !== 'string') {
+            return {
+                success: true,
+                error: null,
+                data: 0
+            }
+        }
+
         const subscription = await stripe.subscriptions.retrieve(session?.subscription);
 
         if (subscription.latest_invoice) {
@@ -97,15 +105,27 @@ export const getPaymentMethod = async ({
     cardBrand
 }: GetPaymentMethodProps) => {
     try {
+        if (!session.payment_intent || typeof session.payment_intent !== 'string') {
+            return {
+                success: true,
+                error: null,
+                data: 'card'
+            }
+        }
+
         const sessionWithPaymentMethod = await stripe.paymentIntents.retrieve(
             session.payment_intent,
             { expand: ['payment_method'] }
         );
 
         if (sessionWithPaymentMethod.payment_method) {
-            cardBrand = (
-                sessionWithPaymentMethod.payment_method as StripePaymentMethod
-            ).card?.brand || 'card';
+            const paymentMethod = sessionWithPaymentMethod.payment_method;
+            
+            if (paymentMethod && typeof paymentMethod === 'object' && paymentMethod.card) {
+                cardBrand = paymentMethod.card.brand || 'card';
+            } else {
+                cardBrand = 'card';
+            }
 
             return {
                 success: true,
@@ -230,7 +250,7 @@ export const createPaymentLink = async ({
                 },
                 quantity: 1,
             }
-        ];
+        ] as StripePaymentLinkCreateParams['line_items'];
 
         // Payment Linkを作成
         const paymentLinkConfig: StripePaymentLinkCreateParams = {

@@ -296,6 +296,13 @@ export const deactivatePaymentLink = async ({
     checkoutSessionEvent
 }: { checkoutSessionEvent: StripeCheckoutSession }) => {
     try {
+        if (typeof checkoutSessionEvent.payment_link !== 'string') {
+            return {
+                success: false,
+                error: STRIPE_ERROR.PAYMENT_LINK_DEACTIVATE_FAILED
+            }
+        }
+
         await stripe.paymentLinks.update(checkoutSessionEvent.payment_link, {
             active: false
         });
