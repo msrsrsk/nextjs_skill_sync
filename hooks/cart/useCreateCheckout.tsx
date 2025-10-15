@@ -108,7 +108,13 @@ const useCheckout = ({ cartItems }: { cartItems: CartItemWithProduct[] }) => {
             if (checkoutSuccess && checkoutData?.url) {
                 router.push(checkoutData.url);
             } else {
-                console.error('API Error - Checkout response error:', checkoutMessage);
+                console.error('API Error - Checkout response error:', {
+                    success: checkoutSuccess,
+                    message: checkoutMessage,
+                    data: checkoutData,
+                    status: response.status,
+                    responseData: response.json()
+                });
                 throw new Error(checkoutMessage);
             }
         } catch (error) {
