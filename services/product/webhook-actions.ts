@@ -77,7 +77,7 @@ export const processProductWebhook = async ({
             error: null
         }
     } catch (error) {
-        console.error('Webhook Error - Product POST error:', error);
+        console.error('Webhook Error - Process Product Webhook error:', error);
 
         return {
             success: false,

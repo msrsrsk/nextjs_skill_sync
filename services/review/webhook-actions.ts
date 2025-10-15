@@ -57,7 +57,7 @@ export const processReviewWebhook = async ({
                 }
         }
     } catch (error) {
-        console.error('API Error - Review Webhook POST error:', error);
+        console.error('API Error - Process Review Webhook error:', error);
 
         return {
             success: false,
