@@ -108,11 +108,17 @@ const useCheckout = ({ cartItems }: { cartItems: CartItemWithProduct[] }) => {
             if (checkoutSuccess && checkoutData?.url) {
                 router.push(checkoutData.url);
             } else {
+                console.error('API Error - Checkout response error:', checkoutMessage);
                 throw new Error(checkoutMessage);
             }
         } catch (error) {
             console.error('Hook Error - Checkout error:', error);
-            setError(CHECKOUT_ERROR.NOT_PROCEED_CHECKOUT);
+
+            const errorMessage = error instanceof Error 
+                ? error.message 
+                : CHECKOUT_ERROR.NOT_PROCEED_CHECKOUT;
+
+            setError(errorMessage);
         } finally {
             setLoading(false);
         }
