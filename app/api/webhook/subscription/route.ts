@@ -1,11 +1,7 @@
-import { stripe } from "@/lib/clients/stripe/client"
 import { NextRequest, NextResponse } from "next/server"
 
 import { verifyWebhookSignature } from "@/lib/utils/webhook"
-import { 
-    handleSubscriptionEvent, 
-    handleSubscriptionUpdate 
-} from "@/services/stripe/webhook-actions"
+import { processSubscriptionWebhook } from "@/services/stripe/webhook-actions"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { SUBSCRIPTION_ERROR } = ERROR_MESSAGES;
@@ -19,35 +15,18 @@ export async function POST(request: NextRequest) {
             endpointSecret: endpointSecret as string,
             errorMessage: SUBSCRIPTION_ERROR.WEBHOOK_PROCESS_FAILED
         });
+
+        const result = await processSubscriptionWebhook({
+            event
+        });
+
+        if (!result.success) {
+            return NextResponse.json(
+                { message: result.error }, 
+                { status: result.status }
+            )
+        }
         
-        /* ============================== 
-            サブスクリプションの継続支払い時の処理（2回目以降のサブスク契約で発生）
-        ============================== */
-        if (event.type === 'invoice.payment_succeeded' || event.type === 'invoice.payment_failed') {
-            const invoiceEvent = event.data.object as StripeInvoice;
-
-            // 1. サブスクリプションのデータ作成
-            if (invoiceEvent.billing_reason === 'subscription_cycle') {
-                const subscriptionId = invoiceEvent.parent?.subscription_details?.subscription;
-                const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-
-                await handleSubscriptionEvent({
-                    subscriptionEvent: subscription
-                });
-            }
-        }
-
-        if (event.type === 'customer.subscription.updated') {
-            const subscriptionEvent = event.data.object as StripeSubscription;
-            const previousAttributes = event.data.previous_attributes;
-            
-            // 2. サブスクリプションのステータスの確認&更新
-            await handleSubscriptionUpdate({
-                subscriptionEvent,
-                previousAttributes
-            });
-        }
-
         return NextResponse.json({ success: true });
     } catch (error) {
         console.error('Webhook Error - Stripe Subscription POST error:', error);

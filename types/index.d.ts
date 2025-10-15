@@ -916,6 +916,7 @@ declare global {
     type StripeInvoice = Stripe.Invoice;
     type StripeSubscriptionItem = Stripe.SubscriptionItem;
     type StripePaymentMethod = string | Stripe.PaymentMethod;
+    type StripeEvent = Stripe.Event;
 
     interface StripeAddress {
         line1?: string;
