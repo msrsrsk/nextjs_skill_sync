@@ -26,24 +26,10 @@ export async function POST(request: NextRequest) {
             cartItems
         });
 
-        if (result.error === CHECKOUT_ERROR.NO_PRODUCT_DATA) {
+        if (result.error === CHECKOUT_ERROR.NO_PRODUCT_DATA || result.error === CHECKOUT_ERROR.NO_PRICE_ID) {
             return NextResponse.json(
                 { message: result.error }, 
                 { status: 404 }
-            )
-        }
-        
-        if (result.error === CHECKOUT_ERROR.NO_PRICE_ID) {
-            return NextResponse.json(
-                { message: result.error }, 
-                { status: 404 }
-            )
-        }
-
-        if (result.error === CHECKOUT_ERROR.CHECKOUT_SESSION_FAILED) {
-            return NextResponse.json(
-                { message: result.error }, 
-                { status: 500 }
             )
         }
 
