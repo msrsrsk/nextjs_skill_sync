@@ -101,34 +101,15 @@ export const getProductsByIds = async ({
     ids,
     pageType,
 }: GetProductsByIdsProps) => {
-    try {
-        const repository = getProductRepository();
-        const productsResult = await repository.getProductsByIds({
-            ids,
-            pageType
-        });
+    const repository = getProductRepository();
+    const result = await repository.getProductsByIds({
+        ids,
+        pageType
+    });
 
-        if (!productsResult) {
-            return {
-                success: false, 
-                error: PRODUCT_ERROR.FETCH_FAILED,
-                status: 500
-            }
-        }
-
-        return {
-            success: true, 
-            error: null,
-            data: productsResult || []
-        }
-    } catch (error) {
-        console.error('Database : Error in getProductsByIds: ', error);
-
-        return {
-            success: false, 
-            error: PRODUCT_ERROR.FETCH_FAILED,
-            status: 500
-        }
+    return {
+        success: !!result, 
+        data: result
     }
 }
 

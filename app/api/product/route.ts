@@ -19,20 +19,22 @@ export async function GET(request: Request) {
         );
     }
 
-    const result = await getProductsByIds({
-        ids,
-        pageType: pageType as GetProductsPageType
-    });
+    try {
+        const { data } = await getProductsByIds({
+            ids,
+            pageType: pageType as GetProductsPageType
+        });
+    
+        return NextResponse.json({
+            success: true,
+            data: data
+        })
+    } catch (error) {
+        console.error('Database : Error in getProductsByIds:', error);
 
-    if (!result.success) {
         return NextResponse.json(
-            { message: result.error }, 
-            { status: result.status }
+            { message: PRODUCT_ERROR.FETCH_FAILED }, 
+            { status: 500 }
         )
     }
-
-    return NextResponse.json({
-        success: true,
-        data: result.data
-    })
 }
