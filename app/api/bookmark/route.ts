@@ -22,18 +22,9 @@ export async function GET(request: NextRequest) {
     const productId = searchParams.get('productId');
 
     try {
-        const { success, data } = productId 
+        const { data } = productId 
             ? await getUserBookmark({ userId, productId }) 
             : await getUserAllBookmarks({ userId })
-    
-        if (!success) {
-            return NextResponse.json(
-                { message: productId 
-                    ? BOOKMARK_ERROR.FETCH_PRODUCT_FAILED 
-                    : BOOKMARK_ERROR.FETCH_FAILED }, 
-                { status: productId ? 404 : 500 }
-            )
-        }
     
         return NextResponse.json({
             success: true,

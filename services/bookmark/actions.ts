@@ -32,10 +32,7 @@ export const getUserBookmark = async ({
         productId: productId
     });
 
-    return {
-        success: !!result,
-        data: result
-    }
+    return { data: result || [] }
 }
 
 export const getUserAllBookmarks = async ({ userId }: UserIdProps) => {
@@ -45,10 +42,7 @@ export const getUserAllBookmarks = async ({ userId }: UserIdProps) => {
         limit: BOOKMARK_PAGE_DISPLAY_LIMIT
     });
 
-    return { 
-        success: !!result,
-        data: result 
-    }
+    return { data: result }
 }
 
 export const removeBookmark = async ({
