@@ -584,6 +584,7 @@ declare global {
         ChatRoom 関連
     ============================== */
     type ChatRoom = PrismaChatRoom;
+    type ChatRoomId = ChatRoom['id'];
     type ChatRoomUserId = ChatRoom['user_id'];
 
     interface CreateChatRoomWithTransactionProps {
@@ -599,7 +600,7 @@ declare global {
     
     type Chat = PrismaChat;
     type ChatId = Chat['id'];
-    type ChatRoomId = Chat['chat_room_id'];
+    type ChatRoomReferenceId = Chat['chat_room_id'];
     type ChatMessage = Chat['message'];
     type ChatSenderType = Chat['sender_type'];
     type ChatSentAt = Chat['sent_at'];

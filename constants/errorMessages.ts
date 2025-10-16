@@ -193,6 +193,7 @@ export const ERROR_MESSAGES = {
     // チャットルーム関連
     CHAT_ROOM_ERROR: {
         CREATE_ROOM_FAILED: `チャットルームの作成に失敗しました。${RETRY}`,
+        MISSING_CHAT_ROOM: `チャットルームが見つかりません。${LOGIN}`,
     },
 
     // チャット関連
@@ -200,7 +201,6 @@ export const ERROR_MESSAGES = {
         UNAUTHORIZED: `チャットはログインが必要です。${LOGIN}`,
         MISSING_DATA: `メッセージが入力されていません。${FIRST}`,
         SEND_FAILED: `チャットメッセージの送信に失敗しました。${RETRY}`,
-        MISSING_CHAT_ROOM: `チャットルームが見つかりません。${LOGIN}`,
         CREATE_INITIAL_FAILED: `初期チャットメッセージの作成に失敗しました。${RETRY}`,
         CREATE_FAILED: `チャットメッセージの保存に失敗しました。${RETRY}`,
         FETCH_FAILED: `チャット履歴の取得に失敗しました。${RETRY}`,

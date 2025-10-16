@@ -1,4 +1,4 @@
-import { createChatRoomRepository } from "@/repository/chatRoom"
+import { createChatRoomRepository, getChatRoomRepository } from "@/repository/chatRoom"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { CHAT_ROOM_ERROR } = ERROR_MESSAGES;
@@ -28,4 +28,12 @@ export const createChatRoom = async ({
             error: CHAT_ROOM_ERROR.CREATE_ROOM_FAILED,
         }
     }
+}
+
+// チャットルームIDの取得
+export const getUserChatRoomId = async ({ userId }: UserIdProps) => {
+    const chatRoomRepository = getChatRoomRepository();
+    const result = await chatRoomRepository.getUserChatRoomId({ userId });
+
+    return { data: result }
 }

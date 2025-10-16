@@ -2,11 +2,11 @@ import prisma from "@/lib/clients/prisma/client"
 
 interface CreateChatMessageWithTransactionProps extends ChatMessageProps {
     tx: TransactionClient;
-    chatRoomId: ChatRoomId;
+    chatRoomId: ChatRoomReferenceId;
 }
 
 interface CreateChatMessageProps extends ChatMessageProps {
-    chatRoomId: ChatRoomId;
+    chatRoomId: ChatRoomReferenceId;
 }
 
 export const createChatRepository = () => {

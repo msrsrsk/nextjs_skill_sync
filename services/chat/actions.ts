@@ -1,4 +1,3 @@
-import { getChatRoomRepository } from "@/repository/chatRoom"
 import { createChatRepository } from "@/repository/chat"
 import { 
     CHAT_HISTORY_INITIAL_MESSAGE, 
@@ -17,7 +16,7 @@ interface CreateInitialChatProps {
 }
 
 interface CreateChatMessageByUserIdProps extends ChatMessageProps {
-    userId: UserId;
+    chatRoomId: ChatRoomId;
 }
 
 // 初期チャットメッセージの作成
@@ -52,55 +51,21 @@ export const createInitialChat = async ({
 
 // チャットメッセージの追加
 export const createChatMessageByUserId = async ({
-    userId,
+    chatRoomId,
     message,
     senderType = SENDER_ADMIN as ChatSenderType,
     source = HUMAN_SUPPORT
 }: CreateChatMessageByUserIdProps) => {
-    try {
-        const chatRoomRepository = getChatRoomRepository();
-        const chatRoom = await chatRoomRepository.getUserChatRoomId({ userId });
+    const chatRepository = createChatRepository();
+    const result = await chatRepository.createChatMessage({
+        chatRoomId,
+        message,
+        senderType,
+        source
+    });
 
-        if (!chatRoom) {
-            return {
-                success: false, 
-                error: CHAT_ERROR.MISSING_CHAT_ROOM,
-                status: 404
-            }
-        }
-
-        const chatRepository = createChatRepository();
-        const chatMessage = await chatRepository.createChatMessage({
-            chatRoomId: chatRoom.id,
-            message,
-            senderType,
-            source
-        });
-
-        if (!chatMessage) {
-            return {
-                success: false, 
-                error: CHAT_ERROR.CREATE_FAILED,
-                status: 500
-            }
-        }
-
-        return {
-            success: true, 
-            error: null, 
-            data: chatMessage
-        }
-    } catch (error) {
-        console.error('Database : Error in createChatMessageByUserId: ', error);
-
-        const errorMessage = error instanceof Error 
-            ? error.message 
-            : CHAT_ERROR.CREATE_FAILED;
-
-        return {
-            success: false, 
-            error: errorMessage,
-            status: 500
-        }
+    return {
+        success: !!result, 
+        data: result
     }
 }
