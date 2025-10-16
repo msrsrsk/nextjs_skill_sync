@@ -18,14 +18,23 @@ export async function DELETE(request: NextRequest) {
         )
     }
 
-    const result = await deleteShippingAddress({ id: addressId });
+    try {
+        const { success } = await deleteShippingAddress({ id: addressId });
+    
+        if (!success) {
+            return NextResponse.json(
+                { message: SHIPPING_ADDRESS_ERROR.DELETE_FAILED }, 
+                { status: 404 }
+            )
+        }
+    
+        return NextResponse.json({ success: true })
+    } catch (error) {
+        console.error('Database : Error in deleteShippingAddress: ', error);
 
-    if (!result.success) {
         return NextResponse.json(
-            { message: result.error }, 
-            { status: result.status }
+            { message: SHIPPING_ADDRESS_ERROR.DELETE_FAILED }, 
+            { status: 500 }
         )
     }
-
-    return NextResponse.json({ success: true })
 }
