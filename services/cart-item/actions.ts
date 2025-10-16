@@ -47,7 +47,7 @@ export const getCartItems = async ({ userId }: UserIdProps) => {
     const repository = getCartItemRepository();
     const result = await repository.getCartItems({ userId });
 
-    return { data: result || [] }
+    return { data: result }
 }
 
 // 商品IDによるカートデータの取得
