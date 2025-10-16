@@ -83,6 +83,7 @@ export const ERROR_MESSAGES = {
         DELETE_IMAGE_FAILED: `アイコンの削除に失敗しました。${RETRY}`,
 
         FILE_PATH_UPDATE_FAILED: `画像ファイルのパスの更新に失敗しました。${RETRY}`,
+        FILE_PATH_NOT_FOUND: `ユーザーの画像ファイルのパスが見つかりませんでした。${RETRY}`,
         USER_REQUIRED_DATA_NOT_FOUND: `画像ストレージのアクセスに必要なデータが不足しています。${RETRY}`,
     },
 

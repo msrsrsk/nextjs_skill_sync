@@ -1,15 +1,20 @@
 "use server"
 
+import prisma from "@/lib/clients/prisma/client"
+
 import { 
     createUserRepository, 
     getUserRepository,
     updateUserRepository, 
-    deleteUserRepository 
+    deleteUserRepository
 } from "@/repository/user"
-import { deleteUserImage } from "@/services/cloudflare/actions"
+import { getUserImageFilePathWithTransaction } from "@/services/user-image/actions"
+import { deleteObjectFromR2 } from "@/services/cloudflare/actions"
+import { CLOUDFLARE_BUCKET_TYPES } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
-const { USER_ERROR } = ERROR_MESSAGES;
+const { USER_ERROR, USER_IMAGE_ERROR } = ERROR_MESSAGES;
+const { BUCKET_PROFILE } = CLOUDFLARE_BUCKET_TYPES;
 
 interface GetUserAndVerifyAuthProps extends UserIdProps {
     getType?: GetUserDataTypes;
@@ -162,41 +167,56 @@ export const deleteUser = async ({ userId }: { userId: string }) => {
     }
 }
 
+// ユーザーの削除(トランザクション)
+export const deleteUserWithTransaction = async ({ 
+    tx, 
+    userId 
+}: UserWithTransactionProps) => {
+    const repository = deleteUserRepository();
+    const result = await repository.deleteUserWithTransaction({ tx, userId });
+
+    return { success: !!result }
+}
+
 // ユーザーとアイコン画像データの削除
 export const deleteUserAccount = async ({ userId }: { userId: string }) => {
-    try {
-        const deleteUserImageResult = await deleteUserImage({ userId });
+    // 1. ユーザー画像の取得とデータ削除
+    const result = await prisma.$transaction(async (tx) => {
+        const userImage = await getUserImageFilePathWithTransaction({ tx, userId });
 
-        if (!deleteUserImageResult.success) {
-            return {
-                success: false, 
-                error: deleteUserImageResult.error,
-                status: 500
+        if (!userImage.data) {
+            return { 
+                success: false,
+                error: USER_IMAGE_ERROR.FILE_PATH_NOT_FOUND,
             }
         }
 
-        const deleteUserResult = await deleteUser({ userId });
+        const deleteUserResult = await deleteUserWithTransaction({ tx, userId });
 
         if (!deleteUserResult.success) {
-            return {
-                success: false, 
-                error: deleteUserResult.error,
-                status: 500
+            return { 
+                success: false,
+                error: USER_ERROR.DELETE_FAILED,
             }
         }
 
-        return {
-            success: true, 
-            error: null, 
-            data: null
+        return { 
+            success: true,
+            data: userImage.data
         }
-    } catch (error) {
-        console.error('Database : Error in deleteUserAccount:', error);
+    })
 
-        return {
-            success: false, 
-            error: USER_ERROR.DELETE_FAILED,
-            status: 500
+    // 2. Cloudflare R2からの削除
+    if (result.success && result.data) {
+        const deleteObjectResult = await deleteObjectFromR2({
+            bucketType: BUCKET_PROFILE,
+            filePath: result.data
+        });
+
+        if (!deleteObjectResult.success) {
+            console.error('Delete User Image from R2 failed:', deleteObjectResult.error);
         }
     }
+
+    return result
 }

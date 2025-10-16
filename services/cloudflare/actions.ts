@@ -338,7 +338,7 @@ export const getAuthenticatedProfileImageUrl = async ({
 }
 
 // R2画像の削除
-const deleteObjectFromR2 = async ({
+export const deleteObjectFromR2 = async ({
     bucketType,
     filePath
 }: DeleteObjectFromR2Props) => {
@@ -460,57 +460,6 @@ export async function deleteReviewImage (record: Review) {
         return {
             success: false,
             error: CLOUDFLARE_ERROR.DELETE_FAILED
-        }
-    }
-}
-
-// ユーザーのアイコン画像の削除
-export const deleteUserImage = async ({
-    userId
-}: { userId: UserId }) => {
-    try {
-        // 1. ユーザー画像の取得
-        const repository = getUserImageRepository();
-        const userImageResult = await repository.getUserImageFilePath({ userId });
-
-        if (!userImageResult || !userImageResult.file_path) {
-            return {
-                success: true,
-                error: null,
-            }
-        }
-        
-        // 2. Cloudflare R2からの削除
-        const {
-            success: deleteObjectSuccess,
-            error: deleteObjectError,
-        } = await deleteObjectFromR2({
-            bucketType: BUCKET_PROFILE,
-            filePath: userImageResult?.file_path
-        });
-
-        if (!deleteObjectSuccess) {
-            return {
-                success: false,
-                error: deleteObjectError,
-                data: null
-            }
-        }
-
-        return {
-            success: true,
-            error: null
-        }
-    } catch (error) {
-        console.error('Storage Error - Delete User Image error:', error);
-
-        const errorMessage = error instanceof Error 
-            ? error.message 
-            : CLOUDFLARE_ERROR.DELETE_FAILED;
-
-        return {
-            success: false,
-            error: errorMessage,
         }
     }
 }

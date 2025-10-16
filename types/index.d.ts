@@ -286,6 +286,10 @@ declare global {
         password: UserPassword;
     }
 
+    interface UserWithTransactionProps extends UserIdProps {
+        tx: TransactionClient;
+    }
+
     /* ============================== 
         UserProfile 関連
     ============================== */

@@ -46,10 +46,11 @@ export const getUserImageRepository = () => {
             })
         },
         // ユーザーIDからアイコン画像のfilePathを取得
-        getUserImageFilePath: async ({ 
+        getUserImageFilePathWithTransaction: async ({ 
+            tx,
             userId 
-        }: UserIdProps) => {
-            return await prisma.userImage.findUnique({
+        }: UserWithTransactionProps) => {
+            return await tx.userImage.findUnique({
                 where: {
                     user_id: userId
                 },

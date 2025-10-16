@@ -143,6 +143,15 @@ export const deleteUserRepository = () => {
             return await prisma.user.delete({
                 where: { id: userId }
             })
+        },
+        // ユーザーの削除(トランザクション)
+        deleteUserWithTransaction: async ({ 
+            tx, 
+            userId 
+        }: UserWithTransactionProps) => {
+            return await tx.user.delete({
+                where: { id: userId }
+            })
         }
     }
 }

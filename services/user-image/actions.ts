@@ -61,6 +61,17 @@ export const updateUserImageFilePath = async ({
     }
 }
 
+// ユーザー画像のパスの取得(トランザクション)
+export const getUserImageFilePathWithTransaction = async ({
+    tx,
+    userId
+}: UserWithTransactionProps) => {
+    const repository = getUserImageRepository();
+    const result = await repository.getUserImageFilePathWithTransaction({ tx, userId });
+
+    return { data: result?.file_path };
+}
+
 // 既存画像の削除
 export const deleteExistingImage = async ({ 
     userId,
