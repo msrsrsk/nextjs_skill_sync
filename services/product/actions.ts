@@ -107,10 +107,7 @@ export const getProductsByIds = async ({
         pageType
     });
 
-    return {
-        success: !!result, 
-        data: result
-    }
+    return { data: result }
 }
 
 // トレンド商品一覧セクション：カテゴリー別のトレンド商品データを一括取得
