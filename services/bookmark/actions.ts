@@ -14,11 +14,11 @@ export const addBookmark = async ({
     productId 
 }: BookmarkActionsProps) => {
     const repository = createUserBookmarkRepository();
-    await repository.createUserBookmark({ userId, productId });
+    const result = await repository.createUserBookmark({ userId, productId });
 
     return {
-        success: true,
-        isBookmarked: true
+        success: !!result,
+        isBookmarked: !!result
     }
 }
 
@@ -56,17 +56,17 @@ export const removeBookmark = async ({
     productId
 }: BookmarkActionsProps) => {
     const repository = deleteUserBookmarkRepository();
-    await repository.deleteUserBookmark({ userId, productId });
+    const result = await repository.deleteUserBookmark({ userId, productId });
 
     return {
-        success: true,
-        isBookmarked: false
+        success: !!result,
+        isBookmarked: !result
     }
 }
 
 export const removeAllBookmarks = async ({ userId }: UserIdProps) => {
     const repository = deleteUserBookmarkRepository();
-    await repository.deleteUserAllBookmarks({ userId });
+    const result = await repository.deleteUserAllBookmarks({ userId });
 
-    return { success: true }
+    return { success: !!result }
 }
