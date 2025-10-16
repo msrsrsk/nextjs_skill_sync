@@ -32,7 +32,7 @@ export const getUserBookmark = async ({
         productId: productId
     });
 
-    return { data: result || [] }
+    return { data: result }
 }
 
 export const getUserAllBookmarks = async ({ userId }: UserIdProps) => {
