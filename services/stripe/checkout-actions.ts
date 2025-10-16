@@ -162,56 +162,45 @@ export const createCheckoutSession = async ({
         ? process.env.STRIPE_SHIPPING_FREE_RATE_ID 
         : process.env.STRIPE_SHIPPING_REGULAR_RATE_ID;
         
-    try {
-        // 2. ユーザーのStripe顧客IDの取得
-        const user = await getUser({
-            userId: userId as UserId,
-            getType: CUSTOMER_ID_DATA,
-            errorMessage: USER_STRIPE_ERROR.CUSTOMER_ID_FETCH_FAILED
-        });
-        
-        const customerId = user.user_stripes?.customer_id;
-        
-        // 3. チェックアウトセッションの作成
-        const sessionConfig: StripeCheckoutSessionCreateParams = {
-            payment_method_types: ['card'],
-            currency: 'jpy',
-            shipping_address_collection: {
-                allowed_countries: ['JP'],
-            },
-            phone_number_collection: { 
-                enabled: true 
-            },
-            customer: customerId,
-            line_items: lineItems,
-            shipping_options: [
-                {
-                    shipping_rate: shippingRateId,
-                },
-            ],
-            mode: 'payment',
-            success_url: `${process.env.NEXT_PUBLIC_BASE_URL}${ORDER_COMPLETE_PATH}`,
-            cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}${CART_PATH}`,
-            metadata: {
-                userID: userId,
-            }
-        }
-        
-        const session = await stripe.checkout.sessions.create(sessionConfig);
+    // 2. ユーザーのStripe顧客IDの取得
+    const user = await getUser({
+        userId: userId as UserId,
+        getType: CUSTOMER_ID_DATA,
+        errorMessage: USER_STRIPE_ERROR.CUSTOMER_ID_FETCH_FAILED
+    });
 
-        return {
-            success: true, 
-            error: null, 
-            data: session
+    const customerId = user.user_stripes?.customer_id;
+    
+    // 3. チェックアウトセッションの作成
+    const sessionConfig: StripeCheckoutSessionCreateParams = {
+        payment_method_types: ['card'],
+        currency: 'jpy',
+        shipping_address_collection: {
+            allowed_countries: ['JP'],
+        },
+        phone_number_collection: { 
+            enabled: true 
+        },
+        customer: customerId,
+        line_items: lineItems,
+        shipping_options: [
+            {
+                shipping_rate: shippingRateId,
+            },
+        ],
+        mode: 'payment',
+        success_url: `${process.env.NEXT_PUBLIC_BASE_URL}${ORDER_COMPLETE_PATH}`,
+        cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}${CART_PATH}`,
+        metadata: {
+            userID: userId,
         }
-    } catch (error) {
-        console.error('Actions Error - Create Checkout Session error:', error);
+    }
+    
+    const session = await stripe.checkout.sessions.create(sessionConfig);
 
-        return {
-            success: false, 
-            error: CHECKOUT_ERROR.CHECKOUT_SESSION_FAILED,
-            status: 500
-        }
+    return {
+        success: !!session, 
+        data: session
     }
 }
 
@@ -303,71 +292,57 @@ export const processCheckoutItems = async ({
     userId,
     cartItems
 }: ProcessCheckoutItemsProps) => {
-    try {
-        // 商品の合計数量を計算
-        const totalQuantity = cartItems.reduce((
-            sum: number, 
-            item: CartItemWithProduct
-        ) => sum + item.quantity, CHECKOUT_INITIAL_QUANTITY);
+    // 商品の合計数量を計算
+    const totalQuantity = cartItems.reduce((
+        sum: number, 
+        item: CartItemWithProduct
+    ) => sum + item.quantity, CHECKOUT_INITIAL_QUANTITY);
 
-        // チェックアウトの商品リストを作成
-        let lineItems: CheckoutLineItem[] = [];
+    // チェックアウトの商品リストを作成
+    let lineItems: CheckoutLineItem[] = [];
 
-        for (const cartItem of cartItems) {
-            const product = cartItem.product;
+    for (const cartItem of cartItems) {
+        const product = cartItem.product;
 
-            if (!product) {
-                return {
-                    success: false, 
-                    error: CHECKOUT_ERROR.NO_PRODUCT_DATA,
-                    status: 404
-                }
-            }
-
-            const priceId = product.product_stripes?.sale_price_id 
-                || product.product_stripes?.regular_price_id;
-
-            if (!priceId) {
-                return {
-                    success: false, 
-                    error: CHECKOUT_ERROR.NO_PRICE_ID,
-                    status: 404
-                }
-            }
-
-            lineItems = [...lineItems, {
-                price: priceId,
-                quantity: cartItem.quantity,
-            }];
-        }
-
-        const checkoutResult = await createCheckoutSession({ 
-            lineItems, 
-            userId,
-            totalQuantity,
-        })
-
-        if (!checkoutResult.success) {
+        if (!product) {
             return {
-                success: false,
-                error: checkoutResult.error,
-                status: 500
+                success: false, 
+                error: CHECKOUT_ERROR.NO_PRODUCT_DATA
             }
         }
 
-        return {
-            success: true,
-            error: null,
-            data: checkoutResult.data
-        }
-    } catch (error) {
-        console.error('API Error - Process Checkout Items error:', error);
+        const priceId = product.product_stripes?.sale_price_id 
+            || product.product_stripes?.regular_price_id;
 
-        return {
-            success: false, 
-            error: CHECKOUT_ERROR.CHECKOUT_PRODUCT_CREATE_FAILED,
-            status: 500
+        if (!priceId) {
+            return {
+                success: false, 
+                error: CHECKOUT_ERROR.NO_PRICE_ID
+            }
         }
+
+        lineItems = [...lineItems, {
+            price: priceId,
+            quantity: cartItem.quantity,
+        }];
+    }
+
+    const { success, data } = await createCheckoutSession({ 
+        lineItems, 
+        userId,
+        totalQuantity,
+    })
+
+    if (!success) {
+        return {
+            success: false,
+            error: CHECKOUT_ERROR.CHECKOUT_SESSION_FAILED
+        }
+    }
+
+    return {
+        success: true,
+        data: data
     }
 }
 

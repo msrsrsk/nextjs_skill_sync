@@ -20,20 +20,43 @@ export async function POST(request: NextRequest) {
         )
     }
 
-    const result = await processCheckoutItems({
-        userId,
-        cartItems
-    });
+    try {
+        const result = await processCheckoutItems({
+            userId,
+            cartItems
+        });
 
-    if (!result.success) {
+        if (result.error === CHECKOUT_ERROR.NO_PRODUCT_DATA) {
+            return NextResponse.json(
+                { message: result.error }, 
+                { status: 404 }
+            )
+        }
+        
+        if (result.error === CHECKOUT_ERROR.NO_PRICE_ID) {
+            return NextResponse.json(
+                { message: result.error }, 
+                { status: 404 }
+            )
+        }
+
+        if (result.error === CHECKOUT_ERROR.CHECKOUT_SESSION_FAILED) {
+            return NextResponse.json(
+                { message: result.error }, 
+                { status: 500 }
+            )
+        }
+
         return NextResponse.json(
             { message: result.error }, 
-            { status: result.status }
+            { status: 500 }
+        )
+    } catch (error) {
+        console.error('Checkout API : Error in processCheckoutItems:', error);
+
+        return NextResponse.json(
+            { message: CHECKOUT_ERROR.CHECKOUT_PRODUCT_CREATE_FAILED }, 
+            { status: 500 }
         )
     }
-
-    return NextResponse.json({ 
-        success: true, 
-        data: result.data 
-    })
 }
