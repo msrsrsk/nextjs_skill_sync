@@ -6,7 +6,12 @@ import { cancelSubscription } from "@/services/stripe/actions"
 import { createPaymentLink } from "@/services/stripe/checkout-actions"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
-const { CHECKOUT_ERROR, PRODUCT_ERROR, SUBSCRIPTION_ERROR } = ERROR_MESSAGES;
+const { 
+    CHECKOUT_ERROR, 
+    PRODUCT_ERROR, 
+    SUBSCRIPTION_ERROR, 
+    STRIPE_ERROR
+} = ERROR_MESSAGES;
 
 export const dynamic = "force-dynamic"
 
@@ -24,22 +29,25 @@ export async function GET(request: NextRequest) {
         );
     }
 
-    const result = await getUserSubscriptionByProduct({
-        productId,
-        userId
-    });
+    try {
+        const { data } = await getUserSubscriptionByProduct({
+            productId,
+            userId
+        });
+    
+        return NextResponse.json({ 
+            success: true, 
+            data: data 
+        })
+    } catch (error) {
+        console.error('Database : Error in getUserSubscriptionByProduct:', error);
 
-    if (!result.success) {
         return NextResponse.json(
-            { message: result.error }, 
-            { status: result.status }
+            { message: SUBSCRIPTION_ERROR.FAILED_CHECK_SUBSCRIPTION }, 
+            { status: 500 }
         )
     }
 
-    return NextResponse.json({ 
-        success: true, 
-        data: result.data 
-    })
 }
 
 // POST: サブスクリプションの支払いリンクの作成
@@ -64,24 +72,33 @@ export async function POST(request: NextRequest) {
         }
     ]
 
-    const result = await createPaymentLink({ 
-        lineItems, 
-        userId,
-        userEmail,
-        interval
-    });
+    try {
+        const { success, data } = await createPaymentLink({ 
+            lineItems, 
+            userId,
+            userEmail,
+            interval
+        });
+    
+        if (!success) {
+            return NextResponse.json(
+                { message: CHECKOUT_ERROR.PAYMENT_LINK_FAILED }, 
+                { status: 500 }
+            )
+        }
+    
+        return NextResponse.json({ 
+            success: true, 
+            data: data 
+        })
+    } catch (error) {
+        console.error('Subscription API : Error in createPaymentLink:', error);
 
-    if (!result.success) {
         return NextResponse.json(
-            { message: result.error }, 
-            { status: result.status }
+            { message: CHECKOUT_ERROR.PAYMENT_LINK_FAILED }, 
+            { status: 500 }
         )
     }
-
-    return NextResponse.json({ 
-        success: true, 
-        data: result.data 
-    })
 }
 
 // DELETE: サブスクリプションのキャンセル
@@ -95,16 +112,23 @@ export async function DELETE(request: NextRequest) {
         )
     }
 
-    const result = await cancelSubscription({
-        subscriptionId
-    });
+    try {
+        const result = await cancelSubscription({ subscriptionId });
+    
+        if (result.error === SUBSCRIPTION_ERROR.UPDATE_SUBSCRIPTION_STATUS_FAILED) {
+            return NextResponse.json(
+                { message: result.error }, 
+                { status: 500 }
+            )
+        }
+    
+        return NextResponse.json({ success: true });
+    } catch (error) {
+        console.error('Subscription API : Error in cancelSubscription:', error);
 
-    if (!result.success) {
         return NextResponse.json(
-            { message: result.error }, 
-            { status: result.status }
+            { message: STRIPE_ERROR.CANCEL_SUBSCRIPTION_FAILED }, 
+            { status: 500 }
         )
     }
-
-    return NextResponse.json({ success: true });
 }

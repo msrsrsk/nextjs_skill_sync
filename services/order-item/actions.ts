@@ -5,7 +5,7 @@ import {
 } from "@/repository/orderItem"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
-const { SUBSCRIPTION_ERROR, ORDER_ITEM_ERROR } = ERROR_MESSAGES;
+const { ORDER_ITEM_ERROR } = ERROR_MESSAGES;
 
 interface CreateCheckoutOrderItemsProps {
     orderId: OrderId;
@@ -55,27 +55,13 @@ export const getUserSubscriptionByProduct = async ({
     productId,
     userId
 }: GetUserSubscriptionByProductProps) => {
-    try {
-        const repository = getOrderItemRepository();
-        const subscriptionCount = await repository.getUserSubscriptionByProduct({ 
-            productId,
-            userId
-        });
+    const repository = getOrderItemRepository();
+    const subscriptionCount = await repository.getUserSubscriptionByProduct({ 
+        productId,
+        userId
+    });
 
-        return {
-            success: true,
-            error: null,
-            data: subscriptionCount > 0
-        }
-    } catch (error) {
-        console.error('Database : Error in getUserSubscriptionByProduct: ', error);
-
-        return {
-            success: false, 
-            error: SUBSCRIPTION_ERROR.FAILED_CHECK_SUBSCRIPTION,
-            status: 500
-        }
-    }
+    return { data: subscriptionCount > 0 }
 }
 
 // 注文商品リストの削除

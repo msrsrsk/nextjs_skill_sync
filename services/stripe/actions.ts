@@ -173,21 +173,18 @@ export const createSubscriptionPrices = async ({
 
 
 export const getShippingRateAmount = async (shippingRateId: string) => {
-    try {
-        const shippingRate = await stripe.shippingRates.retrieve(shippingRateId);
-        
-        if (shippingRate.fixed_amount) {
-            return {
-                success: true,
-                error: null,
-                data: shippingRate.fixed_amount.amount
-            }
+    const shippingRate = await stripe.shippingRates.retrieve(shippingRateId);
+    
+    if (shippingRate.fixed_amount) {
+        return {
+            success: true,
+            data: shippingRate.fixed_amount.amount
         }
-        
-        return null;
-    } catch (error) {
-        console.error('Actions Error - Get Shipping Rate Amount error:', error);
-        return null;
+    }
+    
+    return {
+        success: false,
+        data: 0
     }
 }
 
@@ -250,45 +247,33 @@ export const deleteStripeCustomer = async ({
 export const cancelSubscription = async ({ 
     subscriptionId, 
 }: { subscriptionId: OrderItemSubscriptionSubscriptionId }) => {
-    try {
-        const updatedSubscription = await stripe.subscriptions.update(subscriptionId, {
-            cancel_at_period_end: true,
-            metadata: {
-                canceled_at: new Date().toISOString(),
-                cancel_reason: 'user_requested'
-            }
+    const result = await stripe.subscriptions.update(subscriptionId, {
+        cancel_at_period_end: true,
+        metadata: {
+            canceled_at: new Date().toISOString(),
+            cancel_reason: 'user_requested'
+        }
+    })
+
+    const { success } = await updateOrderItemSubscriptionStatus({
+        subscriptionId,
+        subscriptionStatus: SUBS_CANCELED
+    })
+
+    if (!success) {
+        await stripe.subscriptions.update(subscriptionId, {
+            cancel_at_period_end: false,
         })
 
-        const { success, error } = await updateOrderItemSubscriptionStatus({
-            subscriptionId,
-            subscriptionStatus: SUBS_CANCELED
-        })
-
-        if (!success) {
-            await stripe.subscriptions.update(subscriptionId, {
-                cancel_at_period_end: false,
-            })
-
-            return {
-                success: false,
-                error: error,
-                status: 500
-            }
-        }
-
-        return {
-            success: true,
-            error: null,
-            data: updatedSubscription
-        }
-    } catch (error) {
-        console.error('Actions Error - Cancel Subscription error:', error);
-        
         return {
             success: false,
-            error: STRIPE_ERROR.CANCEL_SUBSCRIPTION_FAILED,
-            status: 500
+            error: SUBSCRIPTION_ERROR.UPDATE_SUBSCRIPTION_STATUS_FAILED
         }
+    }
+
+    return {
+        success: true,
+        data: result
     }
 }
 

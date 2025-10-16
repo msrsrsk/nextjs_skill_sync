@@ -57,27 +57,13 @@ export const updateOrderItemSubscriptionStatus = async ({
     subscriptionId,
     subscriptionStatus
 }: UpdateSubscriptionStatusProps) => {
-    try {
-        const repository = updateOrderItemSubscriptionRepository();
-        const orderItemSubscriptionStatus = await repository.updateSubscriptionStatus({ 
-            subscriptionId, 
-            subscriptionStatus 
-        })
+    const repository = updateOrderItemSubscriptionRepository();
+    const result = await repository.updateSubscriptionStatus({ 
+        subscriptionId, 
+        subscriptionStatus 
+    })
 
-        return {
-            success: true,
-            error: null,
-            data: orderItemSubscriptionStatus
-        }
-    } catch (error) {
-        console.error('Database : Error in updateOrderItemSubscriptionStatus: ', error);
-
-        return {
-            success: false, 
-            error: SUBSCRIPTION_ERROR.UPDATE_SUBSCRIPTION_STATUS_FAILED,
-            data: null
-        }
-    }
+    return { success: !!result }
 }
 
 // サブスクリプションデータの削除
