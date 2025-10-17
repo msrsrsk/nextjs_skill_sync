@@ -12,14 +12,7 @@ export async function POST(request: NextRequest) {
 
         const result = await processNotificationWebhook({ record });
 
-        if (!result.success) {
-            return NextResponse.json(
-                { message: result.error }, 
-                { status: result.status }
-            )
-        }
-
-        if (!result.data) {
+        if (!result.success || !result.data) {
             return NextResponse.json(
                 { message: WEBHOOK_ERROR.PROCESS_FAILED }, 
                 { status: 500 }

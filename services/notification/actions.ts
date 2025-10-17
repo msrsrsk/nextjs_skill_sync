@@ -8,38 +8,28 @@ const { PRODUCT_ERROR, CHAT_ERROR, WEBHOOK_ERROR } = ERROR_MESSAGES;
 export const processNotificationWebhook = async ({
     record
 }: { record: NotificationData }) => {
-    try {
-        const repository = getNotificationRepository();
-        const notificationWithDetails = await repository.getNotificationWithDetails(record);
-    
-        if (record.type === 'product_stock') {
-            return {
-                success: true,
-                data: {
-                    record: notificationWithDetails,
-                    processFunction: receiveStockNotificationEmail,
-                    errorText: PRODUCT_ERROR.STOCK_WEBHOOK_PROCESS_FAILED,
-                    condition: (record: NotificationData) => record.type === 'product_stock'
-                }
-            }
-        }
-    
+    const repository = getNotificationRepository();
+    const notificationWithDetails = await repository.getNotificationWithDetails(record);
+
+    if (record.type === 'product_stock') {
         return {
             success: true,
             data: {
                 record: notificationWithDetails,
-                processFunction: receiveChatNotificationEmail,
-                errorText: CHAT_ERROR.WEBHOOK_PROCESS_FAILED,
-                condition: (record: NotificationData) => record.type === 'chat'
+                processFunction: receiveStockNotificationEmail,
+                errorText: PRODUCT_ERROR.STOCK_WEBHOOK_PROCESS_FAILED,
+                condition: (record: NotificationData) => record.type === 'product_stock'
             }
         }
-    } catch (error) {
-        console.error('Webhook Error - Process Notification Webhook error:', error);
+    }
 
-        return {
-            success: false,
-            error: WEBHOOK_ERROR.PROCESS_FAILED,
-            status: 500
+    return {
+        success: true,
+        data: {
+            record: notificationWithDetails,
+            processFunction: receiveChatNotificationEmail,
+            errorText: CHAT_ERROR.WEBHOOK_PROCESS_FAILED,
+            condition: (record: NotificationData) => record.type === 'chat'
         }
     }
 }
