@@ -26,17 +26,25 @@ export async function POST(request: NextRequest) {
             cartItems
         });
 
-        if (result.error === CHECKOUT_ERROR.NO_PRODUCT_DATA || result.error === CHECKOUT_ERROR.NO_PRICE_ID) {
+        if (!result.success) {
+            if (result.error === CHECKOUT_ERROR.NO_PRODUCT_DATA || 
+                result.error === CHECKOUT_ERROR.NO_PRICE_ID) {
+                return NextResponse.json(
+                    { message: result.error }, 
+                    { status: 404 }
+                )
+            }
+
             return NextResponse.json(
                 { message: result.error }, 
-                { status: 404 }
+                { status: 500 }
             )
         }
 
-        return NextResponse.json(
-            { message: result.error }, 
-            { status: 500 }
-        )
+        return NextResponse.json({ 
+            success: true, 
+            data: result.data 
+        })
     } catch (error) {
         console.error('Checkout API : Error in processCheckoutItems:', error);
 

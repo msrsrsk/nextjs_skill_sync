@@ -115,7 +115,7 @@ export async function DELETE(request: NextRequest) {
     try {
         const result = await cancelSubscription({ subscriptionId });
     
-        if (result.error === SUBSCRIPTION_ERROR.UPDATE_SUBSCRIPTION_STATUS_FAILED) {
+        if (!result.success) {
             return NextResponse.json(
                 { message: result.error }, 
                 { status: 500 }

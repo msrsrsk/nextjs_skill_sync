@@ -121,7 +121,7 @@ export async function PUT(request: NextRequest) {
     }
 
     try {
-        const { success, data } = await updateCartItemQuantity({
+        const { success } = await updateCartItemQuantity({
             userId,
             productId,
             quantity
