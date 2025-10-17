@@ -21,9 +21,24 @@ export async function POST(request: NextRequest) {
         });
 
         if (!result.success) {
+            if (result.error === REVIEW_ERROR.WEBHOOK_INSERT_FAILED || 
+                result.error === REVIEW_ERROR.WEBHOOK_DELETE_FAILED) {
+                return NextResponse.json(
+                    { message: result.error }, 
+                    { status: 400 }
+                )
+            }
+
+            if (result.error === REVIEW_ERROR.WEBHOOK_PROCESS_FAILED) {
+                return NextResponse.json(
+                    { message: result.error }, 
+                    { status: 200 }
+                )
+            }
+            
             return NextResponse.json(
                 { message: result.error }, 
-                { status: result.status }
+                { status: 500 }
             )
         }
 

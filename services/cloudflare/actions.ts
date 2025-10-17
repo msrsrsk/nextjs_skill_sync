@@ -423,7 +423,7 @@ export const deleteProfileImage = async ({
 }
 
 // レビュー画像の削除
-export async function deleteReviewImage (record: Review) {
+export const deleteReviewImage = async (record: Review) => {
     try {
         const { image_urls } = record;
 
