@@ -26,7 +26,11 @@ import { NOIMAGE_PRODUCT_IMAGE_URL, SUBSCRIPTION_STATUS } from "@/constants/inde
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { SUBS_ACTIVE } = SUBSCRIPTION_STATUS;
-const { SUBSCRIPTION_ERROR, SHIPPING_ADDRESS_ERROR } = ERROR_MESSAGES;
+const { 
+    SUBSCRIPTION_ERROR, 
+    SUBSCRIPTION_PAYMENT_ERROR, 
+    SHIPPING_ADDRESS_ERROR 
+} = ERROR_MESSAGES;
 
 interface CreateProductDetailsProps {
     lineItems: WebhookLineItem[] | StripeSubscriptionItem[];
@@ -304,10 +308,7 @@ export async function handleSubscriptionEvent({
     const subscriptionStatus = formatStripeSubscriptionStatus(subscriptionEvent?.status);
 
     // 1. サブスクリプションの支払いデータの作成
-    const { 
-        success: subscriptionPaymentSuccess, 
-        error: subscriptionPaymentError 
-    } = await createSubscriptionPayment({
+    const createResult = await createSubscriptionPayment({
         subscriptionPaymentData: {
             user_id: subscriptionEvent?.metadata?.userID as UserId,
             subscription_id: subscriptionEvent.id,
@@ -316,8 +317,8 @@ export async function handleSubscriptionEvent({
         } as SubscriptionPayment
     });
 
-    if (!subscriptionPaymentSuccess) {
-        throw new Error(subscriptionPaymentError as string);
+    if (!createResult.success) {
+        throw new Error(SUBSCRIPTION_PAYMENT_ERROR.CREATE_FAILED);
     }
 
     // 2. 未払い通知メールの送信
@@ -462,49 +463,43 @@ export async function createStripeProductData({
 export async function processSubscriptionWebhook({
     event
 }: { event: StripeEvent }) {
-    try {
-        // サブスクリプションの継続支払い時の処理（2回目以降のサブスク契約で発生）
-        if (event.type === 'invoice.payment_succeeded' || event.type === 'invoice.payment_failed') {
-            const invoiceEvent = event.data.object as StripeInvoice;
 
-            // 1. サブスクリプションのデータ作成
-            if (invoiceEvent.billing_reason === 'subscription_cycle') {
-                const subscriptionId = invoiceEvent.parent?.subscription_details?.subscription;
+    // サブスクリプションの継続支払い時の処理（2回目以降のサブスク契約で発生）
+    if (event.type === 'invoice.payment_succeeded' || event.type === 'invoice.payment_failed') {
+        const invoiceEvent = event.data.object as StripeInvoice;
 
-                if (!subscriptionId || typeof subscriptionId !== 'string') {
-                    throw new Error(SUBSCRIPTION_ERROR.NO_SUBSCRIPTION_ID);
+        // 1. サブスクリプションのデータ作成
+        if (invoiceEvent.billing_reason === 'subscription_cycle') {
+            const subscriptionId = invoiceEvent.parent?.subscription_details?.subscription;
+
+            if (!subscriptionId || typeof subscriptionId !== 'string') {
+                return {
+                    success: false,
+                    error: SUBSCRIPTION_ERROR.NO_SUBSCRIPTION_ID
                 }
-
-                const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-
-                await handleSubscriptionEvent({
-                    subscriptionEvent: subscription
-                });
             }
-        }
 
-        if (event.type === 'customer.subscription.updated') {
-            const subscriptionEvent = event.data.object as StripeSubscription;
-            const previousAttributes = event.data.previous_attributes ?? null;
+            const subscription = await stripe.subscriptions.retrieve(subscriptionId);
 
-            // 2. サブスクリプションのステータスの確認&更新
-            await handleSubscriptionUpdate({
-                subscriptionEvent,
-                previousAttributes
+            await handleSubscriptionEvent({
+                subscriptionEvent: subscription
             });
         }
+    }
 
-        return {
-            success: true,
-            error: null
-        }
-    } catch (error) {
-        console.error('Webhook Error - Process Subscription Webhook error:', error);
+    if (event.type === 'customer.subscription.updated') {
+        const subscriptionEvent = event.data.object as StripeSubscription;
+        const previousAttributes = event.data.previous_attributes ?? null;
 
-        return {
-            success: false,
-            error: SUBSCRIPTION_ERROR.WEBHOOK_PROCESS_FAILED,
-            status: 500
-        }
+        // 2. サブスクリプションのステータスの確認&更新
+        await handleSubscriptionUpdate({
+            subscriptionEvent,
+            previousAttributes
+        });
+    }
+
+    return {
+        success: true,
+        error: null
     }
 }
