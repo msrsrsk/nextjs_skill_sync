@@ -28,9 +28,16 @@ export async function POST(request: NextRequest) {
         });
 
         if (!result.success) {
+            if (result.error === PRODUCT_ERROR.FETCH_FAILED) {
+                return NextResponse.json(
+                    { message: result.error }, 
+                    { status: 404 }
+                )
+            }
+            
             return NextResponse.json(
                 { message: result.error }, 
-                { status: result.status }
+                { status: 500 }
             )
         }
 

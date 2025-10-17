@@ -96,6 +96,15 @@ export const getProductBySlug = async ({
     }
 }
 
+export const getProductByProductId = async ({
+    productId,
+}: { productId: ProductId }) => {
+    const repository = getProductRepository();
+    const result = await repository.getProductByProductId({ productId });
+
+    return { data: result }
+}
+
 // IDによる商品データの取得
 export const getProductsByIds = async ({
     ids,
