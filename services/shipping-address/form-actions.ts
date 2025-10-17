@@ -45,14 +45,14 @@ export async function createShippingAddressAction(
             is_default: false,
         } as ShippingAddress;
 
-        const { success, error, data } = await createShippingAddress({
+        const result = await createShippingAddress({
             address: shippingAddressData
         });
 
-        if (!success) {
+        if (!result.success) {
             return {
                 success: false, 
-                error: error,
+                error: SHIPPING_ADDRESS_ERROR.CREATE_FAILED,
                 data: null,
                 timestamp: Date.now()
             }
@@ -61,7 +61,7 @@ export async function createShippingAddressAction(
         return {
             success: true, 
             error: null, 
-            data,
+            data: result.data,
             timestamp: Date.now()
         }
     } catch (error) {
@@ -118,15 +118,15 @@ export async function updateShippingAddressAction(
             is_default: false,
         } as ShippingAddress;
 
-        const { success, error, data } = await updateShippingAddress({
+        const result = await updateShippingAddress({
             id,
             shippingAddress: shippingAddressData
         });
 
-        if (!success) {
+        if (!result.success) {
             return {
                 success: false, 
-                error: error,
+                error: SHIPPING_ADDRESS_ERROR.UPDATE_FAILED,
                 data: null,
                 timestamp: Date.now()
             }
@@ -135,7 +135,7 @@ export async function updateShippingAddressAction(
         return {
             success: true, 
             error: null, 
-            data,
+            data: result.data,
             timestamp: Date.now()
         }
     } catch (error) {

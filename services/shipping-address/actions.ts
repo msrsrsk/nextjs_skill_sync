@@ -2,6 +2,7 @@
 
 import { 
     createShippingAddressRepository, 
+    getShippingAddressRepository,
     updateShippingAddressRepository, 
     deleteShippingAddressRepository 
 } from "@/repository/shippingAddress"
@@ -20,24 +21,25 @@ interface UpdateStripeAndShippingAddressProps {
 export const createShippingAddress = async ({
     address
 }: { address: ShippingAddress }) => {
-    try {
-        const repository = createShippingAddressRepository();
-        const shippingAddress = await repository.createShippingAddress({ address });
+    const repository = createShippingAddressRepository();
+    const result = await repository.createShippingAddress({ address });
 
-        return {
-            success: true, 
-            error: null, 
-            data: shippingAddress
-        }
-    } catch (error) {
-        console.error('Database : Error in createShippingAddress: ', error);
-
-        return {
-            success: false, 
-            error: SHIPPING_ADDRESS_ERROR.CREATE_FAILED,
-            data: null
-        }
+    return {
+        success: !!result, 
+        data: result
     }
+}
+
+// デフォルト住所の取得
+export const getDefaultShippingAddress = async ({ 
+    userId 
+}: UserIdProps) => {
+    const repository = getShippingAddressRepository();
+    const result = await repository.getUserDefaultShippingAddress({
+        userId
+    });
+
+    return { data: result }
 }
 
 // 住所の更新
@@ -45,26 +47,15 @@ export const updateShippingAddress = async ({
     id,
     shippingAddress
 }: UpdateShippingAddressProps) => {
-    try {
-        const repository = updateShippingAddressRepository();
-        const shippingAddressData = await repository.updateShippingAddress({
-            id,
-            shippingAddress
-        });
+    const repository = updateShippingAddressRepository();
+    const result = await repository.updateShippingAddress({
+        id,
+        shippingAddress
+    });
 
-        return {
-            success: true, 
-            error: null, 
-            data: shippingAddressData
-        }
-    } catch (error) {
-        console.error('Database : Error in updateShippingAddress: ', error);
-
-        return {
-            success: false, 
-            error: SHIPPING_ADDRESS_ERROR.UPDATE_FAILED,
-            data: null
-        }
+    return {
+        success: !!result, 
+        data: result
     }
 }
 
@@ -103,7 +94,7 @@ export const updateStripeAndShippingAddress = async ({
     }
 
     if (!setAddressResult.success) {
-        throw new Error(setAddressResult.error as string);
+        throw new Error(SHIPPING_ADDRESS_ERROR.UPDATE_FAILED);
     }
 
     return setAddressResult.data;
@@ -165,7 +156,7 @@ export const setDefaultShippingAddress = async ({
             error: SHIPPING_ADDRESS_ERROR.SET_DEFAULT_FAILED,
         }
     }
-};
+}
 
 // 住所の削除
 export const deleteShippingAddress = async ({ id }: { id: ShippingAddressId }) => {

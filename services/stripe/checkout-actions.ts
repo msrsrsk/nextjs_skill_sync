@@ -211,80 +211,68 @@ export const createPaymentLink = async ({
     userEmail,
     interval
 }: CreatePaymentLinkProps) => {
-    try {
-        // 1. 配送料の取得
-        const shippingRateAmount = await getShippingRateAmount(
-            process.env.STRIPE_SHIPPING_REGULAR_RATE_ID as string
-        );
+    // 1. 配送料の取得
+    const shippingRateAmount = await getShippingRateAmount(
+        process.env.STRIPE_SHIPPING_REGULAR_RATE_ID as string
+    );
 
-        if (!interval || !shippingRateAmount) {
-            return {
-                success: false, 
-                error: CHECKOUT_ERROR.NO_SUBSCRIPTION_INTERVAL,
-                status: 400
-            }
-        }
-
-        // 2. 配送の設定
-        const lineItemsWithShipping = [
-            ...lineItems,
-            {
-                price_data: {
-                    currency: 'jpy',
-                    product_data: {
-                        name: '配送料',
-                    },
-                    recurring: getRecurringConfig(interval),
-                    unit_amount: shippingRateAmount.data,
-                },
-                quantity: 1,
-            }
-        ] as StripePaymentLinkCreateParams['line_items'];
-
-        // Payment Linkを作成
-        const paymentLinkConfig: StripePaymentLinkCreateParams = {
-            payment_method_types: ['card'],
-            currency: 'jpy',
-            shipping_address_collection: {
-                allowed_countries: ['JP'],
-            },
-            phone_number_collection: { 
-                enabled: true 
-            },
-            line_items: lineItemsWithShipping,
-            after_completion: {
-                type: 'redirect',
-                redirect: {
-                    url: `${process.env.NEXT_PUBLIC_BASE_URL}${ORDER_COMPLETE_PATH}`
-                }
-            },
-            metadata: {
-                userID: userId,
-            },
-            subscription_data: {
-                metadata: {
-                    userID: userId,
-                    userEmail: userEmail,
-                    subscription_shipping_fee: shippingRateAmount.data.toString(),
-                }
-            }
-        }
-        
-        const paymentLink = await stripe.paymentLinks.create(paymentLinkConfig);
-
-        return {
-            success: true, 
-            error: null, 
-            data: paymentLink
-        }
-    } catch (error) {
-        console.error('Actions Error - Create Payment Link error:', error);
-
+    if (!interval || !shippingRateAmount.success) {
         return {
             success: false, 
-            error: CHECKOUT_ERROR.PAYMENT_LINK_FAILED,
-            status: 500
+            error: CHECKOUT_ERROR.NO_SUBSCRIPTION_INTERVAL
         }
+    }
+
+    // 2. 配送の設定
+    const lineItemsWithShipping = [
+        ...lineItems,
+        {
+            price_data: {
+                currency: 'jpy',
+                product_data: {
+                    name: '配送料',
+                },
+                recurring: getRecurringConfig(interval),
+                unit_amount: shippingRateAmount.data,
+            },
+            quantity: 1,
+        }
+    ] as StripePaymentLinkCreateParams['line_items'];
+
+    // Payment Linkを作成
+    const paymentLinkConfig: StripePaymentLinkCreateParams = {
+        payment_method_types: ['card'],
+        currency: 'jpy',
+        shipping_address_collection: {
+            allowed_countries: ['JP'],
+        },
+        phone_number_collection: { 
+            enabled: true 
+        },
+        line_items: lineItemsWithShipping,
+        after_completion: {
+            type: 'redirect',
+            redirect: {
+                url: `${process.env.NEXT_PUBLIC_BASE_URL}${ORDER_COMPLETE_PATH}`
+            }
+        },
+        metadata: {
+            userID: userId,
+        },
+        subscription_data: {
+            metadata: {
+                userID: userId,
+                userEmail: userEmail,
+                subscription_shipping_fee: shippingRateAmount.data.toString(),
+            }
+        }
+    }
+    
+    const paymentLink = await stripe.paymentLinks.create(paymentLinkConfig);
+
+    return {
+        success: !!paymentLink, 
+        data: paymentLink
     }
 }
 
@@ -349,82 +337,70 @@ export const processCheckoutItems = async ({
 export const processCheckoutSessionCompleted = async ({
     checkoutSessionEvent
 }: { checkoutSessionEvent: StripeCheckoutSession }) => {
-    try {
-        // 1. 注文データの処理
-        const { orderData, productDetails } = await processOrderData({
-            checkoutSessionEvent
-        });
+    
+    // 1. 注文データの処理
+    const { orderData, productDetails } = await processOrderData({
+        checkoutSessionEvent
+    });
 
-        // 2. 在庫数と売り上げ数の更新
-        const { 
-            success: updateStockSuccess, 
-            error: updateStockError 
-        } = await updateProductStockAndSoldCount({ orderId: orderData.order.id });
+    // 2. 在庫数と売り上げ数の更新
+    const { 
+        success: updateStockSuccess, 
+        error: updateStockError 
+    } = await updateProductStockAndSoldCount({ orderId: orderData.order.id });
 
-        if (!updateStockSuccess) {
-            return {
-                success: false,
-                error: updateStockError,
-                status: 500
-            }
-        }
-
-        // 3. 配送先住所のデータ保存
-        const userId = checkoutSessionEvent?.metadata?.userID as UserId;
-
-        await processShippingAddress({
-            checkoutSessionEvent,
-            userId
-        });
-
-        // 4. 注文完了メールの送信
-        const { 
-            success: orderEmailSuccess, 
-            error: orderEmailError 
-        } = await sendOrderCompleteEmail({
-            orderData: checkoutSessionEvent,
-            productDetails: productDetails as StripeProductDetailsProps[],
-            orderNumber: orderData.order.order_number
-        });
-
-        if (!orderEmailSuccess) {
-            return {
-                success: false,
-                error: orderEmailError,
-                status: 500
-            }
-        }
-
-        const isNotEventSubscription = checkoutSessionEvent.mode !== 'subscription';
-
-        // 5. 未払いの場合のメール送信
-        if (checkoutSessionEvent.payment_status !== 'paid' && isNotEventSubscription) {
-            await sendOrderEmails({
-                checkoutSessionEvent,
-                productDetails: productDetails as StripeProductDetailsProps[],
-                orderData
-            });
-        }
-
-        // 6. Payment Link の無効化
-        if (checkoutSessionEvent.payment_link && isNotEventSubscription) {
-            await deactivatePaymentLink({
-                checkoutSessionEvent
-            });
-        }
-
-        return {
-            success: true,
-            error: null,
-            data: null
-        }
-    } catch (error) {
-        console.error('API Error - Process Checkout Session Completed:', error);
-        
+    if (!updateStockSuccess) {
         return {
             success: false,
-            error: CHECKOUT_ERROR.WEBHOOK_PROCESS_FAILED,
-            status: 500
+            error: updateStockError
         }
+    }
+
+    // 3. 配送先住所のデータ保存
+    const userId = checkoutSessionEvent?.metadata?.userID as UserId;
+
+    await processShippingAddress({
+        checkoutSessionEvent,
+        userId
+    });
+
+    // 4. 注文完了メールの送信
+    const { 
+        success: orderEmailSuccess, 
+        error: orderEmailError 
+    } = await sendOrderCompleteEmail({
+        orderData: checkoutSessionEvent,
+        productDetails: productDetails as StripeProductDetailsProps[],
+        orderNumber: orderData.order.order_number
+    });
+
+    if (!orderEmailSuccess) {
+        return {
+            success: false,
+            error: orderEmailError
+        }
+    }
+
+    const isNotEventSubscription = checkoutSessionEvent.mode !== 'subscription';
+
+    // 5. 未払いの場合のメール送信
+    if (checkoutSessionEvent.payment_status !== 'paid' && isNotEventSubscription) {
+        await sendOrderEmails({
+            checkoutSessionEvent,
+            productDetails: productDetails as StripeProductDetailsProps[],
+            orderData
+        });
+    }
+
+    // 6. Payment Link の無効化
+    if (checkoutSessionEvent.payment_link && isNotEventSubscription) {
+        await deactivatePaymentLink({
+            checkoutSessionEvent
+        });
+    }
+
+    return {
+        success: true,
+        error: null
     }
 }

@@ -14,7 +14,6 @@ import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { ORDER_PENDING, ORDER_PROCESSING } = ORDER_STATUS;
 const { 
-    PRODUCT_ERROR, 
     ORDER_ERROR, 
     CHECKOUT_ERROR,
     ORDER_SHIPPING_ERROR 
@@ -24,23 +23,12 @@ const {
 export const createOrder = async ({ 
     orderData 
 }: { orderData: CreateOrderData }) => {
-    try {
-        const repository = createOrderRepository();
-        const order = await repository.createOrder({ orderData });
+    const repository = createOrderRepository();
+    const result = await repository.createOrder({ orderData });
 
-        return {
-            success: true, 
-            error: null, 
-            data: order
-        }
-    } catch (error) {
-        console.error('Database : Error in createOrder: ', error);
-
-        return {
-            success: false, 
-            error: ORDER_ERROR.CREATE_FAILED,
-            data: null
-        }
+    return {
+        success: !!result, 
+        data: result
     }
 }
 
@@ -81,11 +69,7 @@ export const createCheckoutOrder = async ({
         }
         
         // 3. 注文データの作成
-        const { 
-            success: createOrderSuccess, 
-            error: createOrderError, 
-            data: createOrderData 
-        } = await createOrder({ 
+        const createOrderResult = await createOrder({ 
             orderData: {
                 user_id: session.metadata?.userID as UserId,
                 status: paymentStatus as OrderStatusType,
@@ -95,10 +79,10 @@ export const createCheckoutOrder = async ({
             }
         });
 
-        if (!createOrderSuccess || !createOrderData) {
+        if (!createOrderResult.success || !createOrderResult.data) {
             return {
                 success: false, 
-                error: createOrderError,
+                error: ORDER_ERROR.CREATE_FAILED,
                 data: null
             }
         }
@@ -112,13 +96,9 @@ export const createCheckoutOrder = async ({
         }
 
         // 4. 注文配送情報の作成
-        const { 
-            success: createOrderShippingSuccess, 
-            error: createOrderShippingError, 
-            data: createOrderShippingData 
-        } = await createOrderShipping({ 
+        const createOrderShippingResult = await createOrderShipping({ 
             orderShippingData: {
-                order_id: createOrderData.id,
+                order_id: createOrderResult.data.id,
                 delivery_name: session.customer_details?.name,
                 address: {
                     line1: session.customer_details?.address?.line1,
@@ -134,10 +114,10 @@ export const createCheckoutOrder = async ({
             }
         });
 
-        if (!createOrderShippingSuccess || !createOrderShippingData) {
+        if (!createOrderShippingResult.success || !createOrderShippingResult.data) {
             return {
                 success: false, 
-                error: createOrderShippingError,
+                error: ORDER_SHIPPING_ERROR.CREATE_FAILED,
                 data: null
             }
         }
@@ -146,8 +126,8 @@ export const createCheckoutOrder = async ({
             success: true, 
             error: null, 
             data: {
-                order: createOrderData,
-                orderShipping: createOrderShippingData
+                order: createOrderResult.data,
+                orderShipping: createOrderShippingResult.data
             }
         }
     } catch (error) {
@@ -169,50 +149,38 @@ export const createCheckoutOrder = async ({
 export const updateProductStockAndSoldCount = async ({ 
     orderId 
 }: { orderId: OrderId }) => {
-    try {
-        // 1. 注文データの取得
-        const repository = getOrderRepository();
-        const orderItemsResult = await repository.getOrderByIdWithOrderItems({
-            orderId
-        });
+    
+    // 1. 注文データの取得
+    const repository = getOrderRepository();
+    const orderItemsResult = await repository.getOrderByIdWithOrderItems({
+        orderId
+    });
 
-        if (!orderItemsResult) {
-            return {
-                success: false, 
-                error: ORDER_ERROR.DETAIL_FETCH_FAILED
-            }
-        }
-
-        // 2. 商品の在庫数と売り上げ数の更新
-        const productUpdates = orderItemsResult.order_items.map((item) => ({
-            productId: item.product_id,
-            quantity: item.quantity
-        }));
-
-        const { success, error } = await updateStockAndSoldCount({ productUpdates });
-
-        if (!success) {
-            return {
-                success: false, 
-                error: error
-            }
-        }
-
-        return {
-            success: true, 
-            error: null
-        }
-    } catch (error) {
-        console.error('Actions Error - Update Product Stock And Sold Count error:', error);
-
-        const errorMessage = error instanceof Error 
-            ? error.message 
-            : PRODUCT_ERROR.UPDATE_STOCK_AND_SOLD_COUNT_FAILED;
-
+    if (!orderItemsResult) {
         return {
             success: false, 
-            error: errorMessage,
+            error: ORDER_ERROR.DETAIL_FETCH_FAILED
         }
+    }
+
+    // 2. 商品の在庫数と売り上げ数の更新
+    const productUpdates = orderItemsResult.order_items.map((item) => ({
+        productId: item.product_id,
+        quantity: item.quantity
+    }));
+
+    const { success, error } = await updateStockAndSoldCount({ productUpdates });
+
+    if (!success) {
+        return {
+            success: false, 
+            error: error
+        }
+    }
+
+    return {
+        success: true, 
+        error: null
     }
 }
 

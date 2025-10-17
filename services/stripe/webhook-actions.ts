@@ -11,8 +11,10 @@ import { createOrderStripe, deleteOrderStripe } from "@/services/order-stripe/ac
 import { createOrderItems, deleteAllOrderItem } from "@/services/order-item/actions"
 import { createOrderItemStripes, deleteOrderItemStripes } from "@/services/order-item-stripe/actions"
 import { createOrderItemSubscriptions } from "@/services/order-item-subscription/actions"
-import { getShippingAddressRepository } from "@/repository/shippingAddress"
-import { createShippingAddress } from "@/services/shipping-address/actions"
+import { 
+    createShippingAddress, 
+    getDefaultShippingAddress 
+} from "@/services/shipping-address/actions"
 import { 
     createStripeProduct, 
     createStripePrice, 
@@ -24,7 +26,7 @@ import { NOIMAGE_PRODUCT_IMAGE_URL, SUBSCRIPTION_STATUS } from "@/constants/inde
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { SUBS_ACTIVE } = SUBSCRIPTION_STATUS;
-const { SUBSCRIPTION_ERROR, CHECKOUT_ERROR } = ERROR_MESSAGES;
+const { SUBSCRIPTION_ERROR, SHIPPING_ADDRESS_ERROR } = ERROR_MESSAGES;
 
 interface CreateProductDetailsProps {
     lineItems: WebhookLineItem[] | StripeSubscriptionItem[];
@@ -218,14 +220,11 @@ export async function processShippingAddress({
     checkoutSessionEvent,
     userId
 }: ProcessShippingAddressProps) {
-    const repository = getShippingAddressRepository();
-    const defaultShippingAddress = await repository.getUserDefaultShippingAddress({
-        userId
-    });
+    const { data: defaultShippingAddress } = await getDefaultShippingAddress({ userId });
     
     // デフォルトの配送先住所の有無確認（ない場合）
     if (!defaultShippingAddress) {
-        const customerId = checkoutSessionEvent?.customer as string;
+        const customerId = checkoutSessionEvent?.customer as StripeCustomerId;
 
         // デフォルトの配送先住所のデータ保存
         const customerDetails = checkoutSessionEvent.customer_details;
@@ -233,10 +232,7 @@ export async function processShippingAddress({
         if (customerDetails && customerId) {
             const address = customerDetails.address;
 
-            const { 
-                success: createAddressSuccess, 
-                error: createAddressError 
-            } = await createShippingAddress({
+            const createResult = await createShippingAddress({
                 address: {
                     user_id: userId,
                     name: customerDetails.name,
@@ -249,14 +245,11 @@ export async function processShippingAddress({
                 } as ShippingAddress
             })
 
-            if (!createAddressSuccess) {
-                throw new Error(createAddressError as string);
+            if (!createResult.success) {
+                throw new Error(SHIPPING_ADDRESS_ERROR.CREATE_FAILED);
             }
 
-            const { 
-                success: updateCustomerAddressSuccess, 
-                error: updateCustomerAddressError 
-            } = await updateCustomerShippingAddress(customerId, {
+            const updateResult = await updateCustomerShippingAddress(customerId, {
                 address: {
                     line1: address?.line1 || '',
                     line2: address?.line2 || '',
@@ -267,8 +260,8 @@ export async function processShippingAddress({
                 name: customerDetails.name || '',
             });
 
-            if (!updateCustomerAddressSuccess) {
-                throw new Error(updateCustomerAddressError as string);
+            if (!updateResult.success) {
+                throw new Error(updateResult.error as string);
             }
         }
     }

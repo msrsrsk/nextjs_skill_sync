@@ -189,7 +189,7 @@ export const getShippingRateAmount = async (shippingRateId: string) => {
 }
 
 export const updateCustomerShippingAddress = async (
-    customerId: string,
+    customerId: StripeCustomerId,
     data: StripeCustomerDetails
 ) => {
     try {
