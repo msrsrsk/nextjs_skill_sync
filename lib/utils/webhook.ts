@@ -40,7 +40,6 @@ async function verifyHMACSignature({
         .createHmac('sha256', secret)
         .update(payload)
         .digest('base64')
-        .replace(/=/g, '');
     
     console.log('Signature Debug:', {
         originalSignature: signature,
