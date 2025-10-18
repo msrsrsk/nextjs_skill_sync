@@ -39,7 +39,8 @@ async function verifyHMACSignature({
     const expectedSignature = crypto
         .createHmac('sha256', secret)
         .update(payload)
-        .digest('base64');
+        .digest('base64')
+        .replace(/=/g, '');
     
     console.log('Signature Debug:', {
         originalSignature: signature,
@@ -49,23 +50,14 @@ async function verifyHMACSignature({
         expectedLength: expectedSignature.length
     });
 
-    const actualSignatureHex = Buffer.from(actualSignature, 'base64').toString('hex');
-    
-    console.log('Converted signature:', {
-        actualSignatureHex: actualSignatureHex,
-        expectedSignature: expectedSignature,
-        actualHexLength: actualSignatureHex.length,
-        expectedHexLength: expectedSignature.length
-    });
-    
-    if (actualSignatureHex.length !== expectedSignature.length) {
+    if (actualSignature.length !== expectedSignature.length) {
         console.log('Signature length mismatch - returning false');
         return false;
     }
     
     return crypto.timingSafeEqual(
-        Buffer.from(actualSignatureHex, 'hex'),
-        Buffer.from(expectedSignature, 'hex')
+        Buffer.from(actualSignature, 'base64'),
+        Buffer.from(expectedSignature, 'base64')
     )
 }
 
