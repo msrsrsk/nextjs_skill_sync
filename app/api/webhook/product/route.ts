@@ -10,6 +10,7 @@ export async function POST(request: NextRequest) {
     try {
         // 1. 認証処理
         const authError = await verifySupabaseWebhookAuth({
+            request,
             errorMessage: PRODUCT_ERROR.STRIPE_WEBHOOK_PROCESS_FAILED
         });
         
@@ -22,14 +23,10 @@ export async function POST(request: NextRequest) {
             subscription_price_ids
         } = record;
 
-        console.log('record', record);
-
         const result = await processProductWebhook({
             product_id,
             subscriptionPriceIds: subscription_price_ids
         });
-
-        console.log('processProductWebhook result', result);
 
         if (!result.success) {
             if (result.error === PRODUCT_ERROR.FETCH_FAILED) {
