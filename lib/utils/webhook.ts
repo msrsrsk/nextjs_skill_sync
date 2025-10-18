@@ -87,9 +87,8 @@ export async function verifySupabaseWebhookAuth({
     const signatureHeader = headersList.get('x-webhook-signature');
     
     const expectedAuth = `Bearer ${process.env.SUPABASE_WEBHOOK_SECRET_KEY}`;
-    const expectedSignature = process.env.SUPABASE_WEBHOOK_SIGNATURE;
     
-    if (authHeader !== expectedAuth || signatureHeader !== expectedSignature) {
+    if (authHeader !== expectedAuth) {
         return NextResponse.json(
             { message: errorMessage }, 
             { status: 400 }) 
@@ -98,7 +97,7 @@ export async function verifySupabaseWebhookAuth({
     const payload = await request.text();
     const isValidSignature = await verifyHMACSignature({
         payload,
-        signature: signatureHeader,
+        signature: signatureHeader as string,
         secret: process.env.SUPABASE_WEBHOOK_SECRET_KEY as string
     });
     
