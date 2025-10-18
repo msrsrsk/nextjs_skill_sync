@@ -38,6 +38,15 @@ async function verifyHMACSignature({
         .createHmac('sha256', secret)
         .update(payload)
         .digest('hex');
+
+        console.log('Signature Debug:', {
+            receivedSignature: signature,
+            expectedSignature: expectedSignature,
+            receivedLength: signature.length,
+            expectedLength: expectedSignature.length,
+            receivedBuffer: Buffer.from(signature, 'hex').length,
+            expectedBuffer: Buffer.from(expectedSignature, 'hex').length
+        });
     
     return crypto.timingSafeEqual(
         Buffer.from(signature, 'hex'),
