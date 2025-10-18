@@ -41,6 +41,14 @@ async function verifyHMACSignature({
 
     const receivedSignatureHex = Buffer.from(signature, 'base64').toString('hex');
 
+    console.log('Signature Debug:', {
+        receivedSignature: signature,
+        expectedSignature: expectedSignature,
+        receivedSignatureHex: receivedSignatureHex,
+        receivedLength: receivedSignatureHex.length,
+        expectedLength: expectedSignature.length
+    });
+
     if (receivedSignatureHex.length !== expectedSignature.length) {
         console.log('Signature length mismatch');
         return false;
