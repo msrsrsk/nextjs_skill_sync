@@ -35,29 +35,20 @@ async function verifyHMACSignature({
     secret
 }: VerifyHMACSignatureProps): Promise<boolean> {
     const actualSignature = signature.replace('supabase-webhook-signature-', '');
-    
+        
     const expectedSignature = crypto
         .createHmac('sha256', secret)
         .update(payload)
-        .digest('base64')
+        .digest('base64');
     
     console.log('Signature Debug:', {
-        originalSignature: signature,
         actualSignature: actualSignature,
         expectedSignature: expectedSignature,
         actualLength: actualSignature.length,
         expectedLength: expectedSignature.length
     });
-
-    if (actualSignature.length !== expectedSignature.length) {
-        console.log('Signature length mismatch - returning false');
-        return false;
-    }
     
-    return crypto.timingSafeEqual(
-        Buffer.from(actualSignature, 'base64'),
-        Buffer.from(expectedSignature, 'base64')
-    )
+    return actualSignature === expectedSignature;
 }
 
 // Webhookの署名の認証
