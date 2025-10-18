@@ -39,17 +39,15 @@ async function verifyHMACSignature({
         .update(payload)
         .digest('hex');
 
-        console.log('Signature Debug:', {
-            receivedSignature: signature,
-            expectedSignature: expectedSignature,
-            receivedLength: signature.length,
-            expectedLength: expectedSignature.length,
-            receivedBuffer: Buffer.from(signature, 'hex').length,
-            expectedBuffer: Buffer.from(expectedSignature, 'hex').length
-        });
-    
+    const receivedSignatureHex = Buffer.from(signature, 'base64').toString('hex');
+
+    if (receivedSignatureHex.length !== expectedSignature.length) {
+        console.log('Signature length mismatch');
+        return false;
+    }
+
     return crypto.timingSafeEqual(
-        Buffer.from(signature, 'hex'),
+        Buffer.from(receivedSignatureHex, 'hex'),
         Buffer.from(expectedSignature, 'hex')
     )
 }
