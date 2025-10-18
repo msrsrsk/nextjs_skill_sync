@@ -120,6 +120,7 @@ export async function updateShippingAddressAction(
 
         const result = await updateShippingAddress({
             id,
+            userId: userId as UserId,
             shippingAddress: shippingAddressData
         });
 
@@ -208,6 +209,7 @@ export async function updateDefaultShippingAddressAction(
         if (customerId) {
             await updateStripeAndShippingAddress({
                 id,
+                userId: userId as UserId,
                 customerId,
                 shippingAddress
             });

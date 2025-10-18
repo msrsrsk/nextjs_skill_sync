@@ -11,7 +11,7 @@ import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { SHIPPING_ADDRESS_ERROR } = ERROR_MESSAGES;
 
-interface UpdateStripeAndShippingAddressProps {
+interface UpdateStripeAndShippingAddressProps extends UserIdProps {
     id: ShippingAddressId;
     customerId: StripeCustomerId;
     shippingAddress: ShippingAddress;
@@ -42,14 +42,30 @@ export const getDefaultShippingAddress = async ({
     return { data: result }
 }
 
+// IDによる住所の取得
+export const getShippingAddressById = async ({
+    userId,
+    addressId
+}: ShippingAddressWithUserProps) => {
+    const shippingAddressRepository = getShippingAddressRepository();
+    const result = await shippingAddressRepository.getShippingAddressById({
+        userId,
+        addressId
+    });
+
+    return { data: result }
+}
+
 // 住所の更新
 export const updateShippingAddress = async ({
     id,
+    userId,
     shippingAddress
 }: UpdateShippingAddressProps) => {
     const repository = updateShippingAddressRepository();
     const result = await repository.updateShippingAddress({
         id,
+        userId,
         shippingAddress
     });
 
@@ -62,6 +78,7 @@ export const updateShippingAddress = async ({
 // 住所の更新 & Stripe顧客情報の更新
 export const updateStripeAndShippingAddress = async ({
     id,
+    userId,
     customerId,
     shippingAddress
 }: UpdateStripeAndShippingAddressProps) => {
@@ -85,6 +102,7 @@ export const updateStripeAndShippingAddress = async ({
         }),
         updateShippingAddress({
             id,
+            userId,
             shippingAddress
         })
     ]);
@@ -103,6 +121,7 @@ export const updateStripeAndShippingAddress = async ({
 // デフォルト住所の更新 & Stripe顧客情報の更新
 export const updateStripeAndDefaultShippingAddress = async ({
     id,
+    userId,
     customerId,
     shippingAddress
 }: UpdateStripeAndShippingAddressProps) => {
@@ -124,7 +143,10 @@ export const updateStripeAndDefaultShippingAddress = async ({
             error: null, 
             data: null 
         }),
-        setDefaultShippingAddress({ addressId: id })
+        setDefaultShippingAddress({ 
+            userId,
+            addressId: id 
+        })
     ]);
 
     if (!stripeResult.success) {
@@ -138,11 +160,15 @@ export const updateStripeAndDefaultShippingAddress = async ({
 
 // デフォルト住所の設定
 export const setDefaultShippingAddress = async ({
+    userId,
     addressId
-}: { addressId: ShippingAddressId }) => {
+}: ShippingAddressWithUserProps) => {
     try {
         const repository = updateShippingAddressRepository();
-        await repository.updateDefaultShippingAddressesWithTransaction({ addressId });
+        await repository.updateDefaultShippingAddressesWithTransaction({ 
+            userId,
+            addressId 
+        });
 
         return {
             success: true, 
@@ -159,9 +185,12 @@ export const setDefaultShippingAddress = async ({
 }
 
 // 住所の削除
-export const deleteShippingAddress = async ({ id }: { id: ShippingAddressId }) => {
+export const deleteShippingAddress = async ({ 
+    id,
+    userId
+}: DeleteShippingAddressProps) => {
     const repository = deleteShippingAddressRepository();
-    const result = await repository.deleteShippingAddress({ id });
+    const result = await repository.deleteShippingAddress({ id, userId });
 
     return { success: !!result }
 }

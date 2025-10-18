@@ -28,11 +28,13 @@ export const getShippingAddressRepository = () => {
         },
         // 個別の住所データの取得
         getShippingAddressById: async ({ 
+            userId,
             addressId 
-        }: { addressId: ShippingAddressId }) => {
+        }: ShippingAddressWithUserProps) => {
             return await prisma.shippingAddress.findUnique({
                 where: { 
-                    id: addressId
+                    id: addressId,
+                    user_id: userId
                 }
             })
         },
@@ -71,19 +73,27 @@ export const updateShippingAddressRepository = () => {
         // 住所の更新
         updateShippingAddress: async ({ 
             id,
+            userId,
             shippingAddress 
         }: UpdateShippingAddressProps) => {
             return await prisma.shippingAddress.update({
-                where: { id },
+                where: { 
+                    id, 
+                    user_id: userId 
+                },
                 data: shippingAddress
             })
         },
         // デフォルトの住所の設定
         updateDefaultShippingAddressesWithTransaction: async ({ 
+            userId,
             addressId 
-        }: { addressId: ShippingAddressId }) => {
+        }: ShippingAddressWithUserProps) => {
             await prisma.$transaction(async (tx) => {
                 await tx.shippingAddress.updateMany({
+                    where: {
+                        user_id: userId
+                    },
                     data: {
                         is_default: false
                     }
@@ -91,7 +101,8 @@ export const updateShippingAddressRepository = () => {
         
                 await tx.shippingAddress.update({
                     where: {
-                        id: addressId
+                        id: addressId,
+                        user_id: userId
                     },
                     data: {
                         is_default: true
@@ -106,10 +117,14 @@ export const deleteShippingAddressRepository = () => {
     return {
         // 住所の削除
         deleteShippingAddress: async ({ 
-            id 
-        }: { id: ShippingAddressId }) => {
+            id,
+            userId
+        }: DeleteShippingAddressProps) => {
             return await prisma.shippingAddress.delete({
-                where: { id }
+                where: { 
+                    id, 
+                    user_id: userId 
+                }
             })
         }
     }

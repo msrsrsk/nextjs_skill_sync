@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 
+import { requireUser } from "@/lib/middleware/auth"
 import { deleteShippingAddress } from "@/services/shipping-address/actions"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
@@ -8,6 +9,8 @@ const { SHIPPING_ADDRESS_ERROR } = ERROR_MESSAGES;
 export const dynamic = "force-dynamic"
 
 export async function DELETE(request: NextRequest) {
+    const { userId } = await requireUser();
+
     const { searchParams } = new URL(request.url);
     const addressId = searchParams.get('addressId');
 
@@ -19,7 +22,10 @@ export async function DELETE(request: NextRequest) {
     }
 
     try {
-        const { success } = await deleteShippingAddress({ id: addressId });
+        const { success } = await deleteShippingAddress({ 
+            id: addressId,
+            userId
+        });
     
         if (!success) {
             return NextResponse.json(

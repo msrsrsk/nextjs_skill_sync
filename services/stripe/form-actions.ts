@@ -1,9 +1,11 @@
 "use server"
 
 import { actionAuth } from "@/lib/middleware/auth"
-import { getShippingAddressRepository } from "@/repository/shippingAddress"
 import { getUser } from "@/services/user/actions"
-import { updateStripeAndDefaultShippingAddress } from "@/services/shipping-address/actions"
+import { 
+    getShippingAddressById, 
+    updateStripeAndDefaultShippingAddress 
+} from "@/services/shipping-address/actions"
 import { GET_USER_DATA_TYPES } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
@@ -20,24 +22,30 @@ export async function setDefaultShippingAddressAction(
 
     const newDefaultAddressId = formData.get('newDefaultAddressId') as ShippingAddressId;
 
+    // 1. 住所IDの確認
+    if (!newDefaultAddressId) {
+        return {
+            success: false, 
+            error: SHIPPING_ADDRESS_ERROR.MISSING_ID,
+            timestamp: Date.now()
+        }
+    }
+
     try {
         // throw new Error('お届け先として設定ができませんでした。\n時間をおいて再度お試しください。');
 
-        // 1. 住所IDの確認
-        if (!newDefaultAddressId) {
-            return {
-                success: false, 
-                error: SHIPPING_ADDRESS_ERROR.MISSING_ID,
-                timestamp: Date.now()
-            }
-        }
+        // 2. ユーザー認証
+        const { userId } = await actionAuth(
+            SHIPPING_ADDRESS_ERROR.UPDATE_DEFAULT_UNAUTHORIZED,
+        );
 
-        const shippingAddressRepository = getShippingAddressRepository();
-        const newDefaultAddressResult = await shippingAddressRepository.getShippingAddressById({
-            addressId: newDefaultAddressId
+        // 3. 住所の取得
+        const newDefaultAddressResult = await getShippingAddressById({
+            userId: userId as UserId,
+            addressId: newDefaultAddressId as ShippingAddressId
         });
 
-        if (!newDefaultAddressResult) {
+        if (!newDefaultAddressResult.data) {
             return {
                 success: false, 
                 error: SHIPPING_ADDRESS_ERROR.INDIVIDUAL_FETCH_FAILED,
@@ -45,11 +53,7 @@ export async function setDefaultShippingAddressAction(
             }
         }
 
-        // 2. ユーザー認証 & Stripe顧客IDの取得
-        const { userId } = await actionAuth(
-            SHIPPING_ADDRESS_ERROR.UPDATE_DEFAULT_UNAUTHORIZED,
-        );
-
+        // 4. Stripe顧客IDの取得
         const userResult = await getUser({
             userId: userId as UserId,
             getType: CUSTOMER_ID_DATA,
@@ -58,12 +62,13 @@ export async function setDefaultShippingAddressAction(
 
         const customerId = userResult.user_stripes?.customer_id;
 
-        // 3. 住所の更新
+        // 5. 住所の更新
         if (customerId) {
             await updateStripeAndDefaultShippingAddress({
                 id: newDefaultAddressId,
+                userId: userId as UserId,
                 customerId,
-                shippingAddress: newDefaultAddressResult
+                shippingAddress: newDefaultAddressResult.data
             });
         }
 

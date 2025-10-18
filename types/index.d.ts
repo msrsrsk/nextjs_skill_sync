@@ -819,7 +819,7 @@ declare global {
     type ShippingAddressAddressLine1 = ShippingAddress['address_line1'];
     type ShippingAddressAddressLine2 = ShippingAddress['address_line2'];
 
-    interface UpdateShippingAddressProps {
+    interface UpdateShippingAddressProps extends UserIdProps {
         id: ShippingAddressId;
         shippingAddress: ShippingAddress;
     }
@@ -833,6 +833,13 @@ declare global {
         address_line2?: ShippingAddressAddressLine2;
     }
 
+    interface ShippingAddressWithUserProps extends UserIdProps {
+        addressId: ShippingAddressId;
+    }
+
+    interface DeleteShippingAddressProps extends UserIdProps {
+        id: ShippingAddressId;
+    }
 
     /* ============================== 
         Bookmark 関連
