@@ -49,11 +49,6 @@ async function verifyHMACSignature({
         expectedLength: expectedSignature.length
     });
     
-    if (actualSignature.length !== expectedSignature.length) {
-        console.log('Signature length mismatch');
-        return false;
-    }
-    
     return crypto.timingSafeEqual(
         Buffer.from(actualSignature, 'base64'),
         Buffer.from(expectedSignature, 'base64')
