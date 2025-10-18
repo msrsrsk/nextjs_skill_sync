@@ -1,4 +1,3 @@
-import crypto from "crypto"
 import { NextRequest, NextResponse } from "next/server"
 import { headers } from "next/headers"
 import { stripe } from "@/lib/clients/stripe/client"
@@ -7,12 +6,6 @@ import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { WEBHOOK_ERROR } = ERROR_MESSAGES;
 
-interface VerifyHMACSignatureProps {
-    payload: string;
-    signature: string;
-    secret: string;
-}
-
 interface WebhookHandlerOptions<T> {
     record: T;
     processFunction: (record: T) => Promise<{ success: boolean; error?: string }>;
@@ -20,29 +13,10 @@ interface WebhookHandlerOptions<T> {
     condition?: (record: T) => boolean;
 }
 
-interface VerifyWebhookAuth {
+interface verifyWebhookSignature {
     request: NextRequest;
-    errorMessage: string;
-}
-
-interface VerifyWebhookSignature extends VerifyWebhookAuth {
     endpointSecret: string;
-}
-
-async function verifyHMACSignature({
-    payload,
-    signature,
-    secret
-}: VerifyHMACSignatureProps): Promise<boolean> {
-    const expectedSignature = crypto
-        .createHmac('sha256', secret)
-        .update(payload)
-        .digest('hex');
-    
-    return crypto.timingSafeEqual(
-        Buffer.from(signature, 'hex'),
-        Buffer.from(expectedSignature, 'hex')
-    )
+    errorMessage: string;
 }
 
 // Webhookの署名の認証
@@ -50,7 +24,7 @@ export async function verifyWebhookSignature({
     request,
     endpointSecret,
     errorMessage
-}: VerifyWebhookSignature) {
+}: verifyWebhookSignature) {
     const signature = headers().get(process.env.STRIPE_SIGNATURE_HEADER as string);
 
     if (!signature || !endpointSecret) {
@@ -72,9 +46,8 @@ export async function verifyWebhookSignature({
 }
 
 export async function verifySupabaseWebhookAuth({
-    request,
     errorMessage
-}: VerifyWebhookAuth) {
+}: { errorMessage: string }) {
     const headersList = await headers();
     
     const authHeader = headersList.get('authorization');
@@ -89,20 +62,7 @@ export async function verifySupabaseWebhookAuth({
             { status: 400 }) 
     }
 
-    const payload = await request.text();
-    const isValidSignature = await verifyHMACSignature({
-        payload,
-        signature: signatureHeader,
-        secret: process.env.SUPABASE_WEBHOOK_SECRET_KEY as string
-    });
-    
-    if (!isValidSignature) {
-        return NextResponse.json(
-            { message: errorMessage }, 
-            { status: 400 }) 
-    }
-
-    return null
+    return null;
 }
 
 export async function handleWebhook<T>(
@@ -113,7 +73,6 @@ export async function handleWebhook<T>(
 
     try {
         const authError = await verifySupabaseWebhookAuth({
-            request,
             errorMessage: errorText
         });
         
