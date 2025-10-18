@@ -22,10 +22,14 @@ export async function POST(request: NextRequest) {
             subscription_price_ids
         } = record;
 
+        console.log('record', record);
+
         const result = await processProductWebhook({
             product_id,
             subscriptionPriceIds: subscription_price_ids
         });
+
+        console.log('processProductWebhook result', result);
 
         if (!result.success) {
             if (result.error === PRODUCT_ERROR.FETCH_FAILED) {

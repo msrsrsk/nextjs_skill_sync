@@ -20,6 +20,8 @@ export const processProductWebhook = async ({
         productId: product_id 
     });
 
+    console.log('productResult', productResult);
+
     if (!productResult) {
         return {
             success: false,
@@ -44,6 +46,11 @@ export const processProductWebhook = async ({
         subscriptionPriceIds
     })
 
+    console.log('productData', productData);
+    console.log('priceData', priceData);
+    console.log('stripeSalePriceId', stripeSalePriceId);
+    console.log('updatedSubscriptionPriceIds', updatedSubscriptionPriceIds);
+
     // 3. DBのStripe商品データの更新
     const { 
         success: updateSuccess, 
@@ -61,6 +68,8 @@ export const processProductWebhook = async ({
             })
         }
     });
+
+    console.log('updateProductStripe result', { updateSuccess, updateError });
 
     if (!updateSuccess) {
         return {
