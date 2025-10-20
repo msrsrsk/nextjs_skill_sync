@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 
 import { processProductWebhook } from "@/services/product/webhook-actions"
-import { verifySupabaseWebhookAuth } from "@/lib/utils/webhook"
+import { verifySupabaseWebhookAuth, getWebhookPayload } from "@/lib/utils/webhook"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { PRODUCT_ERROR } = ERROR_MESSAGES;
@@ -9,16 +9,17 @@ const { PRODUCT_ERROR } = ERROR_MESSAGES;
 export async function POST(request: NextRequest) {   
     try {
         // 1. 認証処理
-        const authResult = await verifySupabaseWebhookAuth({
+        const authError = await verifySupabaseWebhookAuth({
             request,
             errorMessage: PRODUCT_ERROR.STRIPE_WEBHOOK_PROCESS_FAILED
         });
         
-        if (authResult instanceof NextResponse) {
-            return authResult;
+        if (authError) {
+            return authError;
         }
 
-        const { record } = JSON.parse(authResult.payload);
+        const payload = await getWebhookPayload(request);
+        const { record } = JSON.parse(payload);
 
         const { 
             product_id,

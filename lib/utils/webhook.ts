@@ -25,11 +25,6 @@ interface VerifyWebhookAuth {
     errorMessage: string;
 }
 
-interface VerifyWebhookAuthResult {
-    success: boolean;
-    payload: string;
-}
-
 interface VerifyWebhookSignature extends VerifyWebhookAuth {
     endpointSecret: string;
 }
@@ -78,7 +73,7 @@ export async function verifyWebhookSignature({
 export async function verifySupabaseWebhookAuth({
     request,
     errorMessage
-}: VerifyWebhookAuth): Promise<NextResponse | VerifyWebhookAuthResult> {
+}: VerifyWebhookAuth) {
     const headersList = await headers();
     
     const authHeader = headersList.get('authorization');
@@ -89,7 +84,8 @@ export async function verifySupabaseWebhookAuth({
     if (authHeader !== expectedAuth) {
         return NextResponse.json(
             { message: errorMessage }, 
-            { status: 400 }) 
+            { status: 400 }
+        )
     }
 
     const payload = await request.text();
@@ -102,13 +98,15 @@ export async function verifySupabaseWebhookAuth({
     if (!isValidSignature) {
         return NextResponse.json(
             { message: errorMessage }, 
-            { status: 400 }) 
+            { status: 400 }
+        )
     }
 
-    return {
-        success: true,
-        payload
-    }
+    return null;
+}
+
+export async function getWebhookPayload(request: NextRequest) {
+    return await request.text();
 }
 
 export async function handleWebhook<T>(
