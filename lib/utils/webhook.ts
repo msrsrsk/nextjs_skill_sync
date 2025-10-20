@@ -34,24 +34,10 @@ async function verifyHMACSignature({
     signature,
     secret
 }: VerifyHMACSignatureProps): Promise<boolean> {
-    console.log('Debug Info:', {
-        payload: payload,
-        payloadLength: payload.length,
-        secret: secret.substring(0, 10) + '...',
-        receivedSignature: signature
-    });
-    
     const expectedSignature = crypto
         .createHmac('sha256', secret)
         .update(payload)
         .digest('base64');
-
-    console.log('Signature Debug:', {
-        signature: signature,
-        expectedSignature: expectedSignature,
-        actualLength: signature.length,
-        expectedLength: expectedSignature.length
-    });
 
     return crypto.timingSafeEqual(
         Buffer.from(signature, 'base64'),
@@ -114,14 +100,17 @@ export async function verifySupabaseWebhookAuth({
             { status: 400 }) 
     }
 
-    return null
+    return {
+        success: true,
+        payload
+    }
 }
 
 export async function handleWebhook<T>(
     request: NextRequest, 
     options: WebhookHandlerOptions<T>
 ) {
-  const { record, processFunction, errorText, condition } = options;
+    const { record, processFunction, errorText, condition } = options;
 
     try {
         const authError = await verifySupabaseWebhookAuth({

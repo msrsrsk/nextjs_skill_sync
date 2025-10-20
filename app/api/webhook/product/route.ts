@@ -9,14 +9,16 @@ const { PRODUCT_ERROR } = ERROR_MESSAGES;
 export async function POST(request: NextRequest) {   
     try {
         // 1. 認証処理
-        const authError = await verifySupabaseWebhookAuth({
+        const authResult = await verifySupabaseWebhookAuth({
             request,
             errorMessage: PRODUCT_ERROR.STRIPE_WEBHOOK_PROCESS_FAILED
         });
         
-        if (authError) return authError;
+        if (authResult instanceof NextResponse) {
+            return authResult;
+        }
 
-        const { record } = await request.json();
+        const { record } = JSON.parse(authResult.payload);
 
         const { 
             product_id,
