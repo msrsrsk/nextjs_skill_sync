@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 
-import { handleWebhook } from "@/lib/utils/webhook"
+import { verifySupabaseWebhookAuth } from "@/lib/utils/webhook"
 import { processReviewWebhook } from "@/services/review/webhook-actions"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
@@ -8,16 +8,19 @@ const { REVIEW_ERROR } = ERROR_MESSAGES;
 
 export async function POST(request: NextRequest) {   
     try {
-        const { record, old_record, type }: { 
-            record?: Review, 
-            old_record?: Review, 
-            type?: string 
-        } = await request.json();
+        const record = await verifySupabaseWebhookAuth({
+            request,
+            errorMessage: REVIEW_ERROR.WEBHOOK_PROCESS_FAILED
+        });
+        
+        if (record instanceof NextResponse) {
+            return record;
+        }
 
         const result = await processReviewWebhook({
             record,
-            old_record,
-            type
+            old_record: record.old_record,
+            type: record.type
         });
 
         if (!result.success) {
@@ -49,7 +52,7 @@ export async function POST(request: NextRequest) {
             )
         }
 
-        return handleWebhook<Review>(request, result.data)
+        return NextResponse.json({ success: true });
     } catch (error) {
         console.error('API Error - Review Webhook POST error:', error);
 

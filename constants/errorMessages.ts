@@ -382,7 +382,6 @@ export const ERROR_MESSAGES = {
 
     // Webhook関連（共通）
     WEBHOOK_ERROR: {
-        SKIP_PROCESS: '条件を満たさないため、Webhookの処理がスキップされました。',
         PROCESS_FAILED: 'Webhookの処理中にエラーが発生しました。',
     },
 

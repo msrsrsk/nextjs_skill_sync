@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-import { handleWebhook } from "@/lib/utils/webhook"
+import { verifySupabaseWebhookAuth } from "@/lib/utils/webhook"
 import { processNotificationWebhook } from "@/services/notification/actions"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
@@ -8,7 +8,14 @@ const { WEBHOOK_ERROR } = ERROR_MESSAGES;
 
 export async function POST(request: NextRequest) {   
     try {
-        const { record }: { record: NotificationData } = await request.json();
+        const record = await verifySupabaseWebhookAuth({
+            request,
+            errorMessage: WEBHOOK_ERROR.PROCESS_FAILED
+        });
+        
+        if (record instanceof NextResponse) {
+            return record;
+        }
 
         const result = await processNotificationWebhook({ record });
 
@@ -19,7 +26,7 @@ export async function POST(request: NextRequest) {
             )
         }
 
-        return handleWebhook<NotificationData>(request, result.data)
+        return NextResponse.json({ success: true });
     } catch (error) {
         console.error('Webhook Error - Notification POST error:', error);
 
