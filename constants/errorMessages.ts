@@ -215,6 +215,11 @@ export const ERROR_MESSAGES = {
         WEBHOOK_PROCESS_FAILED: 'チャットのWebhook処理中にエラーが発生しました。',
     },
 
+    // 通知関連
+    NOTIFICATION_ERROR: {
+        WEBHOOK_PROCESS_FAILED: 'Webhookの通知の処理中にエラーが発生しました。',
+    },
+
     // 注文関連
     ORDER_ERROR: {
         HISTORY_FETCH_FAILED: `注文履歴の取得に失敗しました。${RETRY}`,

@@ -23,14 +23,9 @@ export const processReviewWebhook = async ({
                     error: REVIEW_ERROR.WEBHOOK_INSERT_FAILED
                 }
             }
-            return {
-                success: true,
-                data: {
-                    record,
-                    processFunction: receiveReviewNotificationEmail,
-                    errorText: REVIEW_ERROR.WEBHOOK_INSERT_PROCESS_FAILED,
-                }
-            }
+            
+            const insertResult = await receiveReviewNotificationEmail(record);
+            return insertResult
         case 'DELETE':
             if (!old_record) {
                 return {
@@ -38,14 +33,9 @@ export const processReviewWebhook = async ({
                     error: REVIEW_ERROR.WEBHOOK_DELETE_FAILED
                 }
             }
-            return {
-                success: true,
-                data: {
-                    record: old_record,
-                    processFunction: deleteReviewImage,
-                    errorText: REVIEW_ERROR.WEBHOOK_DELETE_PROCESS_FAILED,
-                }
-            }
+            
+            const deleteResult = await deleteReviewImage(old_record);
+            return deleteResult
         default:
             return {
                 success: false,

@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
             request,
             errorMessage: REVIEW_ERROR.WEBHOOK_PROCESS_FAILED
         });
-        
+
         if (record instanceof NextResponse) {
             return record;
         }
@@ -41,13 +41,6 @@ export async function POST(request: NextRequest) {
             
             return NextResponse.json(
                 { message: result.error }, 
-                { status: 500 }
-            )
-        }
-
-        if (!result.data) {
-            return NextResponse.json(
-                { message: REVIEW_ERROR.WEBHOOK_PROCESS_FAILED }, 
                 { status: 500 }
             )
         }
