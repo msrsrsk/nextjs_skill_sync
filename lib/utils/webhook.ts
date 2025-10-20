@@ -34,6 +34,13 @@ async function verifyHMACSignature({
     signature,
     secret
 }: VerifyHMACSignatureProps): Promise<boolean> {
+    console.log('Debug Info:', {
+        payload: payload,
+        payloadLength: payload.length,
+        secret: secret.substring(0, 10) + '...',
+        receivedSignature: signature
+    });
+    
     const expectedSignature = crypto
         .createHmac('sha256', secret)
         .update(payload)
