@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 
 import { processProductWebhook } from "@/services/product/webhook-actions"
-import { verifySupabaseWebhookAuth, getWebhookPayload } from "@/lib/utils/webhook"
+import { verifySupabaseWebhookAuth } from "@/lib/utils/webhook"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { PRODUCT_ERROR } = ERROR_MESSAGES;
@@ -9,38 +9,35 @@ const { PRODUCT_ERROR } = ERROR_MESSAGES;
 export async function POST(request: NextRequest) {   
     try {
         // 1. 認証処理
-        const authError = await verifySupabaseWebhookAuth({
+        const verifyResult = await verifySupabaseWebhookAuth({
             request,
             errorMessage: PRODUCT_ERROR.STRIPE_WEBHOOK_PROCESS_FAILED
         });
         
-        if (authError) {
-            return authError;
+        if (verifyResult instanceof NextResponse) {
+            return verifyResult;
         }
-
-        const payload = await getWebhookPayload(request);
-        const { record } = JSON.parse(payload);
 
         const { 
             product_id,
             subscription_price_ids
-        } = record;
+        } = verifyResult;
 
-        const result = await processProductWebhook({
+        const processResult = await processProductWebhook({
             product_id,
             subscriptionPriceIds: subscription_price_ids
         });
 
-        if (!result.success) {
-            if (result.error === PRODUCT_ERROR.FETCH_FAILED) {
+        if (!processResult.success) {
+            if (processResult.error === PRODUCT_ERROR.FETCH_FAILED) {
                 return NextResponse.json(
-                    { message: result.error }, 
+                    { message: processResult.error }, 
                     { status: 404 }
                 )
             }
             
             return NextResponse.json(
-                { message: result.error }, 
+                { message: processResult.error }, 
                 { status: 500 }
             )
         }

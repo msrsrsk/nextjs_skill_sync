@@ -74,8 +74,9 @@ export async function verifySupabaseWebhookAuth({
     request,
     errorMessage
 }: VerifyWebhookAuth) {
+    const payload = await request.text();
+
     const headersList = await headers();
-    
     const authHeader = headersList.get('authorization');
     const signatureHeader = headersList.get('x-webhook-signature');
     
@@ -88,7 +89,6 @@ export async function verifySupabaseWebhookAuth({
         )
     }
 
-    const payload = await request.text();
     const isValidSignature = await verifyHMACSignature({
         payload,
         signature: signatureHeader as string,
@@ -102,11 +102,8 @@ export async function verifySupabaseWebhookAuth({
         )
     }
 
-    return null;
-}
-
-export async function getWebhookPayload(request: NextRequest) {
-    return await request.text();
+    const parsedPayload = JSON.parse(payload);
+    return parsedPayload.record;
 }
 
 export async function handleWebhook<T>(
