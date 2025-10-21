@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json(
             { message: REVIEW_ERROR.WEBHOOK_PROCESS_FAILED }, 
-            { status: 500 }
+            { status: 400 }
         )
     }
 }
