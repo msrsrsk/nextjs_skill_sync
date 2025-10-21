@@ -113,10 +113,14 @@ export const registerUserWithChat = async (
             }
 
             // 6. 認証トークンの削除
-            await deleteVerificationToken({
+            const deleteResult = await deleteVerificationToken({
                 tx,
                 token
             });
+
+            if (!deleteResult.success) {
+                console.error('Actions Error - Delete Verification Token failed: ', deleteResult);
+            }
             
             return {
                 success: true, 
@@ -150,8 +154,7 @@ export async function createVerificationTokenWithPassword(
     const hashedPassword = await bcrypt.hash(userData.password, PASSWORD_HASH_ROUNDS);
 
     try {
-
-        const { success, error, data } = await createVerificationToken({
+        const result = await createVerificationToken({
             verificationData: {
                 identifier: userData.email,
                 token,
@@ -164,10 +167,10 @@ export async function createVerificationTokenWithPassword(
             }
         })
 
-        if (!success || !data) {
+        if (!result.success || !result.data) {
             return {
                 success: false, 
-                error: error,
+                error: VERIFICATION_TOKEN_ERROR.CREATE_FAILED,
                 token: null
             }
         }
@@ -175,7 +178,7 @@ export async function createVerificationTokenWithPassword(
         return {
             success: true, 
             error: null, 
-            token: data
+            token: result.data
         }
     } catch (error) {
         console.error('Actions Error - Create Verification Token With Password error:', error);
@@ -344,7 +347,7 @@ export async function createVerificationTokenWithEmail(email: UserEmail) {
 
     try {
 
-        const { success, error, data } = await createVerificationToken({
+        const result = await createVerificationToken({
             verificationData: {
                 identifier: email,
                 token,
@@ -352,10 +355,10 @@ export async function createVerificationTokenWithEmail(email: UserEmail) {
             }
         })
 
-        if (!success || !data) {
+        if (!result.success || !result.data) {
             return {
                 success: false, 
-                error: error,
+                error: VERIFICATION_TOKEN_ERROR.CREATE_FAILED,
                 token: null
             }
         }
@@ -363,7 +366,7 @@ export async function createVerificationTokenWithEmail(email: UserEmail) {
         return {
             success: true, 
             error: null, 
-            token: data
+            token: result.data
         }
     } catch (error) {
         console.error('Actions Error - Create Email Verification Token With Email error:', error);

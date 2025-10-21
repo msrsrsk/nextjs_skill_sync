@@ -6,7 +6,7 @@ export const createVerificationTokenRepository = () => {
         createVerificationToken: async ({ 
             verificationData 
         }: { verificationData: VerificationData }) => {
-            await prisma.verificationToken.create({
+            return await prisma.verificationToken.create({
                 data: verificationData
             })
         },

@@ -1,5 +1,5 @@
 import crypto from "crypto"
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest } from "next/server"
 import { headers } from "next/headers"
 import { stripe } from "@/lib/clients/stripe/client"
 

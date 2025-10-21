@@ -17,25 +17,14 @@ interface GetVerificationTokenAndVerifyProps extends TokenProps {
 export const createVerificationToken = async ({ 
     verificationData
 }: { verificationData: VerificationData }) => {
-    try {
-        const repository = createVerificationTokenRepository();
-        await repository.createVerificationToken({
-            verificationData
-        })
+    const repository = createVerificationTokenRepository();
+    const result = await repository.createVerificationToken({
+        verificationData
+    })
 
-        return {
-            success: true, 
-            error: null,
-            data: verificationData.token
-        }
-    } catch (error) {
-        console.error('Database : Error in createVerificationToken: ', error);
-
-        return {
-            success: false, 
-            error: VERIFICATION_TOKEN_ERROR.CREATE_FAILED,
-            data: null
-        }
+    return {
+        success: !!result, 
+        data: result ? verificationData.token : null
     }
 }
 
@@ -146,23 +135,11 @@ export const deleteVerificationToken = async ({
     tx,
     token
 }: DeleteVerificationTokenWithTransactionProps) => {
-    try {
-        const repository = deleteVerificationTokenRepository();
-        await repository.deleteVerificationTokenWithTransaction({
-            tx,
-            token
-        });
+    const repository = deleteVerificationTokenRepository();
+    const result = await repository.deleteVerificationTokenWithTransaction({
+        tx,
+        token
+    });
 
-        return {
-            success: true, 
-            error: null
-        }
-    } catch (error) {
-        console.error('Database : Error in deleteVerificationToken: ', error);
-
-        return {
-            success: false, 
-            error: VERIFICATION_TOKEN_ERROR.DELETE_FAILED,
-        }
-    }
+    return { success: !!result }
 }
