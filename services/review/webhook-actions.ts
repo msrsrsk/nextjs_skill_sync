@@ -15,16 +15,21 @@ export const processReviewWebhook = async ({
     old_record,
     type
 }: ProcessReviewWebhookProps) => {
+    console.log('Review webhook triggered:', { type, record: record?.id });
+
     switch (type) {
         case 'INSERT':
             if (!record) {
+                console.error('No record found for INSERT operation');
                 return {
                     success: false,
                     error: REVIEW_ERROR.WEBHOOK_INSERT_FAILED
                 }
             }
             
+            console.log('Sending review notification email for record:', record.id);
             const insertResult = await receiveReviewNotificationEmail(record);
+            console.log('Email result:', insertResult);
             return insertResult
         case 'DELETE':
             if (!old_record) {
