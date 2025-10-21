@@ -13,15 +13,21 @@ export async function POST(request: NextRequest) {
             errorMessage: REVIEW_ERROR.WEBHOOK_PROCESS_FAILED
         });
 
+        console.log('Review webhook received:', record);
+
         if (record instanceof NextResponse) {
             return record;
         }
+
+        console.log('Processing review webhook:', { record });
 
         const result = await processReviewWebhook({
             record,
             old_record: record.old_record,
             type: record.type
         });
+
+        console.log('Review webhook processed:', { result });
 
         if (!result.success) {
             if (result.error === REVIEW_ERROR.WEBHOOK_INSERT_FAILED || 
