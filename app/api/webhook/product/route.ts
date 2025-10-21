@@ -9,20 +9,21 @@ const { PRODUCT_ERROR } = ERROR_MESSAGES;
 export async function POST(request: NextRequest) {   
     try {
         // 1. 認証処理
-        const verifyResult = await verifySupabaseWebhookAuth({
+        const webhookData = await verifySupabaseWebhookAuth({
             request,
             errorMessage: PRODUCT_ERROR.STRIPE_WEBHOOK_PROCESS_FAILED
         });
         
-        if (verifyResult instanceof NextResponse) {
-            return verifyResult;
+        if (webhookData instanceof NextResponse) {
+            return webhookData;
         }
 
         const { 
             product_id,
             subscription_price_ids
-        } = verifyResult;
+        } = webhookData.record;
 
+        // 2. Webhook処理
         const processResult = await processProductWebhook({
             product_id,
             subscriptionPriceIds: subscription_price_ids

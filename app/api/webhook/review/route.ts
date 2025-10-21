@@ -8,26 +8,28 @@ const { REVIEW_ERROR } = ERROR_MESSAGES;
 
 export async function POST(request: NextRequest) {   
     try {
-        const record = await verifySupabaseWebhookAuth({
+        const webhookData = await verifySupabaseWebhookAuth({
             request,
             errorMessage: REVIEW_ERROR.WEBHOOK_PROCESS_FAILED
         });
 
-        console.log('Review webhook received:', record);
+        console.log('Review webhook received:', webhookData);
 
-        if (record instanceof NextResponse) {
-            console.error('Webhook authentication failed:', record.status, record.statusText);
-            const errorBody = await record.text();
+        if (webhookData instanceof NextResponse) {
+            console.error('Webhook authentication failed:', webhookData.status, webhookData.statusText);
+            const errorBody = await webhookData.text();
             console.error('Error body:', errorBody);
-            return record;
+            return webhookData;
         }
 
-        console.log('Processing review webhook:', { record });
+        console.log('Processing review webhook:', { webhookData });
+
+        console.log('Webhook type:', webhookData.type);
 
         const result = await processReviewWebhook({
-            record,
-            old_record: record.old_record,
-            type: record.type
+            record: webhookData.record,
+            old_record: webhookData.record.old_record,
+            type: webhookData.type
         });
 
         console.log('Review webhook processed:', { result });

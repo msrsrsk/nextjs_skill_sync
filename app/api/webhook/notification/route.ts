@@ -8,16 +8,16 @@ const { WEBHOOK_ERROR } = ERROR_MESSAGES;
 
 export async function POST(request: NextRequest) {   
     try {
-        const record = await verifySupabaseWebhookAuth({
+        const webhookData = await verifySupabaseWebhookAuth({
             request,
             errorMessage: WEBHOOK_ERROR.PROCESS_FAILED
         });
         
-        if (record instanceof NextResponse) {
-            return record;
+        if (webhookData instanceof NextResponse) {
+            return webhookData;
         }
 
-        const result = await processNotificationWebhook({ record });
+        const result = await processNotificationWebhook({ record: webhookData.record });
 
         if (!result.success) {
             return NextResponse.json(
