@@ -83,17 +83,8 @@ export async function verifySupabaseWebhookAuth({
     const authHeader = headersList.get('authorization');
     const signatureHeader = headersList.get('x-webhook-signature');
 
-    console.log('Headers:', {
-        authHeader: authHeader ? 'Present' : 'Missing',
-        signatureHeader: signatureHeader ? 'Present' : 'Missing',
-        hasSecret: !!process.env.SUPABASE_WEBHOOK_SECRET_KEY
-    });
-    
     const expectedAuth = `Bearer ${process.env.SUPABASE_WEBHOOK_SECRET_KEY}`;
 
-    console.log('Expected auth:', expectedAuth);
-    console.log('Received auth:', authHeader);
-    
     if (authHeader !== expectedAuth) {
         return NextResponse.json(
             { message: errorMessage }, 
@@ -115,5 +106,11 @@ export async function verifySupabaseWebhookAuth({
     }
 
     const parsedPayload = JSON.parse(payload);
-    return parsedPayload.record;
+    console.log('Parsed payload:', parsedPayload);
+
+    return {
+        record: parsedPayload.record,
+        old_record: parsedPayload.old_record,
+        type: parsedPayload.type
+    }
 }

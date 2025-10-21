@@ -16,19 +16,14 @@ export async function POST(request: NextRequest) {
         console.log('Review webhook received:', webhookData);
 
         if (webhookData instanceof NextResponse) {
-            console.error('Webhook authentication failed:', webhookData.status, webhookData.statusText);
-            const errorBody = await webhookData.text();
-            console.error('Error body:', errorBody);
             return webhookData;
         }
 
         console.log('Processing review webhook:', { webhookData });
 
-        console.log('Webhook type:', webhookData.type);
-
         const result = await processReviewWebhook({
             record: webhookData.record,
-            old_record: webhookData.record.old_record,
+            old_record: webhookData.old_record,
             type: webhookData.type
         });
 
