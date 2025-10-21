@@ -34,39 +34,29 @@ export const getVerificationTokenAndVerify = async ({
     notFoundErrorMessage,
     expiredErrorMessage
 }: GetVerificationTokenAndVerifyProps) => {
-    try {
-        const repository = getVerificationTokenRepository();
-        const verificationToken = await repository.getVerificationToken({ token });
+    const repository = getVerificationTokenRepository();
+    const verificationToken = await repository.getVerificationToken({ token });
 
-        if (!verificationToken) {
-            return {
-                success: false, 
-                error: notFoundErrorMessage,
-                data: null
-            }
-        }
-
-        if (verificationToken.expires < new Date()) {
-            return {
-                success: false, 
-                error: expiredErrorMessage,
-                data: null
-            }
-        }
-
-        return {
-            success: true, 
-            error: null,
-            data: verificationToken
-        }
-    } catch (error) {
-        console.error('Database : Error in getVerificationTokenAndVerify: ', error);
-
+    if (!verificationToken) {
         return {
             success: false, 
-            error: VERIFICATION_TOKEN_ERROR.VERIFY_TOKEN_FAILED,
+            error: notFoundErrorMessage,
             data: null
         }
+    }
+
+    if (verificationToken.expires < new Date()) {
+        return {
+            success: false, 
+            error: expiredErrorMessage,
+            data: null
+        }
+    }
+
+    return {
+        success: true, 
+        error: null,
+        data: verificationToken
     }
 }
 

@@ -202,7 +202,6 @@ export async function verifyEmailToken(
         // 1. 認証トークンの取得&検証
         const { 
             success: verificationSuccess, 
-            error: verificationError, 
             data: verificationToken 
         } = await getVerificationTokenAndVerify({
             token,
@@ -213,7 +212,7 @@ export async function verifyEmailToken(
         if (!verificationSuccess || !verificationToken) {
             return {
                 success: false, 
-                error: verificationError,
+                error: VERIFICATION_TOKEN_ERROR.VERIFY_TOKEN_FAILED,
                 expires: null
             }
         }
