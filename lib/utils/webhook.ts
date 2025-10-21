@@ -3,21 +3,10 @@ import { NextRequest, NextResponse } from "next/server"
 import { headers } from "next/headers"
 import { stripe } from "@/lib/clients/stripe/client"
 
-import { ERROR_MESSAGES } from "@/constants/errorMessages"
-
-const { WEBHOOK_ERROR } = ERROR_MESSAGES;
-
 interface VerifyHMACSignatureProps {
     payload: string;
     signature: string;
     secret: string;
-}
-
-interface WebhookHandlerOptions<T> {
-    record: T;
-    processFunction: (record: T) => Promise<{ success: boolean; error?: string }>;
-    errorText: string; 
-    condition?: (record: T) => boolean;
 }
 
 interface VerifyWebhookAuth {
@@ -55,19 +44,23 @@ export async function verifyWebhookSignature({
     if (!signature || !endpointSecret) {
         if (!signature) console.error('Stripe signature not found');
         if (!endpointSecret) console.error('Stripe endpointSecret not found');
-        return NextResponse.json(
-            { message: errorMessage }, 
-            { status: 400 }) 
+        throw new Error(errorMessage);
     }
 
     const body = await request.text();
-    const event = stripe.webhooks.constructEvent(
-        body,
-        signature,
-        endpointSecret
-    );
 
-    return event
+    try {
+        const event = stripe.webhooks.constructEvent(
+            body,
+            signature,
+            endpointSecret
+        );
+        
+        return event;
+    } catch (error) {
+        console.error('Stripe webhook signature verification failed:', error);
+        throw new Error(errorMessage);
+    }
 }
 
 export async function verifySupabaseWebhookAuth({
