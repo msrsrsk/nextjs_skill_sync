@@ -16,6 +16,9 @@ export async function POST(request: NextRequest) {
         console.log('Review webhook received:', record);
 
         if (record instanceof NextResponse) {
+            console.error('Webhook authentication failed:', record.status, record.statusText);
+            const errorBody = await record.text();
+            console.error('Error body:', errorBody);
             return record;
         }
 

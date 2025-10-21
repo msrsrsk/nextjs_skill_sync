@@ -39,6 +39,9 @@ async function verifyHMACSignature({
         .update(payload)
         .digest('base64');
 
+    console.log('Expected signature:', expectedSignature);
+    console.log('Received signature:', signature);
+
     return crypto.timingSafeEqual(
         Buffer.from(signature, 'base64'),
         Buffer.from(expectedSignature, 'base64')
@@ -79,8 +82,17 @@ export async function verifySupabaseWebhookAuth({
     const headersList = await headers();
     const authHeader = headersList.get('authorization');
     const signatureHeader = headersList.get('x-webhook-signature');
+
+    console.log('Headers:', {
+        authHeader: authHeader ? 'Present' : 'Missing',
+        signatureHeader: signatureHeader ? 'Present' : 'Missing',
+        hasSecret: !!process.env.SUPABASE_WEBHOOK_SECRET_KEY
+    });
     
     const expectedAuth = `Bearer ${process.env.SUPABASE_WEBHOOK_SECRET_KEY}`;
+
+    console.log('Expected auth:', expectedAuth);
+    console.log('Received auth:', authHeader);
     
     if (authHeader !== expectedAuth) {
         return NextResponse.json(
