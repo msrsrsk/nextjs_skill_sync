@@ -53,6 +53,15 @@ interface ProcessCheckoutItemsProps extends UserIdProps {
     cartItems: CartItemWithProduct[];
 }
 
+// 配送料のIDの取得
+export const getShippingRateId = ({ 
+    totalQuantity 
+}: { totalQuantity: number }) => {
+    return totalQuantity >= STRIPE_SHIPPING_FREE_LIMIT
+        ? process.env.STRIPE_SHIPPING_FREE_RATE_ID 
+        : process.env.STRIPE_SHIPPING_REGULAR_RATE_ID;
+}
+
 // サブスクリプションの配送料の取得
 export const getSubscriptionShippingFee = async ({
     session,
@@ -158,9 +167,7 @@ export const createCheckoutSession = async ({
 }: CreateCheckoutSessionProps) => {
 
     // 1. 配送料の設定
-    const shippingRateId = totalQuantity >= STRIPE_SHIPPING_FREE_LIMIT
-        ? process.env.STRIPE_SHIPPING_FREE_RATE_ID 
-        : process.env.STRIPE_SHIPPING_REGULAR_RATE_ID;
+    const shippingRateId = getShippingRateId({ totalQuantity });
         
     // 2. ユーザーのStripe顧客IDの取得
     const user = await getUser({
@@ -280,14 +287,15 @@ export const processCheckoutItems = async ({
     userId,
     cartItems
 }: ProcessCheckoutItemsProps) => {
-    // 商品の合計数量を計算
+    // 1. 商品の合計数量を計算
     const totalQuantity = cartItems.reduce((
         sum: number, 
         item: CartItemWithProduct
     ) => sum + item.quantity, CHECKOUT_INITIAL_QUANTITY);
 
-    // チェックアウトの商品リストを作成
+    // 2. チェックアウトの商品リストを作成
     let lineItems: CheckoutLineItem[] = [];
+    let serverCalculatedTotal = 0;
 
     for (const cartItem of cartItems) {
         const product = cartItem.product;
@@ -309,22 +317,82 @@ export const processCheckoutItems = async ({
             }
         }
 
-        lineItems = [...lineItems, {
-            price: priceId,
-            quantity: cartItem.quantity,
-        }];
+        // 3. 価格の取得
+        try {
+            const price = await stripe.prices.retrieve(priceId);
+
+            if (price.unit_amount === null) {
+                console.error('Actions Error - Price unit_amount is null for price ID:', priceId);
+
+                return {
+                    success: false,
+                    error: CHECKOUT_ERROR.NO_PRICE_AMOUNT
+                }
+            }
+            
+            const itemTotal = price.unit_amount * cartItem.quantity;
+            serverCalculatedTotal += itemTotal;
+
+            lineItems = [...lineItems, {
+                price: priceId,
+                quantity: cartItem.quantity,
+            }];
+        } catch (error) {
+            console.error('Actions Error - Stripe Price Retrieve failed: ', error);
+
+            return {
+                success: false,
+                error: CHECKOUT_ERROR.PRICE_VERIFICATION_FAILED
+            }
+        }
     }
 
+    // 4. 配送料の取得
+    const shippingRateId = getShippingRateId({ totalQuantity });
+
+    if (!shippingRateId) {
+        return {
+            success: false,
+            error: CHECKOUT_ERROR.NO_SHIPPING_RATE_ID
+        }
+    }
+
+    let shippingFee = 0;
+    try {
+        const shippingRate = await stripe.shippingRates.retrieve(shippingRateId);
+        shippingFee = shippingRate.fixed_amount?.amount || 0;
+    } catch (error) {
+        console.error('Actions Error - Stripe Shipping Rate Retrieve failed: ', error);
+
+        return {
+            success: false,
+            error: CHECKOUT_ERROR.NO_SHIPPING_RATE_AMOUNT
+        }
+    }
+
+    const finalTotal = serverCalculatedTotal + shippingFee;
+
+    // 5. チェックアウトセッションの作成
     const { success, data } = await createCheckoutSession({ 
         lineItems, 
         userId,
         totalQuantity,
     })
 
-    if (!success) {
+    if (!success || !data) {
         return {
             success: false,
             error: CHECKOUT_ERROR.CHECKOUT_SESSION_FAILED
+        }
+    }
+
+    // 6. 合計金額のチェック
+    if (data.amount_total !== finalTotal) {
+        console.error('Actions Error - Amount total mismatch:', data.amount_total, finalTotal);
+
+        return {
+            success: false,
+            error: CHECKOUT_ERROR.AMOUNT_TOTAL_MISMATCH
         }
     }
 

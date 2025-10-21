@@ -141,7 +141,12 @@ export const ERROR_MESSAGES = {
         NO_PRODUCT_DATA: `商品データが見つかりません。${RETRY}`,
         NO_PRICE_ID: `商品の価格データが見つかりません。${RETRY}`,
         NO_PAYMENT_INTENT: `支払いデータが見つかりません。${RETRY}`,
+        NO_PRICE_AMOUNT: `商品の価格が見つかりません。${RETRY}`,
+        NO_SHIPPING_RATE_ID: `配送料のIDが見つかりません。${RETRY}`,
+        NO_SHIPPING_RATE_AMOUNT: `配送料のデータが見つかりません。${RETRY}`,
 
+        PRICE_VERIFICATION_FAILED: `商品の価格チェックに失敗しました。${RETRY}`,
+        AMOUNT_TOTAL_MISMATCH: `商品の合計金額が一致しません。${FIRST}`,
         STOCK_CHECK_FAILED: `在庫チェックのための必要な情報が不足しています。${RETRY}`,
         FAILED_CHECK_STOCK: `商品の在庫チェックに失敗しました。${RETRY}`,
         UPDATE_STOCK: `在庫状況を更新いたしました。注文数を再度ご確認の上、チェックアウトに進んでください。`,
