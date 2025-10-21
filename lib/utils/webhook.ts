@@ -39,9 +39,6 @@ async function verifyHMACSignature({
         .update(payload)
         .digest('base64');
 
-    console.log('Expected signature:', expectedSignature);
-    console.log('Received signature:', signature);
-
     return crypto.timingSafeEqual(
         Buffer.from(signature, 'base64'),
         Buffer.from(expectedSignature, 'base64')
@@ -106,7 +103,6 @@ export async function verifySupabaseWebhookAuth({
     }
 
     const parsedPayload = JSON.parse(payload);
-    console.log('Parsed payload:', parsedPayload);
 
     return {
         record: parsedPayload.record,
