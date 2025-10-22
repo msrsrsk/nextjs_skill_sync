@@ -29,7 +29,7 @@ import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { EXPIRATION_TIME } = EMAIL_VERIFICATION_TOKEN_CONFIG;
 const { VERIFY_CREATE_ACCOUNT } = VERIFY_EMAIL_TYPES;
-const { AUTH_ERROR, VERIFICATION_TOKEN_ERROR } = ERROR_MESSAGES;
+const { AUTH_ERROR, VERIFICATION_TOKEN_ERROR, USER_STRIPE_ERROR } = ERROR_MESSAGES;
 
 /* ==================================== 
     ユーザー登録（初期チャットデータ込み）
@@ -281,8 +281,7 @@ export async function verifyEmailToken(
 
             // 4. SupabaseユーザーのStripe顧客IDの作成
             const { 
-                success: createCustomerIdSuccess, 
-                error: createCustomerIdError 
+                success: createCustomerIdSuccess
             } = await createUserStripeCustomerId({
                 userId: user.data.id,
                 customerId: createStripeData.id
@@ -294,7 +293,7 @@ export async function verifyEmailToken(
 
                 return {
                     success: false, 
-                    error: createCustomerIdError,
+                    error: USER_STRIPE_ERROR.CUSTOMER_ID_UPDATE_FAILED,
                     expires: null
                 }
             }
