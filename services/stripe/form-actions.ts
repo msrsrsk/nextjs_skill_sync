@@ -35,9 +35,19 @@ export async function setDefaultShippingAddressAction(
         // throw new Error('お届け先として設定ができませんでした。\n時間をおいて再度お試しください。');
 
         // 2. ユーザー認証
-        const { userId } = await actionAuth(
+        const authResult = await actionAuth(
             SHIPPING_ADDRESS_ERROR.UPDATE_DEFAULT_UNAUTHORIZED,
         );
+
+        if (!authResult.success) {
+            return {
+                success: false,
+                error: authResult.error as string,
+                timestamp: Date.now()
+            }
+        }
+
+        const { userId } = authResult;
 
         // 3. 住所の取得
         const newDefaultAddressResult = await getShippingAddressById({

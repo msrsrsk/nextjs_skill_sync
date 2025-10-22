@@ -30,10 +30,21 @@ export async function createShippingAddressAction(
 
     try {
         // throw new Error('住所の登録に失敗しました。\n時間をおいて再度お試しください。');
-        const { userId } = await actionAuth<ShippingAddress>(
+        const authResult = await actionAuth<ShippingAddress>(
             SHIPPING_ADDRESS_ERROR.ADD_UNAUTHORIZED,
             true
         );
+
+        if (!authResult.success) {
+            return {
+                success: false,
+                error: authResult.error as string,
+                data: null,
+                timestamp: Date.now()
+            }
+        }
+
+        const { userId } = authResult;
 
         const shippingAddressData = { 
             user_id: userId,
@@ -103,10 +114,21 @@ export async function updateShippingAddressAction(
             }
         }
 
-        const { userId } = await actionAuth<ShippingAddress>(
+        const authResult = await actionAuth<ShippingAddress>(
             SHIPPING_ADDRESS_ERROR.UPDATE_UNAUTHORIZED,
             true
         );
+
+        if (!authResult.success) {
+            return {
+                success: false,
+                error: authResult.error as string,
+                data: null,
+                timestamp: Date.now()
+            }
+        }
+
+        const { userId } = authResult;
 
         const shippingAddressData = { 
             user_id: userId,
@@ -181,10 +203,21 @@ export async function updateDefaultShippingAddressAction(
         }
 
         // 2. ユーザー認証 & Stripe顧客IDの取得
-        const { userId } = await actionAuth<ShippingAddress>(
+        const authResult = await actionAuth<ShippingAddress>(
             SHIPPING_ADDRESS_ERROR.UPDATE_UNAUTHORIZED,
             true
         );
+
+        if (!authResult.success) {
+            return {
+                success: false,
+                error: authResult.error as string,
+                data: null,
+                timestamp: Date.now()
+            }
+        }
+
+        const { userId } = authResult;
 
         const user = await getUser({
             userId: userId as UserId,

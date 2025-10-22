@@ -263,7 +263,13 @@ export async function updatePasswordAction(
                 return errorResponse(error as string);
             }
         } else {
-            const { userId } = await actionAuth(AUTH_ERROR.SESSION_NOT_FOUND);
+            const authResult = await actionAuth(AUTH_ERROR.SESSION_NOT_FOUND);
+
+            if (!authResult.success) {
+                return errorResponse(authResult.error as string);
+            }
+
+            const { userId } = authResult;
 
             const { success, error } = await updateUserPassword({
                 userId: userId as UserId, 
@@ -314,7 +320,17 @@ export async function signInWithCredentialsAction(
     try {
         if (type === AUTH_REAUTHENTICATE) {
             // セッションチェック
-            const { user } = await actionAuth(AUTH_ERROR.SESSION_NOT_FOUND);
+            const authResult = await actionAuth(AUTH_ERROR.SESSION_NOT_FOUND);
+
+            if (!authResult.success) {
+                return {
+                    success: false,
+                    error: authResult.error as string,
+                    timestamp: Date.now()
+                }
+            }
+
+            const { user } = authResult;
 
             const userData = await getUser({
                 userId: user?.id as UserId,

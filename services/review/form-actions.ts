@@ -13,8 +13,6 @@ export async function createReviewAction(
     prevState: ActionState,
     formData: FormData
 ): Promise<ActionStateWithTimestamp> {
-    const { userId } = await actionAuth(AUTH_ERROR.SESSION_NOT_FOUND);
-
     const rating = Number(formData.get('rating'));
     const name = formData.get('name');
     const comment = formData.get('textarea');
@@ -24,6 +22,18 @@ export async function createReviewAction(
     let image_urls: string[] = [];
 
     try {
+        const authResult = await actionAuth(AUTH_ERROR.SESSION_NOT_FOUND);
+
+        if (!authResult.success) {
+            return {
+                success: false,
+                error: authResult.error as string,
+                timestamp: Date.now()
+            }
+        }
+
+        const { userId } = authResult;
+
         if (files.length > 0) {
             const { success, error, data } = await uploadImageToR2({
                 files, 
