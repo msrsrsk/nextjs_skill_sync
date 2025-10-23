@@ -22,8 +22,6 @@ const mockUpdateUserPassword = vi.fn()
 const mockUpdateUserPasswordWithTransaction = vi.fn()
 const mockDeleteUser = vi.fn()
 const mockDeleteUserAccount = vi.fn()
-const mockGetUserImageFilePathWithTransaction = vi.fn()
-const mockDeleteObjectFromR2= vi.fn()
 
 vi.mock('@/repository/user', () => ({
     createUserRepository: () => ({
