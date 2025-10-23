@@ -53,14 +53,3 @@ export const updateUserProfileRepository = () => {
         },
     }
 }
-
-export const deleteUserProfileRepository = () => {
-    return {
-        // ユーザープロフィールの削除
-        deleteUserProfile: async ({ userId }: UserProfileIdProps) => {
-            return await prisma.userProfile.delete({
-                where: { user_id: userId }
-            })
-        }
-    }
-}

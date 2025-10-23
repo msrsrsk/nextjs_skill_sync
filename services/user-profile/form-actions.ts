@@ -14,7 +14,7 @@ import { CLOUDFLARE_BUCKET_TYPES } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { BUCKET_PROFILE } = CLOUDFLARE_BUCKET_TYPES;
-const { USER_ERROR, USER_PROFILE_ERROR } = ERROR_MESSAGES;
+const { USER_PROFILE_ERROR } = ERROR_MESSAGES;
 
 interface UpdateIconImageActionState extends ActionStateWithTimestamp {
     data: UserProfileIconUrl | null;
@@ -54,10 +54,21 @@ export async function updateIconImageAction(
         }
 
         // 2. ユーザー認証
-        const { userId } = await actionAuth<UserProfileIconUrl>(
+        const authResult = await actionAuth<UserProfileIconUrl>(
             USER_PROFILE_ERROR.ICON_UPDATE_UNAUTHORIZED,
             true
         );
+
+        if (!authResult.success) {
+            return {
+                success: false,
+                error: authResult.error as string,
+                data: null,
+                timestamp: Date.now()
+            }
+        }
+
+        const { userId } = authResult;
 
         // 3. 既存画像の削除
         await deleteExistingImage({
@@ -73,18 +84,15 @@ export async function updateIconImageAction(
         });
 
         // 5. アイコンURLの更新
-        const { 
-            success: updateIconUrlSuccess, 
-            error: updateIconUrlError, 
-        } = await updateUserProfileIconUrl({
+        const updateIconUrlResult = await updateUserProfileIconUrl({
             userId: userId as UserId,
             iconUrl: finalIconUrl
         });
 
-        if (!updateIconUrlSuccess) {
+        if (!updateIconUrlResult.success) {
             return {
                 success: false, 
-                error: updateIconUrlError,
+                error: USER_PROFILE_ERROR.ICON_UPDATE_FAILED,
                 data: null,
                 timestamp: Date.now()
             }
@@ -149,16 +157,16 @@ export async function updateNameAction(
             }
         }
 
-        const { success, error, data } = await updateUserProfileName({
+        const updateNameResult = await updateUserProfileName({
             userId: session.user.id,
             lastname,
             firstname
         });
 
-        if (!success || !data) {
+        if (!updateNameResult.success || !updateNameResult.data) {
             return {
                 success: false,
-                error,
+                error: USER_PROFILE_ERROR.NAME_UPDATE_FAILED,
                 data: {
                     lastname: null,
                     firstname: null
@@ -171,8 +179,8 @@ export async function updateNameAction(
             success: true, 
             error: null,
             data: {
-                lastname: data.lastname,
-                firstname: data.firstname
+                lastname: updateNameResult.data.lastname,
+                firstname: updateNameResult.data.firstname
             },
             timestamp: Date.now()
         }
@@ -216,21 +224,32 @@ export async function updateTelAction(
         }
 
         // 2. ユーザー認証
-        const { userId } = await actionAuth<UserProfileTel>(
+        const authResult = await actionAuth<UserProfileTel>(
             USER_PROFILE_ERROR.TEL_UPDATE_UNAUTHORIZED,
             true
         );
 
+        if (!authResult.success) {
+            return {
+                success: false,
+                error: authResult.error as string,
+                data: null,
+                timestamp: Date.now()
+            }
+        }
+
+        const { userId } = authResult;
+
         // 3. 電話番号の更新
-        const { success, error, data } = await updateUserProfileTel({
+        const updateTelResult = await updateUserProfileTel({
             userId: userId as UserId,
             tel
         });
 
-        if (!success || !data) {
+        if (!updateTelResult.success || !updateTelResult.data) {
             return {
                 success: false,
-                error,
+                error: USER_PROFILE_ERROR.TEL_UPDATE_FAILED,
                 data: null,
                 timestamp: Date.now()
             }
@@ -239,7 +258,7 @@ export async function updateTelAction(
         return {
             success: true, 
             error: null, 
-            data: data.tel,
+            data: updateTelResult.data.tel,
             timestamp: Date.now()
         }
     } catch (error) {

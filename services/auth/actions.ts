@@ -29,7 +29,12 @@ import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { EXPIRATION_TIME } = EMAIL_VERIFICATION_TOKEN_CONFIG;
 const { VERIFY_CREATE_ACCOUNT } = VERIFY_EMAIL_TYPES;
-const { AUTH_ERROR, VERIFICATION_TOKEN_ERROR, USER_STRIPE_ERROR } = ERROR_MESSAGES;
+const { 
+    AUTH_ERROR, 
+    VERIFICATION_TOKEN_ERROR, 
+    USER_STRIPE_ERROR,
+    USER_PROFILE_ERROR
+} = ERROR_MESSAGES;
 
 /* ==================================== 
     ユーザー登録（初期チャットデータ込み）
@@ -65,7 +70,7 @@ export const registerUserWithChat = async (
             if (!userProfileResult.success) {
                 return {
                     success: false, 
-                    error: userProfileResult.error,
+                    error: USER_PROFILE_ERROR.CREATE_PROFILE_FAILED,
                     data: null
                 }
             }
@@ -299,7 +304,16 @@ export async function verifyEmailToken(
             }
         } else {
             // メールアドレスの更新
-            const { userId } = await actionAuth(AUTH_ERROR.SESSION_NOT_FOUND);
+            const authResult = await actionAuth(AUTH_ERROR.SESSION_NOT_FOUND);
+
+            if (!authResult.success) {
+                return {
+                    success: false,
+                    error: authResult.error as string,
+                }
+            }
+
+            const { userId } = authResult;
 
             const { success, error } = await updateUserEmail({
                 userId: userId as UserId,
