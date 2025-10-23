@@ -51,6 +51,14 @@ export const updateSubscriptionPaymentStatus = async ({
             latestPaymentId: latestPayment.id,
             status
         });
+
+        if (!updatedPayment) {
+            return {
+                success: false, 
+                error: SUBSCRIPTION_PAYMENT_ERROR.UPDATE_FAILED,
+                data: null
+            }
+        }
     
         return {
             success: true, 
