@@ -34,7 +34,8 @@ const {
     VERIFICATION_TOKEN_ERROR, 
     USER_STRIPE_ERROR,
     USER_PROFILE_ERROR,
-    USER_IMAGE_ERROR
+    USER_IMAGE_ERROR,
+    USER_ERROR
 } = ERROR_MESSAGES;
 
 /* ==================================== 
@@ -56,7 +57,7 @@ export const registerUserWithChat = async (
             if (!userResult.success || !userResult.data) {
                 return {
                     success: false, 
-                    error: userResult.error,
+                    error: USER_ERROR.CREATE_ACCOUNT_FAILED,
                     data: null
                 }
             }
@@ -316,15 +317,15 @@ export async function verifyEmailToken(
 
             const { userId } = authResult;
 
-            const { success, error } = await updateUserEmail({
+            const updateUserEmailResult = await updateUserEmail({
                 userId: userId as UserId,
                 email
             });
 
-            if (!success) {
+            if (!updateUserEmailResult.success) {
                 return {
                     success: false, 
-                    error,
+                    error: USER_ERROR.MAIL_UPDATE_FAILED,
                     expires: null
                 }
             }
@@ -411,7 +412,7 @@ export const resetPassword = async (
             if (!userResult.success || !userResult.data) {
                 return {
                     success: false, 
-                    error: userResult.error,
+                    error: USER_ERROR.PASSWORD_UPDATE_FAILED,
                     data: null
                 }
             }

@@ -271,13 +271,13 @@ export async function updatePasswordAction(
 
             const { userId } = authResult;
 
-            const { success, error } = await updateUserPassword({
+            const updateUserPasswordResult = await updateUserPassword({
                 userId: userId as UserId, 
                 password
             });
 
-            if (!success) {
-                return errorResponse(error as string);
+            if (!updateUserPasswordResult.success) {
+                return errorResponse(USER_ERROR.PASSWORD_UPDATE_FAILED);
             }
         }
 

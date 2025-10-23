@@ -26,26 +26,15 @@ export const createUser = async ({
     tx,
     userData 
 }: CreateUserWithTransactionProps) => {
-    try {
-        const repository = createUserRepository();
-        const user = await repository.createUserWithTransaction({ 
-            tx, 
-            userData 
-        });
+    const repository = createUserRepository();
+    const result = await repository.createUserWithTransaction({ 
+        tx, 
+        userData 
+    });
 
-        return {
-            success: true, 
-            error: null, 
-            data: user
-        }
-    } catch (error) {
-        console.error('Database : Error in createUser: ', error);
-
-        return {
-            success: false, 
-            error: USER_ERROR.CREATE_ACCOUNT_FAILED,
-            data: null
-        }
+    return {
+        success: !!result, 
+        data: result
     }
 }
 
@@ -72,23 +61,10 @@ export const updateUserEmail = async ({
     userId,
     email
 }: UpdateUserEmailProps) => {
-    try {
-        const repository = updateUserRepository();
-        const userEmail = await repository.updateUserEmail({ userId, email });
+    const repository = updateUserRepository();
+    const result = await repository.updateUserEmail({ userId, email });
 
-        return {
-            success: true, 
-            error: null, 
-            data: userEmail
-        }
-    } catch (error) {
-        console.error('Database : Error in updateUserEmail:', error);
-
-        return {
-            success: false, 
-            error: USER_ERROR.MAIL_UPDATE_FAILED
-        }
-    }
+    return { success: !!result }
 }
 
 // ユーザーのパスワードの更新
@@ -96,26 +72,13 @@ export const updateUserPassword = async ({
     userId,
     password
 }: UpdateUserPasswordProps) => {
-    try {
-        const repository = updateUserRepository();
-        const userPassword = await repository.updateUserPassword({
-            userId,
-            password
-        });
+    const repository = updateUserRepository();
+    const result = await repository.updateUserPassword({
+        userId,
+        password
+    });
 
-        return {
-            success: true, 
-            error: null, 
-            data: userPassword
-        }
-    } catch (error) {
-        console.error('Database : Error in updateUserPassword:', error);
-
-        return {
-            success: false, 
-            error: USER_ERROR.PASSWORD_UPDATE_FAILED
-        }
-    }
+    return { success: !!result }
 }
 
 // ユーザーのパスワードの更新（トークンの更新）
@@ -124,62 +87,29 @@ export const updateUserPasswordWithTransaction = async ({
     verificationToken,
     password
 }: UpdatedUserPasswordWithTransactionProps) => {
-    try {
-        const repository = updateUserRepository();
-        const user = await repository.updateUserPasswordWithTransaction({
-            tx, 
-            verificationToken, 
-            password
-        });
+    const repository = updateUserRepository();
+    const result = await repository.updateUserPasswordWithTransaction({
+        tx, 
+        verificationToken, 
+        password
+    });
 
-        return {
-            success: true, 
-            error: null, 
-            data: user
-        }
-    } catch (error) {
-        console.error('Database : Error in updateUserPasswordWithTransaction:', error);
-
-        return {
-            success: false, 
-            error: USER_ERROR.PASSWORD_UPDATE_FAILED
-        }
+    return {
+        success: !!result, 
+        data: result
     }
 }
 
 // ユーザーの削除
-export const deleteUser = async ({ userId }: { userId: string }) => {
-    try {
-        const repository = deleteUserRepository();
-        await repository.deleteUser({ userId });
-
-        return {
-            success: true, 
-            error: null, 
-        }
-    } catch (error) {
-        console.error('Database : Error in deleteUser:', error);
-
-        return {
-            success: false, 
-            error: USER_ERROR.DELETE_FAILED
-        }
-    }
-}
-
-// ユーザーの削除(トランザクション)
-export const deleteUserWithTransaction = async ({ 
-    tx, 
-    userId 
-}: UserWithTransactionProps) => {
+export const deleteUser = async ({ userId }: { userId: UserId }) => {
     const repository = deleteUserRepository();
-    const result = await repository.deleteUserWithTransaction({ tx, userId });
+    const result = await repository.deleteUser({ userId });
 
     return { success: !!result }
 }
 
 // ユーザーとアイコン画像データの削除
-export const deleteUserAccount = async ({ userId }: { userId: string }) => {
+export const deleteUserAccount = async ({ userId }: { userId: UserId }) => {
     // 1. ユーザー画像の取得とデータ削除
     const result = await prisma.$transaction(async (tx) => {
         const userImage = await getUserImageFilePathWithTransaction({ tx, userId });
@@ -191,9 +121,13 @@ export const deleteUserAccount = async ({ userId }: { userId: string }) => {
             }
         }
 
-        const deleteUserResult = await deleteUserWithTransaction({ tx, userId });
+        const repository = deleteUserRepository();
+        const deleteUserResult = await repository.deleteUserWithTransaction({ 
+            tx, 
+            userId 
+        });
 
-        if (!deleteUserResult.success) {
+        if (!deleteUserResult) {
             return { 
                 success: false,
                 error: USER_ERROR.DELETE_FAILED,
