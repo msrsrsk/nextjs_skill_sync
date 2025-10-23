@@ -16,7 +16,6 @@ const mockCreateUserImageWithTransaction = vi.fn()
 const mockUpdateUserImageFilePath = vi.fn()
 const mockGetUserImageFilePathWithTransaction = vi.fn()
 const mockGetUserImageId = vi.fn()
-const mockDeleteProfileImage = vi.fn()
 
 vi.mock('@/repository/userImage', () => ({
     createUserImageRepository: () => ({
