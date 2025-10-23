@@ -17,48 +17,13 @@ export const createUserImage = async ({
     tx,
     userId
 }: CreateUserImageWithTransactionProps) => {
-    try {
-        const repository = createUserImageRepository();
-        await repository.createUserImageWithTransaction({
-            tx,
-            userId
-        });
+    const repository = createUserImageRepository();
+    const result = await repository.createUserImageWithTransaction({
+        tx,
+        userId
+    });
 
-        return {
-            success: true, 
-            error: null
-        }
-    } catch (error) {
-        console.error('Database : Error in createUserImage: ', error);
-
-        return {
-            success: false, 
-            error: USER_IMAGE_ERROR.CREATE_FAILED,
-        }
-    }
-}
-
-// ユーザー画像のパスの更新
-export const updateUserImageFilePath = async ({
-    userId,
-    filePath
-}: UpdateUserImageFilePathProps) => {
-    try {
-        const repository = updateUserImageRepository();
-        await repository.updateUserImageFilePath({ userId, filePath });
-
-        return {
-            success: true,
-            error: null
-        }
-    } catch (error) {
-        console.error('Database : Error in updateUserImageFilePath:', error);
-
-        return {
-            success: false,
-            error: USER_IMAGE_ERROR.FILE_PATH_UPDATE_FAILED
-        }
-    }
+    return { success: !!result }
 }
 
 // ユーザー画像のパスの取得(トランザクション)
@@ -70,6 +35,17 @@ export const getUserImageFilePathWithTransaction = async ({
     const result = await repository.getUserImageFilePathWithTransaction({ tx, userId });
 
     return { data: result?.file_path };
+}
+
+// ユーザー画像のパスの更新
+export const updateUserImageFilePath = async ({
+    userId,
+    filePath
+}: UpdateUserImageFilePathProps) => {
+    const repository = updateUserImageRepository();
+    const result = await repository.updateUserImageFilePath({ userId, filePath });
+
+    return { success: !!result }
 }
 
 // 既存画像の削除

@@ -68,18 +68,15 @@ export const uploadSingleFile = async ({
 
         // 2. プロフィール画像の場合はファイルのURLを更新
         if (bucketType === BUCKET_PROFILE) {
-            const { 
-                success: updateFilePathSuccess, 
-                error: updateFilePathError, 
-            } = await updateUserImageFilePath({
+            const updateFilePathResult = await updateUserImageFilePath({
                 userId,
                 filePath: filePath
             });
     
-            if (!updateFilePathSuccess) {
+            if (!updateFilePathResult.success) {
                 return {
                     success: false, 
-                    error: updateFilePathError,
+                    error: USER_IMAGE_ERROR.FILE_PATH_UPDATE_FAILED,
                     data: null
                 }
             }

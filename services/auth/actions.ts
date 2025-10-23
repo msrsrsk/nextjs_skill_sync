@@ -33,7 +33,8 @@ const {
     AUTH_ERROR, 
     VERIFICATION_TOKEN_ERROR, 
     USER_STRIPE_ERROR,
-    USER_PROFILE_ERROR
+    USER_PROFILE_ERROR,
+    USER_IMAGE_ERROR
 } = ERROR_MESSAGES;
 
 /* ==================================== 
@@ -84,7 +85,7 @@ export const registerUserWithChat = async (
             if (!userImageResult.success) {
                 return {
                     success: false, 
-                    error: userImageResult.error,
+                    error: USER_IMAGE_ERROR.CREATE_FAILED,
                     data: null
                 }
             }
