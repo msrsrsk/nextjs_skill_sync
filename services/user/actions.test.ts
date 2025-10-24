@@ -118,20 +118,20 @@ describe('getUser', () => {
 
         const result = await getUser({
             userId: 'test-user-id',
-            errorMessage: 'test-error-message'
         })
 
         expect(result).toBeDefined()
     })
 
     // 取得失敗
-    it('should return failure when repository fails', async () => {
+    it('should return null when repository fails', async () => {
         mockGetUser.mockResolvedValue(null)
-
-        await expect(getUser({
+    
+        const result = await getUser({
             userId: '',
-            errorMessage: 'test-error-message'
-        })).rejects.toThrow('test-error-message')
+        })
+    
+        expect(result).toBeNull()
     })
 })
 

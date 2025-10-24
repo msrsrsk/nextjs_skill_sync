@@ -172,11 +172,18 @@ export const createCheckoutSession = async ({
     // 2. ユーザーのStripe顧客IDの取得
     const user = await getUser({
         userId: userId as UserId,
-        getType: CUSTOMER_ID_DATA,
-        errorMessage: USER_STRIPE_ERROR.CUSTOMER_ID_FETCH_FAILED
+        getType: CUSTOMER_ID_DATA
     });
 
-    const customerId = user.user_stripes?.customer_id;
+    if (!user) {
+        return {
+            success: false,
+            error: USER_STRIPE_ERROR.CUSTOMER_ID_FETCH_FAILED,
+            data: null
+        }
+    }
+
+    const customerId = user?.user_stripes?.customer_id;
     
     // 3. チェックアウトセッションの作成
     const sessionConfig: StripeCheckoutSessionCreateParams = {
