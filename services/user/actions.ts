@@ -18,7 +18,6 @@ const { BUCKET_PROFILE } = CLOUDFLARE_BUCKET_TYPES;
 
 interface GetUserAndVerifyAuthProps extends UserIdProps {
     getType?: GetUserDataTypes;
-    errorMessage: string;
 }
 
 // ユーザーの作成
@@ -40,18 +39,13 @@ export const createUser = async ({
 
 export const getUser = async ({
     userId,
-    getType,
-    errorMessage
+    getType
 }: GetUserAndVerifyAuthProps) => {
     const repository = getUserRepository();
     const user = await repository.getUser({
         userId: userId as UserId,
         ...(getType && { getType })
     });
-
-    if (!user) {
-        throw new Error(errorMessage);
-    }
 
     return user
 }

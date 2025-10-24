@@ -66,9 +66,16 @@ export async function setDefaultShippingAddressAction(
         // 4. Stripe顧客IDの取得
         const userResult = await getUser({
             userId: userId as UserId,
-            getType: CUSTOMER_ID_DATA,
-            errorMessage: USER_STRIPE_ERROR.CUSTOMER_ID_FETCH_FAILED
+            getType: CUSTOMER_ID_DATA
         });
+
+        if (!userResult) {
+            return {
+                success: false,
+                error: USER_STRIPE_ERROR.CUSTOMER_ID_FETCH_FAILED,
+                timestamp: Date.now()
+            }
+        }
 
         const customerId = userResult.user_stripes?.customer_id;
 

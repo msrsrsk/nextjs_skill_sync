@@ -332,10 +332,15 @@ export async function signInWithCredentialsAction(
 
             const { user } = authResult;
 
-            const userData = await getUser({
-                userId: user?.id as UserId,
-                errorMessage: AUTH_ERROR.USER_NOT_FOUND
-            });
+            const userData = await getUser({ userId: user?.id as UserId });
+
+            if (!userData) {
+                return {
+                    success: false, 
+                    error: AUTH_ERROR.USER_NOT_FOUND,
+                    timestamp: Date.now()
+                }
+            }
 
             if (userData?.email !== email) {
                 return {

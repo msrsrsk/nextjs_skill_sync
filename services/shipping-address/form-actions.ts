@@ -221,9 +221,17 @@ export async function updateDefaultShippingAddressAction(
 
         const user = await getUser({
             userId: userId as UserId,
-            getType: CUSTOMER_ID_DATA,
-            errorMessage: USER_STRIPE_ERROR.CUSTOMER_ID_FETCH_FAILED
+            getType: CUSTOMER_ID_DATA
         });
+
+        if (!user) {
+            return {
+                success: false,
+                error: USER_STRIPE_ERROR.CUSTOMER_ID_FETCH_FAILED,
+                data: null,
+                timestamp: Date.now()
+            }
+        }
 
         const customerId = user.user_stripes?.customer_id;
 
