@@ -248,12 +248,21 @@ export async function updateDefaultShippingAddressAction(
         } as ShippingAddress;
 
         if (customerId) {
-            await updateStripeAndShippingAddress({
+            const result = await updateStripeAndShippingAddress({
                 id,
                 userId: userId as UserId,
                 customerId,
                 shippingAddress
             });
+
+            if (!result.success) {
+                return {
+                    success: false, 
+                    error: result.error as string,
+                    data: null,
+                    timestamp: Date.now()
+                }
+            }
         }
 
         return {

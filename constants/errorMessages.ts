@@ -297,6 +297,7 @@ export const ERROR_MESSAGES = {
         CREATE_FAILED: `住所の保存に失敗しました。${RETRY}`,
         SET_DEFAULT_FAILED: `お届け先の設定に失敗しました。${RETRY}`,
         MISSING_ID: `更新対象の住所IDが見つかりません。${RETRY}`,
+        MISSING_USER_INFO: `住所の更新に必要な情報が不足しています。${RETRY}`,
 
         UPDATE_FAILED: `住所の更新に失敗しました。${RETRY}`,
         UPDATE_DEFAULT_FAILED: `お届け先の住所の更新に失敗しました。${RETRY}`,

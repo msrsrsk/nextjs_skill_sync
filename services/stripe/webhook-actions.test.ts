@@ -152,11 +152,6 @@ const getMockStripe = async () => {
     return vi.mocked(stripe)
 }
 
-const getMockCreateProductDetails = async () => {
-    const { createProductDetails } = await import('@/services/stripe/webhook-actions')
-    return vi.mocked(createProductDetails)
-}
-
 /* ==================================== 
     Create Product Details Test
 ==================================== */

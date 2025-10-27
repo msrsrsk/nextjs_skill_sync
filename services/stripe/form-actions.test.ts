@@ -75,7 +75,10 @@ describe('setDefaultShippingAddressAction', () => {
             ...mockUser
         })
 
-        updateStripeAndDefaultShippingAddress.mockResolvedValue()
+        updateStripeAndDefaultShippingAddress.mockResolvedValue({
+            success: true,
+            error: null,
+        })
 
         const formData = new FormData()
         formData.set('newDefaultAddressId', mockShippingAddress.id)

@@ -82,40 +82,70 @@ export const updateStripeAndShippingAddress = async ({
     customerId,
     shippingAddress
 }: UpdateStripeAndShippingAddressProps) => {
-    const [stripeResult, setAddressResult] = await Promise.all([
-        customerId ? updateCustomerShippingAddress(
-            customerId,
-            {
-                address: {
-                    line1: shippingAddress.address_line1,
-                    line2: shippingAddress.address_line2 || '',
-                    city: shippingAddress.city || '',
-                    state: shippingAddress.state,
-                    postal_code: shippingAddress.postal_code
-                },
-                name: shippingAddress.name,
+    try {
+        if (!id || !userId || !shippingAddress) {
+            return {
+                success: false, 
+                error: SHIPPING_ADDRESS_ERROR.MISSING_USER_INFO,
+                data: null 
             }
-        ) : Promise.resolve({ 
+        }
+
+        const [stripeResult, setAddressResult] = await Promise.all([
+            customerId ? updateCustomerShippingAddress(
+                customerId,
+                {
+                    address: {
+                        line1: shippingAddress.address_line1,
+                        line2: shippingAddress.address_line2 || '',
+                        city: shippingAddress.city || '',
+                        state: shippingAddress.state,
+                        postal_code: shippingAddress.postal_code
+                    },
+                    name: shippingAddress.name,
+                }
+            ) : Promise.resolve({ 
+                success: true, 
+                error: null, 
+                data: null 
+            }),
+            updateShippingAddress({
+                id,
+                userId,
+                shippingAddress
+            })
+        ]);
+    
+        if (!stripeResult.success) {
+            return {
+                success: false, 
+                error: stripeResult.error as string,
+                data: null 
+            }
+        }
+    
+        if (!setAddressResult.success) {
+            return {
+                success: false, 
+                error: SHIPPING_ADDRESS_ERROR.UPDATE_FAILED,
+                data: null 
+            }
+        }
+    
+        return {
             success: true, 
             error: null, 
+            data: setAddressResult.data
+        }
+    } catch (error) {
+        console.error('Database : Error in updateStripeAndShippingAddress:', error);
+
+        return {
+            success: false, 
+            error: SHIPPING_ADDRESS_ERROR.UPDATE_FAILED,
             data: null 
-        }),
-        updateShippingAddress({
-            id,
-            userId,
-            shippingAddress
-        })
-    ]);
-
-    if (!stripeResult.success) {
-        throw new Error(stripeResult.error as string);
+        }
     }
-
-    if (!setAddressResult.success) {
-        throw new Error(SHIPPING_ADDRESS_ERROR.UPDATE_FAILED);
-    }
-
-    return setAddressResult.data;
 }
 
 // デフォルト住所の更新 & Stripe顧客情報の更新
@@ -125,36 +155,62 @@ export const updateStripeAndDefaultShippingAddress = async ({
     customerId,
     shippingAddress
 }: UpdateStripeAndShippingAddressProps) => {
-    const [stripeResult, setDefaultAddressResult] = await Promise.all([
-        customerId ? updateCustomerShippingAddress(
-            customerId,
-            {
-                address: {
-                    line1: shippingAddress.address_line1,
-                    line2: shippingAddress.address_line2 || '',
-                    city: shippingAddress.city || '',
-                    state: shippingAddress.state,
-                    postal_code: shippingAddress.postal_code
-                },
-                name: shippingAddress.name,
+    try {
+        if (!id || !userId || !shippingAddress) {
+            return {
+                success: false, 
+                error: SHIPPING_ADDRESS_ERROR.MISSING_USER_INFO,
             }
-        ) : Promise.resolve({ 
+        }
+        
+        const [stripeResult, setDefaultAddressResult] = await Promise.all([
+            customerId ? updateCustomerShippingAddress(
+                customerId,
+                {
+                    address: {
+                        line1: shippingAddress.address_line1,
+                        line2: shippingAddress.address_line2 || '',
+                        city: shippingAddress.city || '',
+                        state: shippingAddress.state,
+                        postal_code: shippingAddress.postal_code
+                    },
+                    name: shippingAddress.name,
+                }
+            ) : Promise.resolve({ 
+                success: true, 
+                error: null, 
+            }),
+            setDefaultShippingAddress({ 
+                userId,
+                addressId: id 
+            })
+        ]);
+    
+        if (!stripeResult.success) {
+            return {
+                success: false, 
+                error: stripeResult.error as string,
+            }
+        }
+    
+        if (!setDefaultAddressResult.success) {
+            return {
+                success: false, 
+                error: setDefaultAddressResult.error as string,
+            }
+        }
+
+        return {
             success: true, 
-            error: null, 
-            data: null 
-        }),
-        setDefaultShippingAddress({ 
-            userId,
-            addressId: id 
-        })
-    ]);
+            error: null
+        }
+    } catch (error) {
+        console.error('Database : Error in updateStripeAndDefaultShippingAddress:', error);
 
-    if (!stripeResult.success) {
-        throw new Error(stripeResult.error as string);
-    }
-
-    if (!setDefaultAddressResult.success) {
-        throw new Error(setDefaultAddressResult.error as string);
+        return {
+            success: false, 
+            error: SHIPPING_ADDRESS_ERROR.UPDATE_FAILED,
+        }
     }
 }
 
