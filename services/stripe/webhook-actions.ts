@@ -132,11 +132,12 @@ export async function processOrderData({
     // 1.注文データの取得と保存
     const { 
         success: sessionSuccess, 
+        error: sessionError,
         data: session 
     } = await getCheckoutSession({ sessionId: checkoutSessionEvent.id });
 
     if (!sessionSuccess) {
-        throw new Error(CHECKOUT_ERROR.SESSION_RETRIEVAL_FAILED);
+        throw new Error(sessionError as string);
     }
 
     const lineItems = session?.line_items?.data || [];

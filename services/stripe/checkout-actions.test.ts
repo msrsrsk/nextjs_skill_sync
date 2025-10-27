@@ -5,6 +5,7 @@ import {
     getShippingRateId,
     getSubscriptionShippingFee,
     getPaymentMethod,
+    getCheckoutSession,
     createCheckoutSession,
     createPaymentLink,
     processCheckoutItems,
@@ -62,7 +63,7 @@ const {
     AMOUNT_TOTAL_MISMATCH,
     ORDER_DATA_PROCESS_FAILED,
     NO_PRICE_ID,
-    NO_SHIPPING_RATE_FOUND
+    SESSION_RETRIEVAL_FAILED,
 } = CHECKOUT_ERROR;
 const { CUSTOMER_ID_FETCH_FAILED } = USER_STRIPE_ERROR;
 const { UPDATE_STOCK_AND_SOLD_COUNT_FAILED } = PRODUCT_ERROR;
@@ -77,7 +78,7 @@ vi.mock('@/lib/clients/stripe/client', () => ({
         subscriptions: { retrieve: vi.fn() },
         invoices: { retrieve: vi.fn() },
         paymentIntents: { retrieve: vi.fn() },
-        checkout: { sessions: { create: vi.fn() } },
+        checkout: { sessions: { retrieve: vi.fn(), create: vi.fn() } },
         paymentLinks: { create: vi.fn() },
         prices: { retrieve: vi.fn() },
         shippingRates: { retrieve: vi.fn() }
@@ -382,6 +383,77 @@ describe('getPaymentMethod', () => {
         expect(result.success).toBe(false)
         expect(result.error).toBe(PAYMENT_METHOD_FAILED)
         expect(result.data).toBe('card')
+    })
+})
+
+/* ==================================== 
+    Get Checkout Session Test
+==================================== */
+describe('getCheckoutSession', () => {
+    beforeEach(async () => {
+        vi.clearAllMocks()
+    })
+
+    // 取得成功
+    it('should retrieve checkout session successfully', async () => {
+        const stripe = await getMockStripe()
+
+        vi.mocked(stripe.checkout.sessions.retrieve).mockResolvedValue({
+            ...mockCheckoutSession,
+        })
+
+        const result = await getCheckoutSession({
+            sessionId: mockCheckoutSession.id
+        })
+
+        expect(result.success).toBe(true)
+        expect(result.data).toBeDefined()
+        expect(stripe.checkout.sessions.retrieve).toHaveBeenCalledWith(
+            mockCheckoutSession.id,
+            { expand: ['line_items'] }
+        )
+    })
+
+    // 取得失敗(Stripe API エラー)
+    it('should return error when stripe.checkout.sessions.retrieve fails', async () => {
+        const stripe = await getMockStripe()
+
+        vi.mocked(stripe.checkout.sessions.retrieve).mockRejectedValue(
+            new Error('Stripe API Error')
+        )
+
+        const result = await getCheckoutSession({
+            sessionId: mockCheckoutSession.id
+        })
+
+        expect(result.success).toBe(false)
+        expect(result.error).toBe(SESSION_RETRIEVAL_FAILED)
+        expect(result.data).toBeNull()
+        expect(stripe.checkout.sessions.retrieve).toHaveBeenCalledWith(
+            mockCheckoutSession.id,
+            { expand: ['line_items'] }
+        )
+    })
+
+    // 取得失敗(sessionId が空)
+    it('should return error when sessionId is empty', async () => {
+        const stripe = await getMockStripe()
+
+        vi.mocked(stripe.checkout.sessions.retrieve).mockRejectedValue(
+            new Error('Empty session ID')
+        )
+
+        const result = await getCheckoutSession({
+            sessionId: '' as StripeCheckoutSessionId
+        })
+
+        expect(result.error).toBe(SESSION_RETRIEVAL_FAILED)
+        expect(result.success).toBe(false)
+        expect(result.data).toBeNull()
+        expect(stripe.checkout.sessions.retrieve).toHaveBeenCalledWith(
+            '',
+            { expand: ['line_items'] }
+        )
     })
 })
 

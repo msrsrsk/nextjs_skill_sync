@@ -158,69 +158,6 @@ const getMockCreateProductDetails = async () => {
 }
 
 /* ==================================== 
-    Retrieve Checkout Session Test
-==================================== */
-// describe('retrieveCheckoutSession', () => {
-//     beforeEach(async () => {
-//         vi.clearAllMocks()
-//     })
-
-//     // 取得成功
-//     it('should retrieve checkout session successfully', async () => {
-//         const stripe = await getMockStripe()
-
-//         vi.mocked(stripe.checkout.sessions.retrieve).mockResolvedValue({
-//             ...mockCheckoutSession,
-//         })
-
-//         const result = await retrieveCheckoutSession({
-//             sessionId: mockCheckoutSession.id
-//         })
-
-//         expect(result.success).toBe(true)
-//         expect(result.data).toBeDefined()
-//         expect(stripe.checkout.sessions.retrieve).toHaveBeenCalledWith(
-//             mockCheckoutSession.id,
-//             { expand: ['line_items'] }
-//         )
-//     })
-
-//     // 取得失敗(stripe.checkout.sessions.retrieve の失敗)
-//     it('should return error when checkout session is not found', async () => {
-//         const stripe = await getMockStripe()
-
-//         vi.mocked(stripe.checkout.sessions.retrieve).mockRejectedValue(
-//             new Error('Stripe API Error')
-//         )
-
-//         const result = await retrieveCheckoutSession({
-//             sessionId: mockCheckoutSession.id
-//         })
-
-//         expect(result.success).toBe(false)
-//         expect(result.data).toBeNull()
-//         expect(result.error).toBe(SESSION_RETRIEVAL_FAILED)
-//     })
-
-//     // 取得失敗(sessionId が null)
-//     it('should return error when sessionId is null', async () => {
-//         const stripe = await getMockStripe()
-
-//         vi.mocked(stripe.checkout.sessions.retrieve).mockRejectedValue(
-//             new Error('Stripe API Error')
-//         )
-
-//         const result = await retrieveCheckoutSession({
-//             sessionId: null as unknown as StripeCheckoutSessionId
-//         })
-
-//         expect(result.success).toBe(false)
-//         expect(result.data).toBeNull()
-//         expect(result.error).toBe(SESSION_RETRIEVAL_FAILED)
-//     })
-// })
-
-/* ==================================== 
     Create Product Details Test
 ==================================== */
 describe('createProductDetails', () => {
@@ -400,6 +337,7 @@ describe('processOrderData', () => {
 
         mockGetCheckoutSession.mockResolvedValue({
             success: true,
+            error: null,
             data: {
                 ...mockCheckoutSession,
                 ...mockSubscriptionLineItems
@@ -459,7 +397,8 @@ describe('processOrderData', () => {
 
         mockGetCheckoutSession.mockResolvedValue({
             success: false,
-            data: mockCheckoutSession
+            error: CHECKOUT_ERROR.SESSION_RETRIEVAL_FAILED,
+            data: null
         })
 
         await expect(processOrderData({
@@ -475,6 +414,7 @@ describe('processOrderData', () => {
 
         mockGetCheckoutSession.mockResolvedValue({
             success: true,
+            error: null,
             data: {
                 ...mockCheckoutSession,
                 ...mockSubscriptionLineItems
@@ -499,6 +439,7 @@ describe('processOrderData', () => {
 
         mockGetCheckoutSession.mockResolvedValue({
             success: true,
+            error: null,
             data: {
                 ...mockCheckoutSession,
                 ...mockSubscriptionLineItems
@@ -531,6 +472,7 @@ describe('processOrderData', () => {
 
         mockGetCheckoutSession.mockResolvedValue({
             success: true,
+            error: null,
             data: {
                 ...mockCheckoutSession,
                 ...mockSubscriptionLineItems
@@ -571,6 +513,7 @@ describe('processOrderData', () => {
 
         mockGetCheckoutSession.mockResolvedValue({
             success: true,
+            error: null,
             data: {
                 ...mockCheckoutSession,
                 ...mockSubscriptionLineItems
@@ -620,6 +563,7 @@ describe('processOrderData', () => {
 
         mockGetCheckoutSession.mockResolvedValue({
             success: true,
+            error: null,
             data: {
                 ...mockCheckoutSession,
                 ...mockSubscriptionLineItems
@@ -678,6 +622,7 @@ describe('processOrderData', () => {
 
         mockGetCheckoutSession.mockResolvedValue({
             success: true,
+            error: null,
             data: {
                 ...mockCheckoutSession,
                 ...mockSubscriptionLineItems

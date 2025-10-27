@@ -163,14 +163,25 @@ export const getPaymentMethod = async ({
 export const getCheckoutSession = async ({ sessionId }: { 
     sessionId: StripeCheckoutSessionId 
 }) => {
-    const session = await stripe.checkout.sessions.retrieve(
-        sessionId, 
-        { expand: ['line_items'] }
-    );
-    
-    return {
-        success: !!session,
-        data: session,
+    try {
+        const session = await stripe.checkout.sessions.retrieve(
+            sessionId, 
+            { expand: ['line_items'] }
+        );
+        
+        return {
+            success: true,
+            error: null,
+            data: session,
+        }
+    } catch (error) {
+        console.error('Database : Error in getCheckoutSession: ', error);
+
+        return {
+            success: false,
+            error: CHECKOUT_ERROR.SESSION_RETRIEVAL_FAILED,
+            data: null
+        }
     }
 }
 
