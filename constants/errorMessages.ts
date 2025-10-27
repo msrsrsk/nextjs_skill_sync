@@ -144,7 +144,11 @@ export const ERROR_MESSAGES = {
         NO_PRICE_AMOUNT: `商品の価格が見つかりません。${RETRY}`,
         NO_SHIPPING_RATE_ID: `配送料のIDが見つかりません。${RETRY}`,
         NO_SHIPPING_RATE_AMOUNT: `配送料のデータが見つかりません。${RETRY}`,
-
+        NO_LINE_ITEMS: `チェックアウトの商品リストが見つかりません。${RETRY}`,
+        NO_USER_ID: `ユーザーIDが見つかりません。${RETRY}`,
+        NO_SHIPPING_RATE_FOUND: `配送料が見つかりません。${RETRY}`,
+        
+        INVALID_QUANTITY: `商品の数量が無効です。${RETRY}`,
         PRICE_VERIFICATION_FAILED: `商品の価格チェックに失敗しました。${RETRY}`,
         AMOUNT_TOTAL_MISMATCH: `商品の合計金額が一致しません。${FIRST}`,
         STOCK_CHECK_FAILED: `在庫チェックのための必要な情報が不足しています。${RETRY}`,
@@ -156,6 +160,8 @@ export const ERROR_MESSAGES = {
         NOT_PROCEED_CHECKOUT: `チェックアウトに進めませんでした。${RETRY}`,
         WEBHOOK_PROCESS_FAILED: 'チェックアウトの処理中にエラーが発生しました。',
 
+        SESSION_RETRIEVAL_FAILED: `チェックアウトセッションの取得に失敗しました。${RETRY}`,
+        ORDER_DATA_PROCESS_FAILED: `注文データの処理に失敗しました。${RETRY}`,
         CHECKOUT_COMPLETED_FAILED: `チェックアウト完了時の処理中にエラーが発生しました。${RETRY}`,
         SUBSCRIPTION_EVENT_FAILED: `サブスクリプションの注文処理中にエラーが発生しました。${RETRY}`,
         
@@ -177,7 +183,6 @@ export const ERROR_MESSAGES = {
         SEND_ORDER_COMPLETE_EMAIL_FAILED: `注文完了メールの送信に失敗しました。${RETRY}`,
         SEND_PAYMENT_REQUEST_EMAIL_FAILED: `お支払いのお願いメールの送信に失敗しました。${RETRY}`,
         PAYMENT_METHOD_FAILED: `支払い方法の取得に失敗しました。${RETRY}`,
-
     },
 
     // レビュー関連
@@ -283,6 +288,7 @@ export const ERROR_MESSAGES = {
     
     // 住所関連
     SHIPPING_ADDRESS_ERROR: {
+        NO_USER_ID: `ユーザーIDが見つかりません。${RETRY}`,
         ADD_UNAUTHORIZED: `住所の登録はログインが必要です。${LOGIN}`,
         UPDATE_UNAUTHORIZED: `住所の更新はログインが必要です。${LOGIN}`,
         UPDATE_DEFAULT_UNAUTHORIZED: `お届け先の更新はログインが必要です。${LOGIN}`,

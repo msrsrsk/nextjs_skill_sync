@@ -171,20 +171,28 @@ export const createSubscriptionPrices = async ({
     }
 }
 
-
 export const getShippingRateAmount = async (shippingRateId: string) => {
-    const shippingRate = await stripe.shippingRates.retrieve(shippingRateId);
-    
-    if (shippingRate.fixed_amount) {
-        return {
-            success: true,
-            data: shippingRate.fixed_amount.amount
+    try {
+        const shippingRate = await stripe.shippingRates.retrieve(shippingRateId);
+        
+        if (shippingRate.fixed_amount) {
+            return {
+                success: true,
+                data: shippingRate.fixed_amount.amount
+            }
         }
-    }
-    
-    return {
-        success: false,
-        data: 0
+        
+        return {
+            success: false,
+            data: 0
+        }
+    } catch (error) {
+        console.error('Error in getShippingRateAmount:', error);
+
+        return {
+            success: false,
+            data: 0
+        }
     }
 }
 
@@ -247,33 +255,43 @@ export const deleteStripeCustomer = async ({
 export const cancelSubscription = async ({ 
     subscriptionId, 
 }: { subscriptionId: OrderItemSubscriptionSubscriptionId }) => {
-    const result = await stripe.subscriptions.update(subscriptionId, {
-        cancel_at_period_end: true,
-        metadata: {
-            canceled_at: new Date().toISOString(),
-            cancel_reason: 'user_requested'
-        }
-    })
-
-    const { success } = await updateOrderItemSubscriptionStatus({
-        subscriptionId,
-        subscriptionStatus: SUBS_CANCELED
-    })
-
-    if (!success) {
-        await stripe.subscriptions.update(subscriptionId, {
-            cancel_at_period_end: false,
+    try {
+        const result = await stripe.subscriptions.update(subscriptionId, {
+            cancel_at_period_end: true,
+            metadata: {
+                canceled_at: new Date().toISOString(),
+                cancel_reason: 'user_requested'
+            }
         })
+
+        const { success } = await updateOrderItemSubscriptionStatus({
+            subscriptionId,
+            subscriptionStatus: SUBS_CANCELED
+        })
+
+        if (!success) {
+            await stripe.subscriptions.update(subscriptionId, {
+                cancel_at_period_end: false,
+            })
+
+            return {
+                success: false,
+                error: SUBSCRIPTION_ERROR.UPDATE_SUBSCRIPTION_STATUS_FAILED
+            }
+        }
+
+        return {
+            success: true,
+            data: result
+        }
+    } catch (error) {
+        console.error('Error in cancelSubscription:', error);
 
         return {
             success: false,
-            error: SUBSCRIPTION_ERROR.UPDATE_SUBSCRIPTION_STATUS_FAILED
+            error: STRIPE_ERROR.CANCEL_SUBSCRIPTION_FAILED,
+            data: null
         }
-    }
-
-    return {
-        success: true,
-        data: result
     }
 }
 

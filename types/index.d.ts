@@ -931,6 +931,7 @@ declare global {
     type StripeSubscriptionItem = Stripe.SubscriptionItem;
     type StripePaymentMethod = string | Stripe.PaymentMethod;
     type StripeEvent = Stripe.Event;
+    type StripeCheckoutSessionId = StripeCheckoutSession['id'];
 
     interface StripeAddress {
         line1?: string;
