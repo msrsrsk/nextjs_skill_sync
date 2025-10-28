@@ -264,7 +264,7 @@ export const cancelSubscription = async ({
             }
         })
 
-        const { success } = await updateOrderItemSubscriptionStatus({
+        const { success, error } = await updateOrderItemSubscriptionStatus({
             subscriptionId,
             subscriptionStatus: SUBS_CANCELED
         })
@@ -276,7 +276,7 @@ export const cancelSubscription = async ({
 
             return {
                 success: false,
-                error: SUBSCRIPTION_ERROR.UPDATE_SUBSCRIPTION_STATUS_FAILED
+                error: error
             }
         }
 

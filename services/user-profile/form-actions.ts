@@ -92,7 +92,7 @@ export async function updateIconImageAction(
         if (!updateIconUrlResult.success) {
             return {
                 success: false, 
-                error: USER_PROFILE_ERROR.ICON_UPDATE_FAILED,
+                error: updateIconUrlResult.error as string,
                 data: null,
                 timestamp: Date.now()
             }
@@ -166,7 +166,7 @@ export async function updateNameAction(
         if (!updateNameResult.success || !updateNameResult.data) {
             return {
                 success: false,
-                error: USER_PROFILE_ERROR.NAME_UPDATE_FAILED,
+                error: updateNameResult.error as string,
                 data: {
                     lastname: null,
                     firstname: null
@@ -249,7 +249,7 @@ export async function updateTelAction(
         if (!updateTelResult.success || !updateTelResult.data) {
             return {
                 success: false,
-                error: USER_PROFILE_ERROR.TEL_UPDATE_FAILED,
+                error: updateTelResult.error as string,
                 data: null,
                 timestamp: Date.now()
             }

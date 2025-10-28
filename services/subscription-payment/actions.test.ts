@@ -8,7 +8,7 @@ import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { SUBSCRIPTION_PAYMENT_ERROR } = ERROR_MESSAGES;
 
-const { GET_LATEST_FAILED, UPDATE_FAILED } = SUBSCRIPTION_PAYMENT_ERROR;
+const { GET_LATEST_FAILED, UPDATE_FAILED, CREATE_FAILED } = SUBSCRIPTION_PAYMENT_ERROR;
 
 const mockCreateSubscriptionPayment = vi.fn()
 const mockGetSubscriptionPayment = vi.fn()
@@ -53,12 +53,13 @@ describe('createSubscriptionPayment', () => {
         })
 
         expect(result.success).toBe(true)
+        expect(result.error).toBeNull()
         expect(result.data).toBeDefined()
     })
 
     // 作成失敗
     it('should return failure when repository fails', async () => {
-        mockCreateSubscriptionPayment.mockResolvedValue(null)
+        mockCreateSubscriptionPayment.mockResolvedValue(false)
 
         const result = await createSubscriptionPayment({
             subscriptionPaymentData: {
@@ -73,6 +74,28 @@ describe('createSubscriptionPayment', () => {
         })
 
         expect(result.success).toBe(false)
+        expect(result.error).toBe(CREATE_FAILED)
+        expect(result.data).toBeNull()
+    })
+
+    // 作成失敗(例外発生)
+    it('should return failure when exception occurs', async () => {
+        mockCreateSubscriptionPayment.mockRejectedValue(new Error('Database error'))
+
+        const result = await createSubscriptionPayment({
+            subscriptionPaymentData: {
+                id: 'test-subscription-payment-id',
+                user_id: 'test-user-id',
+                subscription_id: 'test-subscription-id',
+                payment_date: new Date(),
+                status: 'pending',
+                created_at: new Date(),
+                updated_at: new Date()
+            }
+        })
+
+        expect(result.success).toBe(false)
+        expect(result.error).toBe(CREATE_FAILED)
         expect(result.data).toBeNull()
     })
 })

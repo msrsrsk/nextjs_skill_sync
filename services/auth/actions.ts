@@ -32,10 +32,6 @@ const { VERIFY_CREATE_ACCOUNT } = VERIFY_EMAIL_TYPES;
 const { 
     AUTH_ERROR, 
     VERIFICATION_TOKEN_ERROR, 
-    USER_STRIPE_ERROR,
-    USER_PROFILE_ERROR,
-    USER_IMAGE_ERROR,
-    USER_ERROR
 } = ERROR_MESSAGES;
 
 /* ==================================== 
@@ -57,7 +53,7 @@ export const registerUserWithChat = async (
             if (!userResult.success || !userResult.data) {
                 return {
                     success: false, 
-                    error: USER_ERROR.CREATE_ACCOUNT_FAILED,
+                    error: userResult.error as string,
                     data: null
                 }
             }
@@ -72,7 +68,7 @@ export const registerUserWithChat = async (
             if (!userProfileResult.success) {
                 return {
                     success: false, 
-                    error: USER_PROFILE_ERROR.CREATE_PROFILE_FAILED,
+                    error: userProfileResult.error as string,
                     data: null
                 }
             }
@@ -86,7 +82,7 @@ export const registerUserWithChat = async (
             if (!userImageResult.success) {
                 return {
                     success: false, 
-                    error: USER_IMAGE_ERROR.CREATE_FAILED,
+                    error: userImageResult.error as string,
                     data: null
                 }
             }
@@ -177,7 +173,7 @@ export async function createVerificationTokenWithPassword(
         if (!result.success || !result.data) {
             return {
                 success: false, 
-                error: VERIFICATION_TOKEN_ERROR.CREATE_FAILED,
+                error: result.error as string,
                 token: null
             }
         }
@@ -288,7 +284,8 @@ export async function verifyEmailToken(
 
             // 4. SupabaseユーザーのStripe顧客IDの作成
             const { 
-                success: createCustomerIdSuccess
+                success: createCustomerIdSuccess,
+                error: createCustomerIdError
             } = await createUserStripeCustomerId({
                 userId: user.data.id,
                 customerId: createStripeData.id
@@ -300,7 +297,7 @@ export async function verifyEmailToken(
 
                 return {
                     success: false, 
-                    error: USER_STRIPE_ERROR.CUSTOMER_ID_UPDATE_FAILED,
+                    error: createCustomerIdError,
                     expires: null
                 }
             }
@@ -325,7 +322,7 @@ export async function verifyEmailToken(
             if (!updateUserEmailResult.success) {
                 return {
                     success: false, 
-                    error: USER_ERROR.MAIL_UPDATE_FAILED,
+                    error: updateUserEmailResult.error as string,
                     expires: null
                 }
             }
@@ -372,7 +369,7 @@ export async function createVerificationTokenWithEmail(email: UserEmail) {
         if (!result.success || !result.data) {
             return {
                 success: false, 
-                error: VERIFICATION_TOKEN_ERROR.CREATE_FAILED,
+                error: result.error as string,
                 token: null
             }
         }
@@ -412,7 +409,7 @@ export const resetPassword = async (
             if (!userResult.success || !userResult.data) {
                 return {
                     success: false, 
-                    error: USER_ERROR.PASSWORD_UPDATE_FAILED,
+                    error: userResult.error as string,
                     data: null
                 }
             }

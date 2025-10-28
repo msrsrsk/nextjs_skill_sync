@@ -25,15 +25,34 @@ export const createUser = async ({
     tx,
     userData 
 }: CreateUserWithTransactionProps) => {
-    const repository = createUserRepository();
-    const result = await repository.createUserWithTransaction({ 
-        tx, 
-        userData 
-    });
+    try {
+        const repository = createUserRepository();
+        const result = await repository.createUserWithTransaction({ 
+            tx, 
+            userData 
+        });
+    
+        if (!result) {
+            return {
+                success: false, 
+                error: USER_ERROR.CREATE_ACCOUNT_FAILED,
+                data: null
+            }
+        }
 
-    return {
-        success: !!result, 
-        data: result
+        return {
+            success: true, 
+            error: null, 
+            data: result
+        }
+    } catch (error) {
+        console.error('Database : Error in createUser: ', error);
+
+        return {
+            success: false, 
+            error: USER_ERROR.CREATE_ACCOUNT_FAILED,
+            data: null
+        }
     }
 }
 
@@ -55,10 +74,29 @@ export const updateUserEmail = async ({
     userId,
     email
 }: UpdateUserEmailProps) => {
-    const repository = updateUserRepository();
-    const result = await repository.updateUserEmail({ userId, email });
+    try {
+        const repository = updateUserRepository();
+        const result = await repository.updateUserEmail({ userId, email });
 
-    return { success: !!result }
+        if (!result) {
+            return {
+                success: false, 
+                error: USER_ERROR.MAIL_UPDATE_FAILED,
+            }
+        }
+    
+        return { 
+            success: true, 
+            error: null, 
+        }
+    } catch (error) {
+        console.error('Database : Error in updateUserEmail: ', error);
+
+        return {
+            success: false, 
+            error: USER_ERROR.MAIL_UPDATE_FAILED,
+        }
+    }
 }
 
 // ユーザーのパスワードの更新
@@ -66,13 +104,32 @@ export const updateUserPassword = async ({
     userId,
     password
 }: UpdateUserPasswordProps) => {
-    const repository = updateUserRepository();
-    const result = await repository.updateUserPassword({
-        userId,
-        password
-    });
+    try {
+        const repository = updateUserRepository();
+        const result = await repository.updateUserPassword({
+            userId,
+            password
+        });
 
-    return { success: !!result }
+        if (!result) {
+            return {
+                success: false, 
+                error: USER_ERROR.PASSWORD_UPDATE_FAILED,
+            }
+        }
+    
+        return { 
+            success: true, 
+            error: null, 
+        }
+    } catch (error) {
+        console.error('Database : Error in updateUserPassword: ', error);
+
+        return {
+            success: false, 
+            error: USER_ERROR.PASSWORD_UPDATE_FAILED,
+        }
+    }
 }
 
 // ユーザーのパスワードの更新（トークンの更新）
@@ -81,25 +138,63 @@ export const updateUserPasswordWithTransaction = async ({
     verificationToken,
     password
 }: UpdatedUserPasswordWithTransactionProps) => {
-    const repository = updateUserRepository();
-    const result = await repository.updateUserPasswordWithTransaction({
-        tx, 
-        verificationToken, 
-        password
-    });
+    try {
+        const repository = updateUserRepository();
+        const result = await repository.updateUserPasswordWithTransaction({
+            tx, 
+            verificationToken, 
+            password
+        });
+    
+        if (!result) {
+            return {
+                success: false, 
+                error: USER_ERROR.PASSWORD_UPDATE_FAILED,
+                data: null
+            }
+        }
 
-    return {
-        success: !!result, 
-        data: result
+        return {
+            success: true, 
+            error: null, 
+            data: result
+        }
+    } catch (error) {
+        console.error('Database : Error in updateUserPasswordWithTransaction: ', error);
+
+        return {
+            success: false, 
+            error: USER_ERROR.PASSWORD_UPDATE_FAILED,
+            data: null
+        }
     }
 }
 
 // ユーザーの削除
 export const deleteUser = async ({ userId }: { userId: UserId }) => {
-    const repository = deleteUserRepository();
-    const result = await repository.deleteUser({ userId });
+    try {
+        const repository = deleteUserRepository();
+        const result = await repository.deleteUser({ userId });
 
-    return { success: !!result }
+        if (!result) {
+            return {
+                success: false, 
+                error: USER_ERROR.DELETE_FAILED,
+            }
+        }
+
+        return {
+            success: true, 
+            error: null, 
+        }
+    } catch (error) {
+        console.error('Database : Error in deleteUser:', error);
+
+        return {
+            success: false, 
+            error: USER_ERROR.DELETE_FAILED
+        }
+    }
 }
 
 // ユーザーとアイコン画像データの削除

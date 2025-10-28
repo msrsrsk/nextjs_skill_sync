@@ -32,7 +32,6 @@ const {
     SUBSCRIPTION_PAYMENT_ERROR, 
     SHIPPING_ADDRESS_ERROR,
     CHECKOUT_ERROR,
-    ORDER_STRIPE_ERROR
 } = ERROR_MESSAGES;
 
 interface CreateProductDetailsProps {
@@ -175,6 +174,7 @@ export async function processOrderData({
     // OrderStripe テーブルのデータ作成
     const { 
         success: orderStripeSuccess, 
+        error: orderStripeError,
     } = await createOrderStripe({ 
         orderStripeData: {
             order_id: orderData.order.id,
@@ -187,7 +187,7 @@ export async function processOrderData({
 
     if (!orderStripeSuccess) {
         await deleteOrder({ orderId: orderData.order.id });
-        throw new Error(ORDER_STRIPE_ERROR.CREATE_FAILED);
+        throw new Error(orderStripeError as string);
     }
 
     // OrderItems テーブルのデータ作成
@@ -283,7 +283,7 @@ export async function processShippingAddress({
             })
 
             if (!createResult.success) {
-                throw new Error(SHIPPING_ADDRESS_ERROR.CREATE_FAILED);
+                throw new Error(createResult.error as string);
             }
 
             const updateResult = await updateCustomerShippingAddress(customerId, {
@@ -351,7 +351,7 @@ export async function handleSubscriptionEvent({
     });
 
     if (!createResult.success) {
-        throw new Error(SUBSCRIPTION_PAYMENT_ERROR.CREATE_FAILED);
+        throw new Error(createResult.error as string);
     }
 
     // 2. 未払い通知メールの送信

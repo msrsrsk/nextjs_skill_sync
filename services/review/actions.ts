@@ -1,13 +1,35 @@
 "use server"
 
 import { createReviewRepository, getReviewRepository } from "@/repository/review"
+import { ERROR_MESSAGES } from "@/constants/errorMessages"
+
+const { REVIEW_ERROR } = ERROR_MESSAGES;
 
 // レビューの作成
 export const createReview = async ({ reviewData }: { reviewData: Review }) => {
-    const repository = createReviewRepository();
-    const result = await repository.createReview({ reviewData });
+    try {
+        const repository = createReviewRepository();
+        const result = await repository.createReview({ reviewData });
 
-    return { success: !!result }
+        if (!result) {
+            return {
+                success: false, 
+                error: REVIEW_ERROR.CREATE_FAILED,
+            }
+        }
+    
+        return { 
+            success: true, 
+            error: null, 
+        }
+    } catch (error) {
+        console.error('Database : Error in createReview: ', error);
+
+        return {
+            success: false, 
+            error: REVIEW_ERROR.CREATE_FAILED,
+        }
+    }
 }
 
 // 全てのレビューデータの取得

@@ -4,6 +4,9 @@ import {
     createUserProfileRepository, 
     updateUserProfileRepository
 } from "@/repository/userProfile"
+import { ERROR_MESSAGES } from "@/constants/errorMessages"
+
+const { USER_PROFILE_ERROR } = ERROR_MESSAGES;
 
 // ユーザープロフィールの作成
 export const createUserProfile = async ({ 
@@ -11,14 +14,33 @@ export const createUserProfile = async ({
     userId,
     userProfileData 
 }: CreateUserProfileWithTransactionProps) => {
-    const repository = createUserProfileRepository();
-    const result = await repository.createUserProfileWithTransaction({ 
-        tx, 
-        userId,
-        userProfileData 
-    });
+    try {
+        const repository = createUserProfileRepository();
+        const result = await repository.createUserProfileWithTransaction({ 
+            tx, 
+            userId,
+            userProfileData 
+        });
 
-    return { success: !!result }
+        if (!result) {
+            return {
+                success: false, 
+                error: USER_PROFILE_ERROR.CREATE_PROFILE_FAILED,
+            }
+        }
+    
+        return {
+            success: true, 
+            error: null, 
+        }
+    } catch (error) {
+        console.error('Database : Error in createUserProfile: ', error);
+
+        return {
+            success: false, 
+            error: USER_PROFILE_ERROR.CREATE_PROFILE_FAILED,
+        }
+    }
 }
 
 // ユーザーのアイコン画像の更新
@@ -26,13 +48,32 @@ export const updateUserProfileIconUrl = async ({
     userId,
     iconUrl
 }: UpdateUserProfileIconUrlProps) => {
-    const repository = updateUserProfileRepository();
-    const result = await repository.updateUserProfileIconUrl({ 
-        userId, 
-        iconUrl 
-    });
+    try {
+        const repository = updateUserProfileRepository();
+        const result = await repository.updateUserProfileIconUrl({ 
+            userId, 
+            iconUrl 
+        });
 
-    return { success: !!result }
+        if (!result) {
+            return {
+                success: false, 
+                error: USER_PROFILE_ERROR.ICON_UPDATE_FAILED,
+            }
+        }
+
+        return {
+            success: true, 
+            error: null, 
+        }
+    } catch (error) {
+        console.error('Database : Error in updateUserProfileIconUrl: ', error);
+
+        return {
+            success: false, 
+            error: USER_PROFILE_ERROR.ICON_UPDATE_FAILED,
+        }
+    }
 }
 
 // ユーザーの名前の更新
@@ -41,16 +82,34 @@ export const updateUserProfileName = async ({
     lastname,
     firstname
 }: UpdateUserProfileNameProps) => {
-    const repository = updateUserProfileRepository();
-    const result = await repository.updateUserProfileName({
-        userId,
-        lastname,
-        firstname
-    });
+    try {
+        const repository = updateUserProfileRepository();
+        const result = await repository.updateUserProfileName({
+            userId,
+            lastname,
+            firstname
+        });
 
-    return {
-        success: !!result, 
-        data: result
+        if (!result) {
+            return {
+                success: false, 
+                error: USER_PROFILE_ERROR.NAME_UPDATE_FAILED,
+            }
+        }
+
+        return {
+            success: true, 
+            error: null, 
+            data: result
+        }
+    } catch (error) {
+        console.error('Database : Error in updateUserProfileName: ', error);
+
+        return {
+            success: false, 
+            error: USER_PROFILE_ERROR.NAME_UPDATE_FAILED,
+            data: null
+        }
     }
 }
 
@@ -59,11 +118,29 @@ export const updateUserProfileTel = async ({
     userId,
     tel
 }: UpdateUserProfileTelProps) => {
-    const repository = updateUserProfileRepository();
-    const result = await repository.updateUserProfileTel({ userId, tel });
+    try {
+        const repository = updateUserProfileRepository();
+        const result = await repository.updateUserProfileTel({ userId, tel });
 
-    return {
-        success: !!result, 
-        data: result
+        if (!result) {
+            return {
+                success: false, 
+                error: USER_PROFILE_ERROR.TEL_UPDATE_FAILED,
+            }
+        }
+    
+        return {
+            success: true, 
+            error: null, 
+            data: result
+        }
+    } catch (error) {
+        console.error('Database : Error in updateUserProfileTel: ', error);
+
+        return {
+            success: false, 
+            error: USER_PROFILE_ERROR.TEL_UPDATE_FAILED,
+            data: null
+        }
     }
 }

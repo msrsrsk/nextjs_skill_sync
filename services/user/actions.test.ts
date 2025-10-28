@@ -13,7 +13,7 @@ import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { CLOUDFLARE_ERROR, USER_ERROR, USER_IMAGE_ERROR } = ERROR_MESSAGES;
 const { FILE_PATH_NOT_FOUND } = USER_IMAGE_ERROR;
-const { DELETE_FAILED } = USER_ERROR;
+const { DELETE_FAILED, CREATE_ACCOUNT_FAILED, MAIL_UPDATE_FAILED, PASSWORD_UPDATE_FAILED } = USER_ERROR;
 
 const mockCreateUserWithTransaction = vi.fn()
 const mockGetUser = vi.fn()
@@ -85,11 +85,13 @@ describe('createUser', () => {
         })
 
         expect(result.success).toBe(true)
+        expect(result.error).toBeNull()
+        expect(result.data).toBeDefined()
     })
 
     // 作成失敗
-    it('should return failure when repository fails', async () => {
-        mockCreateUserWithTransaction.mockResolvedValue(null)
+    it('should return failure when create user repository fails', async () => {
+        mockCreateUserWithTransaction.mockResolvedValue(false)
 
         const result = await createUser({
             ...commonParams,
@@ -101,6 +103,26 @@ describe('createUser', () => {
         })
 
         expect(result.success).toBe(false)
+        expect(result.error).toBe(CREATE_ACCOUNT_FAILED)
+        expect(result.data).toBeNull()
+    })
+
+    // 作成失敗(例外発生)
+    it('should return failure when create user exception occurs', async () => {
+        mockCreateUserWithTransaction.mockRejectedValue(new Error('Database error'))
+
+        const result = await createUser({
+            ...commonParams,
+            userData: {
+                email: '',
+                password: '',
+                emailVerified: new Date()
+            }
+        })
+
+        expect(result.success).toBe(false)
+        expect(result.error).toBe(CREATE_ACCOUNT_FAILED)
+        expect(result.data).toBeNull()
     })
 })
 
@@ -145,7 +167,7 @@ describe('updateUserEmail', () => {
 
     // 更新成功
     it('should update user email successfully', async () => {
-        mockUpdateUserEmail.mockResolvedValue({ success: true })
+        mockUpdateUserEmail.mockResolvedValue(true)
 
         const result = await updateUserEmail({
             userId: 'test-user-id',
@@ -153,11 +175,12 @@ describe('updateUserEmail', () => {
         })
 
         expect(result.success).toBe(true)
+        expect(result.error).toBeNull()
     })
 
     // 更新失敗
-    it('should return failure when repository fails', async () => {
-        mockUpdateUserEmail.mockResolvedValue(null)
+    it('should return failure when update user email repository fails', async () => {
+        mockUpdateUserEmail.mockResolvedValue(false)
 
         const result = await updateUserEmail({
             userId: '',
@@ -165,6 +188,20 @@ describe('updateUserEmail', () => {
         })
 
         expect(result.success).toBe(false)
+        expect(result.error).toBe(MAIL_UPDATE_FAILED)
+    })
+
+    // 更新失敗(例外発生)
+    it('should return failure when update user email exception occurs', async () => {
+        mockUpdateUserEmail.mockRejectedValue(new Error('Database error'))
+
+        const result = await updateUserEmail({
+            userId: '',
+            email: ''
+        })
+
+        expect(result.success).toBe(false)
+        expect(result.error).toBe(MAIL_UPDATE_FAILED)
     })
 })
 
@@ -178,7 +215,7 @@ describe('updateUserPassword', () => {
 
     // 更新成功
     it('should update user password successfully', async () => {
-        mockUpdateUserPassword.mockResolvedValue({ success: true })
+        mockUpdateUserPassword.mockResolvedValue(true)
 
         const result = await updateUserPassword({
             userId: 'test-user-id',
@@ -186,11 +223,12 @@ describe('updateUserPassword', () => {
         })
 
         expect(result.success).toBe(true)
+        expect(result.error).toBeNull()
     })
 
     // 更新失敗
-    it('should return failure when repository fails', async () => {
-        mockUpdateUserPassword.mockResolvedValue(null)
+    it('should return failure when update user password repository fails', async () => {
+        mockUpdateUserPassword.mockResolvedValue(false)
 
         const result = await updateUserPassword({
             userId: '',
@@ -198,6 +236,20 @@ describe('updateUserPassword', () => {
         })
 
         expect(result.success).toBe(false)
+        expect(result.error).toBe(PASSWORD_UPDATE_FAILED)
+    })
+
+    // 更新失敗(例外発生)
+    it('should return failure when update user password exception occurs', async () => {
+        mockUpdateUserPassword.mockRejectedValue(new Error('Database error'))
+
+        const result = await updateUserPassword({
+            userId: '',
+            password: ''
+        })
+
+        expect(result.success).toBe(false)
+        expect(result.error).toBe(PASSWORD_UPDATE_FAILED)
     })
 })
 
@@ -215,7 +267,7 @@ describe('updateUserPasswordWithTransaction', () => {
 
     // 更新成功
     it('should update user password with transaction successfully', async () => {
-        mockUpdateUserPasswordWithTransaction.mockResolvedValue({ success: true })
+        mockUpdateUserPasswordWithTransaction.mockResolvedValue(true)
 
         const result = await updateUserPasswordWithTransaction({
             ...commonParams,
@@ -228,12 +280,13 @@ describe('updateUserPasswordWithTransaction', () => {
         })
 
         expect(result.success).toBe(true)
+        expect(result.error).toBeNull()
         expect(result.data).toBeDefined()
     })
 
     // 更新失敗
-    it('should return failure when repository fails', async () => {
-        mockUpdateUserPasswordWithTransaction.mockResolvedValue(null)
+    it('should return failure when update user password with transaction repository fails', async () => {
+        mockUpdateUserPasswordWithTransaction.mockResolvedValue(false)
 
         const result = await updateUserPasswordWithTransaction({
             ...commonParams,
@@ -246,6 +299,28 @@ describe('updateUserPasswordWithTransaction', () => {
         })
 
         expect(result.success).toBe(false)
+        expect(result.error).toBe(PASSWORD_UPDATE_FAILED)
+        expect(result.data).toBeNull()
+    })
+
+    // 更新失敗(例外発生)
+    it('should return failure when update user password with transaction exception occurs', async () => {
+        mockUpdateUserPasswordWithTransaction.mockRejectedValue(
+            new Error('Database error')
+        )
+
+        const result = await updateUserPasswordWithTransaction({
+            ...commonParams,
+            verificationToken: {
+                token: '',
+                identifier: '',
+                expires: new Date()
+            },
+            password: ''
+        })
+
+        expect(result.success).toBe(false)
+        expect(result.error).toBe(PASSWORD_UPDATE_FAILED)
         expect(result.data).toBeNull()
     })
 })
@@ -260,24 +335,38 @@ describe('deleteUser', () => {
 
     // 削除成功
     it('should delete user successfully', async () => {
-        mockDeleteUser.mockResolvedValue({ success: true })
+        mockDeleteUser.mockResolvedValue(true)
 
         const result = await deleteUser({
             userId: 'test-user-id'
         })
 
         expect(result.success).toBe(true)
+        expect(result.error).toBeNull()
     })
 
     // 削除失敗
-    it('should return failure when repository fails', async () => {
-        mockDeleteUser.mockResolvedValue(null)
+    it('should return failure when delete user repository fails', async () => {
+        mockDeleteUser.mockResolvedValue(false)
 
         const result = await deleteUser({
             userId: ''
         })
 
         expect(result.success).toBe(false)
+        expect(result.error).toBe(DELETE_FAILED)
+    })
+
+    // 削除失敗(例外発生)
+    it('should return failure when delete user exception occurs', async () => {
+        mockDeleteUser.mockRejectedValue(new Error('Database error'))
+
+        const result = await deleteUser({
+            userId: ''
+        })
+
+        expect(result.success).toBe(false)
+        expect(result.error).toBe(DELETE_FAILED)
     })
 })
 

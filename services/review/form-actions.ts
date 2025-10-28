@@ -74,7 +74,7 @@ export async function createReviewAction(
         if (!reviewResult.success) {
             return {
                 success: false, 
-                error: REVIEW_ERROR.CREATE_FAILED,
+                error: reviewResult.error as string,
                 timestamp: Date.now()
             }
         }
@@ -86,10 +86,14 @@ export async function createReviewAction(
         }
     } catch (error) {
         console.error('Actions Error - Create Review error:', error);
+
+        const errorMessage = error instanceof Error 
+            ? error.message 
+            : REVIEW_ERROR.POST_FAILED;
     
         return {
             success: false, 
-            error: REVIEW_ERROR.POST_FAILED,
+            error: errorMessage,
             timestamp: Date.now()
         }
     }

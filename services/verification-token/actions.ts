@@ -17,14 +17,33 @@ interface GetVerificationTokenAndVerifyProps extends TokenProps {
 export const createVerificationToken = async ({ 
     verificationData
 }: { verificationData: VerificationData }) => {
-    const repository = createVerificationTokenRepository();
-    const result = await repository.createVerificationToken({
-        verificationData
-    })
+    try {
+        const repository = createVerificationTokenRepository();
+        const result = await repository.createVerificationToken({
+            verificationData
+        })
 
-    return {
-        success: !!result, 
-        data: result ? verificationData.token : null
+        if (!result) {
+            return {
+                success: false, 
+                error: VERIFICATION_TOKEN_ERROR.CREATE_FAILED,
+                data: null
+            }
+        }
+    
+        return {
+            success: true, 
+            error: null, 
+            data: result.token
+        }
+    } catch (error) {
+        console.error('Database : Error in createVerificationToken: ', error);
+
+        return {
+            success: false, 
+            error: VERIFICATION_TOKEN_ERROR.CREATE_FAILED,
+            data: null
+        }
     }
 }
 
@@ -125,11 +144,31 @@ export const deleteVerificationToken = async ({
     tx,
     token
 }: DeleteVerificationTokenWithTransactionProps) => {
-    const repository = deleteVerificationTokenRepository();
-    const result = await repository.deleteVerificationTokenWithTransaction({
-        tx,
-        token
-    });
+    try {
+        const repository = deleteVerificationTokenRepository();
+        const result = await repository.deleteVerificationTokenWithTransaction({
+            tx,
+            token
+        });
 
-    return { success: !!result }
+        if (!result) {
+            return {
+                success: false, 
+                error: VERIFICATION_TOKEN_ERROR.DELETE_FAILED,
+                data: null
+            }
+        }
+    
+        return {
+            success: true, 
+            error: null
+        }
+    } catch (error) {
+        console.error('Database : Error in deleteVerificationToken: ', error);
+
+        return {
+            success: false, 
+            error: VERIFICATION_TOKEN_ERROR.DELETE_FAILED
+        }
+    }
 }

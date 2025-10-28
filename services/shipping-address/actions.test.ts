@@ -17,7 +17,7 @@ import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { SHIPPING_ADDRESS_ERROR } = ERROR_MESSAGES;
 
-const { MISSING_USER_INFO, SET_DEFAULT_FAILED } = SHIPPING_ADDRESS_ERROR;
+const { MISSING_USER_INFO, SET_DEFAULT_FAILED, CREATE_FAILED, DELETE_FAILED } = SHIPPING_ADDRESS_ERROR;
 
 vi.mock('@/lib/clients/stripe/client', () => ({
     stripe: {
@@ -73,6 +73,7 @@ describe('createShippingAddress', () => {
         })
 
         expect(result.success).toBe(true)
+        expect(result.error).toBeNull()
         expect(result.data).toEqual(mockShippingAddress)
         expect(mockCreateShippingAddress).toHaveBeenCalledWith({
             address: mockShippingAddress
@@ -81,13 +82,27 @@ describe('createShippingAddress', () => {
 
     // 作成失敗
     it('should return failure when repository fails', async () => {
-        mockCreateShippingAddress.mockResolvedValue(null)
+        mockCreateShippingAddress.mockResolvedValue(false)
 
         const result = await createShippingAddress({
             address: null as unknown as ShippingAddress
         })
 
         expect(result.success).toBe(false)
+        expect(result.error).toBe(CREATE_FAILED)
+        expect(result.data).toBeNull()
+    })
+
+    // 作成失敗(例外発生)
+    it('should return failure when exception occurs', async () => {
+        mockCreateShippingAddress.mockRejectedValue(new Error('Database error'))
+
+        const result = await createShippingAddress({
+            address: null as unknown as ShippingAddress
+        })
+
+        expect(result.success).toBe(false)
+        expect(result.error).toBe(CREATE_FAILED)
         expect(result.data).toBeNull()
     })
 })
@@ -480,6 +495,7 @@ describe('deleteShippingAddress', () => {
         })
 
         expect(result.success).toBe(true)
+        expect(result.error).toBeNull()
     })
 
     // 削除失敗
@@ -492,5 +508,19 @@ describe('deleteShippingAddress', () => {
         })
 
         expect(result.success).toBe(false)
+        expect(result.error).toBe(DELETE_FAILED)
+    })
+
+    // 削除失敗(例外発生)
+    it('should return failure when exception occurs', async () => {
+        mockDeleteShippingAddress.mockRejectedValue(new Error('Database error'))
+
+        const result = await deleteShippingAddress({
+            id: mockShippingAddress.id,
+            userId: 'user_test_123'
+        })
+
+        expect(result.success).toBe(false)
+        expect(result.error).toBe(DELETE_FAILED)
     })
 })

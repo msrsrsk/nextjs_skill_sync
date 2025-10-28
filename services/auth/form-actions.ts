@@ -277,7 +277,7 @@ export async function updatePasswordAction(
             });
 
             if (!updateUserPasswordResult.success) {
-                return errorResponse(USER_ERROR.PASSWORD_UPDATE_FAILED);
+                return errorResponse(updateUserPasswordResult.error as string);
             }
         }
 

@@ -104,7 +104,10 @@ describe('updateIconImageAction', () => {
         mockActionAuth.mockResolvedValue(commonParams)
         mockDeleteExistingImage.mockResolvedValue(undefined)
         mockUploadImageIfNeeded.mockResolvedValue('test-icon-url')
-        mockUpdateUserProfileIconUrl.mockResolvedValue({ success: true })
+        mockUpdateUserProfileIconUrl.mockResolvedValue({ 
+            success: true,
+            error: null
+        })
 
         const result = await updateIconImageAction(
             {
@@ -227,7 +230,8 @@ describe('updateIconImageAction', () => {
         mockDeleteExistingImage.mockResolvedValue(undefined)
         mockUploadImageIfNeeded.mockResolvedValue('test-icon-url')
         mockUpdateUserProfileIconUrl.mockResolvedValue({ 
-            success: false
+            success: false,
+            error: ICON_UPDATE_FAILED
         })
 
         const result = await updateIconImageAction(
@@ -242,6 +246,35 @@ describe('updateIconImageAction', () => {
 
         expect(result.success).toBe(false)
         expect(result.error).toBe(ICON_UPDATE_FAILED)
+        expect(result.data).toBeNull()
+    })
+
+    // アイコンURLの更新失敗(データベース更新の例外発生)
+    it('should return failure when database update fails', async () => {
+        const mockActionAuth = await getMockActionAuth()
+        const mockDeleteExistingImage = await getMockDeleteExistingImage()
+        const mockUploadImageIfNeeded = await getMockUploadImageIfNeeded()
+        const mockUpdateUserProfileIconUrl = await getMockUpdateUserProfileIconUrl()
+
+        mockActionAuth.mockResolvedValue(commonParams)
+        mockDeleteExistingImage.mockResolvedValue(undefined)
+        mockUploadImageIfNeeded.mockResolvedValue('test-icon-url')
+        mockUpdateUserProfileIconUrl.mockRejectedValue(
+            new Error('Database error')
+        )
+
+        const result = await updateIconImageAction(
+            {
+                success: true,
+                error: null,
+                timestamp: 0
+            },
+            commonFormData,
+            'test-icon-image'
+        )
+
+        expect(result.success).toBe(false)
+        expect(result.error).toBe('Database error')
         expect(result.data).toBeNull()
     })
 
@@ -296,6 +329,7 @@ describe('updateNameAction', () => {
         mockAuth.mockResolvedValue(commonParams)
         mockUpdateUserProfileName.mockResolvedValue({ 
             success: true, 
+            error: null,
             data: { 
                 lastname: 'test-lastname', 
                 firstname: 'test-firstname',
@@ -385,15 +419,8 @@ describe('updateNameAction', () => {
         mockAuth.mockResolvedValue(commonParams)
         mockUpdateUserProfileName.mockResolvedValue({
             success: false,
-            data: {
-                lastname: '',
-                firstname: '',
-                created_at: new Date(),
-                updated_at: new Date(),
-                user_id: 'test-user-id',
-                icon_url: 'test-icon-url',
-                tel: 'test-tel'
-            }
+            error: NAME_UPDATE_FAILED,
+            data: null
         })
 
         const result = await updateNameAction(
@@ -406,6 +433,32 @@ describe('updateNameAction', () => {
         )
         expect(result.success).toBe(false)
         expect(result.error).toBe(NAME_UPDATE_FAILED)
+        expect(result.data).toEqual({
+            lastname: null,
+            firstname: null
+        })
+    })
+
+    // 名前の更新失敗(例外発生)
+    it('should return failure when update user profile name repository exception occurs', async () => {
+        const mockAuth = await getMockAuth()
+        const mockUpdateUserProfileName = await getMockUpdateUserProfileName()
+
+        mockAuth.mockResolvedValue(commonParams)
+        mockUpdateUserProfileName.mockRejectedValue(
+            new Error('Database error')
+        )
+
+        const result = await updateNameAction(
+            {
+                success: false,
+                error: null,
+                timestamp: 0
+            },
+            commonFormData
+        )
+        expect(result.success).toBe(false)
+        expect(result.error).toBe('Database error')
         expect(result.data).toEqual({
             lastname: null,
             firstname: null
@@ -460,6 +513,7 @@ describe('updateTelAction', () => {
         mockActionAuth.mockResolvedValue(commonParams)
         mockUpdateUserProfileTel.mockResolvedValue({ 
             success: true, 
+            error: null,
             data: { 
                 tel: 'test-tel',
                 created_at: new Date(),
@@ -530,7 +584,7 @@ describe('updateTelAction', () => {
         expect(result.data).toBeNull()
     })
 
-    // // 電話番号の更新失敗
+    // 電話番号の更新失敗
     it('should return failure when repository fails', async () => {
         const mockActionAuth = await getMockActionAuth()
         const mockUpdateUserProfileTel = await getMockUpdateUserProfileTel()
@@ -538,15 +592,8 @@ describe('updateTelAction', () => {
         mockActionAuth.mockResolvedValue(commonParams)
         mockUpdateUserProfileTel.mockResolvedValue({
             success: false,
-            data: {
-                tel: '',
-                created_at: new Date(),
-                updated_at: new Date(),
-                user_id: 'test-user-id',
-                icon_url: 'test-icon-url',
-                lastname: 'test-lastname',
-                firstname: 'test-firstname'
-            }
+            error: TEL_UPDATE_FAILED,
+            data: null
         })
 
         const result = await updateTelAction(
@@ -559,6 +606,29 @@ describe('updateTelAction', () => {
         )
         expect(result.success).toBe(false)
         expect(result.error).toBe(TEL_UPDATE_FAILED)
+        expect(result.data).toBeNull()
+    })
+    
+    // 電話番号の更新失敗（例外発生）
+    it('should return failure when update user profile tel repository exception occurs', async () => {
+        const mockActionAuth = await getMockActionAuth()
+        const mockUpdateUserProfileTel = await getMockUpdateUserProfileTel()
+
+        mockActionAuth.mockResolvedValue(commonParams)
+        mockUpdateUserProfileTel.mockRejectedValue(
+            new Error('Database error')
+        )
+
+        const result = await updateTelAction(
+            {
+                success: false,
+                error: null,
+                timestamp: 0
+            },
+            commonFormData
+        )
+        expect(result.success).toBe(false)
+        expect(result.error).toBe('Database error')
         expect(result.data).toBeNull()
     })
 

@@ -720,6 +720,7 @@ describe('processShippingAddress', () => {
 
         mockCreateShippingAddress.mockResolvedValue({
             success: true,
+            error: null,
             data: mockShippingAddress
         })
 
@@ -773,7 +774,8 @@ describe('processShippingAddress', () => {
     
         mockCreateShippingAddress.mockResolvedValue({
             success: false,
-            data: null as unknown as ShippingAddress
+            error: SHIPPING_ADDRESS_ERROR.CREATE_FAILED,
+            data: null
         })
     
         await expect(processShippingAddress({
@@ -796,6 +798,7 @@ describe('processShippingAddress', () => {
 
         mockCreateShippingAddress.mockResolvedValue({
             success: true,
+            error: null,
             data: mockShippingAddress
         })
 
@@ -877,6 +880,7 @@ describe('processShippingAddress', () => {
     
         mockCreateShippingAddress.mockResolvedValue({
             success: true,
+            error: null,
             data: mockShippingAddress
         })
     
@@ -902,6 +906,28 @@ describe('processShippingAddress', () => {
                 is_default: true
             })
         })
+    })
+
+    // 処理失敗(例外発生)
+    it('should return error when createShippingAddress exception occurs', async () => {
+        const mockGetDefaultShippingAddress = vi.mocked(getDefaultShippingAddress)
+        const mockCreateShippingAddress = vi.mocked(createShippingAddress)
+        const mockUpdateCustomerShippingAddress = vi.mocked(updateCustomerShippingAddress)
+    
+        mockGetDefaultShippingAddress.mockResolvedValue({
+            data: null
+        })
+    
+        mockCreateShippingAddress.mockRejectedValue(
+            new Error('Database error')
+        )
+    
+        await expect(processShippingAddress({
+            checkoutSessionEvent: mockCheckoutSessionWithCustomer as unknown as StripeCheckoutSession,
+            userId: 'user_test_123'
+        })).rejects.toThrow('Database error')
+    
+        expect(mockUpdateCustomerShippingAddress).not.toHaveBeenCalled()
     })
 })
 
@@ -1054,6 +1080,7 @@ describe('handleSubscriptionEvent', () => {
         mockFormatStripeSubscriptionStatus.mockReturnValue('succeeded')
         mockCreateSubscriptionPayment.mockResolvedValue({
             success: true,
+            error: null,
             data: { 
                 ...mockSubscriptionPayment,
                 status: 'succeeded', 
@@ -1095,6 +1122,7 @@ describe('handleSubscriptionEvent', () => {
         mockFormatStripeSubscriptionStatus.mockReturnValue('failed')
         mockCreateSubscriptionPayment.mockResolvedValue({
             success: true,
+            error: null,
             data: { 
                 ...mockSubscriptionPayment,
                 status: 'failed', 
@@ -1162,12 +1190,36 @@ describe('handleSubscriptionEvent', () => {
         mockFormatStripeSubscriptionStatus.mockReturnValue('succeeded')
         mockCreateSubscriptionPayment.mockResolvedValue({
             success: false,
-            data: null as unknown as SubscriptionPayment
+            error: SUBSCRIPTION_PAYMENT_ERROR.CREATE_FAILED,
+            data: null
         })
 
         await expect(handleSubscriptionEvent({
             subscriptionEvent: mockSubscriptionEvent as unknown as StripeSubscription
         })).rejects.toThrow(SUBSCRIPTION_PAYMENT_ERROR.CREATE_FAILED)
+    })
+
+    // 処理失敗(サブスクリプションの支払いデータの作成の例外発生)
+    it('should throw error when createSubscriptionPayment fails', async () => {
+        const mockCreateSubscriptionPayment = vi.mocked(createSubscriptionPayment)
+        const mockFormatStripeSubscriptionStatus = vi.mocked(formatStripeSubscriptionStatus)
+
+        const mockSubscriptionEvent = {
+            ...mockSubscription,
+            status: 'active',
+            metadata: {
+                userID: 'user_test_123'
+            }
+        }
+
+        mockFormatStripeSubscriptionStatus.mockReturnValue('succeeded')
+        mockCreateSubscriptionPayment.mockRejectedValue(
+            new Error('Database error')
+        )
+
+        await expect(handleSubscriptionEvent({
+            subscriptionEvent: mockSubscriptionEvent as unknown as StripeSubscription
+        })).rejects.toThrow('Database error')
     })
 
     // 処理失敗(未払い通知メールの送信失敗)
@@ -1189,6 +1241,7 @@ describe('handleSubscriptionEvent', () => {
         mockFormatStripeSubscriptionStatus.mockReturnValue('failed')
         mockCreateSubscriptionPayment.mockResolvedValue({
             success: true,
+            error: null,
             data: { 
                 ...mockSubscriptionPayment,
                 status: 'failed', 
@@ -1237,6 +1290,7 @@ describe('handleSubscriptionEvent', () => {
         mockFormatStripeSubscriptionStatus.mockReturnValue('failed')
         mockCreateSubscriptionPayment.mockResolvedValue({
             success: true,
+            error: null,
             data: { 
                 ...mockSubscriptionPayment,
                 status: 'failed', 
@@ -1747,6 +1801,7 @@ describe('processSubscriptionWebhook', () => {
         mockFormatStripeSubscriptionStatus.mockReturnValue('succeeded')
         mockCreateSubscriptionPayment.mockResolvedValue({
             success: true,
+            error: null,
             data: {
                 ...mockSubscriptionPayment,
                 status: 'succeeded'
@@ -1806,6 +1861,7 @@ describe('processSubscriptionWebhook', () => {
         mockFormatStripeSubscriptionStatus.mockReturnValue('failed')
         mockCreateSubscriptionPayment.mockResolvedValue({
             success: true,
+            error: null,
             data: {
                 ...mockSubscriptionPayment,
                 status: 'failed'

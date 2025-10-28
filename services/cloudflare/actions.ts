@@ -76,7 +76,7 @@ export const uploadSingleFile = async ({
             if (!updateFilePathResult.success) {
                 return {
                     success: false, 
-                    error: USER_IMAGE_ERROR.FILE_PATH_UPDATE_FAILED,
+                    error: updateFilePathResult.error as string,
                     data: null
                 }
             }

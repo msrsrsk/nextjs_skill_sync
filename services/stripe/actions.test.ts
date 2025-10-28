@@ -549,7 +549,8 @@ describe('cancelSubscription', () => {
 
         const updateOrderItemSubscriptionStatus = await getMockUpdateOrderItemSubscriptionStatus()
         vi.mocked(updateOrderItemSubscriptionStatus).mockResolvedValue({
-            success: true
+            success: true,
+            error: null
         })
 
         vi.mocked(stripe.subscriptions.update).mockResolvedValue({
@@ -570,29 +571,8 @@ describe('cancelSubscription', () => {
 
         const updateOrderItemSubscriptionStatus = await getMockUpdateOrderItemSubscriptionStatus()
         vi.mocked(updateOrderItemSubscriptionStatus).mockResolvedValue({
-            success: false
-        })
-
-        vi.mocked(stripe.subscriptions.update).mockRejectedValue(
-            new Error('Stripe API Error')
-        )
-
-        const result = await cancelSubscription({
-            subscriptionId: 'test-subscription-id'
-        })
-
-        expect(result.success).toBe(false)
-        expect(result.error).toBe(CANCEL_SUBSCRIPTION_FAILED)
-        expect(result.data).toBeNull()
-    })
-
-    // キャンセル失敗(サブスクリプションの契約状況の更新失敗)
-    it('should return error when update order item subscription status fails', async () => {
-        const stripe = await getMockStripe()
-
-        const updateOrderItemSubscriptionStatus = await getMockUpdateOrderItemSubscriptionStatus()
-        vi.mocked(updateOrderItemSubscriptionStatus).mockResolvedValue({
-            success: false
+            success: false,
+            error: UPDATE_SUBSCRIPTION_STATUS_FAILED
         })
 
         vi.mocked(stripe.subscriptions.update).mockResolvedValue({
@@ -605,6 +585,43 @@ describe('cancelSubscription', () => {
 
         expect(result.success).toBe(false)
         expect(result.error).toBe(UPDATE_SUBSCRIPTION_STATUS_FAILED)
+    })
+
+    // キャンセル失敗(サブスクリプションの契約状況の更新失敗)
+    it('should return error when update order item subscription status fails', async () => {
+        const updateOrderItemSubscriptionStatus = await getMockUpdateOrderItemSubscriptionStatus()
+        vi.mocked(updateOrderItemSubscriptionStatus).mockRejectedValue(
+            new Error('Database error')
+        )
+
+        const result = await cancelSubscription({
+            subscriptionId: 'test-subscription-id'
+        })
+
+        expect(result.success).toBe(false)
+        expect(result.error).toBe(CANCEL_SUBSCRIPTION_FAILED)
+    })
+
+    // キャンセル失敗(例外発生)
+    it('should return error when update order item subscription status fails', async () => {
+        const stripe = await getMockStripe()
+
+        const updateOrderItemSubscriptionStatus = await getMockUpdateOrderItemSubscriptionStatus()
+        vi.mocked(updateOrderItemSubscriptionStatus).mockResolvedValue({
+            success: true,
+            error: null
+        })
+
+        vi.mocked(stripe.subscriptions.update).mockRejectedValue(
+            new Error('Stripe API Error')
+        )
+        
+        const result = await cancelSubscription({
+            subscriptionId: 'test-subscription-id'
+        })
+
+        expect(result.success).toBe(false)
+        expect(result.error).toBe(CANCEL_SUBSCRIPTION_FAILED)
     })
 })
 

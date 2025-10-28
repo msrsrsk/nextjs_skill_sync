@@ -21,12 +21,31 @@ interface UpdateStripeAndShippingAddressProps extends UserIdProps {
 export const createShippingAddress = async ({
     address
 }: { address: ShippingAddress }) => {
-    const repository = createShippingAddressRepository();
-    const result = await repository.createShippingAddress({ address });
+    try {
+        const repository = createShippingAddressRepository();
+        const result = await repository.createShippingAddress({ address });
 
-    return {
-        success: !!result, 
-        data: result
+        if (!result) {
+            return {
+                success: false, 
+                error: SHIPPING_ADDRESS_ERROR.CREATE_FAILED,
+                data: null
+            }
+        }
+    
+        return {
+            success: true, 
+            error: null, 
+            data: result
+        }
+    } catch (error) {
+        console.error('Database : Error in createShippingAddress: ', error);
+
+        return {
+            success: false, 
+            error: SHIPPING_ADDRESS_ERROR.CREATE_FAILED,
+            data: null
+        }
     }
 }
 
@@ -245,8 +264,27 @@ export const deleteShippingAddress = async ({
     id,
     userId
 }: DeleteShippingAddressProps) => {
-    const repository = deleteShippingAddressRepository();
-    const result = await repository.deleteShippingAddress({ id, userId });
+    try {
+        const repository = deleteShippingAddressRepository();
+        const result = await repository.deleteShippingAddress({ id, userId });
 
-    return { success: !!result }
+        if (!result) {
+            return {
+                success: false, 
+                error: SHIPPING_ADDRESS_ERROR.DELETE_FAILED,
+            }
+        }
+    
+        return { 
+            success: true, 
+            error: null 
+        }
+    } catch (error) {
+        console.error('Database : Error in deleteShippingAddress: ', error);
+
+        return {
+            success: false, 
+            error: SHIPPING_ADDRESS_ERROR.DELETE_FAILED,
+        }
+    }
 }

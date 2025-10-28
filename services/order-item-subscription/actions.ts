@@ -56,11 +56,30 @@ export const updateOrderItemSubscriptionStatus = async ({
     subscriptionId,
     subscriptionStatus
 }: UpdateSubscriptionStatusProps) => {
-    const repository = updateOrderItemSubscriptionRepository();
-    const result = await repository.updateSubscriptionStatus({ 
-        subscriptionId, 
-        subscriptionStatus 
-    })
+    try {
+        const repository = updateOrderItemSubscriptionRepository();
+        const result = await repository.updateSubscriptionStatus({ 
+            subscriptionId, 
+            subscriptionStatus 
+        })
 
-    return { success: !!result }
+        if (!result) {
+            return {
+                success: false, 
+                error: SUBSCRIPTION_ERROR.UPDATE_SUBSCRIPTION_STATUS_FAILED
+            }
+        }
+    
+        return { 
+            success: true,
+            error: null
+        }
+    } catch (error) {
+        console.error('Database : Error in updateOrderItemSubscriptionStatus: ', error);
+
+        return {
+            success: false, 
+            error: SUBSCRIPTION_ERROR.UPDATE_SUBSCRIPTION_STATUS_FAILED
+        }
+    }
 }

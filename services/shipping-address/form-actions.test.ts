@@ -18,7 +18,6 @@ const {
     UPDATE_UNAUTHORIZED,
     MISSING_ID,
     UPDATE_FAILED,
-    UPDATE_DEFAULT_FAILED
 } = SHIPPING_ADDRESS_ERROR;
 const { CUSTOMER_ID_FETCH_FAILED } = USER_STRIPE_ERROR;
 
@@ -95,6 +94,7 @@ describe('createShippingAddressAction', () => {
 
         mockCreateShippingAddress.mockResolvedValue({
             success: true,
+            error: null,
             data: mockShippingAddress
         })
         
@@ -135,13 +135,36 @@ describe('createShippingAddressAction', () => {
 
         mockCreateShippingAddress.mockResolvedValue({
             success: false,
-            data: null as unknown as ShippingAddress
+            error: CREATE_FAILED,
+            data: null
         })
         
         const result = await createShippingAddressAction(prevState, mockFormData)
 
         expect(result.success).toBe(false)
         expect(result.error).toBe(CREATE_FAILED)
+        expect(result.data).toBeNull()
+        expect(result.timestamp).toBeDefined()
+    })
+
+    // 作成失敗(配送先住所の作成の例外発生)
+    it('should create shipping address failed', async () => {
+        const actionAuth = await getMockActionAuth()
+        const mockCreateShippingAddress = await getMockCreateShippingAddress()
+
+        actionAuth.mockResolvedValue({
+            success: true,
+            userId: 'user_test_123'
+        })
+
+        mockCreateShippingAddress.mockRejectedValue(
+            new Error('Database error')
+        )
+        
+        const result = await createShippingAddressAction(prevState, mockFormData)
+
+        expect(result.success).toBe(false)
+        expect(result.error).toBe('Database error')
         expect(result.data).toBeNull()
         expect(result.timestamp).toBeDefined()
     })
@@ -160,6 +183,7 @@ describe('createShippingAddressAction', () => {
     
         mockCreateShippingAddress.mockResolvedValue({
             success: true,
+            error: null,
             data: mockShippingAddress
         })
     

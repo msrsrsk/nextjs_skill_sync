@@ -10,7 +10,7 @@ import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { USER_IMAGE_ERROR } = ERROR_MESSAGES;
 
-const { USER_REQUIRED_DATA_NOT_FOUND } = USER_IMAGE_ERROR;
+const { USER_REQUIRED_DATA_NOT_FOUND, CREATE_FAILED, FILE_PATH_UPDATE_FAILED } = USER_IMAGE_ERROR;
 
 const mockCreateUserImageWithTransaction = vi.fn()
 const mockUpdateUserImageFilePath = vi.fn()
@@ -53,7 +53,7 @@ describe('createUserImage', () => {
 
     // 作成成功
     it('should create user profile successfully', async () => {
-        mockCreateUserImageWithTransaction.mockResolvedValue({ success: true })
+        mockCreateUserImageWithTransaction.mockResolvedValue(true)
 
         const result = await createUserImage({
             ...commonParams,
@@ -61,11 +61,12 @@ describe('createUserImage', () => {
         })
 
         expect(result.success).toBe(true)
+        expect(result.error).toBeNull()
     })
 
     // 作成失敗
-    it('should return failure when repository fails', async () => {
-        mockCreateUserImageWithTransaction.mockResolvedValue(null)
+    it('should return failure when create user image repository fails', async () => {
+        mockCreateUserImageWithTransaction.mockResolvedValue(false)
 
         const result = await createUserImage({
             ...commonParams,
@@ -73,6 +74,22 @@ describe('createUserImage', () => {
         })
 
         expect(result.success).toBe(false)
+        expect(result.error).toBe(CREATE_FAILED)
+    })
+
+    // 作成失敗(例外発生)
+    it('should return failure when create user image repository exception occurs', async () => {
+        mockCreateUserImageWithTransaction.mockRejectedValue(
+            new Error('Database error')
+        )
+
+        const result = await createUserImage({
+            ...commonParams,
+            userId: ''
+        })
+
+        expect(result.success).toBe(false)
+        expect(result.error).toBe(CREATE_FAILED)
     })
 })
 
@@ -123,7 +140,7 @@ describe('updateUserImageFilePath', () => {
 
     // 更新成功
     it('should update user image file path successfully', async () => {
-        mockUpdateUserImageFilePath.mockResolvedValue({ success: true })
+        mockUpdateUserImageFilePath.mockResolvedValue(true)
 
         const result = await updateUserImageFilePath({
             userId: 'test-user-id',
@@ -131,11 +148,12 @@ describe('updateUserImageFilePath', () => {
         })
 
         expect(result.success).toBe(true)
+        expect(result.error).toBeNull()
     })
 
     // 更新失敗
-    it('should return failure when repository fails', async () => {
-        mockUpdateUserImageFilePath.mockResolvedValue(null)
+    it('should return failure when update user image file path repository fails', async () => {
+        mockUpdateUserImageFilePath.mockResolvedValue(false)
 
         const result = await updateUserImageFilePath({
             userId: '',
@@ -143,6 +161,20 @@ describe('updateUserImageFilePath', () => {
         })
 
         expect(result.success).toBe(false)
+        expect(result.error).toBe(FILE_PATH_UPDATE_FAILED)
+    })
+
+    // 更新失敗(例外発生)
+    it('should return failure when update user image file path exception occurs', async () => {
+        mockUpdateUserImageFilePath.mockRejectedValue(new Error('Database error'))
+
+        const result = await updateUserImageFilePath({
+            userId: '',
+            filePath: ''
+        })
+        
+        expect(result.success).toBe(false)
+        expect(result.error).toBe(FILE_PATH_UPDATE_FAILED)
     })
 })
 

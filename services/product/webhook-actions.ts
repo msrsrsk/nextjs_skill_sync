@@ -3,7 +3,7 @@ import { updateProductStripe } from "@/services/product-stripe/actions"
 import { createStripeProductData } from "@/services/stripe/webhook-actions"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
-const { PRODUCT_ERROR, PRODUCT_STRIPE_ERROR } = ERROR_MESSAGES;
+const { PRODUCT_ERROR } = ERROR_MESSAGES;
 
 interface ProcessProductWebhookProps {
     product_id: ProductId;
@@ -62,7 +62,7 @@ export const processProductWebhook = async ({
     if (!updateResult.success) {
         return {
             success: false,
-            error: PRODUCT_STRIPE_ERROR.UPDATE_FAILED
+            error: updateResult.error
         }
     }
 

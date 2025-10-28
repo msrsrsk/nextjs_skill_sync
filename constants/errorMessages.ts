@@ -332,6 +332,7 @@ export const ERROR_MESSAGES = {
     // トークン関連
     VERIFICATION_TOKEN_ERROR: {
         CREATE_FAILED: `認証トークンの作成に失敗しました。${RETRY}`,
+        DELETE_FAILED: `認証トークンの削除に失敗しました。${RETRY}`,
 
         NOT_FOUND_EMAIL_TOKEN: `メール認証のための必要な\n情報が見つかりませんでした。${FIRST}`,
         EXPIRED_EMAIL_TOKEN: `メール認証の有効期限が過ぎたため、\nアカウントの作成ができませんでした。${FIRST}`,

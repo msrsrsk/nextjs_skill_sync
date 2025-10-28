@@ -6,6 +6,11 @@ import {
     updateUserProfileName,
     updateUserProfileTel
 } from "@/services/user-profile/actions"
+import { ERROR_MESSAGES } from "@/constants/errorMessages"
+
+const { USER_PROFILE_ERROR } = ERROR_MESSAGES;
+
+const { CREATE_PROFILE_FAILED, ICON_UPDATE_FAILED, NAME_UPDATE_FAILED, TEL_UPDATE_FAILED } = USER_PROFILE_ERROR;
 
 const mockCreateUserProfileWithTransaction = vi.fn()
 const mockUpdateUserProfileIconUrl = vi.fn()
@@ -41,7 +46,7 @@ describe('createUserProfile', () => {
 
     // 作成成功
     it('should create user profile successfully', async () => {
-        mockCreateUserProfileWithTransaction.mockResolvedValue({ success: true })
+        mockCreateUserProfileWithTransaction.mockResolvedValue(true)
 
         const result = await createUserProfile({
             ...commonParams,
@@ -54,11 +59,12 @@ describe('createUserProfile', () => {
         })
 
         expect(result.success).toBe(true)
+        expect(result.error).toBeNull()
     })
 
     // 作成失敗
-    it('should return failure when repository fails', async () => {
-        mockCreateUserProfileWithTransaction.mockResolvedValue(null)
+    it('should return failure when create user profile repository fails', async () => {
+        mockCreateUserProfileWithTransaction.mockResolvedValue(false)
 
         const result = await createUserProfile({
             ...commonParams,
@@ -71,6 +77,27 @@ describe('createUserProfile', () => {
         })
 
         expect(result.success).toBe(false)
+        expect(result.error).toBe(CREATE_PROFILE_FAILED)
+    })
+
+    // 作成失敗(例外発生)
+    it('should return failure when create user profile repository exception occurs', async () => {
+        mockCreateUserProfileWithTransaction.mockRejectedValue(
+            new Error('Database error')
+        )
+
+        const result = await createUserProfile({
+            ...commonParams,
+            userId: '',
+            userProfileData: {
+                lastname: '',
+                firstname: '',
+                icon_url: ''
+            }
+        })
+
+        expect(result.success).toBe(false)
+        expect(result.error).toBe(CREATE_PROFILE_FAILED)
     })
 })
 
@@ -84,7 +111,7 @@ describe('updateUserProfileIconUrl', () => {
 
     // 更新成功
     it('should update user profile icon url successfully', async () => {
-        mockUpdateUserProfileIconUrl.mockResolvedValue({ success: true })
+        mockUpdateUserProfileIconUrl.mockResolvedValue(true)
 
         const result = await updateUserProfileIconUrl({
             userId: 'test-user-id',
@@ -92,11 +119,12 @@ describe('updateUserProfileIconUrl', () => {
         })
 
         expect(result.success).toBe(true)
+        expect(result.error).toBeNull()
     })
 
     // 更新失敗
-    it('should return failure when repository fails', async () => {
-        mockUpdateUserProfileIconUrl.mockResolvedValue(null)
+    it('should return failure when update user profile icon url repository fails', async () => {
+        mockUpdateUserProfileIconUrl.mockResolvedValue(false)
 
         const result = await updateUserProfileIconUrl({
             userId: '',
@@ -104,6 +132,22 @@ describe('updateUserProfileIconUrl', () => {
         })
 
         expect(result.success).toBe(false)
+        expect(result.error).toBe(ICON_UPDATE_FAILED)
+    })
+
+    // 更新失敗(例外発生)
+    it('should return failure when update user profile icon url repository exception occurs', async () => {
+        mockUpdateUserProfileIconUrl.mockRejectedValue(
+            new Error('Database error')
+        )
+
+        const result = await updateUserProfileIconUrl({
+            userId: '',
+            iconUrl: ''
+        })
+
+        expect(result.success).toBe(false)
+        expect(result.error).toBe(ICON_UPDATE_FAILED)
     })
 })
 
@@ -132,12 +176,13 @@ describe('updateUserProfileName', () => {
         })
 
         expect(result.success).toBe(true)
+        expect(result.error).toBeNull()
         expect(result.data).toBeDefined()
     })
 
     // 更新失敗
-    it('should return failure when repository fails', async () => {
-        mockUpdateUserProfileName.mockResolvedValue(null)
+    it('should return failure when update user profile name repository fails', async () => {
+        mockUpdateUserProfileName.mockResolvedValue(false)
 
         const result = await updateUserProfileName({
             userId: '',
@@ -146,6 +191,24 @@ describe('updateUserProfileName', () => {
         })
 
         expect(result.success).toBe(false)
+        expect(result.error).toBe(NAME_UPDATE_FAILED)
+        expect(result.data).toBeUndefined()
+    })
+
+    // 更新失敗(例外発生)
+    it('should return failure when update user profile name repository exception occurs', async () => {
+        mockUpdateUserProfileName.mockRejectedValue(
+            new Error('Database error')
+        )
+
+        const result = await updateUserProfileName({
+            userId: '',
+            lastname: '',
+            firstname: ''
+        })
+
+        expect(result.success).toBe(false)
+        expect(result.error).toBe(NAME_UPDATE_FAILED)
         expect(result.data).toBeNull()
     })
 })
@@ -160,7 +223,10 @@ describe('updateUserProfileTel', () => {
 
     // 更新成功
     it('should update user profile tel successfully', async () => {
-        mockUpdateUserProfileTel.mockResolvedValue({ success: true })
+        mockUpdateUserProfileTel.mockResolvedValue({ 
+            success: true, 
+            data: { tel: 'test-tel' } 
+        })
 
         const result = await updateUserProfileTel({
             userId: 'test-user-id',
@@ -168,12 +234,13 @@ describe('updateUserProfileTel', () => {
         })
 
         expect(result.success).toBe(true)
+        expect(result.error).toBeNull()
         expect(result.data).toBeDefined()
     })
 
     // 更新失敗
-    it('should return failure when repository fails', async () => {
-        mockUpdateUserProfileTel.mockResolvedValue(null)
+    it('should return failure when update user profile tel database update fails', async () => {
+        mockUpdateUserProfileTel.mockResolvedValue(false)
 
         const result = await updateUserProfileTel({
             userId: '',
@@ -181,6 +248,23 @@ describe('updateUserProfileTel', () => {
         })
 
         expect(result.success).toBe(false)
+        expect(result.error).toBe(TEL_UPDATE_FAILED)
+        expect(result.data).toBeUndefined()
+    })
+
+    // 更新失敗(例外発生)
+    it('should return failure when update user profile tel database update exception occurs', async () => {
+        mockUpdateUserProfileTel.mockRejectedValue(
+            new Error('Database error')
+        )
+
+        const result = await updateUserProfileTel({
+            userId: '',
+            tel: ''
+        })
+
+        expect(result.success).toBe(false)
+        expect(result.error).toBe(TEL_UPDATE_FAILED)
         expect(result.data).toBeNull()
     })
 })

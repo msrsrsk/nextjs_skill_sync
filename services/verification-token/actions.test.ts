@@ -11,6 +11,7 @@ import { ERROR_MESSAGES } from "@/constants/errorMessages"
 const { VERIFICATION_TOKEN_ERROR, USER_ERROR } = ERROR_MESSAGES;
 
 const { NOT_FOUND_EMAIL_TOKEN, EXPIRED_EMAIL_TOKEN } = VERIFICATION_TOKEN_ERROR;
+const { CREATE_FAILED, DELETE_FAILED } = VERIFICATION_TOKEN_ERROR;
 const { PASSWORD_UPDATE_FAILED } = USER_ERROR;
 
 const mockCreateVerificationToken = vi.fn()
@@ -57,21 +58,41 @@ describe('createVerificationToken', () => {
 
     // 作成成功
     it('should create verification token successfully', async () => {
-        mockCreateVerificationToken.mockResolvedValue({ success: true })
+        mockCreateVerificationToken.mockResolvedValue({
+            token: 'test_token_123',
+            id: 'verification_id',
+            identifier: 'test@example.com',
+            expires: new Date(),
+            password: 'hashed_password',
+            userData: '{"lastname": "Test LASTNAME", "firstname": "Test FIRSTNAME"}'
+        })
   
         const result = await createVerificationToken(commonParams)
     
         expect(result.success).toBe(true)
-        expect(result.data).toBe('test_token')
+        expect(result.error).toBeNull()
+        expect(result.data).toBe('test_token_123')
     })
   
     // 作成失敗
-    it('should return failure when repository fails', async () => {
-        mockCreateVerificationToken.mockResolvedValue(null)
+    it('should return failure when create verification token repository fails', async () => {
+        mockCreateVerificationToken.mockResolvedValue(false)
     
         const result = await createVerificationToken(commonParams)
     
         expect(result.success).toBe(false)
+        expect(result.error).toBe(CREATE_FAILED)
+        expect(result.data).toBeNull()
+    })
+
+    // 作成失敗(例外発生)
+    it('should return failure when create verification token repository exception occurs', async () => {
+        mockCreateVerificationToken.mockRejectedValue(new Error('Database error'))
+
+        const result = await createVerificationToken(commonParams)
+
+        expect(result.success).toBe(false)
+        expect(result.error).toBe(CREATE_FAILED)
         expect(result.data).toBeNull()
     })
 
@@ -243,9 +264,7 @@ describe('deleteVerificationToken', () => {
 
     // 認証トークンの削除成功
     it('should delete verification token successfully', async () => {
-        mockDeleteVerificationToken.mockResolvedValue({
-            success: true
-        })
+        mockDeleteVerificationToken.mockResolvedValue(true)
 
         const result = await deleteVerificationToken({
             tx: commonParams.tx,
@@ -253,12 +272,12 @@ describe('deleteVerificationToken', () => {
         })
 
         expect(result.success).toBe(true)
+        expect(result.error).toBeNull()
     })
 
     // 認証トークンの削除失敗
-    it('should return failure when delete fails', async () => {
-        // 失敗時のモック
-        mockDeleteVerificationToken.mockResolvedValue(null)
+    it('should return failure when delete verification token repository fails', async () => {
+        mockDeleteVerificationToken.mockResolvedValue(false)
 
         const result = await deleteVerificationToken({
             tx: commonParams.tx,
@@ -266,5 +285,21 @@ describe('deleteVerificationToken', () => {
         })
 
         expect(result.success).toBe(false)
+        expect(result.error).toBe(DELETE_FAILED)
+    })
+
+    // 認証トークンの削除失敗(例外発生)
+    it('should return failure when delete verification token database update exception occurs', async () => {
+        mockDeleteVerificationToken.mockRejectedValue(
+            new Error('Database error')
+        )
+
+        const result = await deleteVerificationToken({
+            tx: commonParams.tx,
+            token: commonParams.token
+        })
+
+        expect(result.success).toBe(false)
+        expect(result.error).toBe(DELETE_FAILED)
     })
 })

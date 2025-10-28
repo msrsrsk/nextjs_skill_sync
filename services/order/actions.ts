@@ -117,7 +117,7 @@ export const createCheckoutOrder = async ({
         if (!createOrderShippingResult.success || !createOrderShippingResult.data) {
             return {
                 success: false, 
-                error: ORDER_SHIPPING_ERROR.CREATE_FAILED,
+                error: createOrderShippingResult.error,
                 data: null
             }
         }
@@ -185,7 +185,9 @@ export const updateProductStockAndSoldCount = async ({
 }
 
 // 注文履歴の削除
-export const deleteOrder = async ({ orderId }: { orderId: OrderId }) => {
+export const deleteOrder = async ({ 
+    orderId 
+}: { orderId: OrderId }) => {
     try {
         const repository = deleteOrderRepository();
         await repository.deleteOrder({ orderId });

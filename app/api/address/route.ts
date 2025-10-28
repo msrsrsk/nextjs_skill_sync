@@ -22,14 +22,14 @@ export async function DELETE(request: NextRequest) {
     }
 
     try {
-        const { success } = await deleteShippingAddress({ 
+        const { success, error } = await deleteShippingAddress({ 
             id: addressId,
             userId
         });
     
         if (!success) {
             return NextResponse.json(
-                { message: SHIPPING_ADDRESS_ERROR.DELETE_FAILED }, 
+                { message: error }, 
                 { status: 404 }
             )
         }

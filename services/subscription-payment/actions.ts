@@ -17,14 +17,33 @@ interface updateSubscriptionPaymentStatusProps {
 export const createSubscriptionPayment = async ({ 
     subscriptionPaymentData 
 }: { subscriptionPaymentData: SubscriptionPayment }) => {
-    const repository = createSubscriptionPaymentRepository();
-    const result = await repository.createSubscriptionPayment({ 
-        subscriptionPaymentData 
-    })
+    try {
+        const repository = createSubscriptionPaymentRepository();
+        const result = await repository.createSubscriptionPayment({ 
+            subscriptionPaymentData 
+        })
 
-    return {
-        success: !!result, 
-        data: result
+        if (!result) {
+            return {
+                success: false, 
+                error: SUBSCRIPTION_PAYMENT_ERROR.CREATE_FAILED,
+                data: null
+            }
+        }
+    
+        return {
+            success: true, 
+            error: null, 
+            data: result
+        }
+    } catch (error) {
+        console.error('Database : Error in createSubscriptionPayment: ', error);
+
+        return {
+            success: false, 
+            error: SUBSCRIPTION_PAYMENT_ERROR.CREATE_FAILED,
+            data: null
+        }
     }
 }
 

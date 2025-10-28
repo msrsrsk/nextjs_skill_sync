@@ -57,7 +57,8 @@ describe('processProductWebhook', () => {
         })
 
         mockUpdateProductStripe.mockResolvedValue({
-            success: true
+            success: true,
+            error: null
         })
 
         const result = await processProductWebhook({
@@ -87,7 +88,8 @@ describe('processProductWebhook', () => {
         })
 
         mockUpdateProductStripe.mockResolvedValue({
-            success: true
+            success: true,
+            error: null
         })
 
         const result = await processProductWebhook({
@@ -160,7 +162,8 @@ describe('processProductWebhook', () => {
         })
 
         mockUpdateProductStripe.mockResolvedValue({
-            success: false
+            success: false,
+            error: UPDATE_FAILED
         })
 
         const result = await processProductWebhook({

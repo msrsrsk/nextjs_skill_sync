@@ -6,6 +6,11 @@ import {
     getProductReviews
 } from "@/services/review/actions"
 import { mockReview } from "@/__tests__/mocks/domain-mocks"
+import { ERROR_MESSAGES } from "@/constants/errorMessages"
+
+const { REVIEW_ERROR } = ERROR_MESSAGES;
+
+const { CREATE_FAILED } = REVIEW_ERROR;
 
 const mockCreateReview = vi.fn()
 const mockGetAllReviews = vi.fn() 
@@ -38,6 +43,7 @@ describe('createReview', () => {
         })
 
         expect(result.success).toBe(true)
+        expect(result.error).toBeNull()
     })
 
     // 作成失敗
@@ -45,10 +51,23 @@ describe('createReview', () => {
         mockCreateReview.mockResolvedValue(false)
 
         const result = await createReview({
-            reviewData: mockReview as Review
+            reviewData: null as unknown as Review
         })
 
         expect(result.success).toBe(false)
+        expect(result.error).toBe(CREATE_FAILED)
+    })
+
+    // 作成失敗(例外発生)
+    it('should return failure when exception occurs', async () => {
+        mockCreateReview.mockRejectedValue(new Error('Database error'))
+
+        const result = await createReview({
+            reviewData: null as unknown as Review
+        })
+        
+        expect(result.success).toBe(false)
+        expect(result.error).toBe(CREATE_FAILED)
     })
 })
 

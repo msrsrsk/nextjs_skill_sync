@@ -83,7 +83,8 @@ describe('createReviewAction', () => {
         })
 
         mockCreateReview.mockResolvedValue({
-            success: true
+            success: true,
+            error: null
         })
 
         const result = await createReviewAction(prevState, mockFormData)
@@ -111,7 +112,8 @@ describe('createReviewAction', () => {
         })
 
         mockCreateReview.mockResolvedValue({
-            success: true
+            success: true,
+            error: null
         })
 
         const result = await createReviewAction(prevState, mockFormDataWithFiles)
@@ -132,7 +134,8 @@ describe('createReviewAction', () => {
         })
 
         mockCreateReview.mockResolvedValue({
-            success: true
+            success: true,
+            error: null
         })
 
         const result = await createReviewAction(prevState, mockFormData)
@@ -160,7 +163,8 @@ describe('createReviewAction', () => {
         })
 
         mockCreateReview.mockResolvedValue({
-            success: true
+            success: true,
+            error: null
         })
 
         const result = await createReviewAction(prevState, mockFormDataWithFiles)
@@ -181,7 +185,8 @@ describe('createReviewAction', () => {
         })
 
         mockCreateReview.mockResolvedValue({
-            success: true
+            success: true,
+            error: null
         })
 
         const result = await createReviewAction(prevState, mockFormDataWithoutProductId)
@@ -220,7 +225,8 @@ describe('createReviewAction', () => {
         })
 
         mockCreateReview.mockResolvedValue({
-            success: false
+            success: false,
+            error: CREATE_FAILED
         })
 
         const result = await createReviewAction(prevState, mockFormData)
@@ -230,13 +236,53 @@ describe('createReviewAction', () => {
         expect(result.timestamp).toBeDefined()
     })
 
-    // 作成失敗（例外発生）
+    // 作成失敗（認証の例外発生）
     it('should handle unexpected errors in catch block', async () => {
         const actionAuth = await getMockActionAuth()
         actionAuth.mockRejectedValue(new Error('Unexpected error'))
     
         const result = await createReviewAction(prevState, mockFormData)
     
+        expect(result.success).toBe(false)
+        expect(result.error).toBe('Unexpected error')
+        expect(result.timestamp).toBeDefined()
+    })
+
+    // 作成失敗（レビューの作成の例外発生）
+    it('should create review failed with review creation exception', async () => {
+        const actionAuth = await getMockActionAuth()
+        const mockCreateReview = await getMockCreateReview()
+
+        actionAuth.mockResolvedValue({
+            success: true,
+            userId: 'user_test_123'
+        })
+
+        mockCreateReview.mockRejectedValue(
+            new Error('Database error')
+        )
+
+        const result = await createReviewAction(prevState, mockFormData)
+
+        expect(result.success).toBe(false)
+        expect(result.error).toBe('Database error')
+        expect(result.timestamp).toBeDefined()
+    })
+
+    // 作成失敗（REVIEW_ERROR.POST_FAILED が発生する例外）
+    it('should return REVIEW_ERROR.POST_FAILED when non-Error exception occurs', async () => {
+        const actionAuth = await getMockActionAuth()
+        const mockCreateReview = await getMockCreateReview()
+
+        actionAuth.mockResolvedValue({
+            success: true,
+            userId: 'user_test_123'
+        })
+
+        mockCreateReview.mockRejectedValue('String error message')
+
+        const result = await createReviewAction(prevState, mockFormData)
+
         expect(result.success).toBe(false)
         expect(result.error).toBe(POST_FAILED)
         expect(result.timestamp).toBeDefined()
