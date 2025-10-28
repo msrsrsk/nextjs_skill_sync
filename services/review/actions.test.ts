@@ -6,11 +6,6 @@ import {
     getProductReviews
 } from "@/services/review/actions"
 import { mockReview } from "@/__tests__/mocks/domain-mocks"
-import { ERROR_MESSAGES } from "@/constants/errorMessages"
-
-const { REVIEW_ERROR } = ERROR_MESSAGES;
-
-const { CREATE_FAILED } = REVIEW_ERROR;
 
 const mockCreateReview = vi.fn()
 const mockGetAllReviews = vi.fn() 
