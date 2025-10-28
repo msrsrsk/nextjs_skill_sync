@@ -287,3 +287,15 @@ export const mockOrderStripe = {
     session_id: 'session_123',
     payment_intent_id: 'payment_intent_123'
 }
+
+export const mockOrderShipping = {
+    order_id: 'order_123',
+    delivery_name: 'test_delivery_name',
+    address: {
+        postal_code: '1234567',
+        state: 'test_state',
+        address_line1: 'test_address_line1',
+        address_line2: 'test_address_line2'
+    },
+    shipping_fee: 1000
+}
