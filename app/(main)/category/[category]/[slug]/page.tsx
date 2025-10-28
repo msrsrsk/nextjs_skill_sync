@@ -13,8 +13,10 @@ import { getProductBySlug } from "@/services/product/actions"
 import { getProductReviews } from "@/services/review/actions"
 import { generatePageMetadata } from "@/lib/metadata/page"
 import { SITE_MAP } from "@/constants/index"
+import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { CATEGORY_PATH } = SITE_MAP;
+const { REVIEW_ERROR } = ERROR_MESSAGES;
 
 export async function generateMetadata({ 
     params 
@@ -58,7 +60,7 @@ const ProductAndReviewData = async ({ slug }: { slug: string }) => {
     if (!product) notFound();
 
     const { data: productData } = productResult;
-    const { data: reviewData, error: reviewError } = reviewsResult;
+    const { data: reviewData } = reviewsResult;
 
     const hasSubscriptionPrices = product.product_stripes?.subscription_price_ids;
 
@@ -74,7 +76,7 @@ const ProductAndReviewData = async ({ slug }: { slug: string }) => {
             reviewData={reviewData as ReviewResultProps} //個別商品のレビューデータ
             productReviewStats={productData?.reviewStats} //個別商品のレビューの統計データ
             productId={product.id} // 個別商品のID
-            hasError={reviewError}
+            hasError={REVIEW_ERROR.INDIVIDUAL_FETCH_FAILED || null}
         />
 
         {!hasSubscriptionPrices && productData?.optimalSyncs && (

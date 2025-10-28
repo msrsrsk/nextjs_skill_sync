@@ -60,7 +60,7 @@ export async function createReviewAction(
             }
         }
 
-        await createReview({ 
+        const reviewResult = await createReview({ 
             reviewData: { 
                 rating, 
                 name, 
@@ -70,6 +70,14 @@ export async function createReviewAction(
                 product_id: productId,
             } as Review
         });
+
+        if (!reviewResult.success) {
+            return {
+                success: false, 
+                error: REVIEW_ERROR.CREATE_FAILED,
+                timestamp: Date.now()
+            }
+        }
 
         return {
             success: true, 

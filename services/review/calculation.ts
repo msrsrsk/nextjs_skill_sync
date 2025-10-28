@@ -16,7 +16,7 @@ export const calculateReviewStats = (
         };
     }
 
-    const ratingCounts = RATING_COUNTS;
+    const ratingCounts = { ...RATING_COUNTS };
     
     reviews.forEach(review => {
         ratingCounts[review.rating as keyof typeof ratingCounts]++;

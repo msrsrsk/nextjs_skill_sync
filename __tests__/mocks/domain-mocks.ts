@@ -236,3 +236,13 @@ export const mockStripeProduct = {
     salePrice: null,
     subscriptionPriceIds: null
 }
+
+export const mockReview = {
+    id: 'test-review-id',
+    user_id: 'test-user-id',
+    product_id: 'test-product-id',
+    rating: 5,
+    comment: 'test-comment',
+    image_urls: ['test-image-url'],
+    created_at: new Date()
+}
