@@ -37,16 +37,3 @@ export const updateOrderItemSubscriptionRepository = () => {
         }
     }
 }
-
-export const deleteOrderItemSubscriptionRepository = () => {
-    return {
-        // サブスクリプションデータの削除
-        deleteOrderItemSubscription: async ({
-            orderItemId
-        }: { orderItemId: OrderItemId }) => {
-            return await prisma.orderItemSubscription.delete({
-                where: { order_item_id: orderItemId }
-            })
-        }
-    }
-}

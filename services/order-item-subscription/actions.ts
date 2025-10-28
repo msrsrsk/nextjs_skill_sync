@@ -1,7 +1,6 @@
 import { 
     createOrderItemSubscriptionRepository, 
-    updateOrderItemSubscriptionRepository,
-    deleteOrderItemSubscriptionRepository 
+    updateOrderItemSubscriptionRepository
 } from "@/repository/orderItemSubscription"
 import { formatOrderRemarks } from "@/services/order-item-subscription/format"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
@@ -64,26 +63,4 @@ export const updateOrderItemSubscriptionStatus = async ({
     })
 
     return { success: !!result }
-}
-
-// サブスクリプションデータの削除
-export const deleteOrderItemSubscription = async ({ 
-    orderItemId 
-}: { orderItemId: OrderItemId }) => {
-    try {
-        const repository = deleteOrderItemSubscriptionRepository();
-        await repository.deleteOrderItemSubscription({ orderItemId });
-
-        return {
-            success: true, 
-            error: null, 
-        }
-    } catch (error) {
-        console.error('Database : Error in deleteOrderItemSubscription: ', error);
-        
-        return {
-            success: false, 
-            error: SUBSCRIPTION_ERROR.DELETE_FAILED
-        }
-    }
 }

@@ -3,7 +3,6 @@ import { describe, it, expect, vi, beforeEach } from "vitest"
 import { 
     createOrderItemSubscriptions,
     updateOrderItemSubscriptionStatus,
-    deleteOrderItemSubscription
 } from "@/services/order-item-subscription/actions"
 import { mockOrderItemSubscriptions, mockSubscriptionProductDetails } from "@/__tests__/mocks/domain-mocks"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
@@ -21,7 +20,7 @@ vi.mock('@/repository/orderItemSubscription', () => ({
         createOrderItemSubscriptions: mockCreateOrderItemSubscriptions
     }),
     updateOrderItemSubscriptionRepository: () => ({
-        updateOrderItemSubscriptionStatus: mockUpdateOrderItemSubscriptionStatus
+        updateSubscriptionStatus: mockUpdateOrderItemSubscriptionStatus
     }),
     deleteOrderItemSubscriptionRepository: () => ({
         deleteOrderItemSubscription: mockDeleteOrderItemSubscription
@@ -102,7 +101,31 @@ describe('createOrderItemSubscriptions', () => {
 /* ==================================== 
     Update Order Item Subscription Status Test
 ==================================== */
+describe('updateOrderItemSubscriptionStatus', () => {
+    beforeEach(() => {
+        vi.clearAllMocks()
+    })
 
-/* ==================================== 
-    Delete Order Item Subscription Test
-==================================== */
+    const mockSubscription = {
+        subscriptionId: 'sub_test_123',
+        subscriptionStatus: 'active' as const
+    }
+
+    // 作成成功
+    it('should update order item subscription status successfully', async () => {
+        mockUpdateOrderItemSubscriptionStatus.mockResolvedValue(true)
+
+        const result = await updateOrderItemSubscriptionStatus(mockSubscription)
+
+        expect(result.success).toBe(true)
+    })
+
+    // 作成失敗
+    it('should return failure when repository fails', async () => {
+        mockUpdateOrderItemSubscriptionStatus.mockResolvedValue(null)
+
+        const result = await updateOrderItemSubscriptionStatus(mockSubscription)
+
+        expect(result.success).toBe(false)
+    })
+})
