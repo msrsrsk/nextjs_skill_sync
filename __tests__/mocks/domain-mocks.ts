@@ -130,7 +130,9 @@ export const mockProductDetails = [
         amount: 2000,
         quantity: 2,
         subscription_status: null,
-        subscription_interval: null
+        subscription_interval: null,
+        stripe_price_id: 'price_test_123',
+        subscription_id: null
     },
     {
         title: 'Test Product 2',
@@ -141,7 +143,9 @@ export const mockProductDetails = [
         amount: 500,
         quantity: 1,
         subscription_status: null,
-        subscription_interval: null
+        subscription_interval: null,
+        stripe_price_id: 'price_test_123',
+        subscription_id: null
     }
 ]
 
