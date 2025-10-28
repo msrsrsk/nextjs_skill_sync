@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
         if (existingCartItem) {
             const newQuantity = existingCartItem.quantity + quantity;
     
-            const { success, data } = await updateCartItemQuantity({
+            const { success, data, error } = await updateCartItemQuantity({
                 userId,
                 productId,
                 quantity: newQuantity
@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
 
             if (!success) {
                 return NextResponse.json(
-                    { message: CART_ITEM_ERROR.UPDATE_QUANTITY_FAILED }, 
+                    { message: error }, 
                     { status: 404 }
                 )
             }
@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
                 data: data 
             })
         } else {
-            const { success, data } = await createCartItems({
+            const { success, data, error } = await createCartItems({
                 cartItemsData: {
                     user_id: userId,
                     product_id: productId,
@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
 
             if (!success) {
                 return NextResponse.json(
-                    { message: CART_ITEM_ERROR.CREATE_FAILED }, 
+                    { message: error }, 
                     { status: 500 }
                 )
             }
@@ -121,7 +121,7 @@ export async function PUT(request: NextRequest) {
     }
 
     try {
-        const { success } = await updateCartItemQuantity({
+        const { success, error } = await updateCartItemQuantity({
             userId,
             productId,
             quantity
@@ -129,7 +129,7 @@ export async function PUT(request: NextRequest) {
     
         if (!success) {
             return NextResponse.json(
-                { message: CART_ITEM_ERROR.UPDATE_QUANTITY_FAILED }, 
+                { message: error }, 
                 { status: 404 }
             )
         }
@@ -154,11 +154,11 @@ export async function DELETE(request: NextRequest) {
 
     try {
         if (action === 'all') {
-            const { success, data } = await deleteAllCartItems({ userId });
+            const { success, data, error } = await deleteAllCartItems({ userId });
 
             if (!success) {
                 return NextResponse.json(
-                    { message: CART_ITEM_ERROR.DELETE_ALL_FAILED }, 
+                    { message: error }, 
                     { status: 500 }
                 )
             }
@@ -177,11 +177,11 @@ export async function DELETE(request: NextRequest) {
                 )
             }
     
-            const { success, data } = await deleteCartItems({ userId, productId });
+            const { success, data, error } = await deleteCartItems({ userId, productId });
 
             if (!success) {
                 return NextResponse.json(
-                    { message: CART_ITEM_ERROR.DELETE_FAILED }, 
+                    { message: error }, 
                     { status: 404 }
                 )
             }

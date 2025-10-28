@@ -56,16 +56,35 @@ export const createChatMessageByUserId = async ({
     senderType = SENDER_ADMIN as ChatSenderType,
     source = HUMAN_SUPPORT
 }: CreateChatMessageByUserIdProps) => {
-    const chatRepository = createChatRepository();
-    const result = await chatRepository.createChatMessage({
-        chatRoomId,
-        message,
-        senderType,
-        source
-    });
+    try {
+        const chatRepository = createChatRepository();
+        const result = await chatRepository.createChatMessage({
+            chatRoomId,
+            message,
+            senderType,
+            source
+        });
 
-    return {
-        success: !!result, 
-        data: result
+        if (!result) {
+            return {
+                success: false, 
+                error: CHAT_ERROR.CREATE_FAILED,
+                data: null
+            }
+        }
+    
+        return {
+            success: true, 
+            error: null, 
+            data: result
+        }
+    } catch (error) {
+        console.error('Database : Error in createChatMessageByUserId: ', error);
+
+        return {
+            success: false, 
+            error: CHAT_ERROR.CREATE_FAILED,
+            data: null
+        }
     }
 }

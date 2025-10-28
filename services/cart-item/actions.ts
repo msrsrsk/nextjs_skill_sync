@@ -4,6 +4,9 @@ import {
     updateCartItemRepository,
     deleteCartItemRepository 
 } from "@/repository/cartItem"
+import { ERROR_MESSAGES } from "@/constants/errorMessages"
+
+const { CART_ITEM_ERROR } = ERROR_MESSAGES;
 
 interface CartItemsProps {
     userId: UserId,
@@ -14,12 +17,31 @@ interface CartItemsProps {
 export const createCartItems = async ({ 
     cartItemsData 
 }: { cartItemsData: CartItem }) => {
-    const repository = createCartItemRepository();
-    const result = await repository.createCartItems({ cartItemsData });
+    try {
+        const repository = createCartItemRepository();
+        const result = await repository.createCartItems({ cartItemsData });
 
-    return {
-        success: !!result, 
-        data: result
+        if (!result) {
+            return {
+                success: false, 
+                error: CART_ITEM_ERROR.CREATE_FAILED,
+                data: null
+            }
+        }
+    
+        return {
+            success: true, 
+            error: null, 
+            data: result
+        }
+    } catch (error) {
+        console.error('Database : Error in createCartItems: ', error);
+
+        return {
+            success: false, 
+            error: CART_ITEM_ERROR.CREATE_FAILED,
+            data: null
+        }
     }
 }
 
@@ -29,16 +51,35 @@ export const updateCartItemQuantity = async ({
     productId,
     quantity
 }: UpdateCartItemQuantityProps) => {    
-    const repository = updateCartItemRepository();
-    const result = await repository.updateCartItemQuantity({ 
-        userId, 
-        productId, 
-        quantity 
-    });
+    try {
+        const repository = updateCartItemRepository();
+        const result = await repository.updateCartItemQuantity({ 
+            userId, 
+            productId, 
+            quantity 
+        });
 
-    return {
-        success: !!result, 
-        data: result
+        if (!result) {
+            return {
+                success: false, 
+                error: CART_ITEM_ERROR.UPDATE_QUANTITY_FAILED,
+                data: null
+            }
+        }
+    
+        return {
+            success: true, 
+            error: null, 
+            data: result
+        }
+    } catch (error) {
+        console.error('Database : Error in updateCartItemQuantity: ', error);
+
+        return {
+            success: false, 
+            error: CART_ITEM_ERROR.UPDATE_QUANTITY_FAILED,
+            data: null
+        }
     }
 }
 
@@ -69,12 +110,31 @@ export const deleteCartItems = async ({
     userId,
     productId 
 }: CartItemsProps) => {
-    const repository = deleteCartItemRepository();
-    const result = await repository.deleteCartItem({ userId, productId });
+    try {
+        const repository = deleteCartItemRepository();
+        const result = await repository.deleteCartItem({ userId, productId });
 
-    return {
-        success: !!result, 
-        data: result
+        if (!result) {
+            return {
+                success: false, 
+                error: CART_ITEM_ERROR.DELETE_FAILED,
+                data: null
+            }
+        }
+    
+        return {
+            success: true, 
+            error: null, 
+            data: result
+        }
+    } catch (error) {
+        console.error('Database : Error in deleteCartItems: ', error);
+
+        return {
+            success: false, 
+            error: CART_ITEM_ERROR.DELETE_FAILED,
+            data: null
+        }
     }
 }
 
@@ -82,11 +142,30 @@ export const deleteCartItems = async ({
 export const deleteAllCartItems = async ({ 
     userId,
 }: { userId: UserId }) => {
-    const repository = deleteCartItemRepository();
-    const result = await repository.deleteAllCartItems({ userId });
+    try {
+        const repository = deleteCartItemRepository();
+        const result = await repository.deleteAllCartItems({ userId });
 
-    return {
-        success: !!result, 
-        data: result
+        if (!result) {
+            return {
+                success: false, 
+                error: CART_ITEM_ERROR.DELETE_ALL_FAILED,
+                data: null
+            }
+        }
+    
+        return {
+            success: true, 
+            error: null, 
+            data: result
+        }
+    } catch (error) {
+        console.error('Database : Error in deleteAllCartItems: ', error);
+
+        return {
+            success: false, 
+            error: CART_ITEM_ERROR.DELETE_ALL_FAILED,
+            data: null
+        }
     }
 }

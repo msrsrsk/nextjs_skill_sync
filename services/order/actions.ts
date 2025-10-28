@@ -23,12 +23,31 @@ const {
 export const createOrder = async ({ 
     orderData 
 }: { orderData: CreateOrderData }) => {
-    const repository = createOrderRepository();
-    const result = await repository.createOrder({ orderData });
+    try {
+        const repository = createOrderRepository();
+        const result = await repository.createOrder({ orderData });
 
-    return {
-        success: !!result, 
-        data: result
+        if (!result) {
+            return {
+                success: false, 
+                error: ORDER_ERROR.CREATE_FAILED,
+                data: null
+            }
+        }
+    
+        return {
+            success: true, 
+            error: null, 
+            data: result
+        }
+    } catch (error) {
+        console.error('Database : Error in createOrder: ', error);
+
+        return {
+            success: false, 
+            error: ORDER_ERROR.CREATE_FAILED,
+            data: null
+        }
     }
 }
 
@@ -82,7 +101,7 @@ export const createCheckoutOrder = async ({
         if (!createOrderResult.success || !createOrderResult.data) {
             return {
                 success: false, 
-                error: ORDER_ERROR.CREATE_FAILED,
+                error: createOrderResult.error,
                 data: null
             }
         }

@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
             )
         }
 
-        const { success, data } = await createChatMessageByUserId({
+        const { success, data, error } = await createChatMessageByUserId({
             chatRoomId: chatRoom.id,
             message,
             senderType,
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
 
         if (!success) {
             return NextResponse.json(
-                { message: CHAT_ERROR.CREATE_FAILED }, 
+                { message: error }, 
                 { status: 500 }
             )
         }

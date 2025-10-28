@@ -55,14 +55,14 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-        const { success, isBookmarked } = await addBookmark({ 
+        const { success, error, isBookmarked } = await addBookmark({ 
             userId, 
             productId 
         })
     
         if (!success) {
             return NextResponse.json(
-                { message: BOOKMARK_ERROR.ADD_FAILED }, 
+                { message: error }, 
                 { status: 500 }
             )
         }
@@ -90,11 +90,11 @@ export async function DELETE(request: NextRequest) {
 
     try {
         if (action === 'all') {
-            const { success } = await removeAllBookmarks({ userId });
+            const { success, error } = await removeAllBookmarks({ userId });
 
             if (!success) {
                 return NextResponse.json(
-                    { message: BOOKMARK_ERROR.REMOVE_ALL_FAILED }, 
+                    { message: error }, 
                     { status: 500 }
                 )
             }
@@ -110,14 +110,14 @@ export async function DELETE(request: NextRequest) {
                 )
             }
             
-            const { success, isBookmarked } = await removeBookmark({ 
+            const { success, error, isBookmarked } = await removeBookmark({ 
                 userId, 
                 productId 
             });
 
             if (!success) {
                 return NextResponse.json(
-                    { message: BOOKMARK_ERROR.REMOVE_FAILED }, 
+                    { message: error }, 
                     { status: 500 }
                 )
             }
