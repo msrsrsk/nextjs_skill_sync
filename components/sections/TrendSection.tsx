@@ -26,11 +26,13 @@ const TrendSection = () => {
 }
 
 const TrendSectionWrapper = async () => {
-    const { success, data, error } = await getAllCategoriesProductsSalesVolume({});
+    const { success, data } = await getAllCategoriesProductsSalesVolume({});
     // const { success, data, error } = { success: true, data: undefined, error: null };
 
-    if (!success) return <ErrorMessage message={error as string} />
-    if (!data) return <ErrorMessage message={PRODUCT_ERROR.TREND_FETCH_FAILED} />
+    const errorMessage = PRODUCT_ERROR.TREND_FETCH_FAILED;
+
+    if (!success) return <ErrorMessage message={errorMessage} />
+    if (!data) return <ErrorMessage message={errorMessage} />
 
     return (
         <TrendSectionContent productData={data} />

@@ -246,3 +246,38 @@ export const mockReview = {
     image_urls: ['test-image-url'],
     created_at: new Date()
 }
+
+export const mockProduct = {
+    id: 'product_123',
+    slug: 'test-product',
+    title: 'Test Product',
+    description: 'Test Description',
+    image_urls: ['https://example.com/image.jpg'],
+    price: 1000,
+    category: 'Active',
+    skill_type: 'test_skill',
+    stock: 10,
+    created_at: new Date(),
+    updated_at: new Date(),
+    product_pricings: null,
+    product_sales: null,
+    product_details: null,
+    product_stripes: null,
+    reviews: [
+        { rating: 5, comment: 'Great!' },
+        { rating: 4, comment: 'Good!' }
+    ]
+}
+
+export const mockPaginatedProducts = {
+    page: 1,
+    limit: 10,
+    query: 'test-query',
+    category: 'test-category' as CategoryType,
+    isTrend: false,
+    filters: {
+        priceRange: [100, 1000] as [number, number],
+        isStock: false
+    },
+    sortType: 'created_desc' as CollectionSortType
+}

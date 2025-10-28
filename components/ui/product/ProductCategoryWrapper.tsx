@@ -56,10 +56,7 @@ const ProductCategoryWrapper = async ({
     const isStock = searchParams.isStock === 'true';
     const sortType = searchParams.sort as CollectionSortType;
 
-    const { 
-        data: paginatedResultData, 
-        error: paginatedResultError 
-    } = await getPaginatedProducts({ 
+    const getPaginatedProductsResult = await getPaginatedProducts({ 
         page, 
         limit: PAGE_LIMIT,
         category: categoryType,
@@ -71,13 +68,15 @@ const ProductCategoryWrapper = async ({
         sortType
     });
     // const { data: paginatedResultData, error: paginatedResultError } = { data: undefined, error: undefined };
+    
+    const errorMessage = PRODUCT_ERROR.FETCH_FAILED;
 
-    if (paginatedResultError) return <ErrorMessage message={paginatedResultError} />
-    if (!paginatedResultData) return <ErrorMessage message={PRODUCT_ERROR.FETCH_FAILED} />
+    if (!getPaginatedProductsResult.success) return <ErrorMessage message={errorMessage} />
+    if (!getPaginatedProductsResult.data) return <ErrorMessage message={errorMessage} />
 
     return <>
         <ProductCategoryContent 
-            categoryData={paginatedResultData as ProductsCategoryData}
+            categoryData={getPaginatedProductsResult.data as ProductsCategoryData}
             category={categoryType || ALL_TAG}
             isTrend={isTrend}
         />

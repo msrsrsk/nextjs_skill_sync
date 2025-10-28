@@ -124,28 +124,17 @@ export const getAllCategoriesProductsSalesVolume = async ({
     limit = TREND_LIMIT,
     threshold = TREND_PRODUCT_SALES_VOLUME_THRESHOLD
 }: GetAllCategoriesProductsProps) => {
-    try {
-        const repository = getProductRepository();
-        const results = await repository.getAllCategoriesProducts({
-            limit,
-            threshold
-        });
+    const repository = getProductRepository();
+    const result = await repository.getAllCategoriesProducts({
+        limit,
+        threshold
+    });
 
-        return {
-            success: true, 
-            error: null, 
-            data: results
-        }
-    } catch (error) {
-        console.error('Database : Error in getAllCategoriesProductsSalesVolume: ', error);
-
-        return {
-            success: false, 
-            error: PRODUCT_ERROR.TREND_FETCH_FAILED,
-            data: null
-        }
+    return {
+        success: !!result, 
+        data: result
     }
-};
+}
 
 // 商品一覧ページ：ページネーション付きの商品データを取得
 export const getPaginatedProducts = async ({ 
@@ -157,31 +146,20 @@ export const getPaginatedProducts = async ({
     filters,
     sortType = CREATED_DESCENDING
 }: GetPaginatedProductsProps) => {
-    try{
-        const repository = getProductRepository();
-        const result = await repository.getPaginatedProducts({
-            page,
-            limit,
-            query,
-            category,
-            isTrend,
-            filters,
-            sortType
-        });
+    const repository = getProductRepository();
+    const result = await repository.getPaginatedProducts({
+        page,
+        limit,
+        query,
+        category,
+        isTrend,
+        filters,
+        sortType
+    });
 
-        return {
-            success: true, 
-            error: null, 
-            data: result
-        }
-    } catch (error) {
-        console.error('Database : Error in getPaginatedProducts: ', error);
-
-        return {
-            success: false, 
-            error: PRODUCT_ERROR.FETCH_FAILED,
-            data: null
-        }
+    return {
+        success: !!result, 
+        data: result
     }
 }
 

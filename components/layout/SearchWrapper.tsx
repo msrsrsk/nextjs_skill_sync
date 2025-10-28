@@ -22,11 +22,13 @@ const SearchWrapper = async ({
 }: SearchWrapperProps) => {
     const limit = SEARCH_PAGE_DISPLAY_LIMIT;
 
-    const { data, error } = await getPaginatedProducts({ page, limit, query });
+    const { success, data } = await getPaginatedProducts({ page, limit, query });
     // const { data, error } = { data: undefined, error: undefined };
 
-    if (error) return <ErrorMessage message={error} />
-    if (!data) return <ErrorMessage message={PRODUCT_ERROR.FETCH_FAILED} />
+    const errorMessage = PRODUCT_ERROR.FETCH_FAILED;
+
+    if (!success) return <ErrorMessage message={errorMessage} />
+    if (!data) return <ErrorMessage message={errorMessage} />
 
     const { 
         products, 
