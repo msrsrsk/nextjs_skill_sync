@@ -3,7 +3,7 @@ import { updateProductStripe } from "@/services/product-stripe/actions"
 import { createStripeProductData } from "@/services/stripe/webhook-actions"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
-const { PRODUCT_ERROR } = ERROR_MESSAGES;
+const { PRODUCT_ERROR, PRODUCT_STRIPE_ERROR } = ERROR_MESSAGES;
 
 interface ProcessProductWebhookProps {
     product_id: ProductId;
@@ -45,10 +45,7 @@ export const processProductWebhook = async ({
     })
 
     // 3. DBのStripe商品データの更新
-    const { 
-        success: updateSuccess, 
-        error: updateError 
-    } = await updateProductStripe({
+    const updateResult = await updateProductStripe({
         productId: product_id,
         data: {
             stripe_product_id: productData.id,
@@ -62,10 +59,10 @@ export const processProductWebhook = async ({
         }
     });
 
-    if (!updateSuccess) {
+    if (!updateResult.success) {
         return {
             success: false,
-            error: updateError
+            error: PRODUCT_STRIPE_ERROR.UPDATE_FAILED
         }
     }
 
