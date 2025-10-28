@@ -93,11 +93,6 @@ describe('deleteOrderItemStripes', () => {
         vi.clearAllMocks()
     })
 
-    const mockSubscription = {
-        subscriptionId: 'sub_test_123',
-        subscriptionStatus: 'active' as const
-    }
-
     // 作成成功
     it('should delete order item stripe successfully', async () => {
         mockDeleteOrderItemStripe.mockResolvedValue(true)

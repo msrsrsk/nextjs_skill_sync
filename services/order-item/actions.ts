@@ -70,7 +70,15 @@ export const deleteAllOrderItem = async ({
 }: { orderId: OrderId }) => {
     try {
         const repository = deleteOrderItemRepository();
-        await repository.deleteAllOrderItem({ orderId });
+        const result = await repository.deleteAllOrderItem({ orderId });
+
+        if (!result) {
+            return {
+                success: false, 
+                error: ORDER_ITEM_ERROR.DELETE_FAILED,
+                data: null
+            }
+        }
 
         return {
             success: true, 
