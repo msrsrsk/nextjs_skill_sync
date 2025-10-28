@@ -31,7 +31,8 @@ const {
     SUBSCRIPTION_ERROR, 
     SUBSCRIPTION_PAYMENT_ERROR, 
     SHIPPING_ADDRESS_ERROR,
-    CHECKOUT_ERROR
+    CHECKOUT_ERROR,
+    ORDER_STRIPE_ERROR
 } = ERROR_MESSAGES;
 
 interface CreateProductDetailsProps {
@@ -174,7 +175,6 @@ export async function processOrderData({
     // OrderStripe テーブルのデータ作成
     const { 
         success: orderStripeSuccess, 
-        error: orderStripeError, 
     } = await createOrderStripe({ 
         orderStripeData: {
             order_id: orderData.order.id,
@@ -187,7 +187,7 @@ export async function processOrderData({
 
     if (!orderStripeSuccess) {
         await deleteOrder({ orderId: orderData.order.id });
-        throw new Error(orderStripeError as string);
+        throw new Error(ORDER_STRIPE_ERROR.CREATE_FAILED);
     }
 
     // OrderItems テーブルのデータ作成

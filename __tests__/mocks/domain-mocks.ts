@@ -281,3 +281,9 @@ export const mockPaginatedProducts = {
     },
     sortType: 'created_desc' as CollectionSortType
 }
+
+export const mockOrderStripe = {
+    order_id: 'order_123',
+    session_id: 'session_123',
+    payment_intent_id: 'payment_intent_123'
+}
