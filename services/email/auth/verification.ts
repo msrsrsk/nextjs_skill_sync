@@ -21,9 +21,10 @@ export async function sendVerificationEmail({
     type
 }: SendVerificationEmailProps) {
     const resend = new Resend(process.env.RESEND_AUTH_VERIFY_EMAIL_API_KEY);
-    const config = getVerificationEmailConfig(type, token);
-
+    
     try {
+        const config = getVerificationEmailConfig(type, token);
+        
         await resend.emails.send({
             from: 'noreply@skill-sync.site',
             to: email,

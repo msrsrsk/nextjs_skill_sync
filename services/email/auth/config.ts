@@ -1,4 +1,7 @@
 import { EMAIL_VERIFICATION_TYPES, SITE_MAP } from "@/constants/index"
+import { ERROR_MESSAGES } from "@/constants/errorMessages"
+
+const { EMAIL_ERROR } = ERROR_MESSAGES;
 
 const { 
     CREATE_ACCOUNT_TYPE, 
@@ -13,6 +16,14 @@ const {
 
 export const getVerificationEmailConfig = (type: EmailVerificationType, token: string) => {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+
+    if (!baseUrl) {
+        throw new Error(EMAIL_ERROR.EMAIL_BASE_URL_MISSING);
+    }
+    
+    if (!token || token.trim() === '') {
+        throw new Error(EMAIL_ERROR.EMAIL_TOKEN_MISSING);
+    }
     
     const configs = {
         [CREATE_ACCOUNT_TYPE]: {

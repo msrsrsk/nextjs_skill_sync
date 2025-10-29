@@ -248,7 +248,10 @@ export const mockReview = {
     rating: 5,
     comment: 'test-comment',
     image_urls: ['test-image-url'],
-    created_at: new Date()
+    created_at: new Date(),
+    updated_at: new Date(),
+    is_priority: false,
+    is_approved: false
 }
 
 export const mockProduct = {
@@ -310,7 +313,7 @@ export const mockProductStockRecord = {
     id: 'notification-1',
     type: 'product_stock',
     notifiable_id: 'product-1',
-    notifiable_type: 'Product',
+    notifiable_type: 'Product' as const,
     created_at: new Date(),
     updated_at: new Date(),
     relatedData: {
@@ -332,4 +335,31 @@ export const mockChatRecord = {
         message: 'Test message',
         sent_at: new Date()
     }
+}
+
+export const mockChatData = {
+    id: 'chat-123',
+    chat_room_id: 'room-456',
+    message: 'こんにちは、商品について質問があります。',
+    sent_at: new Date('2024-01-01T09:00:00Z')
+}
+
+export const mockNotificationRecord = {
+    id: 'notification-123',
+    type: 'chat' as const,
+    notifiable_id: 'chat-123',
+    notifiable_type: 'Chat',
+    created_at: new Date('2024-01-01T09:00:00Z'),
+    updated_at: new Date('2024-01-01T09:00:00Z'),
+    relatedData: mockChatData
+}
+
+export const mockProductNotificationData = {
+    ...mockProductStockRecord,
+    title: 'Test Product',
+    image_urls: ['https://example.com/image.jpg'],
+    price: 1000,
+    category: 'Active',
+    skill_type: 'test_skill',
+    stock: 10,
 }
