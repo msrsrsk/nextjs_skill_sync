@@ -8,6 +8,13 @@ const { NOTIFICATION_ERROR } = ERROR_MESSAGES;
 export const processNotificationWebhook = async ({
     record
 }: { record: NotificationData }) => {
+    if (!record) {
+        return {
+            success: false,
+            error: NOTIFICATION_ERROR.WEBHOOK_PROCESS_FAILED
+        }
+    }
+    
     const repository = getNotificationRepository();
     const notificationWithDetails = await repository.getNotificationWithDetails(record);
 

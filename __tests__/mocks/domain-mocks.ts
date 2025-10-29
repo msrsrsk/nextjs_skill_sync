@@ -305,3 +305,31 @@ export const mockOrderShipping = {
     created_at: new Date(),
     updated_at: new Date()
 }
+
+export const mockProductStockRecord = {
+    id: 'notification-1',
+    type: 'product_stock',
+    notifiable_id: 'product-1',
+    notifiable_type: 'Product',
+    created_at: new Date(),
+    updated_at: new Date(),
+    relatedData: {
+        id: 'product-1',
+        title: 'Test Product'
+    }
+}
+
+export const mockChatRecord = {
+    id: 'notification-2',
+    type: 'chat',
+    notifiable_id: 'chat-1',
+    notifiable_type: 'Chat',
+    created_at: new Date(),
+    updated_at: new Date(),
+    relatedData: {
+        id: 'chat-1',
+        chat_room_id: 'room-1',
+        message: 'Test message',
+        sent_at: new Date()
+    }
+}
