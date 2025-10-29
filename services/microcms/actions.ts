@@ -114,6 +114,17 @@ export async function getAllSyncLogLists(limit: number) {
             getSyncLogList({ limit, category: SYNC_VOICES }),
             getSyncLogList({ limit, category: SYNC_EXTRAS })
         ]);
+
+        const results = [allLogs, updatesLogs, voicesLogs, extrasLogs];
+        const hasError = results.some(r => !r.success);
+
+        if (hasError) {
+            return {
+                success: false,
+                error: LOG_ERROR.FETCH_ALL_FAILED,
+                data: null
+            }
+        }
     
         return {
             success: true, 
