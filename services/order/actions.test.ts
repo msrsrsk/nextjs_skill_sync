@@ -7,7 +7,7 @@ import {
     deleteOrder
 } from "@/services/order/actions"
 import { mockOrder, mockOrderShipping, mockOrderItems } from "@/__tests__/mocks/domain-mocks"
-import { mockCheckoutSession } from "@/__tests__/mocks/stripe-mocks"
+import { mockCheckoutSession, mockCustomerDetails } from "@/__tests__/mocks/stripe-mocks"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 const { ORDER_ERROR, CHECKOUT_ERROR, ORDER_SHIPPING_ERROR, PRODUCT_ERROR } = ERROR_MESSAGES;
 
@@ -129,21 +129,7 @@ describe('createCheckoutOrder', () => {
 
     const mockSessionWithCustomerDetails = {
         ...mockCheckoutSession,
-        customer_details: {
-            name: 'Test User',
-            address: {
-                line1: 'Test Address Line 1',
-                line2: 'Test Address Line 2',
-                city: 'Tokyo',
-                state: 'Tokyo',
-                postal_code: '123-4567',
-                country: 'JP'
-            },
-            email: 'test@example.com',
-            phone: '09012345678',
-            tax_exempt: 'none' as const,
-            tax_ids: []
-        }
+        customer_details: mockCustomerDetails
     }
 
     // 作成成功（サブスクリプションの場合）

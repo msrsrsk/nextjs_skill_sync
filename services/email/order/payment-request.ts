@@ -37,6 +37,14 @@ export async function sendPaymentRequestEmail({
     const orderHistoryUrl = `${process.env.NEXT_PUBLIC_BASE_URL}${ORDER_HISTORY_PATH}`;
 
     const email = orderData.customer_details?.email as UserEmail;
+
+    if (!email) {
+        return {
+            success: false,
+            error: EMAIL_ERROR.PAYMENT_REQUEST_SEND_FAILED
+        }
+    }
+
     const formattedOrderDate = formatOrderDateTime(orderData.created, DATE_SLASH);
     const shippingFee = formatNumber((orderData.total_details?.amount_shipping ?? 0));
     const subtotal = formatNumber((orderData.amount_subtotal ?? 0));

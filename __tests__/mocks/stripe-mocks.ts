@@ -885,3 +885,34 @@ export const mockShippingRate = {
         stripeAccount: undefined
     }
 }
+
+export const mockCustomerDetails = {
+    name: 'Test User',
+    address: {
+        line1: 'Test Address Line 1',
+        line2: 'Test Address Line 2',
+        city: 'Tokyo',
+        state: 'Tokyo',
+        postal_code: '123-4567',
+        country: 'JP'
+    },
+    email: 'test@example.com',
+    phone: '09012345678',
+    tax_exempt: 'none' as const,
+    tax_ids: []
+}
+
+export const mockOrderDataWithCustomerDetails = {
+    ...mockCheckoutSession,
+    customer_details: mockCustomerDetails,
+    amount_subtotal: 2000,
+    amount_total: 2500,
+    total_details: {
+        amount_shipping: 500,
+        amount_discount: 0,
+        amount_tax: 0
+    },
+    payment_method_types: ['card'],
+    payment_status: 'paid' as const,
+    mode: 'payment' as const
+}

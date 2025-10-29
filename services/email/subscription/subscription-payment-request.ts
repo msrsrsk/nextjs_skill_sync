@@ -34,6 +34,14 @@ export async function sendSubscriptionPaymentRequestEmail({
     const subscriptionHistoryUrl = `${process.env.NEXT_PUBLIC_BASE_URL}${SUBSCRIPTION_HISTORY_PATH}`;
 
     const email = orderData.metadata?.userEmail as UserEmail;
+    
+    if (!email) {
+        return {
+            success: false,
+            error: EMAIL_ERROR.SUBSCRIPTION_PAYMENT_REQUEST_SEND_FAILED
+        }
+    }
+    
     const shippingFee = formatNumber((Number(orderData.metadata?.subscription_shipping_fee) ?? 0));
     const formattedOrderDate = formatOrderDateTime(orderData.created, DATE_SLASH);
     const subtotal = formatNumber((orderData.items.data[0]?.price?.unit_amount ?? 0));

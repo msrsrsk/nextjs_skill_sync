@@ -35,6 +35,13 @@ export async function sendOrderCompleteEmail({
 
     const shippingRateAmount = await getShippingRateAmount(process.env.STRIPE_SHIPPING_REGULAR_RATE_ID as string);
 
+    if (!email || !shippingRateAmount?.success) {
+        return {
+            success: false,
+            error: EMAIL_ERROR.ORDER_SEND_FAILED
+        }
+    }
+
     const subscriptionShippingFee = orderData.mode === 'subscription' ? shippingRateAmount?.data : null;
     const sessionShippingFee = orderData.total_details?.amount_shipping ?? 0;
 

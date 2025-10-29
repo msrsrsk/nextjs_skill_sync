@@ -120,7 +120,7 @@ export const mockOrderData = {
     }
 }
 
-export const mockProductDetails = [
+export const mockProductDetails: StripeProductDetailsProps[] = [
     {
         title: 'Test Product 1',
         subscription_product: false,
@@ -129,8 +129,8 @@ export const mockProductDetails = [
         unit_price: 1000,
         amount: 2000,
         quantity: 2,
-        subscription_status: null,
-        subscription_interval: null,
+        subscription_status: null as unknown as SubscriptionStatusType,
+        subscription_interval: null as unknown as string,
         stripe_price_id: 'price_test_123',
         subscription_id: null
     },
@@ -142,8 +142,8 @@ export const mockProductDetails = [
         unit_price: 500,
         amount: 500,
         quantity: 1,
-        subscription_status: null,
-        subscription_interval: null,
+        subscription_status: null as unknown as SubscriptionStatusType,
+        subscription_interval: null as unknown as string,
         stripe_price_id: 'price_test_123',
         subscription_id: null
     }
