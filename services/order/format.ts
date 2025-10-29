@@ -97,8 +97,8 @@ export const formatOrderDateTime = (
     const convertedDate = convertToJST(date);
     const datePart = formatDateCommon(convertedDate, type);
     
-    const hours = String(date.getHours()).padStart(PADDING_LENGTH, '0');
-    const minutes = String(date.getMinutes()).padStart(PADDING_LENGTH, '0');
+    const hours = String(convertedDate.getHours()).padStart(PADDING_LENGTH, '0');
+    const minutes = String(convertedDate.getMinutes()).padStart(PADDING_LENGTH, '0');
     
     return `${datePart} ${hours}:${minutes}`;
 }

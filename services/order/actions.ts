@@ -16,7 +16,8 @@ const { ORDER_PENDING, ORDER_PROCESSING } = ORDER_STATUS;
 const { 
     ORDER_ERROR, 
     CHECKOUT_ERROR,
-    ORDER_SHIPPING_ERROR 
+    ORDER_SHIPPING_ERROR,
+    PRODUCT_ERROR
 } = ERROR_MESSAGES;
 
 // 注文データの作成
@@ -70,9 +71,15 @@ export const createCheckoutOrder = async ({
                 subscriptionShippingFee
             });
 
-            subscriptionShippingFee = subscriptionResult 
-                && subscriptionResult.data 
-                ? subscriptionResult.data : 0;
+            if (!subscriptionResult.success || !subscriptionResult.data) {
+                return {
+                    success: false, 
+                    error: subscriptionResult.error,
+                    data: null
+                }
+            }
+
+            subscriptionShippingFee = subscriptionResult.data || 0;
         }
 
         // 2. 支払い方法の取得
@@ -82,9 +89,15 @@ export const createCheckoutOrder = async ({
                 cardBrand
             });
 
-            cardBrand = paymentMethodResult 
-                && paymentMethodResult.data 
-                ? paymentMethodResult.data : 'card';
+            if (!paymentMethodResult.success || !paymentMethodResult.data) {
+                return {
+                    success: false, 
+                    error: paymentMethodResult.error,
+                    data: null
+                }
+            }
+
+            cardBrand = paymentMethodResult.data || 'card';
         }
         
         // 3. 注文データの作成
@@ -168,38 +181,50 @@ export const createCheckoutOrder = async ({
 export const updateProductStockAndSoldCount = async ({ 
     orderId 
 }: { orderId: OrderId }) => {
+    try {
+        // 1. 注文データの取得
+        const repository = getOrderRepository();
+        const orderItemsResult = await repository.getOrderByIdWithOrderItems({
+            orderId
+        });
     
-    // 1. 注文データの取得
-    const repository = getOrderRepository();
-    const orderItemsResult = await repository.getOrderByIdWithOrderItems({
-        orderId
-    });
+        if (!orderItemsResult) {
+            return {
+                success: false, 
+                error: ORDER_ERROR.DETAIL_FETCH_FAILED
+            }
+        }
+    
+        // 2. 商品の在庫数と売り上げ数の更新
+        const productUpdates = orderItemsResult.order_items.map((item) => ({
+            productId: item.product_id,
+            quantity: item.quantity
+        }));
+    
+        const { success, error } = await updateStockAndSoldCount({ productUpdates });
+    
+        if (!success) {
+            return {
+                success: false, 
+                error: error
+            }
+        }
+    
+        return {
+            success: true, 
+            error: null
+        }
+    } catch (error) {
+        console.error('Database : Error in updateProductStockAndSoldCount: ', error);
 
-    if (!orderItemsResult) {
+        const errorMessage = error instanceof Error 
+            ? error.message 
+            : PRODUCT_ERROR.UPDATE_STOCK_AND_SOLD_COUNT_FAILED;
+
         return {
             success: false, 
-            error: ORDER_ERROR.DETAIL_FETCH_FAILED
+            error: errorMessage
         }
-    }
-
-    // 2. 商品の在庫数と売り上げ数の更新
-    const productUpdates = orderItemsResult.order_items.map((item) => ({
-        productId: item.product_id,
-        quantity: item.quantity
-    }));
-
-    const { success, error } = await updateStockAndSoldCount({ productUpdates });
-
-    if (!success) {
-        return {
-            success: false, 
-            error: error
-        }
-    }
-
-    return {
-        success: true, 
-        error: null
     }
 }
 
@@ -209,7 +234,14 @@ export const deleteOrder = async ({
 }: { orderId: OrderId }) => {
     try {
         const repository = deleteOrderRepository();
-        await repository.deleteOrder({ orderId });
+        const result = await repository.deleteOrder({ orderId });
+
+        if (!result) {
+            return {
+                success: false, 
+                error: ORDER_ERROR.DELETE_FAILED
+            }
+        }
 
         return {
             success: true, 

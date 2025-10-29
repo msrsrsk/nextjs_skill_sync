@@ -300,6 +300,8 @@ export const mockOrderShipping = {
         state: 'test_state',
         address_line1: 'test_address_line1',
         address_line2: 'test_address_line2'
-    },
-    shipping_fee: 1000
+    } as any, // JsonValue型
+    shipping_fee: 1000,
+    created_at: new Date(),
+    updated_at: new Date()
 }
