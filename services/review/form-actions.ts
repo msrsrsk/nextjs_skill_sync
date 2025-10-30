@@ -2,7 +2,7 @@
 
 import { actionAuth } from "@/lib/middleware/auth"
 import { createReview } from "@/services/review/actions"
-import { uploadImageToR2 } from "@/services/cloudflare/actions"
+import { uploadImageToR2 } from "@/services/cloudflare/internal-actions"
 import { CLOUDFLARE_BUCKET_TYPES } from "@/constants/index"
 import { ERROR_MESSAGES } from '@/constants/errorMessages'
 
