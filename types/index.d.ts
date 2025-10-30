@@ -1005,6 +1005,11 @@ declare global {
         quantity: number;
     }
 
+    interface UploadImageProps {
+        bucketType: CloudflareBucketType;
+        userId: UserId;
+    }
+
     type PaymentErrorType = keyof typeof ERROR_MESSAGES.PAYMENT_ERROR;
 }
 
