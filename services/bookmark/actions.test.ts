@@ -15,7 +15,6 @@ const { ADD_FAILED, REMOVE_FAILED, REMOVE_ALL_FAILED } = BOOKMARK_ERROR;
 const mockCreateUserBookmark = vi.fn()
 const mockGetUserProductBookmark = vi.fn()
 const mockGetUserBookmarks = vi.fn()
-const mockGetUserAllBookmarks = vi.fn()
 const mockDeleteUserBookmark = vi.fn()
 const mockDeleteUserAllBookmarks = vi.fn()
 
