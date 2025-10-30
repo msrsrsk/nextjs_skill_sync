@@ -15,6 +15,14 @@ export const createChatRoom = async ({
             userId
         });
 
+        if (!chatRoom) {
+            return {
+                success: false, 
+                error: CHAT_ROOM_ERROR.CREATE_ROOM_FAILED,
+                data: null
+            }
+        }
+
         return {
             success: true, 
             error: null,
@@ -26,6 +34,7 @@ export const createChatRoom = async ({
         return {
             success: false, 
             error: CHAT_ROOM_ERROR.CREATE_ROOM_FAILED,
+            data: null
         }
     }
 }
