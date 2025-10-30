@@ -64,7 +64,7 @@ describe('createCartItems', () => {
         mockCreateCartItems.mockResolvedValue(null)
 
         const result = await createCartItems({ 
-            cartItemsData: mockCartItems[0]
+            cartItemsData: null as unknown as CartItem
         })
 
         expect(result.success).toBe(false)
@@ -115,7 +115,11 @@ describe('updateCartItemQuantity', () => {
     it('should return failure when repository fails', async () => {
         mockUpdateCartItemQuantity.mockResolvedValue(null)
 
-        const result = await updateCartItemQuantity(mockCartItem)
+        const result = await updateCartItemQuantity({
+            userId: '',
+            productId: '',
+            quantity: 0
+        })
 
         expect(result.success).toBe(false)
         expect(result.error).toBe(UPDATE_QUANTITY_FAILED)
@@ -158,7 +162,7 @@ describe('getCartItems', () => {
         mockGetCartItems.mockResolvedValue(null)
 
         const result = await getCartItems({ 
-            userId: mockCartItems[0].user_id
+            userId: ''
         })
 
         expect(result.data).toBeNull()
@@ -191,7 +195,10 @@ describe('getCartItemByProduct', () => {
     it('should return failure when repository fails', async () => {
         mockGetCartItemByProduct.mockResolvedValue(null)
 
-        const result = await getCartItemByProduct(mockCartItem)
+        const result = await getCartItemByProduct({
+            userId: '',
+            productId: ''
+        })
 
         expect(result.data).toBeNull()
     })
@@ -225,7 +232,10 @@ describe('deleteCartItems', () => {
     it('should return failure when repository fails', async () => {
         mockDeleteCartItems.mockResolvedValue(false)
 
-        const result = await deleteCartItems(mockCartItem)
+        const result = await deleteCartItems({
+            userId: '',
+            productId: ''
+        })
 
         expect(result.success).toBe(false)
         expect(result.error).toBe(DELETE_FAILED)
@@ -267,7 +277,7 @@ describe('deleteAllCartItems', () => {
     it('should return failure when repository fails', async () => {
         mockDeleteAllCartItems.mockResolvedValue(false)
 
-        const result = await deleteAllCartItems({ userId: mockCartItems[0].user_id })
+        const result = await deleteAllCartItems({ userId: '' })
 
         expect(result.success).toBe(false)
         expect(result.error).toBe(DELETE_ALL_FAILED)
