@@ -108,7 +108,6 @@ export const removeAllBookmarks = async ({ userId }: UserIdProps) => {
             return {
                 success: false, 
                 error: BOOKMARK_ERROR.REMOVE_ALL_FAILED,
-                data: null
             }
         }
     
