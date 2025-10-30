@@ -26,13 +26,20 @@ export const createInitialChat = async ({
 }: CreateInitialChatProps) => {
     try {
         const repository = createChatRepository();
-        await repository.createChatMessageWithTransaction({
+        const result = await repository.createChatMessageWithTransaction({
             tx, 
             chatRoomId, 
             message: CHAT_HISTORY_INITIAL_MESSAGE, 
             senderType: SENDER_ADMIN as ChatSenderType,
             source: CHAT_SOURCE.INITIAL
         });
+
+        if (!result) {
+            return {
+                success: false, 
+                error: CHAT_ERROR.CREATE_INITIAL_FAILED
+            }
+        }
 
         return {
             success: true, 
@@ -43,8 +50,7 @@ export const createInitialChat = async ({
 
         return {
             success: false, 
-            error: CHAT_ERROR.CREATE_INITIAL_FAILED,
-            data: null
+            error: CHAT_ERROR.CREATE_INITIAL_FAILED
         }
     }
 }

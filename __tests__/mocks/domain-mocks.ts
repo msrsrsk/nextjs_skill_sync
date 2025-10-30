@@ -1,6 +1,7 @@
 import { 
     mockStripeProductIds
 } from "@/__tests__/mocks/stripe-mocks"
+import { CHAT_SOURCE } from "@/constants/index"
 
 export const mockUser = {
     email: 'test@example.com',
@@ -362,4 +363,19 @@ export const mockProductNotificationData = {
     category: 'Active',
     skill_type: 'test_skill',
     stock: 10,
+}
+
+export const mockChatRoom = {
+    id: 'chat_room_123',
+    user_id: 'user_test_123',
+    created_at: new Date(),
+    updated_at: new Date()
+}
+
+export const mockChatMessage = {
+    id: 'test-chat-message-id',
+    chatRoomId: 'test-chat-room-id',
+    message: 'test-message',
+    senderType: 'user' as ChatSenderType,
+    source: CHAT_SOURCE.HUMAN_SUPPORT
 }
