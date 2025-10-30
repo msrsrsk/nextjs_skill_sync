@@ -17,7 +17,7 @@ vi.mock('@/services/review/actions', () => ({
     createReview: vi.fn()
 }))
 
-vi.mock('@/services/cloudflare/actions', () => ({
+vi.mock('@/services/cloudflare/internal-actions', () => ({
     uploadImageToR2: vi.fn()
 }))
 
@@ -32,7 +32,7 @@ const getMockCreateReview = async () => {
 }
 
 const getMockUploadImageToR2 = async () => {
-    const { uploadImageToR2 } = await import('@/services/cloudflare/actions')
+    const { uploadImageToR2 } = await import('@/services/cloudflare/internal-actions')
     return vi.mocked(uploadImageToR2)
 }
 
