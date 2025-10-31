@@ -38,7 +38,7 @@ export const getSectionReviews = async () => {
         const repository = getReviewRepository();
         const { reviews, totalCount } = await repository.getAllReviews();
 
-        if (!reviews || !totalCount) {
+        if (reviews == null || totalCount == null) {
             return {
                 success: false, 
                 error: REVIEW_ERROR.FETCH_FAILED,
@@ -73,7 +73,7 @@ export const getProductReviews = async ({
         const repository = getReviewRepository();
         const { reviews, totalCount } = await repository.getProductReviews({ productSlug });
 
-        if (!reviews || !totalCount) {
+        if (reviews == null || totalCount == null) {
             return {
                 success: false, 
                 error: REVIEW_ERROR.INDIVIDUAL_FETCH_FAILED,
