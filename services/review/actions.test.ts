@@ -10,7 +10,7 @@ import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { REVIEW_ERROR } = ERROR_MESSAGES;
 
-const { CREATE_FAILED } = REVIEW_ERROR;
+const { CREATE_FAILED, INDIVIDUAL_FETCH_FAILED, FETCH_FAILED } = REVIEW_ERROR;
 
 const mockCreateReview = vi.fn()
 const mockGetAllReviews = vi.fn() 
@@ -95,8 +95,36 @@ describe('getSectionReviews', () => {
         })
     })
 
-    // 作成失敗
-    it('should return failure when repository fails', async () => {
+    // 作成失敗（reviews が null）
+    it('should return failure when reviews is null', async () => {
+        mockGetAllReviews.mockResolvedValue({
+            reviews: null,
+            totalCount: 0
+        })
+
+        const result = await getSectionReviews()
+
+        expect(result.success).toBe(false)
+        expect(result.error).toEqual(FETCH_FAILED)
+        expect(result.data).toBeNull()
+    })
+
+    // 作成失敗（totalCount が null）
+    it('should return failure when totalCount is null', async () => {
+        mockGetAllReviews.mockResolvedValue({
+            reviews: [mockReview],
+            totalCount: null
+        })
+
+        const result = await getSectionReviews()
+
+        expect(result.success).toBe(false)
+        expect(result.error).toEqual(FETCH_FAILED)
+        expect(result.data).toBeNull()
+    })
+
+    // 作成失敗（データが全て null）
+    it('should return failure when data is all null', async () => {
         mockGetAllReviews.mockResolvedValue({
             reviews: null,
             totalCount: null
@@ -105,10 +133,19 @@ describe('getSectionReviews', () => {
         const result = await getSectionReviews()
 
         expect(result.success).toBe(false)
-        expect(result.data).toEqual({
-            reviews: null,
-            totalCount: null
-        })
+        expect(result.error).toEqual(FETCH_FAILED)
+        expect(result.data).toBeNull()
+    })
+
+    // 作成失敗（例外発生）
+    it('should return failure when exception occurs', async () => {
+        mockGetAllReviews.mockRejectedValue(new Error('Database error'))
+
+        const result = await getSectionReviews()
+
+        expect(result.success).toBe(false)
+        expect(result.error).toEqual(FETCH_FAILED)
+        expect(result.data).toBeNull()
     })
 })
 
@@ -138,8 +175,40 @@ describe('getProductReviews', () => {
         })
     })
 
-    // 作成失敗
-    it('should return failure when repository fails', async () => {
+    // 作成失敗（reviews が null）
+    it('should return failure when reviews is null', async () => {
+        mockGetProductReviews.mockResolvedValue({
+            reviews: null,
+            totalCount: 0
+        })
+
+        const result = await getProductReviews({
+            productSlug: 'test-product-slug'
+        })
+
+        expect(result.success).toBe(false)
+        expect(result.error).toEqual(INDIVIDUAL_FETCH_FAILED)
+        expect(result.data).toBeNull()
+    })
+
+    // 作成失敗（totalCount が null）
+    it('should return failure when totalCount is null', async () => {
+        mockGetProductReviews.mockResolvedValue({
+            reviews: [mockReview],
+            totalCount: null
+        })
+
+        const result = await getProductReviews({
+            productSlug: 'test-product-slug'
+        })
+
+        expect(result.success).toBe(false)
+        expect(result.error).toEqual(INDIVIDUAL_FETCH_FAILED)
+        expect(result.data).toBeNull()
+    })
+
+    // 作成失敗（データが全て null）
+    it('should return failure when data is all null', async () => {
         mockGetProductReviews.mockResolvedValue({
             reviews: null,
             totalCount: null
@@ -150,9 +219,20 @@ describe('getProductReviews', () => {
         })
 
         expect(result.success).toBe(false)
-        expect(result.data).toEqual({
-            reviews: null,
-            totalCount: null
+        expect(result.error).toEqual(INDIVIDUAL_FETCH_FAILED)
+        expect(result.data).toBeNull()
+    })
+
+    // 作成失敗（例外発生）
+    it('should return failure when exception occurs', async () => {
+        mockGetProductReviews.mockRejectedValue(new Error('Database error'))
+
+        const result = await getProductReviews({
+            productSlug: 'test-product-slug'
         })
+        
+        expect(result.success).toBe(false)
+        expect(result.error).toEqual(INDIVIDUAL_FETCH_FAILED)
+        expect(result.data).toBeNull()
     })
 })

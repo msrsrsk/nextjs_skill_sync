@@ -34,14 +34,33 @@ export const createReview = async ({ reviewData }: { reviewData: Review }) => {
 
 // 全てのレビューデータの取得
 export const getSectionReviews = async () => {
-    const repository = getReviewRepository();
-    const { reviews, totalCount } = await repository.getAllReviews();
+    try {
+        const repository = getReviewRepository();
+        const { reviews, totalCount } = await repository.getAllReviews();
 
-    return {
-        success: !!reviews && !!totalCount,
-        data: {
-            reviews,
-            totalCount
+        if (!reviews || !totalCount) {
+            return {
+                success: false, 
+                error: REVIEW_ERROR.FETCH_FAILED,
+                data: null
+            }
+        }
+
+        return {
+            success: true, 
+            error: null, 
+            data: {
+                reviews,
+                totalCount
+            }
+        }
+    } catch (error) {
+        console.error('Database : Error in getSectionReviews: ', error);
+
+        return {
+            success: false, 
+            error: REVIEW_ERROR.FETCH_FAILED,
+            data: null
         }
     }
 }
@@ -50,14 +69,33 @@ export const getSectionReviews = async () => {
 export const getProductReviews = async ({
     productSlug
 }: { productSlug: ProductSlug }) => {
-    const repository = getReviewRepository();
-    const { reviews, totalCount } = await repository.getProductReviews({ productSlug });
+    try {
+        const repository = getReviewRepository();
+        const { reviews, totalCount } = await repository.getProductReviews({ productSlug });
 
-    return {
-        success: !!reviews && !!totalCount,
-        data: {
-            reviews,
-            totalCount
-        }   
+        if (!reviews || !totalCount) {
+            return {
+                success: false, 
+                error: REVIEW_ERROR.INDIVIDUAL_FETCH_FAILED,
+                data: null
+            }
+        }
+
+        return {
+            success: true, 
+            error: null, 
+            data: {
+                reviews,
+                totalCount
+            }
+        }
+    } catch (error) {
+        console.error('Database : Error in getProductReviews: ', error);
+
+        return {
+            success: false, 
+            error: REVIEW_ERROR.INDIVIDUAL_FETCH_FAILED,
+            data: null
+        }
     }
 }

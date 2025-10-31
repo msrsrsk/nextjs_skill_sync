@@ -60,7 +60,7 @@ const ProductAndReviewData = async ({ slug }: { slug: string }) => {
     if (!product) notFound();
 
     const { data: productData } = productResult;
-    const { data: reviewData } = reviewsResult;
+    const { data: reviewData, error: reviewError } = reviewsResult;
 
     const hasSubscriptionPrices = product.product_stripes?.subscription_price_ids;
 
@@ -76,7 +76,7 @@ const ProductAndReviewData = async ({ slug }: { slug: string }) => {
             reviewData={reviewData as ReviewResultProps} //個別商品のレビューデータ
             productReviewStats={productData?.reviewStats} //個別商品のレビューの統計データ
             productId={product.id} // 個別商品のID
-            hasError={REVIEW_ERROR.INDIVIDUAL_FETCH_FAILED || null}
+            hasError={reviewError}
         />
 
         {!hasSubscriptionPrices && productData?.optimalSyncs && (

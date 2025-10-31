@@ -24,12 +24,12 @@ const ReviewSectionWrapper = async () => {
         return <ErrorMessage message="データの取得に失敗しました" />
     }
         
-    const { data } = result;
+    const { data, error } = result;
     
     return <>
         <ReviewSectionContent 
             reviewData={data as ReviewResultProps} 
-            hasError={REVIEW_ERROR.FETCH_FAILED || null} 
+            hasError={error} 
         />
     </>
 }
