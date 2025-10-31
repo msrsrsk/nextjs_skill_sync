@@ -1,13 +1,8 @@
-import crypto from "crypto"
 import { NextRequest } from "next/server"
 import { headers } from "next/headers"
 import { stripe } from "@/lib/clients/stripe/client"
 
-interface VerifyHMACSignatureProps {
-    payload: string;
-    signature: string;
-    secret: string;
-}
+import { verifyHMACSignature } from "@/lib/utils/security"
 
 interface VerifyWebhookAuth {
     request: NextRequest;
@@ -16,22 +11,6 @@ interface VerifyWebhookAuth {
 
 interface VerifyWebhookSignature extends VerifyWebhookAuth {
     endpointSecret: string;
-}
-
-async function verifyHMACSignature({
-    payload,
-    signature,
-    secret
-}: VerifyHMACSignatureProps): Promise<boolean> {
-    const expectedSignature = crypto
-        .createHmac('sha256', secret)
-        .update(payload)
-        .digest('base64');
-
-    return crypto.timingSafeEqual(
-        Buffer.from(signature, 'base64'),
-        Buffer.from(expectedSignature, 'base64')
-    )
 }
 
 export async function verifyWebhookSignature({

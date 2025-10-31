@@ -93,7 +93,7 @@ export const formatHtmlToPlainText = (content: string): string => {
 }
 
 export const parseNewlineToArray = (text: string): string[] => {
-    return text.split('\n').filter(item => item.trim()) || [];
+    return text.split('\n').map(item => item.trim()).filter(item => item) || [];
 }
 
 
@@ -171,6 +171,9 @@ export const formatRelativeDate = (dateString: Date): string => {
     
     const diffTime = nowDate.getTime() - targetDateOnly.getTime();
     const diffDays = Math.floor(diffTime / MILLISECONDS_PER_DAY);
+
+    if (diffDays < 0) return 'Invalid date';
+
     const diffWeeks = Math.floor(diffDays / DAYS_PER_WEEK);
     const diffMonths = Math.floor(diffDays / DAYS_PER_MONTH);
 
