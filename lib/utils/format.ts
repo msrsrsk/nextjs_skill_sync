@@ -109,11 +109,9 @@ export const formatTitleCase = (text: string): string => {
     日付関連フォーマット
 ============================== */
 export const convertToJST = (date: Date): Date => {
-    const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
     return new Date(date.toLocaleString('en-US', {
-        timeZone: userTimezone
-    }));
+        timeZone: 'Asia/Tokyo'
+    }))
 }
 
 export const formatDateCommon = (
