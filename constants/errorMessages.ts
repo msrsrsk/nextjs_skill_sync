@@ -23,6 +23,7 @@ export const ERROR_MESSAGES = {
         SESSION_NOT_FOUND: `セッションが見つかりません。${AUTH}`,
         USER_NOT_FOUND: `ユーザーが見つかりません。${AUTH}`,
         EMAIL_EXISTS: `そのメールアドレスはご利用できません。もう一度ご確認ください。`,
+        EMAIL_MISSING_DATA: `メールアドレスが入力されていません。${FIRST}`,
         SIGN_IN_FAILED: `ログインできませんでした。${FIRST}`,
         EMAIL_NOT_MATCH: `現在のメールアドレスと一致しません。${FIRST}`,
         INCORRECT_EMAIL_OR_PASSWORD: `メールアドレスまたはパスワードが正しくありません。${FIRST}`,
@@ -30,7 +31,11 @@ export const ERROR_MESSAGES = {
         CREATE_VERIFICATION_TOKEN_PROCESS_FAILED: `認証トークンの作成中に問題が発生しました。${FIRST}`,
         RESET_PASSWORD_PROCESS_FAILED: `パスワードリセット中に問題が発生しました。${FIRST}`,
         CREATE_ACCOUNT_FAILED: `アカウント作成が上手くいきませんでした。${FIRST}`,
-        
+        CREATE_ACCOUNT_MISSING_DATA: `アカウント作成に必要な情報が不足しています。${FIRST}`,
+        PASSWORD_MISSING_DATA: `パスワードが入力されていません。${FIRST}`,
+        TOKEN_MISSING_DATA: `認証トークンが見つかりませんでした。${FIRST}`,
+        SIGN_IN_MISSING_DATA: `ログインに必要なデータが不足しています。${FIRST}`,
+
         TOKEN_CREATE_FAILED: `認証メールの送信に必要な情報がありません。${FIRST}`,
         TOKEN_SEND_FAILED: `認証メールの送信に失敗しました。${FIRST}`,
         REAUTHENTICATE_FAILED: `認証に失敗しました。${FIRST}`,

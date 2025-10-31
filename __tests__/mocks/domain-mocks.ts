@@ -1,7 +1,7 @@
 import { 
     mockStripeProductIds
 } from "@/__tests__/mocks/stripe-mocks"
-import { CHAT_SOURCE } from "@/constants/index"
+import { CHAT_SOURCE, DEFAULT_ACCOUNT_ICON_URL } from "@/constants/index"
 
 export const mockUser = {
     email: 'test@example.com',
@@ -378,4 +378,32 @@ export const mockChatMessage = {
     message: 'test-message',
     senderType: 'user' as ChatSenderType,
     source: CHAT_SOURCE.HUMAN_SUPPORT
+}
+
+export const mockUserData = {
+    id: 'user_1',
+    created_at: new Date(),
+    updated_at: new Date(),
+    password: 'password',
+    email: 'test@example.com',
+    emailVerified: new Date()
+}
+
+export const mockUserProfileData = {
+    id: 'user_profile_1',
+    user_id: 'user_1',
+    lastname: 'test',
+    firstname: 'test',
+    icon_url: DEFAULT_ACCOUNT_ICON_URL
+}
+
+export const mockVerificationToken = {
+    token: 'test_token_123',
+    expires: new Date(),
+    identifier: 'test@example.com',
+    password: 'hashed_password',
+    userData: '{"lastname": "test_lastname", "firstname": "test_firstname"}',
+    id: 'verification_id',
+    created_at: new Date(),
+    updated_at: new Date()
 }

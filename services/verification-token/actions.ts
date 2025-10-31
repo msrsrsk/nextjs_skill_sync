@@ -155,7 +155,6 @@ export const deleteVerificationToken = async ({
             return {
                 success: false, 
                 error: VERIFICATION_TOKEN_ERROR.DELETE_FAILED,
-                data: null
             }
         }
     

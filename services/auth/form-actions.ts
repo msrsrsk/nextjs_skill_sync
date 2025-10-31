@@ -37,6 +37,15 @@ export async function createAccountWithEmailAction(
     formData: FormData
 ): Promise<ActionStateWithEmailAndTimestamp> {
 
+    if (!formData.get('lastname') || !formData.get('firstname') || !formData.get('email') || !formData.get('password')) {
+        return {
+            success: false, 
+            error: AUTH_ERROR.CREATE_ACCOUNT_MISSING_DATA,
+            email: undefined,
+            timestamp: Date.now()
+        }
+    }
+
     const lastname = formData.get('lastname');
     const firstname = formData.get('firstname');
     const email = formData.get('email');
@@ -142,6 +151,15 @@ export async function sendVerificationEmailAction(
     type: EmailVerificationPageType
 ): Promise<ActionStateWithEmailAndTimestamp> {
 
+    if (!formData.get('email')) {
+        return {
+            success: false, 
+            error: AUTH_ERROR.EMAIL_MISSING_DATA,
+            email: undefined,
+            timestamp: Date.now()
+        }
+    }
+
     const email = formData.get('email') as UserEmail;
 
     const emailType = type === EMAIL_RESET_PASSWORD_PAGE 
@@ -236,12 +254,28 @@ export async function updatePasswordAction(
     formData: FormData,
     type: UpdatePasswordPageType
 ): Promise<ActionStateWithEmailAndTimestamp> {
+
+    if (!formData.get('confirmPassword')) {
+        return {
+            success: false, 
+            error: AUTH_ERROR.PASSWORD_MISSING_DATA,
+            timestamp: Date.now()
+        }
+    }
     
     const password = formData.get('confirmPassword') as UserPassword;
 
     const token = type === RESET_PASSWORD_PAGE 
         ? formData.get('token') as string 
         : '';
+
+    if (type === RESET_PASSWORD_PAGE && !token) {
+        return {
+            success: false,
+            error: AUTH_ERROR.TOKEN_MISSING_DATA,
+            timestamp: Date.now()
+        }
+    }
 
     try {
         // throw new Error('test');
@@ -313,7 +347,15 @@ export async function signInWithCredentialsAction(
     const errorText = type === AUTH_LOGIN 
         ? AUTH_ERROR.SIGN_IN_FAILED 
         : AUTH_ERROR.REAUTHENTICATE_FAILED;
-    
+
+    if (!formData.get('email') || !formData.get('password')) {
+        return {
+            success: false, 
+            error: AUTH_ERROR.SIGN_IN_MISSING_DATA,
+            timestamp: Date.now()
+        }
+    }
+
     const email = formData.get('email') as UserEmail;
     const password = formData.get('password') as UserPassword;
 

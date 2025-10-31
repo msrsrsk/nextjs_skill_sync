@@ -154,9 +154,10 @@ export async function createVerificationTokenWithPassword(
 ) {
     const token = crypto.randomBytes(AUTH_TOKEN_BYTES).toString('hex');
     const expires = new Date(new Date().getTime() + EXPIRATION_TIME);
-    const hashedPassword = await bcrypt.hash(userData.password, PASSWORD_HASH_ROUNDS);
-
+    
     try {
+        const hashedPassword = await bcrypt.hash(userData.password, PASSWORD_HASH_ROUNDS);
+        
         const result = await createVerificationToken({
             verificationData: {
                 identifier: userData.email,
@@ -185,10 +186,14 @@ export async function createVerificationTokenWithPassword(
         }
     } catch (error) {
         console.error('Actions Error - Create Verification Token With Password error:', error);
+
+        const errorMessage = error instanceof Error 
+            ? error.message 
+            : AUTH_ERROR.CREATE_VERIFICATION_TOKEN_PROCESS_FAILED;
         
         return {
             success: false, 
-            error: AUTH_ERROR.CREATE_VERIFICATION_TOKEN_PROCESS_FAILED,
+            error: errorMessage,
             token: null
         }
     }
@@ -221,7 +226,7 @@ export async function verifyEmailToken(
         }
 
         const email = verificationToken.identifier;
-        const tokenUserData = JSON.parse(verificationToken.userData || '{}');
+        const tokenUserData = verificationToken.userData && JSON.parse(verificationToken.userData);
         
         if (verifyEmailType === VERIFY_CREATE_ACCOUNT) {
             const hashedPassword = verificationToken.password;
@@ -357,7 +362,6 @@ export async function createVerificationTokenWithEmail(email: UserEmail) {
     const expires = new Date(new Date().getTime() + EXPIRATION_TIME);
 
     try {
-
         const result = await createVerificationToken({
             verificationData: {
                 identifier: email,
