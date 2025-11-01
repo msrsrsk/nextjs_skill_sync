@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "20.19.2"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_BASE_URL: ${{ secrets.NEXT_PUBLIC_BASE_URL }}
+          CONTACT_EMAIL: ${{ secrets.CONTACT_EMAIL }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DIRECT_URL: ${{ secrets.DIRECT_URL }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_JWT_SECRET: ${{ secrets.SUPABASE_JWT_SECRET }}
+          SUPABASE_WEBHOOK_SECRET_KEY: ${{ secrets.SUPABASE_WEBHOOK_SECRET_KEY }}
+          SUPABASE_WEBHOOK_SIGNATURE: ${{ secrets.SUPABASE_WEBHOOK_SIGNATURE }}
+          MICROCMS_LOGS_ENDPOINT: ${{ secrets.MICROCMS_LOGS_ENDPOINT }}
+          MICROCMS_LOGS_API_KEY: ${{ secrets.MICROCMS_LOGS_API_KEY }}
+          RESEND_AUTH_VERIFY_EMAIL_API_KEY: ${{ secrets.RESEND_AUTH_VERIFY_EMAIL_API_KEY }}
+          RESEND_CONTACT_API_KEY: ${{ secrets.RESEND_CONTACT_API_KEY }}
+          RESEND_REVIEW_NOTIFICATION_API_KEY: ${{ secrets.RESEND_REVIEW_NOTIFICATION_API_KEY }}
+          RESEND_CHECKOUT_API_KEY: ${{ secrets.RESEND_CHECKOUT_API_KEY }}
+          RESEND_CHAT_NOTIFICATION_API_KEY: ${{ secrets.RESEND_CHAT_NOTIFICATION_API_KEY }}
+          AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+          AUTH_URL: ${{ secrets.AUTH_URL }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          STRIPE_PUBLISHABLE_KEY: ${{ secrets.STRIPE_PUBLISHABLE_KEY }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_SHIPPING_FREE_RATE_ID: ${{ secrets.STRIPE_SHIPPING_FREE_RATE_ID }}
+          STRIPE_SHIPPING_REGULAR_RATE_ID: ${{ secrets.STRIPE_SHIPPING_REGULAR_RATE_ID }}
+          STRIPE_CHECKOUT_WEBHOOK_SECRET_KEY: ${{ secrets.STRIPE_CHECKOUT_WEBHOOK_SECRET_KEY }}
+          STRIPE_SUBSCRIPTION_WEBHOOK_SECRET_KEY: ${{ secrets.STRIPE_SUBSCRIPTION_WEBHOOK_SECRET_KEY }}
+          STRIPE_SIGNATURE_HEADER: ${{ secrets.STRIPE_SIGNATURE_HEADER }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_R2_PUBLIC_DOMAIN: ${{ secrets.CLOUDFLARE_R2_PUBLIC_DOMAIN }}
+          REVIEW_BUCKET_NAME: ${{ secrets.REVIEW_BUCKET_NAME }}
+          REVIEW_R2_ACCESS_KEY_ID: ${{ secrets.REVIEW_R2_ACCESS_KEY_ID }}
+          REVIEW_R2_SECRET_ACCESS_KEY: ${{ secrets.REVIEW_R2_SECRET_ACCESS_KEY }}
+          PROFILE_BUCKET_NAME: ${{ secrets.PROFILE_BUCKET_NAME }}
+          PROFILE_R2_ACCESS_KEY_ID: ${{ secrets.PROFILE_R2_ACCESS_KEY_ID }}
+          PROFILE_R2_SECRET_ACCESS_KEY: ${{ secrets.PROFILE_R2_SECRET_ACCESS_KEY }}
