@@ -23,6 +23,15 @@ const mockUpdateUserPasswordWithTransaction = vi.fn()
 const mockDeleteUser = vi.fn()
 const mockDeleteUserAccount = vi.fn()
 
+vi.mock('@/lib/clients/prisma/client', () => {
+    const $transaction = vi.fn(async (fn: any) => await fn({}))
+    return {
+        default: {
+            $transaction
+        }
+    }
+})
+
 vi.mock('@/repository/user', () => ({
     createUserRepository: () => ({
         createUserWithTransaction: mockCreateUserWithTransaction

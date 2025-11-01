@@ -24,9 +24,13 @@ const { CREATE_INITIAL_FAILED } = CHAT_ERROR;
 const { CUSTOMER_CREATE_FAILED, CUSTOMER_DELETE_FAILED } = STRIPE_ERROR;
 const { CUSTOMER_ID_UPDATE_FAILED } = USER_STRIPE_ERROR;
 
-vi.mock('@/lib/clients/prisma', () => {
+vi.mock('@/lib/clients/prisma/client', () => {
     const $transaction = vi.fn(async (fn: any) => await fn({}))
-    return { prisma: { $transaction } }
+    return {
+        default: {
+            $transaction
+        }
+    }
 })
 
 vi.mock('bcryptjs', () => ({
