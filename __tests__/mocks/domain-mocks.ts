@@ -1,7 +1,7 @@
 import { 
     mockStripeProductIds
 } from "@/__tests__/mocks/stripe-mocks"
-import { CHAT_SOURCE, DEFAULT_ACCOUNT_ICON_URL } from "@/constants/index"
+import { CHAT_SOURCE, DEFAULT_ACCOUNT_ICON_URL, NOIMAGE_PRODUCT_IMAGE_URL } from "@/constants/index"
 
 export const mockUser = {
     email: 'test@example.com',
@@ -130,8 +130,8 @@ export const mockProductDetails: StripeProductDetailsProps[] = [
         unit_price: 1000,
         amount: 2000,
         quantity: 2,
-        subscription_status: null as unknown as SubscriptionStatusType,
-        subscription_interval: null as unknown as string,
+        subscription_status: null as unknown as OrderItemSubscriptionStatus,
+        subscription_interval: null as unknown as OrderItemSubscriptionInterval,
         stripe_price_id: 'price_test_123',
         subscription_id: null
     },
@@ -143,8 +143,8 @@ export const mockProductDetails: StripeProductDetailsProps[] = [
         unit_price: 500,
         amount: 500,
         quantity: 1,
-        subscription_status: null as unknown as SubscriptionStatusType,
-        subscription_interval: null as unknown as string,
+        subscription_status: null as unknown as OrderItemSubscriptionStatus,
+        subscription_interval: null as unknown as OrderItemSubscriptionInterval,
         stripe_price_id: 'price_test_123',
         subscription_id: null
     }
@@ -169,8 +169,9 @@ export const mockSubscriptionProductDetails = [
 export const createCombinedProductDetails = () => {
     return mockProductDetails.map((domain, index) => ({
         ...domain,
-        ...mockStripeProductIds[index]
-    }))
+        ...mockStripeProductIds[index],
+        image: (domain.image || NOIMAGE_PRODUCT_IMAGE_URL) as string
+    })) as StripeProductDetailsProps[]
 }
 
 export const mockOrderItems = [

@@ -40,6 +40,11 @@ interface CreateProductDetailsProps {
     isCheckout: boolean;
 }
 
+interface ProcessOrderDataReturn {
+    orderData: CreateCheckoutOrderData;
+    productDetailsData: StripeProductDetailsProps[];
+}
+
 interface ProcessShippingAddressProps {
     checkoutSessionEvent: StripeCheckoutSession, 
     userId: UserId
@@ -83,7 +88,7 @@ export async function createProductDetails({
             lineItems.map(async (item) => {
                 const product = await stripe.products.retrieve(item.price?.product as string);
 
-                if (!product) {
+                if (!product || !item.price) {
                     throw new Error(CHECKOUT_ERROR.CHECKOUT_PRODUCT_CREATE_FAILED);
                 }
                 
@@ -91,16 +96,16 @@ export async function createProductDetails({
                     product_id: product.metadata.supabase_id,
                     title: product.name,
                     image: product.images[0] || process.env.NEXT_PUBLIC_BASE_URL + NOIMAGE_PRODUCT_IMAGE_URL,
-                    unit_price: item.price?.unit_amount,
-                    amount: isCheckout ? (item as WebhookLineItem).amount_total : item.price?.unit_amount,
+                    unit_price: item.price.unit_amount,
+                    amount: isCheckout ? (item as WebhookLineItem).amount_total : item.price.unit_amount,
                     quantity: item.quantity,
-                    stripe_price_id: item.price?.id,
+                    stripe_price_id: item.price.id,
                     subscription_id: subscriptionId,
-                    subscription_status: (item.price?.recurring?.interval_count && item.price?.recurring?.interval) 
+                    subscription_status: (item.price.recurring?.interval_count && item.price.recurring?.interval) 
                         ? SUBS_ACTIVE 
                         : null,                    
-                    subscription_interval: (item.price?.recurring?.interval_count && item.price?.recurring?.interval) 
-                        ? `${item.price?.recurring?.interval_count}${item.price?.recurring?.interval}` 
+                    subscription_interval: (item.price.recurring?.interval_count && item.price.recurring?.interval) 
+                        ? `${item.price.recurring?.interval_count}${item.price.recurring?.interval}` 
                         : null,           
                     ...(product.metadata.subscription_product === 'true' && {
                         subscription_product: true
@@ -245,7 +250,7 @@ export async function processOrderData({
         }
     }
 
-    return { orderData, productDetailsData }
+    return { orderData, productDetailsData } as ProcessOrderDataReturn;
 }
 
 // 配送先住所のデータ保存

@@ -710,7 +710,6 @@ declare global {
         orderNumber: OrderNumber;
     }
 
-
     /* ============================== 
         OrderShipping 関連
     ============================== */
@@ -951,7 +950,7 @@ declare global {
     interface StripeProductDetailsProps {
         product_id: ProductId;
         title: ProductTitle;
-        image: ProductImageUrls;
+        image: string;
         amount: ProductPrice;
         unit_price: OrderItemUnitPrice;
         quantity: OrderItemQuantity;
@@ -961,7 +960,6 @@ declare global {
         stripe_price_id: OrderItemStripePriceId;
         subscription_id: OrderItemStripeSubscriptionId;
     }
-
 
     /* ============================== 
         認証 関連
