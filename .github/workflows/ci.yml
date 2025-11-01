@@ -8,6 +8,43 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    env:
+      TZ: Asia/Tokyo
+      DATABASE_URL: "postgresql://test:test@localhost:5432/test?schema=public"
+      DIRECT_URL: "postgresql://test:test@localhost:5432/test?schema=public"
+      NEXT_PUBLIC_BASE_URL: "http://localhost:3000"
+      CONTACT_EMAIL: "test@example.com"
+      NEXT_PUBLIC_SUPABASE_URL: "https://test.supabase.co"
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: "test-key"
+      SUPABASE_JWT_SECRET: "test-secret"
+      SUPABASE_WEBHOOK_SECRET_KEY: "test-secret"
+      SUPABASE_WEBHOOK_SIGNATURE: "test-signature"
+      MICROCMS_LOGS_ENDPOINT: "https://test.microcms.io"
+      MICROCMS_LOGS_API_KEY: "test-api-key"
+      RESEND_AUTH_VERIFY_EMAIL_API_KEY: "test-key"
+      RESEND_CONTACT_API_KEY: "test-key"
+      RESEND_REVIEW_NOTIFICATION_API_KEY: "test-key"
+      RESEND_CHECKOUT_API_KEY: "test-key"
+      RESEND_CHAT_NOTIFICATION_API_KEY: "test-key"
+      AUTH_SECRET: "test-secret-for-testing-only"
+      AUTH_URL: "http://localhost:3000"
+      OPENAI_API_KEY: "test-key"
+      STRIPE_PUBLISHABLE_KEY: "pk_test_123"
+      STRIPE_SECRET_KEY: "sk_test_123"
+      STRIPE_SHIPPING_FREE_RATE_ID: "shr_test_123"
+      STRIPE_SHIPPING_REGULAR_RATE_ID: "shr_test_456"
+      STRIPE_CHECKOUT_WEBHOOK_SECRET_KEY: "whsec_test_123"
+      STRIPE_SUBSCRIPTION_WEBHOOK_SECRET_KEY: "whsec_test_456"
+      STRIPE_SIGNATURE_HEADER: "test-signature"
+      CLOUDFLARE_ACCOUNT_ID: "test-account-id"
+      CLOUDFLARE_R2_PUBLIC_DOMAIN: "test.r2.dev"
+      REVIEW_BUCKET_NAME: "test-review-bucket"
+      REVIEW_R2_ACCESS_KEY_ID: "test-access-key"
+      REVIEW_R2_SECRET_ACCESS_KEY: "test-secret-key"
+      PROFILE_BUCKET_NAME: "test-profile-bucket"
+      PROFILE_R2_ACCESS_KEY_ID: "test-access-key"
+      PROFILE_R2_SECRET_ACCESS_KEY: "test-secret-key"
+
     steps:
       - uses: actions/checkout@v3
 
