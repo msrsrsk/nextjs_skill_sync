@@ -5,9 +5,7 @@ import {
     updateShippingAddressAction,
     updateDefaultShippingAddressAction
 } from "@/services/shipping-address/form-actions"
-import { updateStripeAndShippingAddress } from "@/services/shipping-address/actions"
 import { mockShippingAddress, mockUser } from "@/__tests__/mocks/domain-mocks"
-import { getUser } from "@/services/user/actions"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { SHIPPING_ADDRESS_ERROR, USER_STRIPE_ERROR } = ERROR_MESSAGES;
