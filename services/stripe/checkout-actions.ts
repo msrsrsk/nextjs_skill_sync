@@ -51,6 +51,7 @@ interface CreatePaymentLinkProps extends CheckoutSessionProps {
 
 interface ProcessCheckoutItemsProps extends UserIdProps {
     cartItems: CartItemWithProduct[];
+    clientCalculatedTotal: number;
 }
 
 // 配送料のIDの取得
@@ -369,7 +370,8 @@ export const createPaymentLink = async ({
 
 export const processCheckoutItems = async ({
     userId,
-    cartItems
+    cartItems,
+    clientCalculatedTotal
 }: ProcessCheckoutItemsProps) => {
     // 1. 商品の合計数量を計算
     const totalQuantity = cartItems.reduce((
@@ -380,6 +382,7 @@ export const processCheckoutItems = async ({
     // 2. チェックアウトの商品リストを作成
     let lineItems: CheckoutLineItem[] = [];
     let serverCalculatedTotal = 0;
+    let dbBasedTotal = 0;
 
     for (const cartItem of cartItems) {
         const product = cartItem.product;
@@ -417,6 +420,12 @@ export const processCheckoutItems = async ({
             const itemTotal = price.unit_amount * cartItem.quantity;
             serverCalculatedTotal += itemTotal;
 
+            const dbPrice = product.product_pricings?.sale_price && 
+                          product.product_pricings.sale_price > 0
+                ? product.product_pricings.sale_price 
+                : product.price;
+            dbBasedTotal += dbPrice * cartItem.quantity;
+
             lineItems = [...lineItems, {
                 price: priceId,
                 quantity: cartItem.quantity,
@@ -431,30 +440,17 @@ export const processCheckoutItems = async ({
         }
     }
 
-    // 4. 配送料の取得
-    const shippingRateId = getShippingRateId({ totalQuantity });
+    // 4. 合計金額のチェック
+    if (clientCalculatedTotal !== undefined) {
+        if (clientCalculatedTotal !== serverCalculatedTotal || clientCalculatedTotal !== dbBasedTotal) {
+            console.error('Actions Error - Amount total mismatch:', clientCalculatedTotal, serverCalculatedTotal, dbBasedTotal);
 
-    if (!shippingRateId) {
-        return {
-            success: false,
-            error: CHECKOUT_ERROR.NO_SHIPPING_RATE_ID
+            return {
+                success: false,
+                error: CHECKOUT_ERROR.AMOUNT_TOTAL_MISMATCH
+            }
         }
     }
-
-    let shippingFee = 0;
-    try {
-        const shippingRate = await stripe.shippingRates.retrieve(shippingRateId);
-        shippingFee = shippingRate.fixed_amount?.amount || 0;
-    } catch (error) {
-        console.error('Actions Error - Stripe Shipping Rate Retrieve failed: ', error);
-
-        return {
-            success: false,
-            error: CHECKOUT_ERROR.NO_SHIPPING_RATE_AMOUNT
-        }
-    }
-
-    const finalTotal = serverCalculatedTotal + shippingFee;
 
     // 5. チェックアウトセッションの作成
     const { success, data } = await createCheckoutSession({ 
@@ -467,16 +463,6 @@ export const processCheckoutItems = async ({
         return {
             success: false,
             error: CHECKOUT_ERROR.CHECKOUT_SESSION_FAILED
-        }
-    }
-
-    // 6. 合計金額のチェック
-    if (data.amount_total !== finalTotal) {
-        console.error('Actions Error - Amount total mismatch:', data.amount_total, finalTotal);
-
-        return {
-            success: false,
-            error: CHECKOUT_ERROR.AMOUNT_TOTAL_MISMATCH
         }
     }
 

@@ -33,7 +33,7 @@ const useCheckout = ({ cartItems }: { cartItems: CartItemWithProduct[] }) => {
                 return {
                     success: false,
                     message: CHECKOUT_ERROR.STOCK_CHECK_FAILED
-                };
+                }
             }
 
             const products = data || [];
@@ -42,13 +42,13 @@ const useCheckout = ({ cartItems }: { cartItems: CartItemWithProduct[] }) => {
                 return {
                     success: false,
                     message: CHECKOUT_ERROR.NO_PRODUCT_DATA
-                };
+                }
             }
 
             const insufficientItems = cartItems.filter(cartItem => {
                 const product = data.find((p: Product) => p.id === cartItem.product.id);
                 return product && product.stock < cartItem.quantity;
-            });
+            })
 
             if (insufficientItems.length > 0) {
                 const itemNames = insufficientItems.map(item => item.product.title).join('・');
@@ -56,7 +56,7 @@ const useCheckout = ({ cartItems }: { cartItems: CartItemWithProduct[] }) => {
                 return {
                     success: false,
                     message: `${itemNames} ${CHECKOUT_ERROR.UPDATE_STOCK}`
-                };
+                }
             }
 
             return { success: true };
@@ -66,9 +66,20 @@ const useCheckout = ({ cartItems }: { cartItems: CartItemWithProduct[] }) => {
             return {
                 success: false,
                 message: CHECKOUT_ERROR.FAILED_CHECK_STOCK
-            };
+            }
         }
-    };
+    }
+
+    // 金額チェック
+    const calculateTotalAmount = () => {
+        return cartItems.reduce((sum, item) => {
+            const itemPrice = item.product.product_pricings?.sale_price && 
+                    item.product.product_pricings.sale_price > 0 
+                ? item.product.product_pricings.sale_price 
+                : item.product.price;
+            return sum + (itemPrice * item.quantity);
+        }, 0);
+    }
 
     // チェックアウト
     const initiateCheckout = async () => {
@@ -91,12 +102,24 @@ const useCheckout = ({ cartItems }: { cartItems: CartItemWithProduct[] }) => {
                 return;
             }
 
+            const clientCalculatedTotal = calculateTotalAmount();
+
+            if (clientCalculatedTotal === undefined) {
+                router.refresh();
+                
+                setTimeout(() => {
+                    showErrorToast(CHECKOUT_ERROR.AMOUNT_TOTAL_MISMATCH);
+                }, CHECKOUT_SHOW_TOAST_DELAY);
+
+                return;
+            }
+
             const response = await fetch(CHECKOUT_API_PATH, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ cartItems })
+                body: JSON.stringify({ cartItems, clientCalculatedTotal })
             });
 
             const { 

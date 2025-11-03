@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic"
 export async function POST(request: NextRequest) {
     const { userId } = await requireUser();
 
-    const { cartItems } = await request.json();
+    const { cartItems, clientCalculatedTotal } = await request.json();
 
     if (!cartItems || !Array.isArray(cartItems) || cartItems.length === 0) {
         return NextResponse.json(
@@ -23,7 +23,8 @@ export async function POST(request: NextRequest) {
     try {
         const result = await processCheckoutItems({
             userId,
-            cartItems
+            cartItems,
+            clientCalculatedTotal
         });
 
         if (!result.success) {
