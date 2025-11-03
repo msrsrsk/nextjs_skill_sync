@@ -380,7 +380,7 @@ export const processCheckoutItems = async ({
         item: CartItemWithProduct
     ) => sum + item.quantity, CHECKOUT_INITIAL_QUANTITY);
 
-    // 2. チェックアウトの商品リストを作成
+    // 2. チェックアウトの商品リストの作成と合計金額の計算
     const calculateCheckoutTotalsResult = await calculateCheckoutTotals({
         cartItems
     });
@@ -398,7 +398,7 @@ export const processCheckoutItems = async ({
         dbBasedTotal 
     } = calculateCheckoutTotalsResult.data;
 
-    // 4. 合計金額のチェック
+    // 3. 合計金額のチェック
     const validatePriceCalculationResult = validatePriceCalculation({
         clientCalculatedTotal,
         serverCalculatedTotal,
@@ -412,7 +412,7 @@ export const processCheckoutItems = async ({
         }
     }
 
-    // 5. チェックアウトセッションの作成
+    // 4. チェックアウトセッションの作成
     const { success, data } = await createCheckoutSession({ 
         lineItems, 
         userId,
