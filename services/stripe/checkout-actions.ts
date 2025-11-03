@@ -10,6 +10,7 @@ import {
 import { updateProductStockAndSoldCount } from "@/services/order/actions"
 import { sendOrderCompleteEmail } from "@/services/email/order/confirmation"
 import { getRecurringConfig } from "@/services/subscription-payment/format"
+import { calculateCheckoutTotals, validatePriceCalculation } from "@/services/stripe/checkout-helpers"
 import { 
     SITE_MAP, 
     STRIPE_SHIPPING_FREE_LIMIT, 
@@ -380,75 +381,34 @@ export const processCheckoutItems = async ({
     ) => sum + item.quantity, CHECKOUT_INITIAL_QUANTITY);
 
     // 2. チェックアウトの商品リストを作成
-    let lineItems: CheckoutLineItem[] = [];
-    let serverCalculatedTotal = 0;
-    let dbBasedTotal = 0;
+    const calculateCheckoutTotalsResult = await calculateCheckoutTotals({
+        cartItems
+    });
 
-    for (const cartItem of cartItems) {
-        const product = cartItem.product;
-
-        if (!product) {
-            return {
-                success: false, 
-                error: CHECKOUT_ERROR.NO_PRODUCT_DATA
-            }
-        }
-
-        const priceId = product.product_stripes?.sale_price_id 
-            || product.product_stripes?.regular_price_id;
-
-        if (!priceId) {
-            return {
-                success: false, 
-                error: CHECKOUT_ERROR.NO_PRICE_ID
-            }
-        }
-
-        // 3. 価格の取得
-        try {
-            const price = await stripe.prices.retrieve(priceId);
-
-            if (price.unit_amount === null) {
-                console.error('Actions Error - Price unit_amount is null for price ID:', priceId);
-
-                return {
-                    success: false,
-                    error: CHECKOUT_ERROR.NO_PRICE_AMOUNT
-                }
-            }
-            
-            const itemTotal = price.unit_amount * cartItem.quantity;
-            serverCalculatedTotal += itemTotal;
-
-            const dbPrice = product.product_pricings?.sale_price && 
-                          product.product_pricings.sale_price > 0
-                ? product.product_pricings.sale_price 
-                : product.price;
-            dbBasedTotal += dbPrice * cartItem.quantity;
-
-            lineItems = [...lineItems, {
-                price: priceId,
-                quantity: cartItem.quantity,
-            }];
-        } catch (error) {
-            console.error('Actions Error - Stripe Price Retrieve failed: ', error);
-
-            return {
-                success: false,
-                error: CHECKOUT_ERROR.PRICE_VERIFICATION_FAILED
-            }
+    if (!calculateCheckoutTotalsResult.success || !calculateCheckoutTotalsResult.data) {
+        return {
+            success: false,
+            error: calculateCheckoutTotalsResult.error
         }
     }
 
-    // 4. 合計金額のチェック
-    if (clientCalculatedTotal !== undefined) {
-        if (clientCalculatedTotal !== serverCalculatedTotal || clientCalculatedTotal !== dbBasedTotal) {
-            console.error('Actions Error - Amount total mismatch:', clientCalculatedTotal, serverCalculatedTotal, dbBasedTotal);
+    const { 
+        lineItems, 
+        serverCalculatedTotal, 
+        dbBasedTotal 
+    } = calculateCheckoutTotalsResult.data;
 
-            return {
-                success: false,
-                error: CHECKOUT_ERROR.AMOUNT_TOTAL_MISMATCH
-            }
+    // 4. 合計金額のチェック
+    const validatePriceCalculationResult = validatePriceCalculation({
+        clientCalculatedTotal,
+        serverCalculatedTotal,
+        dbBasedTotal
+    });
+
+    if (!validatePriceCalculationResult.success) {
+        return {
+            success: false,
+            error: validatePriceCalculationResult.error
         }
     }
 
