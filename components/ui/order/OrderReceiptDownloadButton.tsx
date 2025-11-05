@@ -34,7 +34,7 @@ const OrderReceiptDownloadButton = ({
                     text={BUTTON_JA}
                     disabled={!showReceiptDownloadButton}
                 >
-                    詳細を見る
+                    ダウンロード
                     <Download className="w-[18px] h-[18px]" />
                 </EventButtonPrimary>
             ) : (
@@ -43,7 +43,7 @@ const OrderReceiptDownloadButton = ({
                     size={BUTTON_LARGE}
                     text={BUTTON_JA}
                 >
-                    ダウンロード
+                    詳細を見る
                     <Download className="w-[18px] h-[18px]" />
                 </LinkButtonPrimary>
             )}
