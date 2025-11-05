@@ -26,8 +26,6 @@ import {
     mockCheckoutSession,
     mockPaymentIntent,
     mockPaymentLink,
-    mockPrice,
-    mockShippingRate,
 } from "@/__tests__/mocks/stripe-mocks"
 import { 
     mockUser, 
@@ -56,13 +54,8 @@ const {
     NO_SUBSCRIPTION_INTERVAL,
     PAYMENT_LINK_FAILED,
     NO_PRODUCT_DATA,
-    PRICE_VERIFICATION_FAILED,
-    NO_PRICE_AMOUNT,
-    NO_SHIPPING_RATE_ID,
-    NO_SHIPPING_RATE_AMOUNT,
     AMOUNT_TOTAL_MISMATCH,
     ORDER_DATA_PROCESS_FAILED,
-    NO_PRICE_ID,
     SESSION_RETRIEVAL_FAILED,
 } = CHECKOUT_ERROR;
 const { CUSTOMER_ID_FETCH_FAILED } = USER_STRIPE_ERROR;
@@ -116,9 +109,24 @@ vi.mock('@/services/subscription-payment/format', () => ({
     getRecurringConfig: vi.fn()
 }))
 
+vi.mock('@/services/stripe/checkout-helpers', () => ({
+    calculateCheckoutTotals: vi.fn(),
+    validatePriceCalculation: vi.fn()
+}))
+
 const getMockStripe = async () => {
     const { stripe } = await import('@/lib/clients/stripe/client')
     return vi.mocked(stripe)
+}
+
+const getMockCalculateCheckoutTotals = async () => {
+    const { calculateCheckoutTotals } = await import('@/services/stripe/checkout-helpers')
+    return vi.mocked(calculateCheckoutTotals)
+}
+
+const getMockValidatePriceCalculation = async () => {
+    const { validatePriceCalculation } = await import('@/services/stripe/checkout-helpers')
+    return vi.mocked(validatePriceCalculation)
 }
 
 /* ==================================== 
@@ -776,6 +784,14 @@ describe('processCheckoutItems', () => {
     beforeEach(() => {
         vi.clearAllMocks()
     })
+    
+    const mockSuccessData = {
+        lineItems: [
+            { price: 'price_test_123', quantity: 2 }
+        ],
+        serverCalculatedTotal: 2000,
+        dbBasedTotal: 2000
+    }
 
     const mockAddedCheckoutSession = {
         ...mockCheckoutSession,
@@ -786,257 +802,169 @@ describe('processCheckoutItems', () => {
     // 作成成功
     it('should process checkout items successfully', async () => {
         const stripe = await getMockStripe()
+        const mockCalculateCheckoutTotals = await getMockCalculateCheckoutTotals()
+        const mockValidatePriceCalculation = await getMockValidatePriceCalculation()
 
         vi.mocked(getUser).mockResolvedValue(mockUser)
+
+        mockCalculateCheckoutTotals.mockResolvedValue({
+            success: true,
+            error: null,
+            data: mockSuccessData
+        })
+        
+        mockValidatePriceCalculation.mockReturnValue(true)
     
         vi.mocked(stripe.checkout.sessions.create).mockResolvedValue({
             ...mockAddedCheckoutSession
         })
         
-        vi.mocked(stripe.prices.retrieve).mockResolvedValue({
-            ...mockPrice,
-            unit_amount: 1000
-        })
-    
-        vi.mocked(stripe.shippingRates.retrieve).mockResolvedValue({
-            ...mockShippingRate
-        })
-    
         const result = await processCheckoutItems({
             userId: 'user_test_123',
-            cartItems: createCombinedCartItems()
+            cartItems: createCombinedCartItems(),
+            clientCalculatedTotal: 2500
         })
     
         expect(result.success).toBe(true)
         expect(result.data).toBeDefined()
     })
 
-    // 作成失敗(商品データ無し)
-    it('should return error when product data is not found', async () => {
+    // 作成失敗(calculateCheckoutTotals の失敗)
+    it('should return error when calculate checkout totals fails', async () => {
         const stripe = await getMockStripe()
+        const mockCalculateCheckoutTotals = await getMockCalculateCheckoutTotals()
 
         vi.mocked(getUser).mockResolvedValue(mockUser)
-    
+
+        mockCalculateCheckoutTotals.mockResolvedValue({
+            success: false,
+            error: NO_PRODUCT_DATA,
+            data: null
+        })
+        
         vi.mocked(stripe.checkout.sessions.create).mockResolvedValue({
             ...mockAddedCheckoutSession
         })
         
-        vi.mocked(stripe.prices.retrieve).mockResolvedValue({
-            ...mockPrice,
-            unit_amount: 1000
-        })
-    
-        vi.mocked(stripe.shippingRates.retrieve).mockResolvedValue({
-            ...mockShippingRate
-        })
-    
         const result = await processCheckoutItems({
             userId: 'user_test_123',
-            cartItems: [{
-                ...createCombinedCartItems()[0],
-                product: null as unknown as ProductWithRelations
-            }]
+            cartItems: createCombinedCartItems(),
+            clientCalculatedTotal: 2500
         })
     
         expect(result.success).toBe(false)
         expect(result.error).toBe(NO_PRODUCT_DATA)
+        expect(result.data).toBeUndefined()
     })
 
-    // 作成失敗(priceId が null)
-    it('should return error when priceId is null', async () => {
-        vi.mocked(getUser).mockResolvedValue(mockUser)
-        
-        const result = await processCheckoutItems({
-            userId: 'user_test_123',
-            cartItems: [{
-                ...createCombinedCartItems()[0],
-                product: {
-                    ...createCombinedCartItems()[0].product,
-                    product_stripes: {
-                        id: 'stripe_product_123',
-                        product_id: 'product_test_123',
-                        stripe_product_id: 'prod_test_123',
-                        sale_price_id: null,
-                        regular_price_id: null,
-                        subscription_price_ids: null,
-                        created_at: new Date(),
-                        updated_at: new Date()
-                    }
-                }
-            }]
-        })
-    
-        expect(result.success).toBe(false)
-        expect(result.error).toBe(NO_PRICE_ID)
-    })
-
-    // 作成失敗(価格の取得失敗)
-    it('should return error when price retrieval fails', async () => {
+    // 作成失敗(validatePriceCalculation の失敗)
+    it('should return error when validate price calculation fails', async () => {
         const stripe = await getMockStripe()
+        const mockCalculateCheckoutTotals = await getMockCalculateCheckoutTotals()
+        const mockValidatePriceCalculation = await getMockValidatePriceCalculation()
 
         vi.mocked(getUser).mockResolvedValue(mockUser)
+
+        mockCalculateCheckoutTotals.mockResolvedValue({
+            success: true,
+            error: null,
+            data: mockSuccessData
+        })
+        
+        mockValidatePriceCalculation.mockReturnValue(false)
     
         vi.mocked(stripe.checkout.sessions.create).mockResolvedValue({
             ...mockAddedCheckoutSession
         })
         
-        vi.mocked(stripe.prices.retrieve).mockRejectedValue(
-            new Error('Stripe API Error')
-        )
-    
         const result = await processCheckoutItems({
             userId: 'user_test_123',
-            cartItems: createCombinedCartItems()
+            cartItems: createCombinedCartItems(),
+            clientCalculatedTotal: 2500
         })
     
         expect(result.success).toBe(false)
-        expect(result.error).toBe(PRICE_VERIFICATION_FAILED)
+        expect(result.error).toBe(AMOUNT_TOTAL_MISMATCH)
+        expect(result.data).toBeUndefined()
     })
 
-    // 作成失敗(price.unit_amount が null)
-    it('should return error when price.unit_amount is null', async () => {
+    // 作成失敗(calculateCheckoutTotals のデータが null)
+    it('should return error when calculate checkout totals data is null', async () => {
         const stripe = await getMockStripe()
+        const mockCalculateCheckoutTotals = await getMockCalculateCheckoutTotals()
 
         vi.mocked(getUser).mockResolvedValue(mockUser)
-    
+
+        mockCalculateCheckoutTotals.mockResolvedValue({
+            success: false,
+            error: NO_LINE_ITEMS,
+            data: null
+        })
+        
         vi.mocked(stripe.checkout.sessions.create).mockResolvedValue({
             ...mockAddedCheckoutSession
         })
         
-        vi.mocked(stripe.prices.retrieve).mockResolvedValue({
-            ...mockPrice,
-            unit_amount: null
-        })
-    
         const result = await processCheckoutItems({
             userId: 'user_test_123',
-            cartItems: createCombinedCartItems()
+            cartItems: createCombinedCartItems(),
+            clientCalculatedTotal: 2500
         })
     
         expect(result.success).toBe(false)
-        expect(result.error).toBe(NO_PRICE_AMOUNT)
-    })
-
-    // 作成失敗(shippingRateId が null)
-    it('should return error when shipping rate ID is null', async () => {
-        const stripe = await getMockStripe()
-    
-        vi.stubEnv('STRIPE_SHIPPING_FREE_RATE_ID', undefined)
-        vi.stubEnv('STRIPE_SHIPPING_REGULAR_RATE_ID', undefined)
-    
-        vi.mocked(getUser).mockResolvedValue(mockUser)
-    
-        vi.mocked(stripe.checkout.sessions.create).mockResolvedValue({
-            ...mockAddedCheckoutSession
-        })
-        
-        vi.mocked(stripe.prices.retrieve).mockResolvedValue({
-            ...mockPrice,
-            unit_amount: 1000
-        })
-    
-        const result = await processCheckoutItems({
-            userId: 'user_test_123',
-            cartItems: createCombinedCartItems()
-        })
-    
-        expect(result.success).toBe(false)
-        expect(result.error).toBe(NO_SHIPPING_RATE_ID)
-
-        vi.stubEnv('STRIPE_SHIPPING_FREE_RATE_ID', 'shr_free_test_123')
-        vi.stubEnv('STRIPE_SHIPPING_REGULAR_RATE_ID', 'shr_regular_test_123')
-    })
-
-    // 作成失敗(配送料の取得失敗)
-    it('should return error when shipping rate retrieval fails', async () => {
-        const stripe = await getMockStripe()
-
-        vi.mocked(getUser).mockResolvedValue(mockUser)
-    
-        vi.mocked(stripe.prices.retrieve).mockResolvedValue({
-            ...mockPrice,
-            unit_amount: 1000
-        })
-    
-        vi.mocked(stripe.shippingRates.retrieve).mockRejectedValue(
-            new Error('Stripe API Error')
-        )
-    
-        const result = await processCheckoutItems({
-            userId: 'user_test_123',
-            cartItems: createCombinedCartItems()
-        })
-    
-        expect(result.success).toBe(false)
-        expect(result.error).toBe(NO_SHIPPING_RATE_AMOUNT)
+        expect(result.error).toBe(NO_LINE_ITEMS)
+        expect(result.data).toBeUndefined()
     })
 
     // 作成失敗(チェックアウトセッションの作成失敗)
     it('should return error when checkout session creation fails', async () => {
         const stripe = await getMockStripe()
+        const mockCalculateCheckoutTotals = await getMockCalculateCheckoutTotals()
+        const mockValidatePriceCalculation = await getMockValidatePriceCalculation()
 
         vi.mocked(getUser).mockResolvedValue(mockUser)
+
+        mockCalculateCheckoutTotals.mockResolvedValue({
+            success: true,
+            error: null,
+            data: mockSuccessData
+        })
+        
+        mockValidatePriceCalculation.mockReturnValue(true)
     
         vi.mocked(stripe.checkout.sessions.create).mockRejectedValue(
             new Error('Stripe API Error')
         )
         
-        vi.mocked(stripe.prices.retrieve).mockResolvedValue({
-            ...mockPrice,
-            unit_amount: 1000
-        })
-    
-        vi.mocked(stripe.shippingRates.retrieve).mockResolvedValue({
-            ...mockShippingRate
-        })
-    
         const result = await processCheckoutItems({
             userId: 'user_test_123',
-            cartItems: createCombinedCartItems()
+            cartItems: createCombinedCartItems(),
+            clientCalculatedTotal: 2500
         })
     
         expect(result.success).toBe(false)
         expect(result.error).toBe(CHECKOUT_SESSION_FAILED)
     })
 
-    // 作成失敗(合計金額が一致しない)
-    it('should return error when amount total mismatch', async () => {
-        const stripe = await getMockStripe()
-
-        vi.mocked(getUser).mockResolvedValue(mockUser)
-    
-        vi.mocked(stripe.checkout.sessions.create).mockResolvedValue({
-            ...mockAddedCheckoutSession,
-            amount_total: 5000 // 合計金額が一致しない
-        })
-        
-        vi.mocked(stripe.prices.retrieve).mockResolvedValue({
-            ...mockPrice,
-            unit_amount: 1000
-        })
-    
-        vi.mocked(stripe.shippingRates.retrieve).mockResolvedValue({
-            ...mockShippingRate
-        })
-    
-        const result = await processCheckoutItems({
-            userId: 'user_test_123',
-            cartItems: createCombinedCartItems()
-        })
-    
-        expect(result.success).toBe(false)
-        expect(result.error).toBe(AMOUNT_TOTAL_MISMATCH)
-    })
-
     // 取得失敗（userId が null）
     it('should return error when userId is null', async () => {
-        const stripe = await getMockStripe()
-    
+        const mockCalculateCheckoutTotals = await getMockCalculateCheckoutTotals()
+        const mockValidatePriceCalculation = await getMockValidatePriceCalculation()
+
         vi.mocked(getUser).mockResolvedValue(mockUser)
+
+        mockCalculateCheckoutTotals.mockResolvedValue({
+            success: true,
+            error: null,
+            data: mockSuccessData
+        })
+        
+        mockValidatePriceCalculation.mockReturnValue(true)
     
         const result = await processCheckoutItems({
             userId: null as unknown as UserId,
-            cartItems: createCombinedCartItems()
+            cartItems: createCombinedCartItems(),
+            clientCalculatedTotal: 2500
         })
     
         expect(result.success).toBe(false)
@@ -1045,13 +973,23 @@ describe('processCheckoutItems', () => {
 
     // 作成失敗（cartItems が空配列）
     it('should return error when cartItems is empty', async () => {
-        const stripe = await getMockStripe()
+        const mockCalculateCheckoutTotals = await getMockCalculateCheckoutTotals()
+        const mockValidatePriceCalculation = await getMockValidatePriceCalculation()
     
         vi.mocked(getUser).mockResolvedValue(mockUser)
     
+        mockCalculateCheckoutTotals.mockResolvedValue({
+            success: true,
+            error: null,
+            data: mockSuccessData
+        })
+        
+        mockValidatePriceCalculation.mockReturnValue(true)
+    
         const result = await processCheckoutItems({
             userId: 'user_test_123',
-            cartItems: []
+            cartItems: [],
+            clientCalculatedTotal: 2500
         })
     
         expect(result.success).toBe(false)
