@@ -101,15 +101,9 @@ export const validatePriceCalculation = ({
                 dbBasedTotal
             );
 
-            return {
-                success: false,
-                error: CHECKOUT_ERROR.AMOUNT_TOTAL_MISMATCH
-            }
+            return false;
         }
     }
 
-    return {
-        success: true,
-        error: null
-    }
+    return true;
 }

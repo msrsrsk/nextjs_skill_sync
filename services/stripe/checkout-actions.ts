@@ -399,16 +399,16 @@ export const processCheckoutItems = async ({
     } = calculateCheckoutTotalsResult.data;
 
     // 3. 合計金額のチェック
-    const validatePriceCalculationResult = validatePriceCalculation({
+    const isValidPrice = validatePriceCalculation({
         clientCalculatedTotal,
         serverCalculatedTotal,
         dbBasedTotal
     });
 
-    if (!validatePriceCalculationResult.success) {
+    if (!isValidPrice) {
         return {
             success: false,
-            error: validatePriceCalculationResult.error
+            error: CHECKOUT_ERROR.AMOUNT_TOTAL_MISMATCH
         }
     }
 
