@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
 
-import { getStepByPriceRange } from "@/services/product/calculation"
+import { getStepByPriceRange, getProductEffectivePrice } from "@/services/product/calculation"
+import { mockProduct } from "@/__tests__/mocks/domain-mocks"
 import { PRICE_SLIDER_CONFIG } from "@/constants/index"
 
 const { STEP_BY_PRICE_RANGE } = PRICE_SLIDER_CONFIG;
@@ -78,5 +79,90 @@ describe('getStepByPriceRange', () => {
         expect(getStepByPriceRange(999.99)).toBe(STEP_BY_PRICE_RANGE.STEP_1)
         expect(getStepByPriceRange(1000.01)).toBe(STEP_BY_PRICE_RANGE.STEP_2)
         expect(getStepByPriceRange(5000.5)).toBe(STEP_BY_PRICE_RANGE.STEP_3)
+    })
+})
+
+/* ==================================== 
+    getProductEffectivePrice Test
+==================================== */
+describe('getProductEffectivePrice', () => {
+    beforeEach(() => {
+        vi.clearAllMocks()
+    })
+
+    // セール価格がある場合
+    it('should return sale price when sale price is present', () => {
+        const product = {
+            ...mockProduct,
+            product_pricings: {
+                product_id: 'product_123',
+                sale_price: 800,
+                created_at: new Date(),
+                updated_at: new Date()
+            }
+        }
+        expect(getProductEffectivePrice(product as unknown as ProductWithRelations)).toBe(800)
+    })
+
+    // セール価格がない場合
+    it('should return price when sale price is not present', () => {
+        const product = {
+            ...mockProduct,
+            product_pricings: null
+        }
+        expect(getProductEffectivePrice(product as unknown as ProductWithRelations)).toBe(1000)
+    })
+
+    // セール価格が0の場合
+    it('should return price when sale price is 0', () => {
+        const product = {
+            ...mockProduct,
+            product_pricings: {
+                product_id: 'product_123',
+                sale_price: 0,
+                created_at: new Date(),
+                updated_at: new Date()
+            }
+        }
+        expect(getProductEffectivePrice(product as unknown as ProductWithRelations)).toBe(1000)
+    })
+
+    // セール価格が通常価格より大きい場合でもセール価格が優先
+    it('should return sale price when sale price is greater than price', () => {
+        const product = {
+            ...mockProduct,
+            product_pricings: {
+                product_id: 'product_123',
+                sale_price: 1200,
+                created_at: new Date(),
+                updated_at: new Date()
+            }
+        }
+        expect(getProductEffectivePrice(product as unknown as ProductWithRelations)).toBe(1200)
+    })
+
+    // 通常価格が0かつセール価格も0の場合は通常価格が優先
+    it('should return price when price is 0 and sale price is 0', () => {
+        const product = {
+            ...mockProduct,
+            price: 0,
+            product_pricings: {
+                product_id: 'product_123',
+                sale_price: 0,
+                created_at: new Date(),
+                updated_at: new Date()
+            }
+        }
+        expect(getProductEffectivePrice(product as unknown as ProductWithRelations)).toBe(0)
+    })
+
+    // 通常価格が0かつセール価格がnullの場合も通常価格が優先
+    it('should return price when price is not 0 and sale price is null', () => {
+        const product = {
+            ...mockProduct,
+            price: 0,
+            product_pricings: null
+        }
+        expect(getProductEffectivePrice(product as unknown as ProductWithRelations)).toBe(0)
     })
 })

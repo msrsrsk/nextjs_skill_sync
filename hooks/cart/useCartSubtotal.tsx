@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
 
+import { getProductEffectivePrice } from "@/services/product/calculation"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { CART_ITEM_ERROR } = ERROR_MESSAGES;
@@ -21,8 +22,7 @@ const useCartSubtotal = ({ cartItems, optimisticQuantities }: useCartSubtotalPro
         try {
             const calculatedSubtotal = cartItems.reduce((acc, item) => {
                 const quantity = optimisticQuantities?.[item.product.id] || item.quantity;
-                const itemPrice = item.product.product_pricings?.sale_price && item.product.product_pricings.sale_price > 0 
-                    ? item.product.product_pricings.sale_price : item.product.price;
+                const itemPrice = getProductEffectivePrice(item.product);
                 return acc + (itemPrice * quantity);
             }, 0);
             

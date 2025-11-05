@@ -11,3 +11,10 @@ export const getStepByPriceRange = (
     if (price < STEP_BY_PRICE_RANGE.THRESHOLD_4) return STEP_BY_PRICE_RANGE.STEP_4;
     return STEP_BY_PRICE_RANGE.STEP_5;
 }
+
+export const getProductEffectivePrice = (product: ProductWithRelations): number => {
+    return product.product_pricings?.sale_price && 
+           product.product_pricings.sale_price > 0
+        ? product.product_pricings.sale_price 
+        : product.price;
+}

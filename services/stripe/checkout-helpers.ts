@@ -1,5 +1,6 @@
 import { stripe } from "@/lib/clients/stripe/client"
 
+import { getProductEffectivePrice } from "@/services/product/calculation"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 const { CHECKOUT_ERROR } = ERROR_MESSAGES;
@@ -56,10 +57,7 @@ export const calculateCheckoutTotals = async ({
             const itemTotal = price.unit_amount * cartItem.quantity;
             serverCalculatedTotal += itemTotal;
 
-            const dbPrice = product.product_pricings?.sale_price && 
-                          product.product_pricings.sale_price > 0
-                ? product.product_pricings.sale_price 
-                : product.price;
+            const dbPrice = getProductEffectivePrice(product);
             dbBasedTotal += dbPrice * cartItem.quantity;
 
             lineItems = [...lineItems, {

@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 
+import { getProductEffectivePrice } from "@/services/product/calculation"
 import { showErrorToast } from "@/components/common/display/Toasts"
 import { GET_PRODUCTS_PAGE_TYPES, CHECKOUT_SHOW_TOAST_DELAY, SITE_MAP } from "@/constants/index"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
@@ -73,12 +74,9 @@ const useCheckout = ({ cartItems }: { cartItems: CartItemWithProduct[] }) => {
     // 金額チェック
     const calculateTotalAmount = () => {
         return cartItems.reduce((sum, item) => {
-            const itemPrice = item.product.product_pricings?.sale_price && 
-                    item.product.product_pricings.sale_price > 0 
-                ? item.product.product_pricings.sale_price 
-                : item.product.price;
-            return sum + (itemPrice * item.quantity);
-        }, 0);
+            const itemPrice = getProductEffectivePrice(item.product);
+                return sum + (itemPrice * item.quantity);
+            }, 0);
     }
 
     // チェックアウト
