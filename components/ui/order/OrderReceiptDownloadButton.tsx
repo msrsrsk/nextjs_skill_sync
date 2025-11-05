@@ -34,7 +34,7 @@ const OrderReceiptDownloadButton = ({
                     text={BUTTON_JA}
                     disabled={!showReceiptDownloadButton}
                 >
-                    ダウンロード
+                    詳細を見る
                     <Download className="w-[18px] h-[18px]" />
                 </EventButtonPrimary>
             ) : (
