@@ -22,8 +22,7 @@
 3. 🌷 [制作のきっかけ](#opportunity)
 4. ⚙️ [主な機能](#features)
 5. 🔫 [使用技術](#tech)
-6. ✏️ [画面推移図](#design)
-7. 📙 [あとがき](#more)
+6. 📙 [あとがき](#more)
 <div>
   <br />
 </div>
@@ -111,16 +110,6 @@ Supabase のデータ管理の方法も合わせて今回チャレンジする�
 | Infrastructure | Supabase (Database), Cloudflare (Storage), Vercel (Hosting) |
 | Design         | Figma, Figjam, Aceternity UI |
 
-<div>
-  <br />
-</div>
-
-## <a name="design">✏️ 画面推移図</a>
-
-<a href="https://www.figma.com/design/HuLpaF1fPXNny9074X0mJj/%E3%80%90%E5%85%AC%E9%96%8B%E7%94%A8%E3%80%91SKILL-SYNC--%E3%82%B5%E3%82%A4%E3%83%88?node-id=0-1&t=vHvaPjFua0SxNp9l-1" target="_blank" rel="noopener noreferrer">
-Figmaデータ
-</a><br />
-（各ページデザイン・制作ストーリー・デザインガイドライン・遷移表 etc）
 <div>
   <br />
 </div>
