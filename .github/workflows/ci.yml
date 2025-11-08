@@ -62,9 +62,6 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Run tests
-        run: npm test
-
       - name: Build
         run: npm run build
         env:
@@ -102,3 +99,6 @@ jobs:
           PROFILE_BUCKET_NAME: ${{ secrets.PROFILE_BUCKET_NAME }}
           PROFILE_R2_ACCESS_KEY_ID: ${{ secrets.PROFILE_R2_ACCESS_KEY_ID }}
           PROFILE_R2_SECRET_ACCESS_KEY: ${{ secrets.PROFILE_R2_SECRET_ACCESS_KEY }}
+
+      - name: Run tests
+        run: npm test
