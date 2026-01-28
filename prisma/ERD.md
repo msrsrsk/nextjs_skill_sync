@@ -261,7 +261,7 @@ erDiagram
 
 ### `users`
 
-**Properties**
+Properties as follows:
 
 - `id`:
 - `email`:
@@ -272,7 +272,7 @@ erDiagram
 
 ### `user_profiles`
 
-**Properties**
+Properties as follows:
 
 - `user_id`:
 - `lastname`:
@@ -284,7 +284,7 @@ erDiagram
 
 ### `user_images`
 
-**Properties**
+Properties as follows:
 
 - `id`:
 - `user_id`:
@@ -294,7 +294,7 @@ erDiagram
 
 ### `user_stripes`
 
-**Properties**
+Properties as follows:
 
 - `id`:
 - `user_id`:
@@ -304,7 +304,7 @@ erDiagram
 
 ### `products`
 
-**Properties**
+Properties as follows:
 
 - `id`:
 - `title`:
@@ -320,7 +320,7 @@ erDiagram
 
 ### `product_pricings`
 
-**Properties**
+Properties as follows:
 
 - `product_id`:
 - `sale_price`:
@@ -329,7 +329,7 @@ erDiagram
 
 ### `product_sales`
 
-**Properties**
+Properties as follows:
 
 - `product_id`:
 - `sold_count`:
@@ -338,7 +338,7 @@ erDiagram
 
 ### `product_details`
 
-**Properties**
+Properties as follows:
 
 - `product_id`:
 - `sync_time`:
@@ -352,7 +352,7 @@ erDiagram
 
 ### `product_relations`
 
-**Properties**
+Properties as follows:
 
 - `product_id`:
 - `optimal_syncs_required_id`:
@@ -364,7 +364,7 @@ erDiagram
 
 ### `product_stripes`
 
-**Properties**
+Properties as follows:
 
 - `id`:
 - `product_id`:
@@ -377,7 +377,7 @@ erDiagram
 
 ### `cart_items`
 
-**Properties**
+Properties as follows:
 
 - `id`:
 - `user_id`:
@@ -388,7 +388,7 @@ erDiagram
 
 ### `notifications`
 
-**Properties**
+Properties as follows:
 
 - `id`:
 - `type`:
@@ -399,7 +399,7 @@ erDiagram
 
 ### `reviews`
 
-**Properties**
+Properties as follows:
 
 - `id`:
 - `user_id`:
@@ -415,7 +415,7 @@ erDiagram
 
 ### `chat_rooms`
 
-**Properties**
+Properties as follows:
 
 - `id`:
 - `user_id`:
@@ -424,7 +424,7 @@ erDiagram
 
 ### `chats`
 
-**Properties**
+Properties as follows:
 
 - `id`:
 - `chat_room_id`:
@@ -436,7 +436,7 @@ erDiagram
 
 ### `orders`
 
-**Properties**
+Properties as follows:
 
 - `id`:
 - `user_id`:
@@ -450,7 +450,7 @@ erDiagram
 
 ### `order_shippings`
 
-**Properties**
+Properties as follows:
 
 - `order_id`:
 - `delivery_name`:
@@ -461,7 +461,7 @@ erDiagram
 
 ### `order_stripes`
 
-**Properties**
+Properties as follows:
 
 - `id`:
 - `order_id`:
@@ -472,7 +472,7 @@ erDiagram
 
 ### `order_items`
 
-**Properties**
+Properties as follows:
 
 - `id`:
 - `order_id`:
@@ -485,7 +485,7 @@ erDiagram
 
 ### `order_item_subscriptions`
 
-**Properties**
+Properties as follows:
 
 - `id`:
 - `order_item_id`:
@@ -499,7 +499,7 @@ erDiagram
 
 ### `order_item_stripes`
 
-**Properties**
+Properties as follows:
 
 - `id`:
 - `order_item_id`:
@@ -509,7 +509,7 @@ erDiagram
 
 ### `subscription_payments`
 
-**Properties**
+Properties as follows:
 
 - `id`:
 - `user_id`:
@@ -521,7 +521,7 @@ erDiagram
 
 ### `shipping_addresses`
 
-**Properties**
+Properties as follows:
 
 - `id`:
 - `user_id`:
@@ -537,7 +537,7 @@ erDiagram
 
 ### `user_bookmarks`
 
-**Properties**
+Properties as follows:
 
 - `user_id`:
 - `product_id`:
@@ -546,7 +546,7 @@ erDiagram
 
 ### `verification_tokens`
 
-**Properties**
+Properties as follows:
 
 - `id`:
 - `identifier`:
