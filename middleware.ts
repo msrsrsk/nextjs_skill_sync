@@ -1,4 +1,4 @@
-import { auth } from "@/lib/auth/middleware"
+import { auth } from "@/lib/auth"
 import { NextResponse } from "next/server"
 
 import { SITE_MAP } from "@/constants/index"

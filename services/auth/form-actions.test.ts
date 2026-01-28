@@ -28,7 +28,7 @@ const { AUTH_LOGIN, AUTH_REAUTHENTICATE } = AUTH_TYPES;
 
 const mockGetUserByEmail = vi.fn()
 
-vi.mock('@/lib/auth/server', () => ({
+vi.mock('@/lib/auth', () => ({
     signIn: vi.fn(),
     signOut: vi.fn()
 }))
@@ -62,12 +62,12 @@ vi.mock('@/repository/user', () => ({
 }))
 
 const getMockSignIn = async () => {
-    const { signIn } = await import('@/lib/auth/server')
+    const { signIn } = await import('@/lib/auth')
     return vi.mocked(signIn)
 }
 
 const getMockSignOut = async () => {
-    const { signOut } = await import('@/lib/auth/server')
+    const { signOut } = await import('@/lib/auth')
     return vi.mocked(signOut)
 }
 

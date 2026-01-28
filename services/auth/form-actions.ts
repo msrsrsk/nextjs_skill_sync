@@ -1,6 +1,6 @@
 "use server"
 
-import { signIn, signOut } from "@/lib/auth/server"
+import { signIn, signOut } from "@/lib/auth"
 
 import { actionAuth } from "@/lib/middleware/auth"
 import { 
