@@ -1,15 +1,17 @@
-const springTransition = (duration: number, delay: number = 0) => ({
+import type { Variants, Transition } from 'framer-motion'
+
+const springTransition = (duration: number, delay: number = 0): Transition => ({
     type: "spring",
     duration: duration,
     delay: delay,
 });
 
-const easeInOutTransition = (duration: number) => ({
+const easeInOutTransition = (duration: number): Transition => ({
     duration: duration,
-    ease: 'easeInOut',
+    ease: 'easeInOut' as const,
 });
 
-export const accordionAnimation = () => {
+export const accordionAnimation = (): Variants => {
     return {
         initial: { height: 0, opacity: 0 },
         animate: { 
@@ -19,20 +21,20 @@ export const accordionAnimation = () => {
         },
         exit: { 
             height: 0, 
-            opacity: 0, 
+            opacity: 0,
             transition: easeInOutTransition(0.4)
         },
     };
 };
 
-export const fadeScale = () => {
+export const fadeScale = (): Variants => {
     return {
 		hidden: { opacity: 0, scale: 0.96 },
 		show: { opacity: 1, scale: 1, transition: easeInOutTransition(0.2) },
     };
 };
 
-export const fadeIn = () => {
+export const fadeIn = (): Variants => {
     return {
 		hidden: { opacity: 0, height: 0, marginTop: 0 },
 		show: { 
@@ -44,14 +46,14 @@ export const fadeIn = () => {
     };
 };
 
-export const fadeInUp = () => {
+export const fadeInUp = (): Variants => {
     return {
 		hidden: { opacity: 0, y: 10 },
 		show: { opacity: 1, y: 0, transition: springTransition(0.8) },
     };
 };
 
-export const fadeInToast = () => {
+export const fadeInToast = (): Variants => {
     return {
 		hidden: { opacity: 0, y: -40 },
 		show: { opacity: 1, y: 0, transition: springTransition(0.4) },
