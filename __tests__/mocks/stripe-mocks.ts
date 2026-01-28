@@ -617,6 +617,7 @@ export const mockCheckoutSession = {
     ui_mode: null,
     url: null,
     wallet_options: null,
+    origin_context: null,
     lastResponse: {
         headers: {},
         requestId: 'req_test_123',
