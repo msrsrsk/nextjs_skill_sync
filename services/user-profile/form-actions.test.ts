@@ -21,7 +21,7 @@ const {
     TEL_UPDATE_FAILED
 } = USER_PROFILE_ERROR;
 
-vi.mock('@/lib/auth', () => ({
+vi.mock('@/lib/auth/middleware', () => ({
     auth: vi.fn()
 }))
 
@@ -44,7 +44,7 @@ vi.mock('@/services/user-profile/actions', () => ({
 }))
 
 const getMockAuth = async () => {
-    const { auth } = await import('@/lib/auth')
+    const { auth } = await import('@/lib/auth/middleware')
     return vi.mocked(auth) as unknown as MockedFunction<() => Promise<Session | null>>
 }
 

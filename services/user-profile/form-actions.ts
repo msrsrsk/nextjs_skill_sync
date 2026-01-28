@@ -1,6 +1,6 @@
 "use server"
 
-import { auth } from "@/lib/auth"
+import { auth } from "@/lib/auth/middleware"
 import { 
     updateUserProfileIconUrl, 
     updateUserProfileName, 

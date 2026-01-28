@@ -1,6 +1,6 @@
 import HeaderContent from "@/components/ui/navigation/HeaderContent"
 import CartCountProvider from "@/components/layout/CartCountProvider"
-import { auth } from "@/lib/auth"
+import { auth } from "@/lib/auth/middleware"
 import { getCartItemRepository } from "@/repository/cartItem"
 import { getProductRepository } from "@/repository/product"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"

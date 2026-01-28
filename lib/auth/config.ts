@@ -1,17 +1,14 @@
-import NextAuth from "next-auth"
 import Credentials from "next-auth/providers/credentials"
-import prisma from "@/lib/clients/prisma/client"
-import { PrismaAdapter } from "@auth/prisma-adapter"
+import type { NextAuthConfig } from "next-auth"
 
-import { authenticateUser, createAccessControlCallback } from "@/services/auth/nextauth"
-import { LoginCredentials } from "next-auth"
+import { createAccessControlCallback } from "@/services/auth/nextauth"
 import { SITE_MAP, SESSION_MAX_AGE } from "@/constants/index"
 
 const { LOGIN_PATH } = SITE_MAP;
 
-export const { handlers, signIn, signOut, auth } = NextAuth({
-    secret: process.env.AUTH_SECRET,
-    adapter: PrismaAdapter(prisma),
+export const getAuthConfig = (options?: {
+    authorize?: (credentials: any) => Promise<any> | null
+}): NextAuthConfig => ({
     providers: [
         Credentials({
             name: "credentials",
@@ -20,9 +17,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 password: { label: "Password", type: "password" }
             },
             async authorize(credentials) {
-                return await authenticateUser(
-                    credentials as LoginCredentials
-                )
+                return options?.authorize ? await options.authorize(credentials) : null
             }
         }),
     ],
