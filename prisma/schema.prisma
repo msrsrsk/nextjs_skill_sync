@@ -14,6 +14,12 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+generator markdown {
+  provider = "prisma-markdown"
+  output   = "./ERD.md"
+  title    = "Skill Sync Database ERD"
+}
+
 // ==================== Enums ====================
 
 // 商品カテゴリー
