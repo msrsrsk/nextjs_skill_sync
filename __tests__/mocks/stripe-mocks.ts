@@ -860,7 +860,7 @@ export const mockPaymentIntent = {
         idempotencyKey: undefined,
         stripeAccount: undefined
     }
-} as Stripe.PaymentIntent;
+};
 
 export const mockShippingRate = {
     id: 'shr_regular_test_123',
