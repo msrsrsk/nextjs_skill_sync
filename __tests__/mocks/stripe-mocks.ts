@@ -838,6 +838,7 @@ export const mockPaymentIntent = {
     },
     payment_method_options: null,
     payment_method_types: ['card'],
+    excluded_payment_method_types: [],
     processing: null,
     receipt_email: null,
     review: null,
@@ -859,7 +860,7 @@ export const mockPaymentIntent = {
         idempotencyKey: undefined,
         stripeAccount: undefined
     }
-}
+} as Stripe.PaymentIntent;
 
 export const mockShippingRate = {
     id: 'shr_regular_test_123',
