@@ -1,6 +1,6 @@
 import type { User } from "next-auth"
 
-import { auth } from "@/lib/auth"
+import { auth } from "@/lib/auth/middleware"
 import { ERROR_MESSAGES } from "@/constants/errorMessages"
 
 interface ServerAuthResult {
