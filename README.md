@@ -144,7 +144,7 @@ Supabase, Prisma を用いたデータ管理から Stripe の決済機能など�
 
 ## <a name="etc">🍦 その他</a>
 
-* <a href="https://github.com/msrsrsk/nextjs_skill_sync/blob/f0569295c329436f24912d1b9c8536719f9db5f7/prisma/ERD.md" target="_blank" rel="noopener noreferrer">
+<a href="https://github.com/msrsrsk/nextjs_skill_sync/blob/f0569295c329436f24912d1b9c8536719f9db5f7/prisma/ERD.md" target="_blank" rel="noopener noreferrer">
 ER 図
 </a>
 <div>
