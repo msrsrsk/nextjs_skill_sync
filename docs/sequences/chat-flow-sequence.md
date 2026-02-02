@@ -1,3 +1,4 @@
+```mermaid
 sequenceDiagram
     participant User as ユーザー
     participant ChatUI as サポートチャットUI
@@ -76,3 +77,4 @@ sequenceDiagram
     end
 
     Hook-->>ChatUI: 送信完了
+```

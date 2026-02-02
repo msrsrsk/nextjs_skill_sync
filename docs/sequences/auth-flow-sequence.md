@@ -1,3 +1,4 @@
+```mermaid
 sequenceDiagram
     participant User as ユーザー
     participant LoginPage as ログインページ
@@ -82,3 +83,4 @@ sequenceDiagram
     else 認証済み
         Middleware-->>User: null（通過）
     end
+```

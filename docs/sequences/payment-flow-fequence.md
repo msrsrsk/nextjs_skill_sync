@@ -1,3 +1,4 @@
+```mermaid
 sequenceDiagram
     participant User as ユーザー
     participant CartUI as カートUI
@@ -89,3 +90,4 @@ sequenceDiagram
 
     WebhookService-->>WebhookAPI: { success: true }
     WebhookAPI-->>StripeAPI: 200 OK
+```

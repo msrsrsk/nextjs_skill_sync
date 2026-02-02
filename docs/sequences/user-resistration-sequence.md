@@ -1,3 +1,4 @@
+```mermaid
 sequenceDiagram
     participant User as ユーザー
     participant Form as 登録フォーム
@@ -108,3 +109,4 @@ sequenceDiagram
             end
         end
     end
+```
