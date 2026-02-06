@@ -191,17 +191,17 @@ export const anotherWorldLinks = [
     { 
         image: `${IMAGE_PATH}/bicycle.png`,
         label: "Bicycle", 
-        href: "https://r3f-bicycle-configurator.netlify.app/", 
+        href: "https://react-three-bicycle-configurator.vercel.app/", 
     },
     { 
         image: `${IMAGE_PATH}/shelf.png`,
         label: "Shelf", 
-        href: "https://r3f-shelf-configurator.netlify.app/", 
+        href: "https://react-three-shelf-configurator.vercel.app/", 
     },
     { 
         image: `${IMAGE_PATH}/ecobag.png`,
         label: "Eco Bag", 
-        href: "https://r3f-ecobag-configurator.netlify.app/", 
+        href: "https://react-three-ecobag-configurator.vercel.app/", 
     },
 ]
 

@@ -40,7 +40,7 @@ const Footer = () => {
                             <Send className="w-[18px] h-[18px]" strokeWidth={1.5} />
                         </LinkButtonPrimary>
                         <LinkButtonSecondary
-                            link="https://sweet-obstacle-race-with-r3f.netlify.app/"
+                            link="https://react-three-sweet-obstacle-race.vercel.app/"
                             size={BUTTON_LARGE}
                             position={POSITION_LEFT}
                             isExternal={true}
