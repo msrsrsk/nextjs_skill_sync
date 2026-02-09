@@ -24,7 +24,6 @@
 4. 🍊 [おまけ](#extra)
 5. 🔫 [使用技術](#tech)
 6. 📙 [あとがき](#more)
-7. 🍦 [その他](#etc)
 <div>
   <br />
 </div>
@@ -64,7 +63,10 @@ Stripe との併用で決済機能も備わったツールなどを総合的に�
 <br />
 複数の機能が組み合わさっている分、実装時間も大きくなってしまいますが<br />
 それだけ Next.js のアウトプット量を見込むことができると感じたため、<br />
-Supabase のデータ管理の方法も合わせて今回チャレンジすることにしました。
+Supabase のデータ管理の方法も合わせて今回チャレンジすることにしました。<br />
+<br />
+<a href="https://github.com/msrsrsk/nextjs_skill_sync/blob/f0569295c329436f24912d1b9c8536719f9db5f7/prisma/ERD.md" target="_blank" rel="noopener noreferrer">
+ER 図はこちら
 
 <div>
   <br />
@@ -150,15 +152,6 @@ Supabase, Prisma を用いたデータ管理から Stripe の決済機能など�
 コードの改善を続けてレベルアップをしていけたらと思います。<br />
 最後までお読みいただきありがとうございました！
 
-<div>
-  <br />
-</div>
-
-## <a name="etc">🍦 その他</a>
-
-<a href="https://github.com/msrsrsk/nextjs_skill_sync/blob/f0569295c329436f24912d1b9c8536719f9db5f7/prisma/ERD.md" target="_blank" rel="noopener noreferrer">
-ER 図
-</a>
 <div>
   <br />
 </div>
