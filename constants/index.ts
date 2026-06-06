@@ -104,6 +104,7 @@ export const SITE_MAP = {
   CHECKOUT_API_PATH: "/api/checkout",
   SUBSCRIPTIONS_API_PATH: "/api/subscription",
   CHAT_API_PATH: "/api/chat",
+  CHAT_RESPONSE_API_PATH: "/api/chat/response",
   SHIPPING_ADDRESS_API_PATH: "/api/address",
 };
 

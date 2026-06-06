@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 
-import { handleChatMessage } from "@/services/chat/hybrid-search";
 import {
   CHAT_CONFIG,
   CHAT_SENDER_TYPES,
@@ -12,10 +11,17 @@ import { ERROR_MESSAGES } from "@/constants/errorMessages";
 const { MAX_CHAT_MESSAGES } = CHAT_CONFIG;
 const { SENDER_USER, SENDER_ADMIN } = CHAT_SENDER_TYPES;
 const { CHAT_USER } = CHAT_SOURCE;
-const { CHAT_API_PATH } = SITE_MAP;
+const { CHAT_API_PATH, CHAT_RESPONSE_API_PATH } = SITE_MAP;
 const { CHAT_ERROR } = ERROR_MESSAGES;
 
 type ChatMessageType = string;
+type GenerateAIResponseResult =
+  | { success: false }
+  | {
+      success: true;
+      message: ChatMessageType;
+      source: ChatSourceType;
+    };
 
 const useChatSend = ({ chats }: { chats: ChatProps[] }) => {
   const [chatMessages, setChatMessages] = useState(chats);
@@ -61,6 +67,35 @@ const useChatSend = ({ chats }: { chats: ChatProps[] }) => {
     }
 
     return { success: true };
+  };
+
+  const generateAIResponse = async (
+    message: ChatMessageType,
+  ): Promise<GenerateAIResponseResult> => {
+    const response = await fetch(CHAT_RESPONSE_API_PATH, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ message }),
+    });
+
+    const {
+      success: aiResponseSuccess,
+      message: aiResponseMessage,
+      source: aiResponseSource,
+    } = await response.json();
+
+    if (!response.ok || !aiResponseSuccess || !aiResponseMessage) {
+      setError(aiResponseMessage ?? CHAT_ERROR.SEND_FAILED);
+      return { success: false };
+    }
+
+    return {
+      success: true,
+      message: aiResponseMessage as ChatMessageType,
+      source: aiResponseSource as ChatSourceType,
+    };
   };
 
   const addAIMessageToUI = (
@@ -125,23 +160,19 @@ const useChatSend = ({ chats }: { chats: ChatProps[] }) => {
       }
 
       // AIによる回答を生成
-      const {
-        success: aiResponseSuccess,
-        message: aiResponseMessage,
-        source: aiResponseSource,
-      } = await handleChatMessage(message);
+      const aiResponse = await generateAIResponse(message);
+      if (!aiResponse.success) {
+        return { success: false };
+      }
 
-      if (aiResponseSuccess && aiResponseMessage) {
-        addAIMessageToUI(aiResponseMessage, aiResponseSource);
+      addAIMessageToUI(aiResponse.message, aiResponse.source);
+      const saveAiResult = await saveAIMessageToDB(
+        aiResponse.message,
+        aiResponse.source,
+      );
 
-        const saveAiResult = await saveAIMessageToDB(
-          aiResponseMessage,
-          aiResponseSource,
-        );
-
-        if (!saveAiResult.success) {
-          return { success: false };
-        }
+      if (!saveAiResult.success) {
+        return { success: false };
       }
 
       return { success: true };
