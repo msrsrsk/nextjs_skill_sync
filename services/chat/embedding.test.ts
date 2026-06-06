@@ -1,164 +1,174 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
-import { CHAT_CONFIG } from "@/constants"
+import { CHAT_CONFIG } from "@/constants";
+import { CHAT_TEMPLATES } from "@/data/chats";
+import { ERROR_MESSAGES } from "@/constants/errorMessages";
 
-vi.mock('@langchain/openai', () => ({
-    OpenAIEmbeddings: vi.fn(),
-}))
+const { CHAT_ERROR } = ERROR_MESSAGES;
 
-vi.mock('langchain/vectorstores/memory', () => ({
-    MemoryVectorStore: {
-        fromTexts: vi.fn(),
+const HIGH_SIMILARITY_EMBEDDING = [1, 0, 0];
+const LOW_SIMILARITY_EMBEDDING = [0, 1, 0];
+const TEST_EMBEDDING_MODEL = "text-embedding-ada-002";
+
+const { mockEmbeddingsCreate } = vi.hoisted(() => ({
+  mockEmbeddingsCreate: vi.fn(),
+}));
+
+vi.mock("@/lib/clients/openai/client", () => ({
+  default: {
+    embeddings: {
+      create: mockEmbeddingsCreate,
     },
-}))
+  },
+}));
 
-let findSimilarTemplate: typeof import('@/services/chat/embedding').findSimilarTemplate
-let resetMonthlyUsage: typeof import('@/services/chat/embedding').resetMonthlyUsage
-let getUsageStats: typeof import('@/services/chat/embedding').getUsageStats
+let findSimilarTemplate: typeof import("@/services/chat/embedding").findSimilarTemplate;
+let resetMonthlyUsage: typeof import("@/services/chat/embedding").resetMonthlyUsage;
+let getUsageStats: typeof import("@/services/chat/embedding").getUsageStats;
 
-const setOpenAiApiKey = (key: string, val?: string) => {
-    if (val === undefined) delete process.env[key]
-    else process.env[key] = val
-}
+const setEnv = (key: string, value?: string) => {
+  if (value === undefined) {
+    delete process.env[key];
+  } else {
+    process.env[key] = value;
+  }
+};
+
+const createEmbeddingResponse = (embeddings: number[][]) => ({
+  data: embeddings.map((embedding, index) => ({
+    embedding,
+    index,
+  })),
+});
+
+const setupHighSimilarityMock = () => {
+  mockEmbeddingsCreate.mockImplementation(
+    async ({ input }: { input: string | string[] }) => {
+      if (Array.isArray(input)) {
+        return createEmbeddingResponse(
+          input.map(() => HIGH_SIMILARITY_EMBEDDING),
+        );
+      }
+
+      return createEmbeddingResponse([HIGH_SIMILARITY_EMBEDDING]);
+    },
+  );
+};
+
+const setupLowSimilarityMock = () => {
+  mockEmbeddingsCreate.mockImplementation(
+    async ({ input }: { input: string | string[] }) => {
+      if (Array.isArray(input)) {
+        return createEmbeddingResponse(
+          input.map(() => HIGH_SIMILARITY_EMBEDDING),
+        );
+      }
+
+      return createEmbeddingResponse([LOW_SIMILARITY_EMBEDDING]);
+    },
+  );
+};
 
 const getModule = async () => {
-    const mod = await import('@/services/chat/embedding')
-    findSimilarTemplate = mod.findSimilarTemplate
-    resetMonthlyUsage = mod.resetMonthlyUsage
-    getUsageStats = mod.getUsageStats
-}
+  const mod = await import("@/services/chat/embedding");
 
-vi.mock('langchain/vectorstores/memory', () => {
-    class MockMemoryVectorStore {
-      similaritySearchWithScore = vi.fn<
-        (query: string, k: number) => Promise<Array<[ { metadata: any }, number ]>>
-      >()
-    }
-  
-    const fromTexts = vi.fn<
-      (texts: string[], metadatas: any[], embeddings: any) => Promise<MockMemoryVectorStore>
-    >(async () => new MockMemoryVectorStore())
-  
-    const MemoryVectorStore = { fromTexts }
-  
-    return { MemoryVectorStore }
-})
+  findSimilarTemplate = mod.findSimilarTemplate;
+  resetMonthlyUsage = mod.resetMonthlyUsage;
+  getUsageStats = mod.getUsageStats;
+};
 
-/* ==================================== 
-    findSimilarTemplate Test
+/* ====================================
+  findSimilarTemplate Test
 ==================================== */
-describe('embedding', () => {
-    beforeEach(async () => {
-        vi.clearAllMocks()
-        setOpenAiApiKey('OPENAI_API_KEY', 'test-key')
-        await getModule()
-        resetMonthlyUsage()
-    })
-  
-    afterEach(() => {
-        vi.unstubAllEnvs?.()
-    })
+describe("embedding", () => {
+  beforeEach(async () => {
+    vi.clearAllMocks();
+    vi.resetModules();
 
-    // 作成成功（類似スコアが閾値を超えた場合）
-    it('should return answer when similarity score is greater than threshold', async () => {
-        const { MemoryVectorStore } = await import('langchain/vectorstores/memory')
+    setEnv("OPENAI_API_KEY", "test-key");
+    setEnv("OPENAI_EMBEDDING_MODEL", TEST_EMBEDDING_MODEL);
 
-        vi.mocked(MemoryVectorStore.fromTexts).mockResolvedValue(
-            Object.assign(new (class {
-            similaritySearchWithScore = vi.fn().mockResolvedValue([
-                [{ metadata: { answer: 'matched answer' } }, CHAT_CONFIG.SIMILARITY_THRESHOLD + 0.1],
-            ])
-            })())
-        )
+    setupHighSimilarityMock();
+    await getModule();
+    resetMonthlyUsage();
+  });
 
-        const result = await findSimilarTemplate('question')
+  afterEach(() => {
+    vi.unstubAllEnvs?.();
+  });
 
-        expect(result.success).toBe(true)
-        expect(result.error).toBeNull()
-        expect(result.message).toBe('matched answer')
-    })
-  
-    // 作成失敗（APIキー未設定）
-    it('should return error when API key is not set', async () => {
-        setOpenAiApiKey('OPENAI_API_KEY', undefined)
+  it("作成成功（類似スコアが閾値を超えた場合）", async () => {
+    const result = await findSimilarTemplate("question");
 
-        const result = await findSimilarTemplate('hello')
+    expect(result.success).toBe(true);
+    expect(result.error).toBeNull();
+    expect(result.message).toBe(CHAT_TEMPLATES[0].answer);
+  });
 
-        expect(result.success).toBe(false)
-        expect(result.error).toBeDefined()
-        expect(result.message).toBeNull()
-    })
-  
-    // 作成失敗（月次上限超過）
-    it('should return error when monthly limit is exceeded', async () => {
-        const { MemoryVectorStore } = await import('langchain/vectorstores/memory')
+  it("作成失敗（APIキー未設定）", async () => {
+    setEnv("OPENAI_API_KEY", undefined);
 
-        vi.mocked(MemoryVectorStore.fromTexts).mockResolvedValue(
-            Object.assign(new (class {
-              similaritySearchWithScore = vi.fn().mockResolvedValue([])
-            })())
-        )
+    const result = await findSimilarTemplate("hello");
 
-        for (let i = 0; i < CHAT_CONFIG.MONTHLY_LIMIT; i++) {
-            await findSimilarTemplate('hello')
-        }
+    expect(result.success).toBe(false);
+    expect(result.error).toBe(CHAT_ERROR.OPENAI_API_KEY_NOT_SET);
+    expect(result.message).toBeNull();
+  });
 
-        const result = await findSimilarTemplate('hello')
+  it("作成失敗（埋め込みモデル未設定）", async () => {
+    setEnv("OPENAI_EMBEDDING_MODEL", undefined);
 
-        expect(result.success).toBe(false)
-        expect(result.error).toBeDefined()
-        expect(result.message).toBeNull()
-    })
-  
-    // 作成失敗（類似スコアが閾値以下）
-    it('should return null when similarity score is less than threshold', async () => {
-        const { MemoryVectorStore } = await import('langchain/vectorstores/memory')
+    const result = await findSimilarTemplate("hello");
 
-        vi.mocked(MemoryVectorStore.fromTexts).mockResolvedValue(
-            Object.assign(new (class {
-              similaritySearchWithScore = vi.fn().mockResolvedValue([])
-            })())
-        )
+    expect(result.success).toBe(false);
+    expect(result.error).toBe(CHAT_ERROR.OPENAI_EMBEDDING_MODEL_NOT_SET);
+    expect(result.message).toBeNull();
+  });
 
-        const result = await findSimilarTemplate('question')
+  it("作成失敗（月次上限超過）", async () => {
+    for (let i = 0; i < CHAT_CONFIG.MONTHLY_LIMIT; i++) {
+      await findSimilarTemplate("hello");
+    }
 
-        expect(result.success).toBe(false)
-        expect(result.error).toBeNull()
-        expect(result.message).toBeNull()
-    })
-  
-    // 作成失敗（例外発生）
-    it('should return error when exception occurs', async () => {
-        const { MemoryVectorStore } = await import('langchain/vectorstores/memory')
+    const result = await findSimilarTemplate("hello");
 
-        vi.mocked(MemoryVectorStore.fromTexts).mockRejectedValue(
-            new Error('vector error')
-        )
+    expect(result.success).toBe(false);
+    expect(result.error).toBe(CHAT_ERROR.MONTHLY_LIMIT_EXCEEDED);
+    expect(result.message).toBeNull();
+  });
 
-        const result = await findSimilarTemplate('question')
+  it("作成失敗（類似スコアが閾値以下）", async () => {
+    setupLowSimilarityMock();
 
-        expect(result.success).toBe(false)
-        expect(result.error).toBeDefined()
-        expect(result.message).toBeNull()
-    })
-  
-    // 使用量のカウントとリセットの機能確認
-    it('should count and reset usage correctly', async () => {
-        const { MemoryVectorStore } = await import('langchain/vectorstores/memory')
+    const result = await findSimilarTemplate("question");
 
-        vi.mocked(MemoryVectorStore.fromTexts).mockResolvedValue(
-            Object.assign(new (class {
-              similaritySearchWithScore = vi.fn().mockResolvedValue([])
-            })())
-        )
+    expect(result.success).toBe(false);
+    expect(result.error).toBeNull();
+    expect(result.message).toBeNull();
+  });
 
-        const before = getUsageStats()
-        await findSimilarTemplate('q1')
-        const mid = getUsageStats()
+  it("作成失敗（例外発生）", async () => {
+    mockEmbeddingsCreate.mockRejectedValue(new Error("api error"));
 
-        resetMonthlyUsage()
-        const after = getUsageStats()
-        expect(after.currentUsage).toBeLessThanOrEqual(before.currentUsage)
-        expect(mid.currentUsage).toBe(before.currentUsage + 1)
-    })
-})
+    const result = await findSimilarTemplate("question");
+
+    expect(result.success).toBe(false);
+    expect(result.error).toBe(CHAT_ERROR.EMBEDDING_SEARCH_FAILED);
+    expect(result.message).toBeNull();
+  });
+
+  it("使用量のカウントとリセットの機能確認", async () => {
+    const before = getUsageStats();
+
+    await findSimilarTemplate("q1");
+
+    const mid = getUsageStats();
+
+    resetMonthlyUsage();
+
+    const after = getUsageStats();
+
+    expect(mid.currentUsage).toBe(before.currentUsage + 1);
+    expect(after.currentUsage).toBe(0);
+  });
+});
