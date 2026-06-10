@@ -92,6 +92,7 @@ export const SITE_MAP = {
   ICON_PATH: "/assets/icons",
   PRODUCT_PATH: "/assets/products",
   IMAGE_PATH: "/assets/images",
+  LOTTIE_PATH: "/assets/lottie",
 
   ANOTHER_WORLD_PATH: "/#another-world",
 
@@ -107,6 +108,9 @@ export const SITE_MAP = {
   CHAT_RESPONSE_API_PATH: "/api/chat/response",
   SHIPPING_ADDRESS_API_PATH: "/api/address",
 };
+
+// congrats の Lottieアニメーションのパス
+export const CONGRATS_LOTTIE_PATH = `${SITE_MAP.LOTTIE_PATH}/congrats.lottie`;
 
 // 領収書の設定
 export const RECEIPT_CONFIG = {
