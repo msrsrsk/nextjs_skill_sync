@@ -20,7 +20,7 @@ const LottieAnimation = ({
       src={src}
       autoplay={autoplay}
       loop={loop}
-      className={`w-128 h-128 pointer-events-none ${customClass ?? ""}`}
+      className={`w-[512px] h-[512px] pointer-events-none ${customClass ?? ""}`}
     />
   );
 };
