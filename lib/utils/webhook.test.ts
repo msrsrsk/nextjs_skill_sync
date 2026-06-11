@@ -1,543 +1,572 @@
-import { describe, it, expect, vi, beforeEach } from "vitest"
-import { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers"
-import { NextRequest } from "next/server"
-import crypto from "crypto"
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers";
+import { NextRequest } from "next/server";
+import crypto from "crypto";
 
-import { 
-    verifyWebhookSignature,
-    verifySupabaseWebhookAuth
-} from "@/lib/utils/webhook"
+import {
+  verifyWebhookSignature,
+  verifyDatabaseWebhookAuth,
+} from "@/lib/utils/webhook";
 
-vi.mock('@/lib/clients/stripe/client', () => ({
-    stripe: {
-        webhooks: {
-            constructEvent: vi.fn()
-        }
-    }
-}))
+vi.mock("@/lib/clients/stripe/client", () => ({
+  stripe: {
+    webhooks: {
+      constructEvent: vi.fn(),
+    },
+  },
+}));
 
-vi.mock('@/lib/utils/security', () => ({
-    verifyHMACSignature: vi.fn()
-}))
+vi.mock("@/lib/utils/security", () => ({
+  verifyHMACSignature: vi.fn(),
+}));
 
-vi.mock('next/headers', () => ({
-    headers: vi.fn()
-}))
+vi.mock("next/headers", () => ({
+  headers: vi.fn(),
+}));
 
 const getMockHeaders = async () => {
-    const { headers } = await import('next/headers')
-    return vi.mocked(headers)
-}
+  const { headers } = await import("next/headers");
+  return vi.mocked(headers);
+};
 
 const getMockStripe = async () => {
-    const { stripe } = await import('@/lib/clients/stripe/client')
-    return vi.mocked(stripe)
-}
+  const { stripe } = await import("@/lib/clients/stripe/client");
+  return vi.mocked(stripe);
+};
 
 const getMockSecurity = async () => {
-    const { verifyHMACSignature } = await import('@/lib/utils/security')
-    return vi.mocked(verifyHMACSignature)
-}
+  const { verifyHMACSignature } = await import("@/lib/utils/security");
+  return vi.mocked(verifyHMACSignature);
+};
 
-/* ==================================== 
+/* ====================================
     verifyWebhookSignature Test
 ==================================== */
-describe('verifyHMACSignature', () => {
-    beforeEach(() => {
-        vi.clearAllMocks()
+describe("verifyHMACSignature", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
 
-        process.env.STRIPE_SIGNATURE_HEADER = 'test-signature'
-    })
+    process.env.STRIPE_SIGNATURE_HEADER = "test-signature";
+  });
 
-    // 認証成功
-    it('should verify webhook signature successfully', async () => {
-        const mockHeaders = await getMockHeaders()
-        const mockStripe = await getMockStripe()
-        
-        const mockRequest = {
-            text: vi.fn().mockResolvedValue('{"type": "payment_intent.succeeded", "data": {}}')
-        }
+  // 認証成功
+  it("should verify webhook signature successfully", async () => {
+    const mockHeaders = await getMockHeaders();
+    const mockStripe = await getMockStripe();
 
-        const mockEvent = {
-            type: 'payment_intent.succeeded',
-            data: {}
-        }
+    const mockRequest = {
+      text: vi
+        .fn()
+        .mockResolvedValue('{"type": "payment_intent.succeeded", "data": {}}'),
+    };
 
-        const signature = 'test_signature'
-        const endpointSecret = 'test_endpoint_secret'
-        const errorMessage = 'Verification failed'
+    const mockEvent = {
+      type: "payment_intent.succeeded",
+      data: {},
+    };
 
-        mockHeaders.mockReturnValue({
-            get: vi.fn().mockReturnValue(signature)
-        } as unknown as ReadonlyHeaders)
+    const signature = "test_signature";
+    const endpointSecret = "test_endpoint_secret";
+    const errorMessage = "Verification failed";
 
-        ;(mockStripe.webhooks.constructEvent as unknown as ReturnType<typeof vi.fn>).mockReturnValue(mockEvent)
+    mockHeaders.mockReturnValue({
+      get: vi.fn().mockReturnValue(signature),
+    } as unknown as ReadonlyHeaders);
+    (
+      mockStripe.webhooks.constructEvent as unknown as ReturnType<typeof vi.fn>
+    ).mockReturnValue(mockEvent);
 
-        const result = await verifyWebhookSignature({
-            request: mockRequest as unknown as NextRequest,
-            endpointSecret,
-            errorMessage
-        })
+    const result = await verifyWebhookSignature({
+      request: mockRequest as unknown as NextRequest,
+      endpointSecret,
+      errorMessage,
+    });
 
-        expect(mockHeaders().get).toHaveBeenCalledWith('test-signature')
-        expect(mockRequest.text).toHaveBeenCalledTimes(1)
-        expect(mockStripe.webhooks.constructEvent).toHaveBeenCalledWith(
-            '{"type": "payment_intent.succeeded", "data": {}}',
-            signature,
-            endpointSecret
-        )
-        expect(result).toEqual(mockEvent)
-    })
+    expect(mockHeaders().get).toHaveBeenCalledWith("test-signature");
+    expect(mockRequest.text).toHaveBeenCalledTimes(1);
+    expect(mockStripe.webhooks.constructEvent).toHaveBeenCalledWith(
+      '{"type": "payment_intent.succeeded", "data": {}}',
+      signature,
+      endpointSecret,
+    );
+    expect(result).toEqual(mockEvent);
+  });
 
-    // 署名がない場合
-    it('should throw error when signature is not found', async () => {
-        const mockHeaders = await getMockHeaders()
-        
-        const mockRequest = {
-            text: vi.fn()
-        } as unknown as NextRequest
+  // 署名がない場合
+  it("should throw error when signature is not found", async () => {
+    const mockHeaders = await getMockHeaders();
 
-        const endpointSecret = 'test_endpoint_secret'
-        const errorMessage = 'Verification failed'
+    const mockRequest = {
+      text: vi.fn(),
+    } as unknown as NextRequest;
 
-        mockHeaders.mockReturnValue({
-            get: vi.fn().mockReturnValue(null)
-        } as unknown as ReadonlyHeaders)
+    const endpointSecret = "test_endpoint_secret";
+    const errorMessage = "Verification failed";
 
-        await expect(verifyWebhookSignature({
-            request: mockRequest,
-            endpointSecret,
-            errorMessage
-        })).rejects.toThrow(errorMessage)
+    mockHeaders.mockReturnValue({
+      get: vi.fn().mockReturnValue(null),
+    } as unknown as ReadonlyHeaders);
 
-        expect(mockRequest.text).not.toHaveBeenCalled()
-    })
+    await expect(
+      verifyWebhookSignature({
+        request: mockRequest,
+        endpointSecret,
+        errorMessage,
+      }),
+    ).rejects.toThrow(errorMessage);
 
-    // endpointSecret がない場合
-    it('should throw error when endpointSecret is not provided', async () => {
-        const mockHeaders = await getMockHeaders()
-        
-        const mockRequest = {
-            text: vi.fn()
-        } as unknown as NextRequest
+    expect(mockRequest.text).not.toHaveBeenCalled();
+  });
 
-        const signature = 'test_signature'
-        const endpointSecret = ''
-        const errorMessage = 'Verification failed'
+  // endpointSecret がない場合
+  it("should throw error when endpointSecret is not provided", async () => {
+    const mockHeaders = await getMockHeaders();
 
-        mockHeaders.mockReturnValue({
-            get: vi.fn().mockReturnValue(signature)
-        } as unknown as ReadonlyHeaders)
+    const mockRequest = {
+      text: vi.fn(),
+    } as unknown as NextRequest;
 
-        await expect(verifyWebhookSignature({
-            request: mockRequest,
-            endpointSecret,
-            errorMessage
-        })).rejects.toThrow(errorMessage)
+    const signature = "test_signature";
+    const endpointSecret = "";
+    const errorMessage = "Verification failed";
 
-        expect(mockRequest.text).not.toHaveBeenCalled()
-    })
+    mockHeaders.mockReturnValue({
+      get: vi.fn().mockReturnValue(signature),
+    } as unknown as ReadonlyHeaders);
 
-    // stripe.webhooks.constructEvent が失敗する場合
-    it('should throw error when constructEvent fails', async () => {
-        const mockHeaders = await getMockHeaders()
-        const mockStripe = await getMockStripe()
-        
-        const mockRequest = {
-            text: vi.fn().mockResolvedValue('invalid body')
-        } as unknown as NextRequest
+    await expect(
+      verifyWebhookSignature({
+        request: mockRequest,
+        endpointSecret,
+        errorMessage,
+      }),
+    ).rejects.toThrow(errorMessage);
 
-        const signature = 'test_signature'
-        const endpointSecret = 'test_endpoint_secret'
-        const errorMessage = 'Verification failed'
+    expect(mockRequest.text).not.toHaveBeenCalled();
+  });
 
-        mockHeaders.mockReturnValue({
-            get: vi.fn().mockReturnValue(signature)
-        } as unknown as ReadonlyHeaders)
+  // stripe.webhooks.constructEvent が失敗する場合
+  it("should throw error when constructEvent fails", async () => {
+    const mockHeaders = await getMockHeaders();
+    const mockStripe = await getMockStripe();
 
-        ;(mockStripe.webhooks.constructEvent as unknown as ReturnType<typeof vi.fn>).mockImplementation(() => {
-            throw new Error('Invalid signature')
-        })
+    const mockRequest = {
+      text: vi.fn().mockResolvedValue("invalid body"),
+    } as unknown as NextRequest;
 
-        await expect(verifyWebhookSignature({
-            request: mockRequest,
-            endpointSecret,
-            errorMessage
-        })).rejects.toThrow(errorMessage)
+    const signature = "test_signature";
+    const endpointSecret = "test_endpoint_secret";
+    const errorMessage = "Verification failed";
 
-        expect(mockHeaders().get).toHaveBeenCalledWith('test-signature')
-        expect(mockRequest.text).toHaveBeenCalledTimes(1)
-        expect(mockStripe.webhooks.constructEvent).toHaveBeenCalledWith(
-            'invalid body',
-            signature,
-            endpointSecret
-        )
-    })
+    mockHeaders.mockReturnValue({
+      get: vi.fn().mockReturnValue(signature),
+    } as unknown as ReadonlyHeaders);
+    (
+      mockStripe.webhooks.constructEvent as unknown as ReturnType<typeof vi.fn>
+    ).mockImplementation(() => {
+      throw new Error("Invalid signature");
+    });
 
-    // request.text() がエラーを投げる場合
-    it('should propagate error when request.text() fails', async () => {
-        const mockHeaders = await getMockHeaders()
-        
-        const mockRequest = {
-            text: vi.fn().mockRejectedValue(new Error('Request error'))
-        } as unknown as NextRequest
+    await expect(
+      verifyWebhookSignature({
+        request: mockRequest,
+        endpointSecret,
+        errorMessage,
+      }),
+    ).rejects.toThrow(errorMessage);
 
-        const signature = 'test_signature'
-        const endpointSecret = 'test_endpoint_secret'
-        const errorMessage = 'Verification failed'
+    expect(mockHeaders().get).toHaveBeenCalledWith("test-signature");
+    expect(mockRequest.text).toHaveBeenCalledTimes(1);
+    expect(mockStripe.webhooks.constructEvent).toHaveBeenCalledWith(
+      "invalid body",
+      signature,
+      endpointSecret,
+    );
+  });
 
-        mockHeaders.mockReturnValue({
-            get: vi.fn().mockReturnValue(signature)
-        } as unknown as ReadonlyHeaders)
+  // request.text() がエラーを投げる場合
+  it("should propagate error when request.text() fails", async () => {
+    const mockHeaders = await getMockHeaders();
 
-        await expect(verifyWebhookSignature({
-            request: mockRequest,
-            endpointSecret,
-            errorMessage
-        })).rejects.toThrow('Request error')
-    })
+    const mockRequest = {
+      text: vi.fn().mockRejectedValue(new Error("Request error")),
+    } as unknown as NextRequest;
 
-    // 環境変数が設定されていない場合
-    it('should handle missing STRIPE_SIGNATURE_HEADER environment variable', async () => {
-        const mockHeaders = await getMockHeaders()
-        
-        const originalEnv = process.env.STRIPE_SIGNATURE_HEADER
-        delete process.env.STRIPE_SIGNATURE_HEADER
+    const signature = "test_signature";
+    const endpointSecret = "test_endpoint_secret";
+    const errorMessage = "Verification failed";
 
-        const mockRequest = {
-            text: vi.fn()
-        } as unknown as NextRequest
+    mockHeaders.mockReturnValue({
+      get: vi.fn().mockReturnValue(signature),
+    } as unknown as ReadonlyHeaders);
 
-        const endpointSecret = 'test_endpoint_secret'
-        const errorMessage = 'Verification failed'
+    await expect(
+      verifyWebhookSignature({
+        request: mockRequest,
+        endpointSecret,
+        errorMessage,
+      }),
+    ).rejects.toThrow("Request error");
+  });
 
-        mockHeaders.mockReturnValue({
-            get: vi.fn().mockReturnValue(null)
-        } as unknown as ReadonlyHeaders)
+  // 環境変数が設定されていない場合
+  it("should handle missing STRIPE_SIGNATURE_HEADER environment variable", async () => {
+    const mockHeaders = await getMockHeaders();
 
-        await expect(verifyWebhookSignature({
-            request: mockRequest,
-            endpointSecret,
-            errorMessage
-        })).rejects.toThrow(errorMessage)
+    const originalEnv = process.env.STRIPE_SIGNATURE_HEADER;
+    delete process.env.STRIPE_SIGNATURE_HEADER;
 
-        process.env.STRIPE_SIGNATURE_HEADER = originalEnv
-    })
+    const mockRequest = {
+      text: vi.fn(),
+    } as unknown as NextRequest;
 
-    // 複数のイベントタイプをテスト
-    it('should handle different event types', async () => {
-        const mockHeaders = await getMockHeaders()
-        const mockStripe = await getMockStripe()
-        
-        const eventTypes = [
-            'payment_intent.succeeded',
-            'payment_intent.payment_failed',
-            'customer.subscription.created'
-        ]
+    const endpointSecret = "test_endpoint_secret";
+    const errorMessage = "Verification failed";
 
-        for (const eventType of eventTypes) {
-            vi.clearAllMocks()
+    mockHeaders.mockReturnValue({
+      get: vi.fn().mockReturnValue(null),
+    } as unknown as ReadonlyHeaders);
 
-            const mockRequest = {
-                text: vi.fn().mockResolvedValue(`{"type": "${eventType}", "data": {}}`)
-            } as unknown as NextRequest
+    await expect(
+      verifyWebhookSignature({
+        request: mockRequest,
+        endpointSecret,
+        errorMessage,
+      }),
+    ).rejects.toThrow(errorMessage);
 
-            const mockEvent = {
-                type: eventType,
-                data: {}
-            }
+    process.env.STRIPE_SIGNATURE_HEADER = originalEnv;
+  });
 
-            const signature = 'test_signature'
-            const endpointSecret = 'test_endpoint_secret'
-            const errorMessage = 'Verification failed'
+  // 複数のイベントタイプをテスト
+  it("should handle different event types", async () => {
+    const mockHeaders = await getMockHeaders();
+    const mockStripe = await getMockStripe();
 
-            mockHeaders.mockReturnValue({
-                get: vi.fn().mockReturnValue(signature)
-            } as unknown as ReadonlyHeaders)
+    const eventTypes = [
+      "payment_intent.succeeded",
+      "payment_intent.payment_failed",
+      "customer.subscription.created",
+    ];
 
-            ;(mockStripe.webhooks.constructEvent as unknown as ReturnType<typeof vi.fn>).mockReturnValue(mockEvent)
+    for (const eventType of eventTypes) {
+      vi.clearAllMocks();
 
-            const result = await verifyWebhookSignature({
-                request: mockRequest,
-                endpointSecret,
-                errorMessage
-            })
+      const mockRequest = {
+        text: vi.fn().mockResolvedValue(`{"type": "${eventType}", "data": {}}`),
+      } as unknown as NextRequest;
 
-            expect(result.type).toBe(eventType)
-        }
-    })
-})
+      const mockEvent = {
+        type: eventType,
+        data: {},
+      };
 
-/* ==================================== 
-    verifySupabaseWebhookAuth Test
+      const signature = "test_signature";
+      const endpointSecret = "test_endpoint_secret";
+      const errorMessage = "Verification failed";
+
+      mockHeaders.mockReturnValue({
+        get: vi.fn().mockReturnValue(signature),
+      } as unknown as ReadonlyHeaders);
+      (
+        mockStripe.webhooks.constructEvent as unknown as ReturnType<
+          typeof vi.fn
+        >
+      ).mockReturnValue(mockEvent);
+
+      const result = await verifyWebhookSignature({
+        request: mockRequest,
+        endpointSecret,
+        errorMessage,
+      });
+
+      expect(result.type).toBe(eventType);
+    }
+  });
+});
+
+/* ====================================
+    verifyDatabaseWebhookAuth Test
 ==================================== */
-describe('verifySupabaseWebhookAuth', () => {
-    beforeEach(() => {
-        vi.clearAllMocks()
+describe("verifyDatabaseWebhookAuth", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
 
-        process.env.SUPABASE_WEBHOOK_SECRET_KEY = 'test_secret_key'
-    })
-    
-    // 認証成功
-    it('should verify Supabase webhook auth successfully', async () => {
-        const mockHeaders = await getMockHeaders()
-        const mockSecurity = await getMockSecurity()
-        
-        const payload = JSON.stringify({
-            record: { id: '1', name: 'test' },
-            old_record: { id: '1', name: 'old' },
-            type: 'INSERT'
-        })
+    process.env.SUPABASE_WEBHOOK_SECRET_KEY = "test_secret_key";
+  });
 
-        const secret = process.env.SUPABASE_WEBHOOK_SECRET_KEY as string
-        
-        const hmac = crypto.createHmac('sha256', secret)
-        hmac.update(payload)
-        const signatureHeader = hmac.digest('base64')
+  // 認証成功
+  it("should verify Supabase webhook auth successfully", async () => {
+    const mockHeaders = await getMockHeaders();
+    const mockSecurity = await getMockSecurity();
 
-        const mockRequest = {
-            text: vi.fn().mockResolvedValue(payload)
-        } as unknown as NextRequest
+    const payload = JSON.stringify({
+      record: { id: "1", name: "test" },
+      old_record: { id: "1", name: "old" },
+      type: "INSERT",
+    });
 
-        const authHeader = `Bearer ${process.env.SUPABASE_WEBHOOK_SECRET_KEY}`
-        const errorMessage = 'Verification failed'
+    const secret = process.env.SUPABASE_WEBHOOK_SECRET_KEY as string;
 
-        mockHeaders.mockResolvedValue({
-            get: vi.fn((name: string) => {
-                if (name === 'authorization') return authHeader
-                if (name === 'x-webhook-signature') return signatureHeader
-                return null
-            })
-        } as unknown as ReadonlyHeaders)
+    const hmac = crypto.createHmac("sha256", secret);
+    hmac.update(payload);
+    const signatureHeader = hmac.digest("base64");
 
-        mockSecurity.mockResolvedValue(true)
+    const mockRequest = {
+      text: vi.fn().mockResolvedValue(payload),
+    } as unknown as NextRequest;
 
-        const result = await verifySupabaseWebhookAuth({
-            request: mockRequest,
-            errorMessage
-        })
+    const authHeader = `Bearer ${process.env.SUPABASE_WEBHOOK_SECRET_KEY}`;
+    const errorMessage = "Verification failed";
 
-        expect(mockRequest.text).toHaveBeenCalledTimes(1)
-        expect(mockHeaders).toHaveBeenCalledTimes(1)
-        expect(mockSecurity).toHaveBeenCalledWith({
-            payload,
-            signature: signatureHeader,
-            secret: process.env.SUPABASE_WEBHOOK_SECRET_KEY
-        })
-        expect(result).toEqual({
-            record: { id: '1', name: 'test' },
-            old_record: { id: '1', name: 'old' },
-            type: 'INSERT'
-        })
+    mockHeaders.mockResolvedValue({
+      get: vi.fn((name: string) => {
+        if (name === "authorization") return authHeader;
+        if (name === "x-webhook-signature") return signatureHeader;
+        return null;
+      }),
+    } as unknown as ReadonlyHeaders);
 
-        mockSecurity.mockRestore()
-    })
+    mockSecurity.mockResolvedValue(true);
 
-    // authorization ヘッダーが一致しない場合
-    it('should throw error when authorization header does not match', async () => {
-        const mockHeaders = await getMockHeaders()
-        const mockSecurity = await getMockSecurity()
-        
-        const mockRequest = {
-            text: vi.fn().mockResolvedValue('{}')
-        } as unknown as NextRequest
+    const result = await verifyDatabaseWebhookAuth({
+      request: mockRequest,
+      errorMessage,
+    });
 
-        const errorMessage = 'Verification failed'
+    expect(mockRequest.text).toHaveBeenCalledTimes(1);
+    expect(mockHeaders).toHaveBeenCalledTimes(1);
+    expect(mockSecurity).toHaveBeenCalledWith({
+      payload,
+      signature: signatureHeader,
+      secret: process.env.SUPABASE_WEBHOOK_SECRET_KEY,
+    });
+    expect(result).toEqual({
+      record: { id: "1", name: "test" },
+      old_record: { id: "1", name: "old" },
+      type: "INSERT",
+    });
 
-        mockHeaders.mockResolvedValue({
-            get: vi.fn((name: string) => {
-                if (name === 'authorization') return 'Bearer wrong_secret'
-                if (name === 'x-webhook-signature') return 'test_signature'
-                return null
-            })
-        } as unknown as ReadonlyHeaders)
+    mockSecurity.mockRestore();
+  });
 
-        await expect(verifySupabaseWebhookAuth({
-            request: mockRequest,
-            errorMessage
-        })).rejects.toThrow(errorMessage)
+  // authorization ヘッダーが一致しない場合
+  it("should throw error when authorization header does not match", async () => {
+    const mockHeaders = await getMockHeaders();
+    const mockSecurity = await getMockSecurity();
 
-        expect(mockRequest.text).toHaveBeenCalledTimes(1)
-        expect(mockSecurity).toHaveBeenCalledTimes(0)
-    })
+    const mockRequest = {
+      text: vi.fn().mockResolvedValue("{}"),
+    } as unknown as NextRequest;
 
-    // authorization ヘッダーが null の場合
-    it('should throw error when authorization header is null', async () => {
-        const mockHeaders = await getMockHeaders()
-        const mockSecurity = await getMockSecurity()
+    const errorMessage = "Verification failed";
 
-        const mockRequest = {
-            text: vi.fn().mockResolvedValue('{}')
-        } as unknown as NextRequest
+    mockHeaders.mockResolvedValue({
+      get: vi.fn((name: string) => {
+        if (name === "authorization") return "Bearer wrong_secret";
+        if (name === "x-webhook-signature") return "test_signature";
+        return null;
+      }),
+    } as unknown as ReadonlyHeaders);
 
-        const errorMessage = 'Verification failed'
+    await expect(
+      verifyDatabaseWebhookAuth({
+        request: mockRequest,
+        errorMessage,
+      }),
+    ).rejects.toThrow(errorMessage);
 
-        mockHeaders.mockResolvedValue({
-            get: vi.fn((name: string) => {
-                if (name === 'authorization') return null
-                if (name === 'x-webhook-signature') return 'test_signature'
-                return null
-            })
-        } as unknown as ReadonlyHeaders)
+    expect(mockRequest.text).toHaveBeenCalledTimes(1);
+    expect(mockSecurity).toHaveBeenCalledTimes(0);
+  });
 
-        await expect(verifySupabaseWebhookAuth({
-            request: mockRequest,
-            errorMessage
-        })).rejects.toThrow(errorMessage)
+  // authorization ヘッダーが null の場合
+  it("should throw error when authorization header is null", async () => {
+    const mockHeaders = await getMockHeaders();
+    const mockSecurity = await getMockSecurity();
 
-        expect(mockRequest.text).toHaveBeenCalledTimes(1)
-        expect(mockSecurity).toHaveBeenCalledTimes(0)
-    })
+    const mockRequest = {
+      text: vi.fn().mockResolvedValue("{}"),
+    } as unknown as NextRequest;
 
-    // verifyHMACSignature が false を返す場合（署名が無効）
-    it('should throw error when HMAC signature is invalid', async () => {
-        const mockHeaders = await getMockHeaders()
-        const mockSecurity = await getMockSecurity()
-        
-        const payload = JSON.stringify({
-            record: { id: '1' },
-            old_record: null,
-            type: 'UPDATE'
-        })
+    const errorMessage = "Verification failed";
 
-        const mockRequest = {
-            text: vi.fn().mockResolvedValue(payload)
-        } as unknown as NextRequest
+    mockHeaders.mockResolvedValue({
+      get: vi.fn((name: string) => {
+        if (name === "authorization") return null;
+        if (name === "x-webhook-signature") return "test_signature";
+        return null;
+      }),
+    } as unknown as ReadonlyHeaders);
 
-        const authHeader = `Bearer ${process.env.SUPABASE_WEBHOOK_SECRET_KEY}`
-        const signatureHeader = 'invalid_signature'
-        const errorMessage = 'Verification failed'
+    await expect(
+      verifyDatabaseWebhookAuth({
+        request: mockRequest,
+        errorMessage,
+      }),
+    ).rejects.toThrow(errorMessage);
 
-        mockHeaders.mockResolvedValue({
-            get: vi.fn((name: string) => {
-                if (name === 'authorization') return authHeader
-                if (name === 'x-webhook-signature') return signatureHeader
-                return null
-            })
-        } as unknown as ReadonlyHeaders)
+    expect(mockRequest.text).toHaveBeenCalledTimes(1);
+    expect(mockSecurity).toHaveBeenCalledTimes(0);
+  });
 
-        await expect(verifySupabaseWebhookAuth({
-            request: mockRequest,
-            errorMessage
-        })).rejects.toThrow(errorMessage)
+  // verifyHMACSignature が false を返す場合（署名が無効）
+  it("should throw error when HMAC signature is invalid", async () => {
+    const mockHeaders = await getMockHeaders();
+    const mockSecurity = await getMockSecurity();
 
-        expect(mockRequest.text).toHaveBeenCalledTimes(1)
-        expect(mockSecurity).toHaveBeenCalledTimes(1)
-        expect(mockSecurity).toHaveBeenCalledWith({
-            payload,
-            signature: signatureHeader,
-            secret: process.env.SUPABASE_WEBHOOK_SECRET_KEY
-        })
-    })
+    const payload = JSON.stringify({
+      record: { id: "1" },
+      old_record: null,
+      type: "UPDATE",
+    });
 
-    // x-webhook-signature ヘッダーが null の場合
-    it('should throw error when x-webhook-signature header is null', async () => {
-        const mockHeaders = await getMockHeaders()
-        const mockSecurity = await getMockSecurity()
-        
-        const payload = JSON.stringify({
-            record: { id: '1' },
-            old_record: null,
-            type: 'UPDATE'
-        })
+    const mockRequest = {
+      text: vi.fn().mockResolvedValue(payload),
+    } as unknown as NextRequest;
 
-        const mockRequest = {
-            text: vi.fn().mockResolvedValue(payload)
-        } as unknown as NextRequest
+    const authHeader = `Bearer ${process.env.SUPABASE_WEBHOOK_SECRET_KEY}`;
+    const signatureHeader = "invalid_signature";
+    const errorMessage = "Verification failed";
 
-        const authHeader = `Bearer ${process.env.SUPABASE_WEBHOOK_SECRET_KEY}`
-        const errorMessage = 'Verification failed'
+    mockHeaders.mockResolvedValue({
+      get: vi.fn((name: string) => {
+        if (name === "authorization") return authHeader;
+        if (name === "x-webhook-signature") return signatureHeader;
+        return null;
+      }),
+    } as unknown as ReadonlyHeaders);
 
-        mockHeaders.mockResolvedValue({
-            get: vi.fn((name: string) => {
-                if (name === 'authorization') return authHeader
-                if (name === 'x-webhook-signature') return null
-                return null
-            })
-        } as unknown as ReadonlyHeaders)
+    await expect(
+      verifyDatabaseWebhookAuth({
+        request: mockRequest,
+        errorMessage,
+      }),
+    ).rejects.toThrow(errorMessage);
 
-        mockSecurity.mockResolvedValue(false)
+    expect(mockRequest.text).toHaveBeenCalledTimes(1);
+    expect(mockSecurity).toHaveBeenCalledTimes(1);
+    expect(mockSecurity).toHaveBeenCalledWith({
+      payload,
+      signature: signatureHeader,
+      secret: process.env.SUPABASE_WEBHOOK_SECRET_KEY,
+    });
+  });
 
-        await expect(verifySupabaseWebhookAuth({
-            request: mockRequest,
-            errorMessage
-        })).rejects.toThrow(errorMessage)
+  // x-webhook-signature ヘッダーが null の場合
+  it("should throw error when x-webhook-signature header is null", async () => {
+    const mockHeaders = await getMockHeaders();
+    const mockSecurity = await getMockSecurity();
 
-        expect(mockRequest.text).toHaveBeenCalledTimes(1)
-        expect(mockSecurity).toHaveBeenCalledWith({
-            payload,
-            signature: null,
-            secret: process.env.SUPABASE_WEBHOOK_SECRET_KEY
-        })
+    const payload = JSON.stringify({
+      record: { id: "1" },
+      old_record: null,
+      type: "UPDATE",
+    });
 
-        mockSecurity.mockRestore()
-    })
+    const mockRequest = {
+      text: vi.fn().mockResolvedValue(payload),
+    } as unknown as NextRequest;
 
-    // JSON パースエラーの場合
-    it('should throw error when JSON parse fails', async () => {
-        const mockHeaders = await getMockHeaders()
-        const mockSecurity = await getMockSecurity()
-        
-        const invalidPayload = 'invalid json'
-        const mockRequest = {
-            text: vi.fn().mockResolvedValue(invalidPayload)
-        } as unknown as NextRequest
+    const authHeader = `Bearer ${process.env.SUPABASE_WEBHOOK_SECRET_KEY}`;
+    const errorMessage = "Verification failed";
 
-        const authHeader = `Bearer ${process.env.SUPABASE_WEBHOOK_SECRET_KEY}`
-        const signatureHeader = 'test_signature'
-        const errorMessage = 'Verification failed'
+    mockHeaders.mockResolvedValue({
+      get: vi.fn((name: string) => {
+        if (name === "authorization") return authHeader;
+        if (name === "x-webhook-signature") return null;
+        return null;
+      }),
+    } as unknown as ReadonlyHeaders);
 
-        mockHeaders.mockResolvedValue({
-            get: vi.fn((name: string) => {
-                if (name === 'authorization') return authHeader
-                if (name === 'x-webhook-signature') return signatureHeader
-                return null
-            })
-        } as unknown as ReadonlyHeaders)
+    mockSecurity.mockResolvedValue(false);
 
-        mockSecurity.mockResolvedValue(true)
+    await expect(
+      verifyDatabaseWebhookAuth({
+        request: mockRequest,
+        errorMessage,
+      }),
+    ).rejects.toThrow(errorMessage);
 
-        await expect(verifySupabaseWebhookAuth({
-            request: mockRequest,
-            errorMessage
-        })).rejects.toThrow()
+    expect(mockRequest.text).toHaveBeenCalledTimes(1);
+    expect(mockSecurity).toHaveBeenCalledWith({
+      payload,
+      signature: null,
+      secret: process.env.SUPABASE_WEBHOOK_SECRET_KEY,
+    });
 
-        expect(mockRequest.text).toHaveBeenCalledTimes(1)
-        expect(mockSecurity).toHaveBeenCalledWith({
-            payload: invalidPayload,
-            signature: signatureHeader,
-            secret: process.env.SUPABASE_WEBHOOK_SECRET_KEY
-        })
+    mockSecurity.mockRestore();
+  });
 
-        mockSecurity.mockRestore()
-    })
+  // JSON パースエラーの場合
+  it("should throw error when JSON parse fails", async () => {
+    const mockHeaders = await getMockHeaders();
+    const mockSecurity = await getMockSecurity();
 
-    // request.text() がエラーを投げる場合
-    it('should propagate error when request.text() fails', async () => {
-        const mockHeaders = await getMockHeaders()
-        const mockSecurity = await getMockSecurity()
-        
-        const mockRequest = {
-            text: vi.fn().mockRejectedValue(new Error('Request error'))
-        } as unknown as NextRequest
+    const invalidPayload = "invalid json";
+    const mockRequest = {
+      text: vi.fn().mockResolvedValue(invalidPayload),
+    } as unknown as NextRequest;
 
-        const errorMessage = 'Verification failed'
+    const authHeader = `Bearer ${process.env.SUPABASE_WEBHOOK_SECRET_KEY}`;
+    const signatureHeader = "test_signature";
+    const errorMessage = "Verification failed";
 
-        mockHeaders.mockResolvedValue({
-            get: vi.fn().mockReturnValue(null)
-        } as unknown as ReadonlyHeaders)
+    mockHeaders.mockResolvedValue({
+      get: vi.fn((name: string) => {
+        if (name === "authorization") return authHeader;
+        if (name === "x-webhook-signature") return signatureHeader;
+        return null;
+      }),
+    } as unknown as ReadonlyHeaders);
 
-        mockSecurity.mockResolvedValue(true)
+    mockSecurity.mockResolvedValue(true);
 
-        await expect(verifySupabaseWebhookAuth({
-            request: mockRequest,
-            errorMessage
-        })).rejects.toThrow('Request error')
+    await expect(
+      verifyDatabaseWebhookAuth({
+        request: mockRequest,
+        errorMessage,
+      }),
+    ).rejects.toThrow();
 
-        expect(mockRequest.text).toHaveBeenCalledTimes(1)
-        expect(mockSecurity).not.toHaveBeenCalled()
-        expect(mockHeaders).not.toHaveBeenCalled()
+    expect(mockRequest.text).toHaveBeenCalledTimes(1);
+    expect(mockSecurity).toHaveBeenCalledWith({
+      payload: invalidPayload,
+      signature: signatureHeader,
+      secret: process.env.SUPABASE_WEBHOOK_SECRET_KEY,
+    });
 
-        mockSecurity.mockRestore()
-    })
-})
+    mockSecurity.mockRestore();
+  });
+
+  // request.text() がエラーを投げる場合
+  it("should propagate error when request.text() fails", async () => {
+    const mockHeaders = await getMockHeaders();
+    const mockSecurity = await getMockSecurity();
+
+    const mockRequest = {
+      text: vi.fn().mockRejectedValue(new Error("Request error")),
+    } as unknown as NextRequest;
+
+    const errorMessage = "Verification failed";
+
+    mockHeaders.mockResolvedValue({
+      get: vi.fn().mockReturnValue(null),
+    } as unknown as ReadonlyHeaders);
+
+    mockSecurity.mockResolvedValue(true);
+
+    await expect(
+      verifyDatabaseWebhookAuth({
+        request: mockRequest,
+        errorMessage,
+      }),
+    ).rejects.toThrow("Request error");
+
+    expect(mockRequest.text).toHaveBeenCalledTimes(1);
+    expect(mockSecurity).not.toHaveBeenCalled();
+    expect(mockHeaders).not.toHaveBeenCalled();
+
+    mockSecurity.mockRestore();
+  });
+});

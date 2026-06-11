@@ -1,78 +1,80 @@
-import { NextRequest } from "next/server"
-import { headers } from "next/headers"
-import { stripe } from "@/lib/clients/stripe/client"
+import { NextRequest } from "next/server";
+import { headers } from "next/headers";
+import { stripe } from "@/lib/clients/stripe/client";
 
-import { verifyHMACSignature } from "@/lib/utils/security"
+import { verifyHMACSignature } from "@/lib/utils/security";
 
 interface VerifyWebhookAuth {
-    request: NextRequest;
-    errorMessage: string;
+  request: NextRequest;
+  errorMessage: string;
 }
 
 interface VerifyWebhookSignature extends VerifyWebhookAuth {
-    endpointSecret: string;
+  endpointSecret: string;
 }
 
 export async function verifyWebhookSignature({
-    request,
-    endpointSecret,
-    errorMessage
+  request,
+  endpointSecret,
+  errorMessage,
 }: VerifyWebhookSignature) {
-    const signature = headers().get(process.env.STRIPE_SIGNATURE_HEADER as string);
+  const signature = headers().get(
+    process.env.STRIPE_SIGNATURE_HEADER as string,
+  );
 
-    if (!signature || !endpointSecret) {
-        if (!signature) console.error('Stripe signature not found');
-        if (!endpointSecret) console.error('Stripe endpointSecret not found');
-        throw new Error(errorMessage);
-    }
+  if (!signature || !endpointSecret) {
+    if (!signature) console.error("Stripe signature not found");
+    if (!endpointSecret) console.error("Stripe endpointSecret not found");
+    throw new Error(errorMessage);
+  }
 
-    const body = await request.text();
+  const body = await request.text();
 
-    try {
-        const event = stripe.webhooks.constructEvent(
-            body,
-            signature,
-            endpointSecret
-        );
-        
-        return event;
-    } catch (error) {
-        console.error('Stripe webhook signature verification failed:', error);
-        throw new Error(errorMessage);
-    }
+  try {
+    const event = stripe.webhooks.constructEvent(
+      body,
+      signature,
+      endpointSecret,
+    );
+
+    return event;
+  } catch (error) {
+    console.error("Stripe webhook signature verification failed:", error);
+    throw new Error(errorMessage);
+  }
 }
 
-export async function verifySupabaseWebhookAuth({
-    request,
-    errorMessage
+export async function verifyDatabaseWebhookAuth({
+  request,
+  errorMessage,
 }: VerifyWebhookAuth) {
-    const payload = await request.text();
+  const payload = await request.text();
 
-    const headersList = await headers();
-    const authHeader = headersList.get('authorization');
-    const signatureHeader = headersList.get('x-webhook-signature');
+  const headersList = await headers();
+  const authHeader = headersList.get("authorization");
+  const signatureHeader = headersList.get("x-webhook-signature");
 
-    const expectedAuth = `Bearer ${process.env.SUPABASE_WEBHOOK_SECRET_KEY}`;
+  const expectedAuth = `Bearer ${process.env.SUPABASE_WEBHOOK_SECRET_KEY}`;
 
-    if (authHeader !== expectedAuth) {
-        throw new Error(errorMessage);
-    }
+  if (authHeader !== expectedAuth) {
+    throw new Error(errorMessage);
+  }
 
-    const isValidSignature = await verifyHMACSignature({
-        payload,
-        signature: signatureHeader as string,
-        secret: process.env.SUPABASE_WEBHOOK_SECRET_KEY as string
-    });
-    
-    if (!isValidSignature) {
-        throw new Error(errorMessage);
-    }
+  const isValidSignature = await verifyHMACSignature({
+    payload,
+    signature: signatureHeader as string,
+    secret: process.env.SUPABASE_WEBHOOK_SECRET_KEY as string,
+  });
 
-    const parsedPayload = JSON.parse(payload);
+  if (!isValidSignature) {
+    throw new Error(errorMessage);
+  }
 
-    return {
-        record: parsedPayload.record,
-        old_record: parsedPayload.old_record,
-        type: parsedPayload.type
-    }
+  const parsedPayload = JSON.parse(payload);
+
+  return {
+    record: parsedPayload.record,
+    old_record: parsedPayload.old_record,
+    type: parsedPayload.type,
+  };
 }
