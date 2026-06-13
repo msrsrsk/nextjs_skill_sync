@@ -1,204 +1,196 @@
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server";
 
-import { requireUser } from "@/lib/middleware/auth"
-import { 
-    createCartItems,
-    getCartItemByProduct, 
-    getCartItems,
-    updateCartItemQuantity,
-    deleteCartItems, 
-    deleteAllCartItems 
-} from "@/services/cart-item/actions"
-import { ERROR_MESSAGES } from "@/constants/errorMessages"
+import { requireUser } from "@/lib/middleware/auth";
+import {
+  createCartItems,
+  getCartItemByProduct,
+  getCartItems,
+  updateCartItemQuantity,
+  deleteCartItems,
+  deleteAllCartItems,
+} from "@/services/cart-item/actions";
+import { ERROR_MESSAGES } from "@/constants/errorMessages";
 
 const { CART_ITEM_ERROR } = ERROR_MESSAGES;
 
-export const dynamic = "force-dynamic"
-
 // GET: カートのデータを取得
 export async function GET(request: NextRequest) {
-    const { userId } = await requireUser();
+  const { userId } = await requireUser();
 
-    try {
-        const { data } = await getCartItems({ userId });
-    
-        return NextResponse.json({ 
-            success: true, 
-            data: data 
-        })
-    } catch (error) {
-        console.error('Database : Error in getCartItems: ', error);
+  try {
+    const { data } = await getCartItems({ userId });
 
-        return NextResponse.json(
-            { message: CART_ITEM_ERROR.FETCH_FAILED }, 
-            { status: 500 }
-        )
-    }
+    return NextResponse.json({
+      success: true,
+      data: data,
+    });
+  } catch (error) {
+    console.error("Database : Error in getCartItems: ", error);
+
+    return NextResponse.json(
+      { message: CART_ITEM_ERROR.FETCH_FAILED },
+      { status: 500 },
+    );
+  }
 }
 
 // POST: カートに商品を追加
 export async function POST(request: NextRequest) {
-    const { userId } = await requireUser();
+  const { userId } = await requireUser();
 
-    const { productId, quantity } = await request.json();
+  const { productId, quantity } = await request.json();
 
-    if (!productId || !quantity) {
-        return NextResponse.json(
-            { message: CART_ITEM_ERROR.NO_PRODUCT_DATA }, 
-            { status: 400 }
-        )
+  if (!productId || !quantity) {
+    return NextResponse.json(
+      { message: CART_ITEM_ERROR.NO_PRODUCT_DATA },
+      { status: 400 },
+    );
+  }
+
+  try {
+    const { data: existingCartItem } = await getCartItemByProduct({
+      userId,
+      productId,
+    });
+
+    if (existingCartItem) {
+      const newQuantity = existingCartItem.quantity + quantity;
+
+      const { success, data, error } = await updateCartItemQuantity({
+        userId,
+        productId,
+        quantity: newQuantity,
+      });
+
+      if (!success) {
+        return NextResponse.json({ message: error }, { status: 404 });
+      }
+
+      return NextResponse.json({
+        success: true,
+        data: data,
+      });
+    } else {
+      const { success, data, error } = await createCartItems({
+        cartItemsData: {
+          user_id: userId,
+          product_id: productId,
+          quantity,
+          created_at: new Date(),
+        } as CartItem,
+      });
+
+      if (!success) {
+        return NextResponse.json({ message: error }, { status: 500 });
+      }
+
+      return NextResponse.json({
+        success: true,
+        data: data,
+      });
     }
+  } catch (error) {
+    console.error(
+      "Database : Error in updateCartItemQuantity or createCartItems: ",
+      error,
+    );
 
-    try {
-        const { data: existingCartItem } = await getCartItemByProduct({
-            userId,
-            productId
-        });
-
-        if (existingCartItem) {
-            const newQuantity = existingCartItem.quantity + quantity;
-    
-            const { success, data, error } = await updateCartItemQuantity({
-                userId,
-                productId,
-                quantity: newQuantity
-            })
-
-            if (!success) {
-                return NextResponse.json(
-                    { message: error }, 
-                    { status: 404 }
-                )
-            }
-
-            return NextResponse.json({ 
-                success: true, 
-                data: data 
-            })
-        } else {
-            const { success, data, error } = await createCartItems({
-                cartItemsData: {
-                    user_id: userId,
-                    product_id: productId,
-                    quantity,
-                    created_at: new Date()
-                } as CartItem
-            })
-
-            if (!success) {
-                return NextResponse.json(
-                    { message: error }, 
-                    { status: 500 }
-                )
-            }
-
-            return NextResponse.json({ 
-                success: true, 
-                data: data 
-            })
-        }
-    } catch (error) {
-        console.error('Database : Error in updateCartItemQuantity or createCartItems: ', error);
-
-        return NextResponse.json(
-            { message: CART_ITEM_ERROR.ADD_FAILED }, 
-            { status: 500 }
-        )
-    }
+    return NextResponse.json(
+      { message: CART_ITEM_ERROR.ADD_FAILED },
+      { status: 500 },
+    );
+  }
 }
 
 // PUT: カートの商品数量を更新
 export async function PUT(request: NextRequest) {
-    const { userId } = await requireUser();
+  const { userId } = await requireUser();
 
-    const { productId, quantity } = await request.json();
+  const { productId, quantity } = await request.json();
 
-    if (!productId || !quantity) {
-        return NextResponse.json(
-            { message: CART_ITEM_ERROR.NO_PRODUCT_DATA }, 
-            { status: 400 }
-        )
+  if (!productId || !quantity) {
+    return NextResponse.json(
+      { message: CART_ITEM_ERROR.NO_PRODUCT_DATA },
+      { status: 400 },
+    );
+  }
+
+  try {
+    const { success, error } = await updateCartItemQuantity({
+      userId,
+      productId,
+      quantity,
+    });
+
+    if (!success) {
+      return NextResponse.json({ message: error }, { status: 404 });
     }
 
-    try {
-        const { success, error } = await updateCartItemQuantity({
-            userId,
-            productId,
-            quantity
-        });
-    
-        if (!success) {
-            return NextResponse.json(
-                { message: error }, 
-                { status: 404 }
-            )
-        }
-    
-        return NextResponse.json({ success: true })
-    } catch (error) {
-        console.error('Database : Error in updateCartItemQuantity: ', error);
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Database : Error in updateCartItemQuantity: ", error);
 
-        return NextResponse.json(
-            { message: CART_ITEM_ERROR.UPDATE_QUANTITY_FAILED }, 
-            { status: 500 }
-        )
-    }
+    return NextResponse.json(
+      { message: CART_ITEM_ERROR.UPDATE_QUANTITY_FAILED },
+      { status: 500 },
+    );
+  }
 }
 
 // DELETE: カートの商品を削除
 export async function DELETE(request: NextRequest) {
-    const { userId } = await requireUser();
+  const { userId } = await requireUser();
 
-    const { searchParams } = new URL(request.url);
-    const action = searchParams.get('action');
+  const { searchParams } = new URL(request.url);
+  const action = searchParams.get("action");
 
-    try {
-        if (action === 'all') {
-            const { success, data, error } = await deleteAllCartItems({ userId });
+  try {
+    if (action === "all") {
+      const { success, data, error } = await deleteAllCartItems({ userId });
 
-            if (!success) {
-                return NextResponse.json(
-                    { message: error }, 
-                    { status: 500 }
-                )
-            }
+      if (!success) {
+        return NextResponse.json({ message: error }, { status: 500 });
+      }
 
-            return NextResponse.json({ 
-                success: true, 
-                data: data 
-            })
-        } else {
-            const { productId } = await request.json();
-    
-            if (!productId) {
-                return NextResponse.json(
-                    { message: CART_ITEM_ERROR.NO_PRODUCT_DATA }, 
-                    { status: 400 }
-                )
-            }
-    
-            const { success, data, error } = await deleteCartItems({ userId, productId });
+      return NextResponse.json({
+        success: true,
+        data: data,
+      });
+    } else {
+      const { productId } = await request.json();
 
-            if (!success) {
-                return NextResponse.json(
-                    { message: error }, 
-                    { status: 404 }
-                )
-            }
-            
-            return NextResponse.json({ 
-                success: true, 
-                data: data 
-            })
-        }
-    } catch (error) {
-        console.error(`Database : Error in ${
-            action === 'all' ? 'deleteAllCartItems' : 'deleteCartItems'
-        }: `, error);
-
+      if (!productId) {
         return NextResponse.json(
-            { message: CART_ITEM_ERROR.DELETE_FAILED }, 
-            { status: 500 }
-        )
+          { message: CART_ITEM_ERROR.NO_PRODUCT_DATA },
+          { status: 400 },
+        );
+      }
+
+      const { success, data, error } = await deleteCartItems({
+        userId,
+        productId,
+      });
+
+      if (!success) {
+        return NextResponse.json({ message: error }, { status: 404 });
+      }
+
+      return NextResponse.json({
+        success: true,
+        data: data,
+      });
     }
+  } catch (error) {
+    console.error(
+      `Database : Error in ${
+        action === "all" ? "deleteAllCartItems" : "deleteCartItems"
+      }: `,
+      error,
+    );
+
+    return NextResponse.json(
+      { message: CART_ITEM_ERROR.DELETE_FAILED },
+      { status: 500 },
+    );
+  }
 }

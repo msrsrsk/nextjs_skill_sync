@@ -6,8 +6,6 @@ import { ERROR_MESSAGES } from "@/constants/errorMessages";
 
 const { CHAT_ERROR } = ERROR_MESSAGES;
 
-export const dynamic = "force-dynamic";
-
 export async function POST(request: NextRequest) {
   await requireUser();
 

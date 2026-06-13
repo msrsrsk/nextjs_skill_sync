@@ -1,38 +1,17 @@
-import HeaderContent from "@/components/ui/navigation/HeaderContent"
-import CartCountProvider from "@/components/layout/CartCountProvider"
-import { auth } from "@/lib/auth/middleware"
-import { getCartItemRepository } from "@/repository/cartItem"
-import { getProductRepository } from "@/repository/product"
-import { ERROR_MESSAGES } from "@/constants/errorMessages"
+"use client";
 
-const { PRODUCT_ERROR } = ERROR_MESSAGES;
+import HeaderContent from "@/components/ui/navigation/HeaderContent";
+import useHeaderData from "@/hooks/layout/useHeaderData";
 
-const Header = async () => {
-    // 価格データの取得
-    const productRepository = getProductRepository();
-    const { data } = await productRepository.getProductPriceBounds();
+const Header = () => {
+  const { priceBounds, isPriceBoundsReady } = useHeaderData();
 
-    if (!data) throw new Error(PRODUCT_ERROR.PRICE_FETCH_FAILED);
+  return (
+    <HeaderContent
+      priceBounds={priceBounds}
+      isPriceBoundsReady={isPriceBoundsReady}
+    />
+  );
+};
 
-    // カートの数量の取得
-    let cartItemsCount = 0;
-
-    const session = await auth();
-    const userId = session?.user?.id as UserId;
-
-    if (userId) {
-        const cartItemRepository = getCartItemRepository();
-        cartItemsCount = await cartItemRepository.getCartCount({ 
-            userId: userId as UserId 
-        });
-    }
-
-    return <>
-        <HeaderContent 
-            priceBounds={data as ProductPriceBounds}
-        />
-        <CartCountProvider cartCount={cartItemsCount} />
-    </>
-}
-
-export default Header
+export default Header;
