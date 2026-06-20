@@ -1,28 +1,30 @@
-"use client"
+"use client";
 
-import { useState } from "react"
+import { useState } from "react";
 
-import ConfirmModal from "@/components/common/modals/ConfirmModal"
-import { signOutAction } from "@/services/auth/form-actions"
+import ConfirmModal from "@/components/common/modals/ConfirmModal";
+import { signOutAction } from "@/services/auth/form-actions";
 
 const AccountLogoutButton = () => {
-    const [modalActive, setModalActive] = useState(false);
+  const [modalActive, setModalActive] = useState(false);
 
-    return <>
-        <button
-            className="text-sm leading-[32px] font-bold underline flex mx-auto mb-10"
-            onClick={() => setModalActive(true)}
-        >
-            ログアウトする
-        </button>
+  return (
+    <>
+      <button
+        className="text-sm leading-[32px] font-bold underline flex mx-auto mb-10"
+        onClick={() => setModalActive(true)}
+      >
+        ログアウトする
+      </button>
 
-        <ConfirmModal 
-            text="ログアウトしますか？"
-            modalActive={modalActive}
-            setModalActive={setModalActive}
-            onConfirm={signOutAction}
-        />
+      <ConfirmModal
+        text="ログアウトしますか？"
+        modalActive={modalActive}
+        setModalActive={setModalActive}
+        onConfirm={signOutAction}
+      />
     </>
-}
+  );
+};
 
-export default AccountLogoutButton
+export default AccountLogoutButton;

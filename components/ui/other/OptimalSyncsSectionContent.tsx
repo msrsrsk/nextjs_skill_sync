@@ -1,20 +1,22 @@
-import ProductSliderContainer from "@/components/ui/product/ProductSliderContainer"
-import NoDataText from "@/components/common/display/NoDataText"
-import LoadingSpinner from "@/components/common/display/LoadingSpinner"
+import ProductSliderContainer from "@/components/ui/product/ProductSliderContainer";
+import NoDataText from "@/components/common/display/NoDataText";
+import LoadingSpinner from "@/components/common/display/LoadingSpinner";
 
-const OptimalSyncsSectionContent = ({ productData }: OptimalSyncsProductData) => {
-    const { totalCount } = productData;
-    
-    if (!productData) return <LoadingSpinner />
-    if (totalCount === 0) return <NoDataText />
+const OptimalSyncsSectionContent = ({
+  productData,
+}: OptimalSyncsProductData) => {
+  const { totalCount } = productData;
 
-    return (
-        <ProductSliderContainer 
-            products={productData} 
-            totalCount={totalCount}
-            isOptimalSyncs={true}
-        />
-    )
-}
+  if (!productData) return <LoadingSpinner />;
+  if (totalCount === 0) return <NoDataText />;
 
-export default OptimalSyncsSectionContent
+  return (
+    <ProductSliderContainer
+      products={productData}
+      totalCount={totalCount}
+      isOptimalSyncs={true}
+    />
+  );
+};
+
+export default OptimalSyncsSectionContent;

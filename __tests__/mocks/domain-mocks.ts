@@ -1,410 +1,412 @@
-import { 
-    mockStripeProductIds
-} from "@/__tests__/mocks/stripe-mocks"
-import { CHAT_SOURCE, DEFAULT_ACCOUNT_ICON_URL, NOIMAGE_PRODUCT_IMAGE_URL } from "@/constants/index"
+import { mockStripeProductIds } from "@/__tests__/mocks/stripe-mocks";
+import {
+  CHAT_SOURCE,
+  DEFAULT_ACCOUNT_ICON_URL,
+  NOIMAGE_PRODUCT_IMAGE_URL,
+} from "@/constants/index";
 
 export const mockUser = {
-    email: 'test@example.com',
-    user_stripes: {
-        customer_id: 'cus_test_123',
-        id: 'stripe_test_123',
-        created_at: new Date(),
-        updated_at: new Date(),
-        user_id: 'user_test_123'
-    }
-}
+  email: "test@example.com",
+  user_stripes: {
+    customer_id: "cus_test_123",
+    id: "stripe_test_123",
+    created_at: new Date(),
+    updated_at: new Date(),
+    user_id: "user_test_123",
+  },
+};
 
 export const mockCartItems: CartItemWithProduct[] = [
-    {
-        id: 'cart_item_1',
-        user_id: 'user_test_123',
-        product_id: 'product_test_123',
-        quantity: 2,
-        created_at: new Date(),
-        updated_at: new Date(),
-        product: {
-            id: 'product_test_123',
-            title: 'Test Product',
-            description: 'Test Description',
-            image_urls: null,
-            price: 1000,
-            category: 'Active',
-            skill_type: 'test_skill',
-            slug: 'test-product',
-            stock: 10,
-            created_at: new Date(),
-            updated_at: new Date(),
-            product_stripes: null,
-            product_pricings: null,
-            product_sales: null
-        }
-    }
-]
+  {
+    id: "cart_item_1",
+    user_id: "user_test_123",
+    product_id: "product_test_123",
+    quantity: 2,
+    created_at: new Date(),
+    updated_at: new Date(),
+    product: {
+      id: "product_test_123",
+      title: "Test Product",
+      description: "Test Description",
+      image_urls: null,
+      price: 1000,
+      category: "Active",
+      skill_type: "test_skill",
+      slug: "test-product",
+      stock: 10,
+      created_at: new Date(),
+      updated_at: new Date(),
+      product_stripes: null,
+      product_pricings: null,
+      product_sales: null,
+    },
+  },
+];
 
 export const mockCartItemStripes = [
-    {
-        id: 'stripe_product_123',
-        product_id: 'product_test_123',
-        stripe_product_id: 'prod_test_123',
-        sale_price_id: 'price_sale_123',
-        regular_price_id: 'price_regular_123',
-        subscription_price_ids: null,
-        created_at: new Date(),
-        updated_at: new Date()
-    }
-]
+  {
+    id: "stripe_product_123",
+    product_id: "product_test_123",
+    stripe_product_id: "prod_test_123",
+    sale_price_id: "price_sale_123",
+    regular_price_id: "price_regular_123",
+    subscription_price_ids: null,
+    created_at: new Date(),
+    updated_at: new Date(),
+  },
+];
 
 export const createCombinedCartItems = () => {
-    return mockCartItems.map((domain, index) => ({
-        ...domain,
-        product: {
-            ...domain.product,
-            product_stripes: mockCartItemStripes[index]
-        }
-    }))
-}
+  return mockCartItems.map((domain, index) => ({
+    ...domain,
+    product: {
+      ...domain.product,
+      product_stripes: mockCartItemStripes[index],
+    },
+  }));
+};
 
 export const mockOrder = {
-    order: {
-        id: 'order_test_123',
-        payment_method: 'card',
-        created_at: new Date(),
-        updated_at: new Date(),
-        user_id: 'user_test_123',
-        order_number: 12345,
-        status: 'pending' as const,
-        total_amount: 2000,
-        currency: 'jpy'
+  order: {
+    id: "order_test_123",
+    payment_method: "card",
+    created_at: new Date(),
+    updated_at: new Date(),
+    user_id: "user_test_123",
+    order_number: 12345,
+    status: "pending" as const,
+    total_amount: 2000,
+    currency: "jpy",
+  },
+  orderShipping: {
+    id: "shipping_test_123",
+    order_id: "order_test_123",
+    delivery_name: "Test User",
+    address: {
+      line1: "Test Address",
+      line2: "Test City",
+      postal_code: "123-4567",
+      country: "JP",
     },
-    orderShipping: {
-        id: 'shipping_test_123',
-        order_id: 'order_test_123',
-        delivery_name: 'Test User',
-        address: {
-            line1: 'Test Address',
-            line2: 'Test City',
-            postal_code: '123-4567',
-            country: 'JP'
-        },
-        shipping_fee: 500,
-        created_at: new Date(),
-        updated_at: new Date()
-    }
-}
+    shipping_fee: 500,
+    created_at: new Date(),
+    updated_at: new Date(),
+  },
+};
 
 export const mockOrderData = {
-    order: {
-        id: 'order_test_123',
-        created_at: new Date('2024-01-01T00:00:00Z'),
-        updated_at: new Date('2024-01-01T00:00:00Z'),
-        user_id: 'user_test_123',
-        order_number: 12345,
-        status: 'completed' as OrderStatusType,
-        total_amount: 2500,
-        currency: 'jpy',
-        payment_method: 'card',
+  order: {
+    id: "order_test_123",
+    created_at: new Date("2024-01-01T00:00:00Z"),
+    updated_at: new Date("2024-01-01T00:00:00Z"),
+    user_id: "user_test_123",
+    order_number: 12345,
+    status: "completed" as OrderStatusType,
+    total_amount: 2500,
+    currency: "jpy",
+    payment_method: "card",
+  },
+  orderShipping: {
+    created_at: new Date("2024-01-01T00:00:00Z"),
+    updated_at: new Date("2024-01-01T00:00:00Z"),
+    delivery_name: "Test User",
+    address: {
+      name: "Test User",
+      postal_code: "123-4567",
+      state: "Tokyo",
+      city: "Shibuya",
+      address_line1: "1-1-1",
+      address_line2: "Test Building",
     },
-    orderShipping: {
-        created_at: new Date('2024-01-01T00:00:00Z'),
-        updated_at: new Date('2024-01-01T00:00:00Z'),
-        delivery_name: 'Test User',
-        address: {
-            name: 'Test User',
-            postal_code: '123-4567',
-            state: 'Tokyo',
-            city: 'Shibuya',
-            address_line1: '1-1-1',
-            address_line2: 'Test Building'
-        },
-        shipping_fee: 500,
-        order_id: 'order_test_123'
-    }
-}
+    shipping_fee: 500,
+    order_id: "order_test_123",
+  },
+};
 
 export const mockProductDetails: StripeProductDetailsProps[] = [
-    {
-        title: 'Test Product 1',
-        subscription_product: false,
-        product_id: 'product_test_123',
-        image: 'https://example.com/image1.jpg',
-        unit_price: 1000,
-        amount: 2000,
-        quantity: 2,
-        subscription_status: null as unknown as OrderItemSubscriptionStatus,
-        subscription_interval: null as unknown as OrderItemSubscriptionInterval,
-        stripe_price_id: 'price_test_123',
-        subscription_id: null
-    },
-    {
-        title: 'Test Product 2',
-        subscription_product: true,
-        product_id: 'product_test_456',
-        image: 'https://example.com/image2.jpg',
-        unit_price: 500,
-        amount: 500,
-        quantity: 1,
-        subscription_status: null as unknown as OrderItemSubscriptionStatus,
-        subscription_interval: null as unknown as OrderItemSubscriptionInterval,
-        stripe_price_id: 'price_test_123',
-        subscription_id: null
-    }
-]
+  {
+    title: "Test Product 1",
+    subscription_product: false,
+    product_id: "product_test_123",
+    image: "https://example.com/image1.jpg",
+    unit_price: 1000,
+    amount: 2000,
+    quantity: 2,
+    subscription_status: null as unknown as OrderItemSubscriptionStatus,
+    subscription_interval: null as unknown as OrderItemSubscriptionInterval,
+    stripe_price_id: "price_test_123",
+    subscription_id: null,
+  },
+  {
+    title: "Test Product 2",
+    subscription_product: true,
+    product_id: "product_test_456",
+    image: "https://example.com/image2.jpg",
+    unit_price: 500,
+    amount: 500,
+    quantity: 1,
+    subscription_status: null as unknown as OrderItemSubscriptionStatus,
+    subscription_interval: null as unknown as OrderItemSubscriptionInterval,
+    stripe_price_id: "price_test_123",
+    subscription_id: null,
+  },
+];
 
 export const mockSubscriptionProductDetails = [
-    {
-        title: 'Test Product 1',
-        subscription_product: true,
-        product_id: 'product_test_123',
-        image: 'https://example.com/image1.jpg',
-        unit_price: 1000,
-        amount: 2000,
-        quantity: 1,
-        subscription_status: 'active' as const,
-        subscription_interval: '1month' as const,
-        stripe_price_id: 'price_test_123',
-        subscription_id: 'sub_test_123'
-    }
-]
+  {
+    title: "Test Product 1",
+    subscription_product: true,
+    product_id: "product_test_123",
+    image: "https://example.com/image1.jpg",
+    unit_price: 1000,
+    amount: 2000,
+    quantity: 1,
+    subscription_status: "active" as const,
+    subscription_interval: "1month" as const,
+    stripe_price_id: "price_test_123",
+    subscription_id: "sub_test_123",
+  },
+];
 
 export const createCombinedProductDetails = () => {
-    return mockProductDetails.map((domain, index) => ({
-        ...domain,
-        ...mockStripeProductIds[index],
-        image: (domain.image || NOIMAGE_PRODUCT_IMAGE_URL) as string
-    })) as StripeProductDetailsProps[]
-}
+  return mockProductDetails.map((domain, index) => ({
+    ...domain,
+    ...mockStripeProductIds[index],
+    image: (domain.image || NOIMAGE_PRODUCT_IMAGE_URL) as string,
+  })) as StripeProductDetailsProps[];
+};
 
 export const mockOrderItems = [
-    {
-        id: 'order_item_test_123',
-        order_id: 'order_test_123',
-        product_id: 'product_test_123',
-        quantity: 1,
-        unit_price: 1000,
-        total_price: 1000,
-        created_at: new Date(),
-        updated_at: new Date()
-    }
-]
+  {
+    id: "order_item_test_123",
+    order_id: "order_test_123",
+    product_id: "product_test_123",
+    quantity: 1,
+    unit_price: 1000,
+    total_price: 1000,
+    created_at: new Date(),
+    updated_at: new Date(),
+  },
+];
 
 export const mockOrderItemStripes = [
-    {
-        id: 'order_item_stripe_test_123',
-        order_item_id: 'order_item_test_123',
-        price_id: 'price_test_123',
-        quantity: 1,
-        unit_price: 1000,
-        total_price: 1000,
-        created_at: new Date(),
-        updated_at: new Date()
-    }
-]
+  {
+    id: "order_item_stripe_test_123",
+    order_item_id: "order_item_test_123",
+    price_id: "price_test_123",
+    quantity: 1,
+    unit_price: 1000,
+    total_price: 1000,
+    created_at: new Date(),
+    updated_at: new Date(),
+  },
+];
 
 export const mockShippingAddress = {
-    name: 'test_name',
-    id: 'address_test_123',
-    created_at: new Date(),
-    updated_at: new Date(),
-    user_id: 'user_test_123',
-    postal_code: '1234567890',
-    state: 'test_state',
-    city: 'test_city',
-    address_line1: 'test_address_line1',
-    address_line2: 'test_address_line2',
-    is_default: true
-}
+  name: "test_name",
+  id: "address_test_123",
+  created_at: new Date(),
+  updated_at: new Date(),
+  user_id: "user_test_123",
+  postal_code: "1234567890",
+  state: "test_state",
+  city: "test_city",
+  address_line1: "test_address_line1",
+  address_line2: "test_address_line2",
+  is_default: true,
+};
 
 export const mockOrderItemSubscriptions = {
-    id: 'order_item_subscription_123',
-    order_item_id: 'order_item_123',
-    subscription_id: 'subscription_123',
-    status: 'active' as const,
-    interval: 'month',
-    next_payment_date: null,
-    remarks: 'test remarks',
-    created_at: new Date(),
-    updated_at: new Date()
-}
+  id: "order_item_subscription_123",
+  order_item_id: "order_item_123",
+  subscription_id: "subscription_123",
+  status: "active" as const,
+  interval: "month",
+  next_payment_date: null,
+  remarks: "test remarks",
+  created_at: new Date(),
+  updated_at: new Date(),
+};
 
 export const mockSubscriptionPayment = {
-    subscription_id: 'sub_test_123', 
-    id: 'sub_payment_123', 
-    user_id: 'user_test_123', 
-    created_at: new Date(), 
-    updated_at: new Date(), 
-    payment_date: new Date() 
-}
+  subscription_id: "sub_test_123",
+  id: "sub_payment_123",
+  user_id: "user_test_123",
+  created_at: new Date(),
+  updated_at: new Date(),
+  payment_date: new Date(),
+};
 
 export const mockStripeProduct = {
-    title: 'Test Product',
-    productId: 'product_test_123',
-    price: 1000,
-    salePrice: null,
-    subscriptionPriceIds: null
-}
+  title: "Test Product",
+  productId: "product_test_123",
+  price: 1000,
+  salePrice: null,
+  subscriptionPriceIds: null,
+};
 
 export const mockReview = {
-    id: 'test-review-id',
-    user_id: 'test-user-id',
-    product_id: 'test-product-id',
-    rating: 5,
-    comment: 'test-comment',
-    image_urls: ['test-image-url'],
-    created_at: new Date(),
-    updated_at: new Date(),
-    is_priority: false,
-    is_approved: false
-}
+  id: "test-review-id",
+  user_id: "test-user-id",
+  product_id: "test-product-id",
+  rating: 5,
+  comment: "test-comment",
+  image_urls: ["test-image-url"],
+  created_at: new Date(),
+  updated_at: new Date(),
+  is_priority: false,
+  is_approved: false,
+};
 
 export const mockProduct = {
-    id: 'product_123',
-    slug: 'test-product',
-    title: 'Test Product',
-    description: 'Test Description',
-    image_urls: ['https://example.com/image.jpg'],
-    price: 1000,
-    category: 'Active',
-    skill_type: 'test_skill',
-    stock: 10,
-    created_at: new Date(),
-    updated_at: new Date(),
-    product_pricings: null,
-    product_sales: null,
-    product_details: null,
-    product_stripes: null,
-    reviews: [
-        { rating: 5, comment: 'Great!' },
-        { rating: 4, comment: 'Good!' }
-    ]
-}
+  id: "product_123",
+  slug: "test-product",
+  title: "Test Product",
+  description: "Test Description",
+  image_urls: ["https://example.com/image.jpg"],
+  price: 1000,
+  category: "Active",
+  skill_type: "test_skill",
+  stock: 10,
+  created_at: new Date(),
+  updated_at: new Date(),
+  product_pricings: null,
+  product_sales: null,
+  product_details: null,
+  product_stripes: null,
+  reviews: [
+    { rating: 5, comment: "Great!" },
+    { rating: 4, comment: "Good!" },
+  ],
+};
 
 export const mockPaginatedProducts = {
-    page: 1,
-    limit: 10,
-    query: 'test-query',
-    category: 'test-category' as CategoryType,
-    isTrend: false,
-    filters: {
-        priceRange: [100, 1000] as [number, number],
-        isStock: false
-    },
-    sortType: 'created_desc' as CollectionSortType
-}
+  page: 1,
+  limit: 10,
+  query: "test-query",
+  category: "test-category" as CategoryType,
+  isTrend: false,
+  filters: {
+    priceRange: [100, 1000] as [number, number],
+    isStock: false,
+  },
+  sortType: "created_desc" as CollectionSortType,
+};
 
 export const mockOrderStripe = {
-    order_id: 'order_123',
-    session_id: 'session_123',
-    payment_intent_id: 'payment_intent_123'
-}
+  order_id: "order_123",
+  session_id: "session_123",
+  payment_intent_id: "payment_intent_123",
+};
 
 export const mockOrderShipping = {
-    order_id: 'order_123',
-    delivery_name: 'test_delivery_name',
-    address: {
-        postal_code: '1234567',
-        state: 'test_state',
-        address_line1: 'test_address_line1',
-        address_line2: 'test_address_line2'
-    } as any, // JsonValue型
-    shipping_fee: 1000,
-    created_at: new Date(),
-    updated_at: new Date()
-}
+  order_id: "order_123",
+  delivery_name: "test_delivery_name",
+  address: {
+    postal_code: "1234567",
+    state: "test_state",
+    address_line1: "test_address_line1",
+    address_line2: "test_address_line2",
+  } as any, // JsonValue型
+  shipping_fee: 1000,
+  created_at: new Date(),
+  updated_at: new Date(),
+};
 
 export const mockProductStockRecord = {
-    id: 'notification-1',
-    type: 'product_stock',
-    notifiable_id: 'product-1',
-    notifiable_type: 'Product' as const,
-    created_at: new Date(),
-    updated_at: new Date(),
-    relatedData: {
-        id: 'product-1',
-        title: 'Test Product'
-    }
-}
+  id: "notification-1",
+  type: "product_stock",
+  notifiable_id: "product-1",
+  notifiable_type: "Product" as const,
+  created_at: new Date(),
+  updated_at: new Date(),
+  relatedData: {
+    id: "product-1",
+    title: "Test Product",
+  },
+};
 
 export const mockChatRecord = {
-    id: 'notification-2',
-    type: 'chat',
-    notifiable_id: 'chat-1',
-    notifiable_type: 'Chat',
-    created_at: new Date(),
-    updated_at: new Date(),
-    relatedData: {
-        id: 'chat-1',
-        chat_room_id: 'room-1',
-        message: 'Test message',
-        sent_at: new Date()
-    }
-}
+  id: "notification-2",
+  type: "chat",
+  notifiable_id: "chat-1",
+  notifiable_type: "Chat",
+  created_at: new Date(),
+  updated_at: new Date(),
+  relatedData: {
+    id: "chat-1",
+    chat_room_id: "room-1",
+    message: "Test message",
+    sent_at: new Date(),
+  },
+};
 
 export const mockChatData = {
-    id: 'chat-123',
-    chat_room_id: 'room-456',
-    message: 'こんにちは、商品について質問があります。',
-    sent_at: new Date('2024-01-01T09:00:00Z')
-}
+  id: "chat-123",
+  chat_room_id: "room-456",
+  message: "こんにちは、商品について質問があります。",
+  sent_at: new Date("2024-01-01T09:00:00Z"),
+};
 
 export const mockNotificationRecord = {
-    id: 'notification-123',
-    type: 'chat' as const,
-    notifiable_id: 'chat-123',
-    notifiable_type: 'Chat',
-    created_at: new Date('2024-01-01T09:00:00Z'),
-    updated_at: new Date('2024-01-01T09:00:00Z'),
-    relatedData: mockChatData
-}
+  id: "notification-123",
+  type: "chat" as const,
+  notifiable_id: "chat-123",
+  notifiable_type: "Chat",
+  created_at: new Date("2024-01-01T09:00:00Z"),
+  updated_at: new Date("2024-01-01T09:00:00Z"),
+  relatedData: mockChatData,
+};
 
 export const mockProductNotificationData = {
-    ...mockProductStockRecord,
-    title: 'Test Product',
-    image_urls: ['https://example.com/image.jpg'],
-    price: 1000,
-    category: 'Active',
-    skill_type: 'test_skill',
-    stock: 10,
-}
+  ...mockProductStockRecord,
+  title: "Test Product",
+  image_urls: ["https://example.com/image.jpg"],
+  price: 1000,
+  category: "Active",
+  skill_type: "test_skill",
+  stock: 10,
+};
 
 export const mockChatRoom = {
-    id: 'chat_room_123',
-    user_id: 'user_test_123',
-    created_at: new Date(),
-    updated_at: new Date()
-}
+  id: "chat_room_123",
+  user_id: "user_test_123",
+  created_at: new Date(),
+  updated_at: new Date(),
+};
 
 export const mockChatMessage = {
-    id: 'test-chat-message-id',
-    chatRoomId: 'test-chat-room-id',
-    message: 'test-message',
-    senderType: 'user' as ChatSenderType,
-    source: CHAT_SOURCE.HUMAN_SUPPORT
-}
+  id: "test-chat-message-id",
+  chatRoomId: "test-chat-room-id",
+  message: "test-message",
+  senderType: "user" as ChatSenderType,
+  source: CHAT_SOURCE.HUMAN_SUPPORT,
+};
 
 export const mockUserData = {
-    id: 'user_1',
-    created_at: new Date(),
-    updated_at: new Date(),
-    password: 'password',
-    email: 'test@example.com',
-    emailVerified: new Date()
-}
+  id: "user_1",
+  created_at: new Date(),
+  updated_at: new Date(),
+  password: "password",
+  email: "test@example.com",
+  emailVerified: new Date(),
+};
 
 export const mockUserProfileData = {
-    id: 'user_profile_1',
-    user_id: 'user_1',
-    lastname: 'test',
-    firstname: 'test',
-    icon_url: DEFAULT_ACCOUNT_ICON_URL
-}
+  id: "user_profile_1",
+  user_id: "user_1",
+  lastname: "test",
+  firstname: "test",
+  icon_url: DEFAULT_ACCOUNT_ICON_URL,
+};
 
 export const mockVerificationToken = {
-    token: 'test_token_123',
-    expires: new Date(),
-    identifier: 'test@example.com',
-    password: 'hashed_password',
-    userData: '{"lastname": "test_lastname", "firstname": "test_firstname"}',
-    id: 'verification_id',
-    created_at: new Date(),
-    updated_at: new Date()
-}
+  token: "test_token_123",
+  expires: new Date(),
+  identifier: "test@example.com",
+  password: "hashed_password",
+  userData: '{"lastname": "test_lastname", "firstname": "test_firstname"}',
+  id: "verification_id",
+  created_at: new Date(),
+  updated_at: new Date(),
+};

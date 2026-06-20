@@ -1,28 +1,34 @@
-import { useState, useCallback } from "react"
+import { useState, useCallback } from "react";
 
 const useFaqAccordion = () => {
-    const [expandedItemKey, setExpandedItemKey] = useState<string | null>(null);
+  const [expandedItemKey, setExpandedItemKey] = useState<string | null>(null);
 
-    const createItemKey = useCallback((categoryIndex: number, faqIndex: number) => 
-        `${categoryIndex}-${faqIndex}`, 
-        []
-    );
+  const createItemKey = useCallback(
+    (categoryIndex: number, faqIndex: number) => `${categoryIndex}-${faqIndex}`,
+    [],
+  );
 
-    const toggleAccordion = useCallback((categoryIndex: number, faqIndex: number) => {
-        const itemKey = createItemKey(categoryIndex, faqIndex);
-        setExpandedItemKey(prev => prev === itemKey ? null : itemKey);
-    }, [createItemKey])
+  const toggleAccordion = useCallback(
+    (categoryIndex: number, faqIndex: number) => {
+      const itemKey = createItemKey(categoryIndex, faqIndex);
+      setExpandedItemKey((prev) => (prev === itemKey ? null : itemKey));
+    },
+    [createItemKey],
+  );
 
-    const getExpandedState = useCallback((categoryIndex: number, faqIndex: number) => {
-        const itemKey = createItemKey(categoryIndex, faqIndex);
-        return expandedItemKey === itemKey;
-    }, [expandedItemKey, createItemKey])
+  const getExpandedState = useCallback(
+    (categoryIndex: number, faqIndex: number) => {
+      const itemKey = createItemKey(categoryIndex, faqIndex);
+      return expandedItemKey === itemKey;
+    },
+    [expandedItemKey, createItemKey],
+  );
 
-    return {
-        expandedItemKey,
-        toggleAccordion,
-        getExpandedState
-    }
-}
+  return {
+    expandedItemKey,
+    toggleAccordion,
+    getExpandedState,
+  };
+};
 
-export default useFaqAccordion
+export default useFaqAccordion;

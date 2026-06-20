@@ -1,5 +1,5 @@
 const SyncLogPage = () => {
-    return null;
-}
+  return null;
+};
 
-export default SyncLogPage
+export default SyncLogPage;

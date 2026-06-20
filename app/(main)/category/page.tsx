@@ -1,5 +1,5 @@
 const CategoryPage = () => {
-    return null;
-}
+  return null;
+};
 
-export default CategoryPage
+export default CategoryPage;

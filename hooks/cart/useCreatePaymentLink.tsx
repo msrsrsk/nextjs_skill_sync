@@ -1,100 +1,106 @@
-import { useState } from "react"
+import { useState } from "react";
 
-import { showErrorToast } from "@/components/common/display/Toasts"
-import { SITE_MAP } from "@/constants/index"
-import { ERROR_MESSAGES } from "@/constants/errorMessages"
+import { showErrorToast } from "@/components/common/display/Toasts";
+import { SITE_MAP } from "@/constants/index";
+import { ERROR_MESSAGES } from "@/constants/errorMessages";
 
 const { SUBSCRIPTIONS_API_PATH } = SITE_MAP;
 const { CHECKOUT_ERROR } = ERROR_MESSAGES;
 
 interface UseCreatePaymentLinkProps {
-    subscriptionPriceId: string | null;
-    productId: ProductId;
-    interval: string | null;
+  subscriptionPriceId: string | null;
+  productId: ProductId;
+  interval: string | null;
 }
 
-const useCreatePaymentLink = ({ 
-    subscriptionPriceId,
-    productId,
-    interval
+const useCreatePaymentLink = ({
+  subscriptionPriceId,
+  productId,
+  interval,
 }: UseCreatePaymentLinkProps) => {
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-    // サブスク契約状況の確認
-    const checkSubscription = async () => {
-        const response = await fetch(`${SUBSCRIPTIONS_API_PATH}?productId=${productId}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        });
+  // サブスク契約状況の確認
+  const checkSubscription = async () => {
+    const response = await fetch(
+      `${SUBSCRIPTIONS_API_PATH}?productId=${productId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      },
+    );
 
-        const { success, data } = await response.json();
+    const { success, data } = await response.json();
 
-        if (!success) {
-            setError(CHECKOUT_ERROR.FETCH_SUBSCRIPTION_FAILED);
-            return { proceed: false };
-        }
-
-        if (data) {
-            showErrorToast(CHECKOUT_ERROR.ALREADY_SUBSCRIBED);
-            return { proceed: false };
-        }
-
-        return { proceed: true };
+    if (!success) {
+      setError(CHECKOUT_ERROR.FETCH_SUBSCRIPTION_FAILED);
+      return { proceed: false };
     }
 
+    if (data) {
+      showErrorToast(CHECKOUT_ERROR.ALREADY_SUBSCRIBED);
+      return { proceed: false };
+    }
 
-    // 支払いリンクの作成
-    const createPaymentLink = async () => {
-        setLoading(true);
-        setError(null);
+    return { proceed: true };
+  };
 
-        try {
-            if (!subscriptionPriceId) {
-                throw new Error(CHECKOUT_ERROR.NOT_PROCEED_PAYMENTLINK);
-            }
+  // 支払いリンクの作成
+  const createPaymentLink = async () => {
+    setLoading(true);
+    setError(null);
 
-            const { proceed } = await checkSubscription();
+    try {
+      if (!subscriptionPriceId) {
+        throw new Error(CHECKOUT_ERROR.NOT_PROCEED_PAYMENTLINK);
+      }
 
-            if (!proceed) return;
+      const { proceed } = await checkSubscription();
 
-            const response = await fetch(SUBSCRIPTIONS_API_PATH, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ subscriptionPriceId, interval })
-            });
+      if (!proceed) return;
 
-            const { success, data: paymentLinkData } = await response.json();
+      const response = await fetch(SUBSCRIPTIONS_API_PATH, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ subscriptionPriceId, interval }),
+      });
 
-            // Safariのポップアップブロック対策
-            if (success && paymentLinkData?.url) {
-                const popup = window.open(paymentLinkData.url, '_blank', 'noopener,noreferrer');
-                
-                if (!popup || popup.closed || typeof popup.closed == 'undefined') {
-                    window.location.href = paymentLinkData.url;
-                } else {
-                    popup.focus();
-                }
-            } else {
-                throw new Error(CHECKOUT_ERROR.PAYMENT_LINK_FAILED);
-            }
-        } catch (error) {
-            console.error('Hook Error - Payment Link error:', error);
-            setError(CHECKOUT_ERROR.NOT_PROCEED_PAYMENTLINK);
-        } finally {
-            setLoading(false);
+      const { success, data: paymentLinkData } = await response.json();
+
+      // Safariのポップアップブロック対策
+      if (success && paymentLinkData?.url) {
+        const popup = window.open(
+          paymentLinkData.url,
+          "_blank",
+          "noopener,noreferrer",
+        );
+
+        if (!popup || popup.closed || typeof popup.closed == "undefined") {
+          window.location.href = paymentLinkData.url;
+        } else {
+          popup.focus();
         }
+      } else {
+        throw new Error(CHECKOUT_ERROR.PAYMENT_LINK_FAILED);
+      }
+    } catch (error) {
+      console.error("Hook Error - Payment Link error:", error);
+      setError(CHECKOUT_ERROR.NOT_PROCEED_PAYMENTLINK);
+    } finally {
+      setLoading(false);
     }
+  };
 
-    return {
-        loading,
-        error,
-        createPaymentLink
-    }
-}
+  return {
+    loading,
+    error,
+    createPaymentLink,
+  };
+};
 
-export default useCreatePaymentLink
+export default useCreatePaymentLink;

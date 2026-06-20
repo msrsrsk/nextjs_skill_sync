@@ -1,61 +1,61 @@
-import type { Variants, Transition } from 'framer-motion'
+import type { Variants, Transition } from "framer-motion";
 
 const springTransition = (duration: number, delay: number = 0): Transition => ({
-    type: "spring",
-    duration: duration,
-    delay: delay,
+  type: "spring",
+  duration: duration,
+  delay: delay,
 });
 
 const easeInOutTransition = (duration: number): Transition => ({
-    duration: duration,
-    ease: 'easeInOut' as const,
+  duration: duration,
+  ease: "easeInOut" as const,
 });
 
 export const accordionAnimation = (): Variants => {
-    return {
-        initial: { height: 0, opacity: 0 },
-        animate: { 
-            height: 'auto', 
-            opacity: 1, 
-            transition: easeInOutTransition(0.4)
-        },
-        exit: { 
-            height: 0, 
-            opacity: 0,
-            transition: easeInOutTransition(0.4)
-        },
-    };
+  return {
+    initial: { height: 0, opacity: 0 },
+    animate: {
+      height: "auto",
+      opacity: 1,
+      transition: easeInOutTransition(0.4),
+    },
+    exit: {
+      height: 0,
+      opacity: 0,
+      transition: easeInOutTransition(0.4),
+    },
+  };
 };
 
 export const fadeScale = (): Variants => {
-    return {
-		hidden: { opacity: 0, scale: 0.96 },
-		show: { opacity: 1, scale: 1, transition: easeInOutTransition(0.2) },
-    };
+  return {
+    hidden: { opacity: 0, scale: 0.96 },
+    show: { opacity: 1, scale: 1, transition: easeInOutTransition(0.2) },
+  };
 };
 
 export const fadeIn = (): Variants => {
-    return {
-		hidden: { opacity: 0, height: 0, marginTop: 0 },
-		show: { 
-            opacity: 1, 
-            height: "auto", 
-            marginTop: "8px", 
-            transition: springTransition(0.4) 
-        },
-    };
+  return {
+    hidden: { opacity: 0, height: 0, marginTop: 0 },
+    show: {
+      opacity: 1,
+      height: "auto",
+      marginTop: "8px",
+      transition: springTransition(0.4),
+    },
+  };
 };
 
 export const fadeInUp = (): Variants => {
-    return {
-		hidden: { opacity: 0, y: 10 },
-		show: { opacity: 1, y: 0, transition: springTransition(0.8) },
-    };
+  return {
+    hidden: { opacity: 0, y: 10 },
+    show: { opacity: 1, y: 0, transition: springTransition(0.8) },
+  };
 };
 
 export const fadeInToast = (): Variants => {
-    return {
-		hidden: { opacity: 0, y: -40 },
-		show: { opacity: 1, y: 0, transition: springTransition(0.4) },
-    };
+  return {
+    hidden: { opacity: 0, y: -40 },
+    show: { opacity: 1, y: 0, transition: springTransition(0.4) },
+  };
 };

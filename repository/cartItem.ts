@@ -1,137 +1,129 @@
-import prisma from "@/lib/clients/prisma/client"
+import prisma from "@/lib/clients/prisma/client";
 
 interface CartItemProps extends UserIdProps {
-    productId: ProductId
+  productId: ProductId;
 }
 
 interface UpdateCartItemProps extends CartItemProps {
-    quantity: number
+  quantity: number;
 }
 
 export const createCartItemRepository = () => {
-    return {
-        // カートの商品リストの作成
-        createCartItems: async ({ 
-            cartItemsData
-        }: { cartItemsData: CartItem }) => {
-            return await prisma.cartItem.createMany({
-                data: cartItemsData
-            });
-        }
-    }
-}
+  return {
+    // カートの商品リストの作成
+    createCartItems: async ({ cartItemsData }: { cartItemsData: CartItem }) => {
+      return await prisma.cartItem.createMany({
+        data: cartItemsData,
+      });
+    },
+  };
+};
 
 export const getCartItemRepository = () => {
-    return {
-        // カートの商品リストの取得（商品IDで取得）
-        getCartItemByProductId: async ({ 
-            userId, 
-            productId 
-        }: CartItemProps) => {
-            return await prisma.cartItem.findUnique({
-                where: {
-                    user_product_unique: {
-                        user_id: userId, 
-                        product_id: productId 
-                    }
-                },
+  return {
+    // カートの商品リストの取得（商品IDで取得）
+    getCartItemByProductId: async ({ userId, productId }: CartItemProps) => {
+      return await prisma.cartItem.findUnique({
+        where: {
+          user_product_unique: {
+            user_id: userId,
+            product_id: productId,
+          },
+        },
+        select: {
+          quantity: true,
+        },
+      });
+    },
+    // カートの商品リストの取得
+    getCartItems: async ({ userId }: UserIdProps) => {
+      return await prisma.cartItem.findMany({
+        where: {
+          user_id: userId,
+        },
+        include: {
+          product: {
+            select: {
+              id: true,
+              title: true,
+              image_urls: true,
+              price: true,
+              category: true,
+              slug: true,
+              stock: true,
+              product_pricings: {
                 select: {
-                    quantity: true,
-                }
-            })
-        },
-        // カートの商品リストの取得
-        getCartItems: async ({ userId }: UserIdProps) => {
-            return await prisma.cartItem.findMany({
-                where: {
-                    user_id: userId
+                  sale_price: true,
                 },
-                include: {
-                    product: {
-                        select: {
-                            id: true,
-                            title: true,
-                            image_urls: true,
-                            price: true,
-                            category: true,
-                            slug: true,
-                            stock: true,
-                            product_pricings: {
-                                select: {
-                                    sale_price: true
-                                }
-                            },
-                            product_stripes: {
-                                select: {
-                                    sale_price_id: true,
-                                    regular_price_id: true
-                                }
-                            }
-                        }
-                    }
-                }
-            })
-        },
-        // カートの商品の数量取得
-        getCartCount: async ({ userId }: UserIdProps) => {
-            const result = await prisma.cartItem.aggregate({
-                where: {
-                    user_id: userId
+              },
+              product_stripes: {
+                select: {
+                  sale_price_id: true,
+                  regular_price_id: true,
                 },
-                _sum: {
-                    quantity: true
-                }
-            })
-        
-            return result._sum.quantity || 0;
-        }
-    }
-}
+              },
+            },
+          },
+        },
+      });
+    },
+    // カートの商品の数量取得
+    getCartCount: async ({ userId }: UserIdProps) => {
+      const result = await prisma.cartItem.aggregate({
+        where: {
+          user_id: userId,
+        },
+        _sum: {
+          quantity: true,
+        },
+      });
+
+      return result._sum.quantity || 0;
+    },
+  };
+};
 
 export const updateCartItemRepository = () => {
-    return {
-        // カートの商品の数量更新
-        updateCartItemQuantity: async ({ 
-            userId, 
-            productId, 
-            quantity 
-        }: UpdateCartItemProps) => {
-            return await prisma.cartItem.update({
-                where: { 
-                    user_product_unique: { 
-                        user_id: userId, 
-                        product_id: productId 
-                    } 
-                },
-                data: { quantity }
-            })
-        }
-    }
-}
+  return {
+    // カートの商品の数量更新
+    updateCartItemQuantity: async ({
+      userId,
+      productId,
+      quantity,
+    }: UpdateCartItemProps) => {
+      return await prisma.cartItem.update({
+        where: {
+          user_product_unique: {
+            user_id: userId,
+            product_id: productId,
+          },
+        },
+        data: { quantity },
+      });
+    },
+  };
+};
 
 export const deleteCartItemRepository = () => {
-    return {
-        // カートの商品リストの削除
-        deleteCartItem: async ({ 
-            userId, 
-            productId 
-        }: CartItemProps) => {
-            return await prisma.cartItem.delete({
-                where: { 
-                    user_product_unique: {
-                        user_id: userId, 
-                        product_id: productId 
-                    }
-                }
-            })
+  return {
+    // カートの商品リストの削除
+    deleteCartItem: async ({ userId, productId }: CartItemProps) => {
+      return await prisma.cartItem.delete({
+        where: {
+          user_product_unique: {
+            user_id: userId,
+            product_id: productId,
+          },
         },
-        // カートの全ての商品リストの削除
-        deleteAllCartItems: async ({ userId }: UserIdProps) => {
-            return await prisma.cartItem.deleteMany({
-                where: { 
-                    user_id: userId
-                }
-            })
-        }
-    }
-}
+      });
+    },
+    // カートの全ての商品リストの削除
+    deleteAllCartItems: async ({ userId }: UserIdProps) => {
+      return await prisma.cartItem.deleteMany({
+        where: {
+          user_id: userId,
+        },
+      });
+    },
+  };
+};

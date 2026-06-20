@@ -1,30 +1,30 @@
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback } from "react";
 
 export const useFooterVisibility = ({ offset = 0 }: { offset?: number }) => {
-    const [isFooterVisible, setIsFooterVisible] = useState(false);
+  const [isFooterVisible, setIsFooterVisible] = useState(false);
 
-    const checkFooterVisibility = useCallback(() => {
-        const footer = document.querySelector('footer');
-        if (!footer) return;
+  const checkFooterVisibility = useCallback(() => {
+    const footer = document.querySelector("footer");
+    if (!footer) return;
 
-        const footerRect = footer.getBoundingClientRect();
-        const windowHeight = window.innerHeight;
-        
-        const isVisible = footerRect.top <= (windowHeight + offset);
-        setIsFooterVisible(isVisible);
-    }, [offset])
+    const footerRect = footer.getBoundingClientRect();
+    const windowHeight = window.innerHeight;
 
-    useEffect(() => {
-        checkFooterVisibility();
+    const isVisible = footerRect.top <= windowHeight + offset;
+    setIsFooterVisible(isVisible);
+  }, [offset]);
 
-        window.addEventListener('scroll', checkFooterVisibility);
-        window.addEventListener('resize', checkFooterVisibility);
+  useEffect(() => {
+    checkFooterVisibility();
 
-        return () => {
-            window.removeEventListener('scroll', checkFooterVisibility);
-            window.removeEventListener('resize', checkFooterVisibility);
-        }
-    }, [])
+    window.addEventListener("scroll", checkFooterVisibility);
+    window.addEventListener("resize", checkFooterVisibility);
 
-    return isFooterVisible;
+    return () => {
+      window.removeEventListener("scroll", checkFooterVisibility);
+      window.removeEventListener("resize", checkFooterVisibility);
+    };
+  }, []);
+
+  return isFooterVisible;
 };

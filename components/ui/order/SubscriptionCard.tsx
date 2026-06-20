@@ -1,55 +1,59 @@
-import OrderItemList from "@/components/ui/order/OrderItemList"
-import { LinkButtonPrimary } from "@/components/common/buttons/Button"
-import { formatDate } from "@/lib/utils/format"
-import { MoreIcon } from "@/components/common/icons/SvgIcons"
-import { SUBSCRIPTION_PAYMENT_STATUS, SITE_MAP } from "@/constants/index"
+import OrderItemList from "@/components/ui/order/OrderItemList";
+import { LinkButtonPrimary } from "@/components/common/buttons/Button";
+import { formatDate } from "@/lib/utils/format";
+import { MoreIcon } from "@/components/common/icons/SvgIcons";
+import { SUBSCRIPTION_PAYMENT_STATUS, SITE_MAP } from "@/constants/index";
 
 const { CANCELED } = SUBSCRIPTION_PAYMENT_STATUS;
 const { SUBSCRIPTION_HISTORY_PATH } = SITE_MAP;
 
-const SubscriptionCard = async ({ 
-    orderItem 
-}: { orderItem: OrderItemPagenatedData }) => {
-    const {
-        order_id,
-        order_item_subscriptions,
-    } = orderItem;
+const SubscriptionCard = async ({
+  orderItem,
+}: {
+  orderItem: OrderItemPagenatedData;
+}) => {
+  const { order_id, order_item_subscriptions } = orderItem;
 
-    const { subscription_id, status, next_payment_date } = order_item_subscriptions || {};
+  const { subscription_id, status, next_payment_date } =
+    order_item_subscriptions || {};
 
-    const formattedNextPaymentDate = status !== CANCELED 
-        ? next_payment_date 
-        ? formatDate(next_payment_date) 
-        : 'No data' : '解約済み';
+  const formattedNextPaymentDate =
+    status !== CANCELED
+      ? next_payment_date
+        ? formatDate(next_payment_date)
+        : "No data"
+      : "解約済み";
 
-    const isCanceled = status === CANCELED;
+  const isCanceled = status === CANCELED;
 
-    return (
-        <div className="bg-form-bg rounded-[20px] xl:max-w-[372px] w-full pt-6 px-5 pb-7 md:px-6">
-            <OrderItemList 
-                orderItems={[orderItem as OrderPagenatedSelectFields]} 
-                customClass="grid gap-6"
-            />
-            <hr className="separate-border my-4 md:my-5" />
-            <div className="grid gap-4">
-                <div className="flex justify-center items-baseline flex-wrap gap-1">
-                    <p className="text-sm leading-7 font-medium">次回のお支払い日：</p>
-                    <p className={`text-sm leading-7 font-medium${
-                        isCanceled ? ' text-tag-default' : ' font-poppins'
-                    }`}>
-                        {formattedNextPaymentDate}
-                    </p>
-                </div>
-                <LinkButtonPrimary
-                    link={`${SUBSCRIPTION_HISTORY_PATH}/${order_id}`}
-                    ariaLabel={`契約ID:${subscription_id}の詳細ページを開く`}
-                >
-                    <span aria-hidden="true">MORE</span>
-                    <MoreIcon />
-                </LinkButtonPrimary>
-            </div>
+  return (
+    <div className="bg-form-bg rounded-[20px] xl:max-w-[372px] w-full pt-6 px-5 pb-7 md:px-6">
+      <OrderItemList
+        orderItems={[orderItem as OrderPagenatedSelectFields]}
+        customClass="grid gap-6"
+      />
+      <hr className="separate-border my-4 md:my-5" />
+      <div className="grid gap-4">
+        <div className="flex justify-center items-baseline flex-wrap gap-1">
+          <p className="text-sm leading-7 font-medium">次回のお支払い日：</p>
+          <p
+            className={`text-sm leading-7 font-medium${
+              isCanceled ? " text-tag-default" : " font-poppins"
+            }`}
+          >
+            {formattedNextPaymentDate}
+          </p>
         </div>
-    )
-}
+        <LinkButtonPrimary
+          link={`${SUBSCRIPTION_HISTORY_PATH}/${order_id}`}
+          ariaLabel={`契約ID:${subscription_id}の詳細ページを開く`}
+        >
+          <span aria-hidden="true">MORE</span>
+          <MoreIcon />
+        </LinkButtonPrimary>
+      </div>
+    </div>
+  );
+};
 
-export default SubscriptionCard
+export default SubscriptionCard;

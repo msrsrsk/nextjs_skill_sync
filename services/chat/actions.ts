@@ -1,96 +1,96 @@
-import { createChatRepository } from "@/repository/chat"
-import { 
-    CHAT_HISTORY_INITIAL_MESSAGE, 
-    CHAT_SENDER_TYPES, 
-    CHAT_SOURCE 
-} from "@/constants/index"
-import { ERROR_MESSAGES } from "@/constants/errorMessages"
+import { createChatRepository } from "@/repository/chat";
+import {
+  CHAT_HISTORY_INITIAL_MESSAGE,
+  CHAT_SENDER_TYPES,
+  CHAT_SOURCE,
+} from "@/constants/index";
+import { ERROR_MESSAGES } from "@/constants/errorMessages";
 
 const { SENDER_ADMIN } = CHAT_SENDER_TYPES;
 const { HUMAN_SUPPORT } = CHAT_SOURCE;
 const { CHAT_ERROR } = ERROR_MESSAGES;
 
 interface CreateInitialChatProps {
-    tx: TransactionClient;
-    chatRoomId: ChatRoomId;
+  tx: TransactionClient;
+  chatRoomId: ChatRoomId;
 }
 
 interface CreateChatMessageByUserIdProps extends ChatMessageProps {
-    chatRoomId: ChatRoomId;
+  chatRoomId: ChatRoomId;
 }
 
 // 初期チャットメッセージの作成
-export const createInitialChat = async ({ 
-    tx,
-    chatRoomId
+export const createInitialChat = async ({
+  tx,
+  chatRoomId,
 }: CreateInitialChatProps) => {
-    try {
-        const repository = createChatRepository();
-        const result = await repository.createChatMessageWithTransaction({
-            tx, 
-            chatRoomId, 
-            message: CHAT_HISTORY_INITIAL_MESSAGE, 
-            senderType: SENDER_ADMIN as ChatSenderType,
-            source: CHAT_SOURCE.INITIAL
-        });
+  try {
+    const repository = createChatRepository();
+    const result = await repository.createChatMessageWithTransaction({
+      tx,
+      chatRoomId,
+      message: CHAT_HISTORY_INITIAL_MESSAGE,
+      senderType: SENDER_ADMIN as ChatSenderType,
+      source: CHAT_SOURCE.INITIAL,
+    });
 
-        if (!result) {
-            return {
-                success: false, 
-                error: CHAT_ERROR.CREATE_INITIAL_FAILED
-            }
-        }
-
-        return {
-            success: true, 
-            error: null
-        }
-    } catch (error) {
-        console.error('Database : Error in createInitialChat: ', error);
-
-        return {
-            success: false, 
-            error: CHAT_ERROR.CREATE_INITIAL_FAILED
-        }
+    if (!result) {
+      return {
+        success: false,
+        error: CHAT_ERROR.CREATE_INITIAL_FAILED,
+      };
     }
-}
+
+    return {
+      success: true,
+      error: null,
+    };
+  } catch (error) {
+    console.error("Database : Error in createInitialChat: ", error);
+
+    return {
+      success: false,
+      error: CHAT_ERROR.CREATE_INITIAL_FAILED,
+    };
+  }
+};
 
 // チャットメッセージの追加
 export const createChatMessageByUserId = async ({
-    chatRoomId,
-    message,
-    senderType = SENDER_ADMIN as ChatSenderType,
-    source = HUMAN_SUPPORT
+  chatRoomId,
+  message,
+  senderType = SENDER_ADMIN as ChatSenderType,
+  source = HUMAN_SUPPORT,
 }: CreateChatMessageByUserIdProps) => {
-    try {
-        const chatRepository = createChatRepository();
-        const result = await chatRepository.createChatMessage({
-            chatRoomId,
-            message,
-            senderType,
-            source
-        });
+  try {
+    const chatRepository = createChatRepository();
+    const result = await chatRepository.createChatMessage({
+      chatRoomId,
+      message,
+      senderType,
+      source,
+    });
 
-        if (!result) {
-            return {
-                success: false, 
-                error: CHAT_ERROR.CREATE_FAILED,
-                data: null
-            }
-        }
-    
-        return {
-            success: true, 
-            error: null, 
-            data: result
-        }
-    } catch (error) {
-        console.error('Database : Error in createChatMessageByUserId: ', error);
-
-        return {
-            success: false, 
-            error: CHAT_ERROR.CREATE_FAILED,
-            data: null
-        }
+    if (!result) {
+      return {
+        success: false,
+        error: CHAT_ERROR.CREATE_FAILED,
+        data: null,
+      };
     }
-}
+
+    return {
+      success: true,
+      error: null,
+      data: result,
+    };
+  } catch (error) {
+    console.error("Database : Error in createChatMessageByUserId: ", error);
+
+    return {
+      success: false,
+      error: CHAT_ERROR.CREATE_FAILED,
+      data: null,
+    };
+  }
+};

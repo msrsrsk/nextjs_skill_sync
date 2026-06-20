@@ -1,543 +1,579 @@
-import { stripe } from "@/lib/clients/stripe/client"
+import { stripe } from "@/lib/clients/stripe/client";
 
-import { sendSubscriptionPaymentRequestEmail } from "@/services/email/subscription/subscription-payment-request"
-import { 
-    createSubscriptionPayment, 
-    updateSubscriptionPaymentStatus 
-} from "@/services/subscription-payment/actions"
-import { formatStripeSubscriptionStatus } from "@/services/subscription-payment/format"
-import { createCheckoutOrder, deleteOrder } from "@/services/order/actions"
-import { createOrderStripe, deleteOrderStripe } from "@/services/order-stripe/actions"
-import { createOrderItems, deleteAllOrderItem } from "@/services/order-item/actions"
-import { createOrderItemStripes, deleteOrderItemStripes } from "@/services/order-item-stripe/actions"
-import { createOrderItemSubscriptions } from "@/services/order-item-subscription/actions"
-import { 
-    createShippingAddress, 
-    getDefaultShippingAddress 
-} from "@/services/shipping-address/actions"
-import { 
-    createStripeProduct, 
-    createStripePrice, 
-    createSubscriptionPrices,
-    updateCustomerShippingAddress,
-} from "@/services/stripe/actions"
-import { getCheckoutSession } from "@/services/stripe/checkout-actions"
-import { sendPaymentRequestEmail } from "@/services/email/order/payment-request"
-import { NOIMAGE_PRODUCT_IMAGE_URL, SUBSCRIPTION_STATUS } from "@/constants/index"
-import { ERROR_MESSAGES } from "@/constants/errorMessages"
+import { sendSubscriptionPaymentRequestEmail } from "@/services/email/subscription/subscription-payment-request";
+import {
+  createSubscriptionPayment,
+  updateSubscriptionPaymentStatus,
+} from "@/services/subscription-payment/actions";
+import { formatStripeSubscriptionStatus } from "@/services/subscription-payment/format";
+import { createCheckoutOrder, deleteOrder } from "@/services/order/actions";
+import {
+  createOrderStripe,
+  deleteOrderStripe,
+} from "@/services/order-stripe/actions";
+import {
+  createOrderItems,
+  deleteAllOrderItem,
+} from "@/services/order-item/actions";
+import {
+  createOrderItemStripes,
+  deleteOrderItemStripes,
+} from "@/services/order-item-stripe/actions";
+import { createOrderItemSubscriptions } from "@/services/order-item-subscription/actions";
+import {
+  createShippingAddress,
+  getDefaultShippingAddress,
+} from "@/services/shipping-address/actions";
+import {
+  createStripeProduct,
+  createStripePrice,
+  createSubscriptionPrices,
+  updateCustomerShippingAddress,
+} from "@/services/stripe/actions";
+import { getCheckoutSession } from "@/services/stripe/checkout-actions";
+import { sendPaymentRequestEmail } from "@/services/email/order/payment-request";
+import {
+  NOIMAGE_PRODUCT_IMAGE_URL,
+  SUBSCRIPTION_STATUS,
+} from "@/constants/index";
+import { ERROR_MESSAGES } from "@/constants/errorMessages";
 
 const { SUBS_ACTIVE } = SUBSCRIPTION_STATUS;
-const { 
-    SUBSCRIPTION_ERROR, 
-    SUBSCRIPTION_PAYMENT_ERROR, 
-    SHIPPING_ADDRESS_ERROR,
-    CHECKOUT_ERROR,
+const {
+  SUBSCRIPTION_ERROR,
+  SUBSCRIPTION_PAYMENT_ERROR,
+  SHIPPING_ADDRESS_ERROR,
+  CHECKOUT_ERROR,
 } = ERROR_MESSAGES;
 
 interface CreateProductDetailsProps {
-    lineItems: WebhookLineItem[] | StripeSubscriptionItem[];
-    subscriptionId: string;
-    isCheckout: boolean;
+  lineItems: WebhookLineItem[] | StripeSubscriptionItem[];
+  subscriptionId: string;
+  isCheckout: boolean;
 }
 
 interface ProcessOrderDataReturn {
-    orderData: CreateCheckoutOrderData;
-    productDetailsData: StripeProductDetailsProps[];
+  orderData: CreateCheckoutOrderData;
+  productDetailsData: StripeProductDetailsProps[];
 }
 
 interface ProcessShippingAddressProps {
-    checkoutSessionEvent: StripeCheckoutSession, 
-    userId: UserId
+  checkoutSessionEvent: StripeCheckoutSession;
+  userId: UserId;
 }
 
 interface SendOrderEmailsProps {
-    checkoutSessionEvent: StripeCheckoutSession,
-    productDetails: StripeProductDetailsProps[],
-    orderData: CreateCheckoutOrderData
+  checkoutSessionEvent: StripeCheckoutSession;
+  productDetails: StripeProductDetailsProps[];
+  orderData: CreateCheckoutOrderData;
 }
 
 interface UpdateStripeProductDataProps {
-    subscriptionEvent: StripeSubscription;
-    previousAttributes: Partial<StripeSubscription> | null;
+  subscriptionEvent: StripeSubscription;
+  previousAttributes: Partial<StripeSubscription> | null;
 }
 
 interface CreateStripeProductDataProps {
-    title: ProductTitle;
-    productId: ProductId;
-    price: ProductPrice;
-    salePrice: ProductSalePrice;
-    subscriptionPriceIds: StripeSubscriptionPriceIds;
+  title: ProductTitle;
+  productId: ProductId;
+  price: ProductPrice;
+  salePrice: ProductSalePrice;
+  subscriptionPriceIds: StripeSubscriptionPriceIds;
 }
 
 // 商品詳細データの作成
 export async function createProductDetails({
-    lineItems,
-    subscriptionId,
-    isCheckout = true
+  lineItems,
+  subscriptionId,
+  isCheckout = true,
 }: CreateProductDetailsProps) {
-    if (!lineItems || lineItems.length === 0) {
-        return {
-            success: false,
-            data: null,
-            error: CHECKOUT_ERROR.NO_LINE_ITEMS
+  if (!lineItems || lineItems.length === 0) {
+    return {
+      success: false,
+      data: null,
+      error: CHECKOUT_ERROR.NO_LINE_ITEMS,
+    };
+  }
+
+  try {
+    const productDetails = await Promise.all(
+      lineItems.map(async (item) => {
+        const product = await stripe.products.retrieve(
+          item.price?.product as string,
+        );
+
+        if (!product || !item.price) {
+          throw new Error(CHECKOUT_ERROR.CHECKOUT_PRODUCT_CREATE_FAILED);
         }
-    }
-
-    try {
-        const productDetails = await Promise.all(
-            lineItems.map(async (item) => {
-                const product = await stripe.products.retrieve(item.price?.product as string);
-
-                if (!product || !item.price) {
-                    throw new Error(CHECKOUT_ERROR.CHECKOUT_PRODUCT_CREATE_FAILED);
-                }
-                
-                return {
-                    product_id: product.metadata.supabase_id,
-                    title: product.name,
-                    image: product.images[0] || process.env.NEXT_PUBLIC_BASE_URL + NOIMAGE_PRODUCT_IMAGE_URL,
-                    unit_price: item.price.unit_amount,
-                    amount: isCheckout ? (item as WebhookLineItem).amount_total : item.price.unit_amount,
-                    quantity: item.quantity,
-                    stripe_price_id: item.price.id,
-                    subscription_id: subscriptionId,
-                    subscription_status: (item.price.recurring?.interval_count && item.price.recurring?.interval) 
-                        ? SUBS_ACTIVE 
-                        : null,                    
-                    subscription_interval: (item.price.recurring?.interval_count && item.price.recurring?.interval) 
-                        ? `${item.price.recurring?.interval_count}${item.price.recurring?.interval}` 
-                        : null,           
-                    ...(product.metadata.subscription_product === 'true' && {
-                        subscription_product: true
-                    })       
-                }
-            })
-        )
 
         return {
-            success: true,
-            data: productDetails,
-            error: null
-        }
-    } catch (error) {
-        console.error('Webhook Error - Error in createProductDetails:', error);
+          product_id: product.metadata.supabase_id,
+          title: product.name,
+          image:
+            product.images[0] ||
+            process.env.NEXT_PUBLIC_BASE_URL + NOIMAGE_PRODUCT_IMAGE_URL,
+          unit_price: item.price.unit_amount,
+          amount: isCheckout
+            ? (item as WebhookLineItem).amount_total
+            : item.price.unit_amount,
+          quantity: item.quantity,
+          stripe_price_id: item.price.id,
+          subscription_id: subscriptionId,
+          subscription_status:
+            item.price.recurring?.interval_count &&
+            item.price.recurring?.interval
+              ? SUBS_ACTIVE
+              : null,
+          subscription_interval:
+            item.price.recurring?.interval_count &&
+            item.price.recurring?.interval
+              ? `${item.price.recurring?.interval_count}${item.price.recurring?.interval}`
+              : null,
+          ...(product.metadata.subscription_product === "true" && {
+            subscription_product: true,
+          }),
+        };
+      }),
+    );
 
-        return {
-            success: false,
-            data: null,
-            error: CHECKOUT_ERROR.CHECKOUT_PRODUCT_CREATE_FAILED
-        }
-    }
+    return {
+      success: true,
+      data: productDetails,
+      error: null,
+    };
+  } catch (error) {
+    console.error("Webhook Error - Error in createProductDetails:", error);
+
+    return {
+      success: false,
+      data: null,
+      error: CHECKOUT_ERROR.CHECKOUT_PRODUCT_CREATE_FAILED,
+    };
+  }
 }
 
 // 注文データの処理
 export async function processOrderData({
-    checkoutSessionEvent
-}: { checkoutSessionEvent: StripeCheckoutSession }) {
-    // 1.注文データの取得と保存
-    const { 
-        success: sessionSuccess, 
-        error: sessionError,
-        data: session 
-    } = await getCheckoutSession({ sessionId: checkoutSessionEvent.id });
+  checkoutSessionEvent,
+}: {
+  checkoutSessionEvent: StripeCheckoutSession;
+}) {
+  // 1.注文データの取得と保存
+  const {
+    success: sessionSuccess,
+    error: sessionError,
+    data: session,
+  } = await getCheckoutSession({ sessionId: checkoutSessionEvent.id });
 
-    if (!sessionSuccess) {
-        throw new Error(sessionError as string);
-    }
+  if (!sessionSuccess) {
+    throw new Error(sessionError as string);
+  }
 
-    const lineItems = session?.line_items?.data || [];
+  const lineItems = session?.line_items?.data || [];
 
-    const subscriptionId = typeof checkoutSessionEvent.subscription === 'string' 
-        ? checkoutSessionEvent.subscription 
-        : checkoutSessionEvent.subscription?.id || '';
+  const subscriptionId =
+    typeof checkoutSessionEvent.subscription === "string"
+      ? checkoutSessionEvent.subscription
+      : checkoutSessionEvent.subscription?.id || "";
 
+  const {
+    success: productDetailsSuccess,
+    data: productDetailsData,
+    error: productDetailsError,
+  } = await createProductDetails({
+    lineItems: lineItems as WebhookLineItem[],
+    subscriptionId: subscriptionId,
+    isCheckout: true,
+  });
+
+  if (!productDetailsSuccess || !productDetailsData) {
+    throw new Error(productDetailsError as string);
+  }
+
+  // Order テーブルのデータ作成
+  const {
+    success: orderSuccess,
+    data: orderData,
+    error: orderError,
+  } = await createCheckoutOrder({ session: checkoutSessionEvent });
+
+  if (!orderSuccess || !orderData) {
+    throw new Error(orderError as string);
+  }
+
+  // OrderStripe テーブルのデータ作成
+  const { success: orderStripeSuccess, error: orderStripeError } =
+    await createOrderStripe({
+      orderStripeData: {
+        order_id: orderData.order.id,
+        session_id: checkoutSessionEvent.id,
+        payment_intent_id:
+          checkoutSessionEvent.payment_intent &&
+          typeof checkoutSessionEvent.payment_intent === "string"
+            ? checkoutSessionEvent.payment_intent
+            : null,
+      },
+    });
+
+  if (!orderStripeSuccess) {
+    await deleteOrder({ orderId: orderData.order.id });
+    throw new Error(orderStripeError as string);
+  }
+
+  // OrderItems テーブルのデータ作成
+  const {
+    success: orderItemsSuccess,
+    error: orderItemsError,
+    data: orderItemsData,
+  } = await createOrderItems({
+    orderId: orderData.order.id,
+    productDetails: productDetailsData as StripeProductDetailsProps[],
+  });
+
+  if (!orderItemsSuccess || !orderItemsData) {
+    await deleteOrder({ orderId: orderData.order.id });
+    await deleteOrderStripe({ orderId: orderData.order.id });
+    throw new Error(orderItemsError as string);
+  }
+
+  // OrderItemStripes テーブルのデータ作成
+  const { success: orderItemStripesSuccess, error: orderItemStripesError } =
+    await createOrderItemStripes({
+      orderItemIds: orderItemsData.map((item) => item.id),
+      productDetails: productDetailsData as StripeProductDetailsProps[],
+    });
+
+  if (!orderItemStripesSuccess) {
+    await deleteOrder({ orderId: orderData.order.id });
+    await deleteOrderStripe({ orderId: orderData.order.id });
+    await deleteAllOrderItem({ orderId: orderData.order.id });
+    throw new Error(orderItemStripesError as string);
+  }
+
+  // OrderItemSubscriptions テーブルのデータ作成
+  const subscriptionProducts = productDetailsData?.filter(
+    (product) => product.subscription_product,
+  );
+
+  if (subscriptionProducts && subscriptionProducts.length > 0) {
     const {
-        success: productDetailsSuccess,
-        data: productDetailsData,
-        error: productDetailsError
-    } = await createProductDetails({
-        lineItems: lineItems as WebhookLineItem[],
-        subscriptionId: subscriptionId,
-        isCheckout: true
+      success: orderItemSubscriptionsSuccess,
+      error: orderItemSubscriptionsError,
+    } = await createOrderItemSubscriptions({
+      orderItemId: orderItemsData[0].id,
+      productDetails: productDetailsData as StripeProductDetailsProps[],
     });
 
-    if (!productDetailsSuccess || !productDetailsData) {
-        throw new Error(productDetailsError as string);
+    if (!orderItemSubscriptionsSuccess) {
+      await deleteOrder({ orderId: orderData.order.id });
+      await deleteOrderStripe({ orderId: orderData.order.id });
+      await deleteAllOrderItem({ orderId: orderData.order.id });
+      await deleteOrderItemStripes({ orderItemId: orderItemsData[0].id });
+      throw new Error(orderItemSubscriptionsError as string);
     }
+  }
 
-    // Order テーブルのデータ作成
-    const { 
-        success: orderSuccess, 
-        data: orderData,
-        error: orderError, 
-    } = await createCheckoutOrder({ session: checkoutSessionEvent });
-
-    if (!orderSuccess || !orderData) {
-        throw new Error(orderError as string);
-    }
-
-    // OrderStripe テーブルのデータ作成
-    const { 
-        success: orderStripeSuccess, 
-        error: orderStripeError,
-    } = await createOrderStripe({ 
-        orderStripeData: {
-            order_id: orderData.order.id,
-            session_id: checkoutSessionEvent.id,
-            payment_intent_id: checkoutSessionEvent.payment_intent && typeof checkoutSessionEvent.payment_intent === 'string' 
-                ? checkoutSessionEvent.payment_intent 
-                : null,
-        }
-    });
-
-    if (!orderStripeSuccess) {
-        await deleteOrder({ orderId: orderData.order.id });
-        throw new Error(orderStripeError as string);
-    }
-
-    // OrderItems テーブルのデータ作成
-    const  { 
-        success: orderItemsSuccess, 
-        error: orderItemsError,
-        data: orderItemsData
-    } = await createOrderItems({
-        orderId: orderData.order.id, 
-        productDetails: productDetailsData as StripeProductDetailsProps[]
-    });
-
-    if (!orderItemsSuccess || !orderItemsData) {
-        await deleteOrder({ orderId: orderData.order.id });
-        await deleteOrderStripe({ orderId: orderData.order.id });
-        throw new Error(orderItemsError as string);
-    }
-    
-    // OrderItemStripes テーブルのデータ作成
-    const  { 
-        success: orderItemStripesSuccess, 
-        error: orderItemStripesError 
-    } = await createOrderItemStripes({
-        orderItemIds: orderItemsData.map((item) => item.id), 
-        productDetails: productDetailsData as StripeProductDetailsProps[]
-    })
-
-    if (!orderItemStripesSuccess) {
-        await deleteOrder({ orderId: orderData.order.id });
-        await deleteOrderStripe({ orderId: orderData.order.id });
-        await deleteAllOrderItem({ orderId: orderData.order.id });
-        throw new Error(orderItemStripesError as string);
-    }
-
-    // OrderItemSubscriptions テーブルのデータ作成
-    const subscriptionProducts = productDetailsData?.filter(
-        product => product.subscription_product
-    );
-
-    if (subscriptionProducts && subscriptionProducts.length > 0) {
-        const  { 
-            success: orderItemSubscriptionsSuccess, 
-            error: orderItemSubscriptionsError 
-        } = await createOrderItemSubscriptions({
-            orderItemId: orderItemsData[0].id, 
-            productDetails: productDetailsData as StripeProductDetailsProps[]
-        })
-
-        if (!orderItemSubscriptionsSuccess) {
-            await deleteOrder({ orderId: orderData.order.id });
-            await deleteOrderStripe({ orderId: orderData.order.id });
-            await deleteAllOrderItem({ orderId: orderData.order.id });
-            await deleteOrderItemStripes({ orderItemId: orderItemsData[0].id });
-            throw new Error(orderItemSubscriptionsError as string);
-        }
-    }
-
-    return { orderData, productDetailsData } as ProcessOrderDataReturn;
+  return { orderData, productDetailsData } as ProcessOrderDataReturn;
 }
 
 // 配送先住所のデータ保存
 export async function processShippingAddress({
-    checkoutSessionEvent,
-    userId
+  checkoutSessionEvent,
+  userId,
 }: ProcessShippingAddressProps) {
-    if (!userId) {
-        throw new Error(SHIPPING_ADDRESS_ERROR.NO_USER_ID);
+  if (!userId) {
+    throw new Error(SHIPPING_ADDRESS_ERROR.NO_USER_ID);
+  }
+
+  const { data: defaultShippingAddress } = await getDefaultShippingAddress({
+    userId,
+  });
+
+  // デフォルトの配送先住所の有無確認（ない場合）
+  if (!defaultShippingAddress) {
+    const customerId = checkoutSessionEvent?.customer as StripeCustomerId;
+
+    // デフォルトの配送先住所のデータ保存
+    const customerDetails = checkoutSessionEvent.customer_details;
+
+    if (customerDetails && customerId) {
+      const address = customerDetails.address;
+
+      const createResult = await createShippingAddress({
+        address: {
+          user_id: userId,
+          name: customerDetails.name,
+          postal_code: address?.postal_code,
+          state: address?.state,
+          city: address?.city || "",
+          address_line1: address?.line1,
+          address_line2: address?.line2 || "",
+          is_default: true,
+        } as ShippingAddress,
+      });
+
+      if (!createResult.success) {
+        throw new Error(createResult.error as string);
+      }
+
+      const updateResult = await updateCustomerShippingAddress(customerId, {
+        address: {
+          line1: address?.line1 || "",
+          line2: address?.line2 || "",
+          city: address?.city || "",
+          state: address?.state || "",
+          postal_code: address?.postal_code || "",
+        },
+        name: customerDetails.name || "",
+      });
+
+      if (!updateResult.success) {
+        throw new Error(updateResult.error as string);
+      }
     }
-
-    const { data: defaultShippingAddress } = await getDefaultShippingAddress({ userId });
-
-    // デフォルトの配送先住所の有無確認（ない場合）
-    if (!defaultShippingAddress) {
-        const customerId = checkoutSessionEvent?.customer as StripeCustomerId;
-
-        // デフォルトの配送先住所のデータ保存
-        const customerDetails = checkoutSessionEvent.customer_details;
-
-        if (customerDetails && customerId) {
-            const address = customerDetails.address;
-
-            const createResult = await createShippingAddress({
-                address: {
-                    user_id: userId,
-                    name: customerDetails.name,
-                    postal_code: address?.postal_code,
-                    state: address?.state,
-                    city: address?.city || '',
-                    address_line1: address?.line1,
-                    address_line2: address?.line2 || '',
-                    is_default: true
-                } as ShippingAddress
-            })
-
-            if (!createResult.success) {
-                throw new Error(createResult.error as string);
-            }
-
-            const updateResult = await updateCustomerShippingAddress(customerId, {
-                address: {
-                    line1: address?.line1 || '',
-                    line2: address?.line2 || '',
-                    city: address?.city || '',
-                    state: address?.state || '',
-                    postal_code: address?.postal_code || '',
-                },
-                name: customerDetails.name || '',
-            });
-
-            if (!updateResult.success) {
-                throw new Error(updateResult.error as string);
-            }
-        }
-    }
+  }
 }
 
 // 未払いの場合のメール送信
 export async function sendOrderEmails({
-    checkoutSessionEvent,
-    productDetails,
-    orderData
+  checkoutSessionEvent,
+  productDetails,
+  orderData,
 }: SendOrderEmailsProps) {
-    let paymentIntent = null;
+  let paymentIntent = null;
 
-    if (checkoutSessionEvent.payment_intent && typeof checkoutSessionEvent.payment_intent === 'string') {
-        paymentIntent = await stripe.paymentIntents.retrieve(
-            checkoutSessionEvent.payment_intent
-        );
-    }
+  if (
+    checkoutSessionEvent.payment_intent &&
+    typeof checkoutSessionEvent.payment_intent === "string"
+  ) {
+    paymentIntent = await stripe.paymentIntents.retrieve(
+      checkoutSessionEvent.payment_intent,
+    );
+  }
 
-    const { 
-        success: paymentEmailSuccess, 
-        error: paymentEmailError 
-    } = await sendPaymentRequestEmail({
-        orderData: checkoutSessionEvent,
-        productDetails: productDetails as StripeProductDetailsProps[],
-        orderNumber: orderData.order.order_number,
-        paymentIntent,
-        checkoutSessionEvent
+  const { success: paymentEmailSuccess, error: paymentEmailError } =
+    await sendPaymentRequestEmail({
+      orderData: checkoutSessionEvent,
+      productDetails: productDetails as StripeProductDetailsProps[],
+      orderNumber: orderData.order.order_number,
+      paymentIntent,
+      checkoutSessionEvent,
     });
 
-    if (!paymentEmailSuccess) {
-        throw new Error(paymentEmailError as string);
-    }
+  if (!paymentEmailSuccess) {
+    throw new Error(paymentEmailError as string);
+  }
 }
 
 // サブスクリプションの支払いデータの作成と未払い通知メールの送信
 export async function handleSubscriptionEvent({
-    subscriptionEvent
-}: { subscriptionEvent: StripeSubscription }) {
-    const subscriptionStatus = formatStripeSubscriptionStatus(subscriptionEvent?.status);
+  subscriptionEvent,
+}: {
+  subscriptionEvent: StripeSubscription;
+}) {
+  const subscriptionStatus = formatStripeSubscriptionStatus(
+    subscriptionEvent?.status,
+  );
 
-    // 1. サブスクリプションの支払いデータの作成
-    const createResult = await createSubscriptionPayment({
-        subscriptionPaymentData: {
-            user_id: subscriptionEvent?.metadata?.userID as UserId,
-            subscription_id: subscriptionEvent.id,
-            payment_date: new Date(),
-            status: subscriptionStatus,
-        } as SubscriptionPayment
+  // 1. サブスクリプションの支払いデータの作成
+  const createResult = await createSubscriptionPayment({
+    subscriptionPaymentData: {
+      user_id: subscriptionEvent?.metadata?.userID as UserId,
+      subscription_id: subscriptionEvent.id,
+      payment_date: new Date(),
+      status: subscriptionStatus,
+    } as SubscriptionPayment,
+  });
+
+  if (!createResult.success) {
+    throw new Error(createResult.error as string);
+  }
+
+  // 2. 未払い通知メールの送信
+  if (subscriptionEvent?.status !== "active") {
+    const subscription = await stripe.subscriptions.retrieve(
+      subscriptionEvent.id,
+    );
+    const lineItems = subscription.items.data || [];
+
+    const productDetails = await createProductDetails({
+      lineItems,
+      subscriptionId: subscriptionEvent.id,
+      isCheckout: false,
     });
 
-    if (!createResult.success) {
-        throw new Error(createResult.error as string);
+    const {
+      success: subscriptionPaymentEmailSuccess,
+      error: subscriptionPaymentEmailError,
+    } = await sendSubscriptionPaymentRequestEmail({
+      orderData: subscriptionEvent,
+      productDetails: productDetails.data as StripeProductDetailsProps[],
+    });
+
+    if (!subscriptionPaymentEmailSuccess) {
+      throw new Error(subscriptionPaymentEmailError as string);
     }
-
-    // 2. 未払い通知メールの送信
-    if (subscriptionEvent?.status !== 'active') {
-        const subscription = await stripe.subscriptions.retrieve(subscriptionEvent.id);
-        const lineItems = subscription.items.data || [];
-
-        const productDetails = await createProductDetails({
-            lineItems,
-            subscriptionId: subscriptionEvent.id,
-            isCheckout: false
-        });
-
-        const { 
-            success: subscriptionPaymentEmailSuccess, 
-            error: subscriptionPaymentEmailError 
-        } = await sendSubscriptionPaymentRequestEmail({
-            orderData: subscriptionEvent,
-            productDetails: productDetails.data as StripeProductDetailsProps[],
-        });
-
-        if (!subscriptionPaymentEmailSuccess) {
-            throw new Error(subscriptionPaymentEmailError as string);
-        }
-    }
+  }
 }
 
 // サブスクリプションのステータスの確認&更新
 export async function handleSubscriptionUpdate({
-    subscriptionEvent,
-    previousAttributes
+  subscriptionEvent,
+  previousAttributes,
 }: UpdateStripeProductDataProps) {
-    const currentStatus = subscriptionEvent.status;
-            
-    if (!previousAttributes && currentStatus === 'active') {
-        return
+  const currentStatus = subscriptionEvent.status;
+
+  if (!previousAttributes && currentStatus === "active") {
+    return;
+  }
+
+  const previousStatus = previousAttributes?.status;
+
+  if (previousStatus && currentStatus && previousStatus !== currentStatus) {
+    const subscriptionId = subscriptionEvent.id;
+    const subscriptionStatus = formatStripeSubscriptionStatus(currentStatus);
+
+    const {
+      success: updatePaymentStatusSuccess,
+      error: updatePaymentStatusError,
+    } = await updateSubscriptionPaymentStatus({
+      subscriptionId,
+      status: subscriptionStatus,
+    });
+
+    if (!updatePaymentStatusSuccess) {
+      throw new Error(updatePaymentStatusError as string);
     }
-    
-    const previousStatus = previousAttributes?.status;
-
-    if (previousStatus && currentStatus && previousStatus !== currentStatus) {
-        const subscriptionId = subscriptionEvent.id;
-        const subscriptionStatus = formatStripeSubscriptionStatus(currentStatus);
-
-        const { 
-            success: updatePaymentStatusSuccess, 
-            error: updatePaymentStatusError 
-        } = await updateSubscriptionPaymentStatus({
-            subscriptionId,
-            status: subscriptionStatus
-        });
-
-        if (!updatePaymentStatusSuccess) {
-            throw new Error(updatePaymentStatusError as string);
-        }
-    }
+  }
 }
 
 // Stripe商品データの作成
 export async function createStripeProductData({
-    title,
-    productId,
-    price,
-    salePrice,
-    subscriptionPriceIds
+  title,
+  productId,
+  price,
+  salePrice,
+  subscriptionPriceIds,
 }: CreateStripeProductDataProps) {
+  let stripeSalePriceId = null;
 
-    let stripeSalePriceId = null;
+  // 1. Stripe商品の作成
+  const {
+    success: productSuccess,
+    data: productData,
+    error: productError,
+  } = await createStripeProduct({
+    name: title,
+    metadata: {
+      supabase_id: productId,
+      ...(subscriptionPriceIds && {
+        subscription_product: true,
+      }),
+    },
+  });
 
-    // 1. Stripe商品の作成
-    const { 
-        success: productSuccess, 
-        data: productData, 
-        error: productError 
-    }  = await createStripeProduct({
-        name: title,
-        metadata: {
-            supabase_id: productId,
-            ...(subscriptionPriceIds && {
-                subscription_product: true
-            })
-        }
-    })
+  if (!productSuccess || !productData) {
+    throw new Error(productError as string);
+  }
 
-    if (!productSuccess || !productData) {
-        throw new Error(productError as string);
-    }
+  // 2. Stripe価格の作成
+  const {
+    success: priceSuccess,
+    data: priceData,
+    error: priceError,
+  } = await createStripePrice({
+    product: productData.id,
+    unit_amount: price,
+    currency: "jpy",
+    ...(salePrice && {
+      nickname: "通常価格",
+    }),
+  });
 
-    // 2. Stripe価格の作成
-    const { 
-        success: priceSuccess, 
-        data: priceData, 
-        error: priceError 
+  if (!priceSuccess || !priceData) {
+    throw new Error(priceError as string);
+  }
+
+  // 3. Stripeセール価格の作成
+  if (salePrice) {
+    const {
+      success: salePriceSuccess,
+      data: salePriceData,
+      error: salePriceError,
     } = await createStripePrice({
-        product: productData.id,
-        unit_amount: price,
-        currency: 'jpy',
-        ...(salePrice && {
-            nickname: '通常価格',
-        })
+      product: productData.id,
+      unit_amount: salePrice,
+      currency: "jpy",
+      nickname: "セール価格",
     });
 
-    if (!priceSuccess || !priceData) {
-        throw new Error(priceError as string);
+    if (!salePriceSuccess || !salePriceData) {
+      throw new Error(salePriceError as string);
     }
 
-    // 3. Stripeセール価格の作成
-    if (salePrice) {
-        const { 
-            success: salePriceSuccess, 
-            data: salePriceData, 
-            error: salePriceError 
-        } = await createStripePrice({
-            product: productData.id,
-            unit_amount: salePrice,
-            currency: 'jpy',
-            nickname: 'セール価格',
-        });
+    stripeSalePriceId = salePriceData.id;
+  }
 
-        if (!salePriceSuccess || !salePriceData) {
-            throw new Error(salePriceError as string);
-        }
+  // 4. Stripeサブスクリプション価格の作成
+  const updatedSubscriptionPriceIds = await createSubscriptionPrices({
+    productData,
+    subscriptionPriceIds,
+  });
 
-        stripeSalePriceId = salePriceData.id;
-    }
-
-    // 4. Stripeサブスクリプション価格の作成
-    const updatedSubscriptionPriceIds = await createSubscriptionPrices({
-        productData,
-        subscriptionPriceIds
-    });
-
-    return {
-        productData,
-        priceData,
-        stripeSalePriceId,
-        updatedSubscriptionPriceIds
-    }
+  return {
+    productData,
+    priceData,
+    stripeSalePriceId,
+    updatedSubscriptionPriceIds,
+  };
 }
 
 // サブスクリプションのWebhook処理
 export async function processSubscriptionWebhook({
-    event
-}: { event: StripeEvent }) {
+  event,
+}: {
+  event: StripeEvent;
+}) {
+  // サブスクリプションの継続支払い時の処理（2回目以降のサブスク契約で発生）
+  if (
+    event.type === "invoice.payment_succeeded" ||
+    event.type === "invoice.payment_failed"
+  ) {
+    const invoiceEvent = event.data.object as StripeInvoice;
 
-    // サブスクリプションの継続支払い時の処理（2回目以降のサブスク契約で発生）
-    if (event.type === 'invoice.payment_succeeded' || event.type === 'invoice.payment_failed') {
-        const invoiceEvent = event.data.object as StripeInvoice;
+    // 1. サブスクリプションのデータ作成
+    if (invoiceEvent.billing_reason === "subscription_cycle") {
+      const subscriptionId =
+        invoiceEvent.parent?.subscription_details?.subscription;
 
-        // 1. サブスクリプションのデータ作成
-        if (invoiceEvent.billing_reason === 'subscription_cycle') {
-            const subscriptionId = invoiceEvent.parent?.subscription_details?.subscription;
+      if (!subscriptionId || typeof subscriptionId !== "string") {
+        return {
+          success: false,
+          error: SUBSCRIPTION_ERROR.NO_SUBSCRIPTION_ID,
+        };
+      }
 
-            if (!subscriptionId || typeof subscriptionId !== 'string') {
-                return {
-                    success: false,
-                    error: SUBSCRIPTION_ERROR.NO_SUBSCRIPTION_ID
-                }
-            }
+      const subscription = await stripe.subscriptions.retrieve(subscriptionId);
 
-            const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-
-            await handleSubscriptionEvent({
-                subscriptionEvent: subscription
-            });
-        }
+      await handleSubscriptionEvent({
+        subscriptionEvent: subscription,
+      });
     }
+  }
 
-    if (event.type === 'customer.subscription.updated') {
-        const subscriptionEvent = event.data.object as StripeSubscription;
-        const previousAttributes = event.data.previous_attributes ?? null;
+  if (event.type === "customer.subscription.updated") {
+    const subscriptionEvent = event.data.object as StripeSubscription;
+    const previousAttributes = event.data.previous_attributes ?? null;
 
-        // 2. サブスクリプションのステータスの確認&更新
-        await handleSubscriptionUpdate({
-            subscriptionEvent,
-            previousAttributes
-        });
-    }
+    // 2. サブスクリプションのステータスの確認&更新
+    await handleSubscriptionUpdate({
+      subscriptionEvent,
+      previousAttributes,
+    });
+  }
 
-    return {
-        success: true,
-        error: null
-    }
+  return {
+    success: true,
+    error: null,
+  };
 }

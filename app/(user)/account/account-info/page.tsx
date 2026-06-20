@@ -1,56 +1,58 @@
-import { Suspense } from "react"
-import { Metadata } from "next"
+import { Suspense } from "react";
+import { Metadata } from "next";
 
-import Breadcrumb from "@/components/ui/navigation/Breadcrumb"
-import PageTitle from "@/components/common/display/PageTitle"
-import AccountInfoContent from "@/components/ui/auth/AccountInfoContent"
-import LoadingSpinner from "@/components/common/display/LoadingSpinner"
-import ErrorMessage from "@/components/common/display/ErrorMessage"
-import { generatePageMetadata } from "@/lib/metadata/page"
-import { requireUser } from "@/lib/middleware/auth"
-import { getUserRepository } from "@/repository/user"
-import { ERROR_MESSAGES } from "@/constants/errorMessages"
-import { USER_METADATA } from "@/constants/metadata/user"
+import Breadcrumb from "@/components/ui/navigation/Breadcrumb";
+import PageTitle from "@/components/common/display/PageTitle";
+import AccountInfoContent from "@/components/ui/auth/AccountInfoContent";
+import LoadingSpinner from "@/components/common/display/LoadingSpinner";
+import ErrorMessage from "@/components/common/display/ErrorMessage";
+import { generatePageMetadata } from "@/lib/metadata/page";
+import { requireUser } from "@/lib/middleware/auth";
+import { getUserRepository } from "@/repository/user";
+import { ERROR_MESSAGES } from "@/constants/errorMessages";
+import { USER_METADATA } from "@/constants/metadata/user";
 
 const { USER_ERROR } = ERROR_MESSAGES;
 
 export const metadata: Metadata = generatePageMetadata({
-    ...USER_METADATA.ACCOUNT_INFO
-})
+  ...USER_METADATA.ACCOUNT_INFO,
+});
 
 const AccountInfoPage = () => {
-    return <>
-        <Breadcrumb />
+  return (
+    <>
+      <Breadcrumb />
 
-        <div className="c-container-page">
-            <PageTitle 
-                title="Account Info" 
-                customClass="mt-6 mb-10 md:mt-10 md:mb-[56px]" 
-            />
+      <div className="c-container-page">
+        <PageTitle
+          title="Account Info"
+          customClass="mt-6 mb-10 md:mt-10 md:mb-[56px]"
+        />
 
-            <Suspense fallback={<LoadingSpinner />}>
-                <AccountInfoWrapper />
-            </Suspense>
-        </div>
+        <Suspense fallback={<LoadingSpinner />}>
+          <AccountInfoWrapper />
+        </Suspense>
+      </div>
     </>
-}
+  );
+};
 
 const AccountInfoWrapper = async () => {
-    const { userId } = await requireUser();
+  const { userId } = await requireUser();
 
-    const repository = getUserRepository();
-    const userResult = await repository.getUserById({ userId });
-    // const userResult = undefined;
+  const repository = getUserRepository();
+  const userResult = await repository.getUserById({ userId });
+  // const userResult = undefined;
 
-    if (!userResult) {
-        return <ErrorMessage message={USER_ERROR.FETCH_FAILED} />
-    }
+  if (!userResult) {
+    return <ErrorMessage message={USER_ERROR.FETCH_FAILED} />;
+  }
 
-    return (
-        <AccountInfoContent 
-            user={userResult as UserWithShippingAddressesAndProfile}
-        />
-    )
-}
+  return (
+    <AccountInfoContent
+      user={userResult as UserWithShippingAddressesAndProfile}
+    />
+  );
+};
 
-export default AccountInfoPage
+export default AccountInfoPage;

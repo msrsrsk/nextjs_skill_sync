@@ -1,46 +1,50 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect } from "react";
 
-import { getProductEffectivePrice } from "@/services/product/calculation"
-import { ERROR_MESSAGES } from "@/constants/errorMessages"
+import { getProductEffectivePrice } from "@/services/product/calculation";
+import { ERROR_MESSAGES } from "@/constants/errorMessages";
 
 const { CART_ITEM_ERROR } = ERROR_MESSAGES;
 
 interface useCartSubtotalProps {
-    cartItems: CartItemWithProduct[];
-    optimisticQuantities: Record<ProductId, number>;
+  cartItems: CartItemWithProduct[];
+  optimisticQuantities: Record<ProductId, number>;
 }
 
-const useCartSubtotal = ({ cartItems, optimisticQuantities }: useCartSubtotalProps) => {
-    const [subtotal, setSubtotal] = useState(0);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+const useCartSubtotal = ({
+  cartItems,
+  optimisticQuantities,
+}: useCartSubtotalProps) => {
+  const [subtotal, setSubtotal] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        setLoading(true);
-        setError(null);
+  useEffect(() => {
+    setLoading(true);
+    setError(null);
 
-        try {
-            const calculatedSubtotal = cartItems.reduce((acc, item) => {
-                const quantity = optimisticQuantities?.[item.product.id] || item.quantity;
-                const itemPrice = getProductEffectivePrice(item.product);
-                return acc + (itemPrice * quantity);
-            }, 0);
-            
-            setSubtotal(calculatedSubtotal);
-        } catch (error) {
-            console.error('Hook Error: Calculate Subtotal error:', error);
-            setError(CART_ITEM_ERROR.FETCH_SUBTOTAL_FAILED);
-            setSubtotal(0);
-        } finally {
-            setLoading(false);
-        }
-    }, [cartItems, optimisticQuantities]);
+    try {
+      const calculatedSubtotal = cartItems.reduce((acc, item) => {
+        const quantity =
+          optimisticQuantities?.[item.product.id] || item.quantity;
+        const itemPrice = getProductEffectivePrice(item.product);
+        return acc + itemPrice * quantity;
+      }, 0);
 
-    return {
-        subtotal,
-        loading,
-        error
+      setSubtotal(calculatedSubtotal);
+    } catch (error) {
+      console.error("Hook Error: Calculate Subtotal error:", error);
+      setError(CART_ITEM_ERROR.FETCH_SUBTOTAL_FAILED);
+      setSubtotal(0);
+    } finally {
+      setLoading(false);
     }
-}
+  }, [cartItems, optimisticQuantities]);
 
-export default useCartSubtotal
+  return {
+    subtotal,
+    loading,
+    error,
+  };
+};
+
+export default useCartSubtotal;

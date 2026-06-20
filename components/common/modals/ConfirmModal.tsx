@@ -1,12 +1,19 @@
-"use client"
+"use client";
 
-import { useFormStatus } from "react-dom"
+import { useFormStatus } from "react-dom";
 
-import Modal from "@/components/common/modals/Modal"
-import PendingContent from "@/components/common/buttons/PendingContent"
-import usePreventScroll from "@/hooks/utils/usePreventScroll"
-import { EventButtonPrimary, EventButtonSecondary } from "@/components/common/buttons/Button"
-import { BUTTON_TEXT_TYPES, BUTTON_TYPES, MODAL_SIZES } from "@/constants/index"
+import Modal from "@/components/common/modals/Modal";
+import PendingContent from "@/components/common/buttons/PendingContent";
+import usePreventScroll from "@/hooks/utils/usePreventScroll";
+import {
+  EventButtonPrimary,
+  EventButtonSecondary,
+} from "@/components/common/buttons/Button";
+import {
+  BUTTON_TEXT_TYPES,
+  BUTTON_TYPES,
+  MODAL_SIZES,
+} from "@/constants/index";
 
 const { BUTTON_JA } = BUTTON_TEXT_TYPES;
 const { SUBMIT_TYPE } = BUTTON_TYPES;
@@ -15,51 +22,47 @@ const { MODAL_SMALL } = MODAL_SIZES;
 type ConfirmAction = (formData: FormData) => void | Promise<void>;
 
 interface ConfirmModalProps extends ModalStateProps {
-    text: string | React.ReactNode;
-    onConfirm: ConfirmAction; 
+  text: string | React.ReactNode;
+  onConfirm: ConfirmAction;
 }
 
-const ConfirmModal = ({ 
-    text, 
-    modalActive, 
-    setModalActive, 
-    onConfirm 
+const ConfirmModal = ({
+  text,
+  modalActive,
+  setModalActive,
+  onConfirm,
 }: ConfirmModalProps) => {
-    usePreventScroll(modalActive);
+  usePreventScroll(modalActive);
 
-    return (
-        <Modal
-            size={MODAL_SMALL}
-            modalActive={modalActive}
-            setModalActive={setModalActive}
+  return (
+    <Modal
+      size={MODAL_SMALL}
+      modalActive={modalActive}
+      setModalActive={setModalActive}
+    >
+      <p className="modal-text">{text}</p>
+
+      <form action={onConfirm} className="modal-button-box">
+        <EventButtonSecondary
+          onClick={() => setModalActive(false)}
+          text={BUTTON_JA}
         >
-            <p className="modal-text">{text}</p>
-
-            <form action={onConfirm} className="modal-button-box">
-                <EventButtonSecondary
-                    onClick={() => setModalActive(false)}
-                    text={BUTTON_JA}
-                >
-                    いいえ
-                </EventButtonSecondary>
-                <SubmitButton />
-            </form>
-        </Modal>
-    )
-}
+          いいえ
+        </EventButtonSecondary>
+        <SubmitButton />
+      </form>
+    </Modal>
+  );
+};
 
 const SubmitButton = () => {
-    const { pending } = useFormStatus();
+  const { pending } = useFormStatus();
 
-    return (
-        <EventButtonPrimary
-            text={BUTTON_JA}
-            type={SUBMIT_TYPE}
-            disabled={pending}
-        >
-            <PendingContent pending={pending} text="はい" />
-        </EventButtonPrimary>
-    )
-}
+  return (
+    <EventButtonPrimary text={BUTTON_JA} type={SUBMIT_TYPE} disabled={pending}>
+      <PendingContent pending={pending} text="はい" />
+    </EventButtonPrimary>
+  );
+};
 
-export default ConfirmModal
+export default ConfirmModal;

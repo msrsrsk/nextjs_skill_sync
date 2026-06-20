@@ -1,2099 +1,2272 @@
-import { describe, it, expect, vi, beforeEach } from "vitest"
+import { describe, it, expect, vi, beforeEach } from "vitest";
 
-import { 
-    createProductDetails,
-    processOrderData,
-    processShippingAddress,
-    sendOrderEmails,
-    handleSubscriptionEvent,
-    handleSubscriptionUpdate,
-    createStripeProductData,
-    processSubscriptionWebhook
-} from "@/services/stripe/webhook-actions"
-import { getCheckoutSession } from "@/services/stripe/checkout-actions"
-import { createCheckoutOrder, deleteOrder } from "@/services/order/actions"
-import { createOrderStripe, deleteOrderStripe } from "@/services/order-stripe/actions"
-import { createOrderItems, deleteAllOrderItem } from "@/services/order-item/actions"
-import { createOrderItemStripes, deleteOrderItemStripes } from "@/services/order-item-stripe/actions"
-import { createOrderItemSubscriptions } from "@/services/order-item-subscription/actions"
-import { getDefaultShippingAddress, createShippingAddress } from "@/services/shipping-address/actions"
-import { createStripeProduct, createStripePrice, createSubscriptionPrices, updateCustomerShippingAddress } from "@/services/stripe/actions"
-import { sendPaymentRequestEmail } from "@/services/email/order/payment-request"
-import { sendSubscriptionPaymentRequestEmail } from "@/services/email/subscription/subscription-payment-request"
-import { formatStripeSubscriptionStatus } from "@/services/subscription-payment/format"
-import { createSubscriptionPayment, updateSubscriptionPaymentStatus } from "@/services/subscription-payment/actions"
-import { 
-    mockLineItems, 
-    mockStripeClient,
-    mockCheckoutSession,
-    mockSubscriptionLineItems,
-    mockCustomer,
-    mockPaymentIntent,
-    mockSubscription,
-    mockSubscriptionItems,
-    mockPrice,
-    mockInvoice,
-} from "@/__tests__/mocks/stripe-mocks"
-import { 
-    mockOrder, 
-    mockOrderItems, 
-    mockOrderItemStripes,
-    mockOrderItemSubscriptions,
-    mockShippingAddress,
-    mockSubscriptionProductDetails,
-    mockSubscriptionPayment,
-    mockStripeProduct
-} from "@/__tests__/mocks/domain-mocks"
-import { ERROR_MESSAGES } from "@/constants/errorMessages"
+import {
+  createProductDetails,
+  processOrderData,
+  processShippingAddress,
+  sendOrderEmails,
+  handleSubscriptionEvent,
+  handleSubscriptionUpdate,
+  createStripeProductData,
+  processSubscriptionWebhook,
+} from "@/services/stripe/webhook-actions";
+import { getCheckoutSession } from "@/services/stripe/checkout-actions";
+import { createCheckoutOrder, deleteOrder } from "@/services/order/actions";
+import {
+  createOrderStripe,
+  deleteOrderStripe,
+} from "@/services/order-stripe/actions";
+import {
+  createOrderItems,
+  deleteAllOrderItem,
+} from "@/services/order-item/actions";
+import {
+  createOrderItemStripes,
+  deleteOrderItemStripes,
+} from "@/services/order-item-stripe/actions";
+import { createOrderItemSubscriptions } from "@/services/order-item-subscription/actions";
+import {
+  getDefaultShippingAddress,
+  createShippingAddress,
+} from "@/services/shipping-address/actions";
+import {
+  createStripeProduct,
+  createStripePrice,
+  createSubscriptionPrices,
+  updateCustomerShippingAddress,
+} from "@/services/stripe/actions";
+import { sendPaymentRequestEmail } from "@/services/email/order/payment-request";
+import { sendSubscriptionPaymentRequestEmail } from "@/services/email/subscription/subscription-payment-request";
+import { formatStripeSubscriptionStatus } from "@/services/subscription-payment/format";
+import {
+  createSubscriptionPayment,
+  updateSubscriptionPaymentStatus,
+} from "@/services/subscription-payment/actions";
+import {
+  mockLineItems,
+  mockStripeClient,
+  mockCheckoutSession,
+  mockSubscriptionLineItems,
+  mockCustomer,
+  mockPaymentIntent,
+  mockSubscription,
+  mockSubscriptionItems,
+  mockPrice,
+  mockInvoice,
+} from "@/__tests__/mocks/stripe-mocks";
+import {
+  mockOrder,
+  mockOrderItems,
+  mockOrderItemStripes,
+  mockOrderItemSubscriptions,
+  mockShippingAddress,
+  mockSubscriptionProductDetails,
+  mockSubscriptionPayment,
+  mockStripeProduct,
+} from "@/__tests__/mocks/domain-mocks";
+import { ERROR_MESSAGES } from "@/constants/errorMessages";
 
-const { 
-    CHECKOUT_ERROR, 
-    ORDER_STRIPE_ERROR, 
-    ORDER_ITEM_ERROR,
-    ORDER_ITEM_STRIPE_ERROR,
-    SUBSCRIPTION_ERROR,
-    SHIPPING_ADDRESS_ERROR,
-    EMAIL_ERROR,
-    SUBSCRIPTION_PAYMENT_ERROR,
-    STRIPE_ERROR
+const {
+  CHECKOUT_ERROR,
+  ORDER_STRIPE_ERROR,
+  ORDER_ITEM_ERROR,
+  ORDER_ITEM_STRIPE_ERROR,
+  SUBSCRIPTION_ERROR,
+  SHIPPING_ADDRESS_ERROR,
+  EMAIL_ERROR,
+  SUBSCRIPTION_PAYMENT_ERROR,
+  STRIPE_ERROR,
 } = ERROR_MESSAGES;
 
-const { 
-    CHECKOUT_PRODUCT_CREATE_FAILED,
-    CREATE_ORDER_FAILED
-} = CHECKOUT_ERROR;
-const { 
-    PAYMENT_REQUEST_SEND_FAILED, 
-    SUBSCRIPTION_PAYMENT_REQUEST_SEND_FAILED 
+const { CHECKOUT_PRODUCT_CREATE_FAILED, CREATE_ORDER_FAILED } = CHECKOUT_ERROR;
+const {
+  PAYMENT_REQUEST_SEND_FAILED,
+  SUBSCRIPTION_PAYMENT_REQUEST_SEND_FAILED,
 } = EMAIL_ERROR;
 const { PRICE_CREATE_FAILED } = STRIPE_ERROR;
 
-vi.stubEnv('STRIPE_SECRET_KEY', 'sk_test_1234567890')
-vi.stubEnv('STRIPE_WEBHOOK_SECRET', 'whsec_test_1234567890')
-vi.stubEnv('NEXT_PUBLIC_BASE_URL', 'https://example.com')
+vi.stubEnv("STRIPE_SECRET_KEY", "sk_test_1234567890");
+vi.stubEnv("STRIPE_WEBHOOK_SECRET", "whsec_test_1234567890");
+vi.stubEnv("NEXT_PUBLIC_BASE_URL", "https://example.com");
 
-vi.mock('@/lib/clients/stripe/client', () => ({
-    stripe: {
-        products: { retrieve: vi.fn() },
-        prices: { retrieve: vi.fn() },
-        checkout: {
-            sessions: {
-                retrieve: vi.fn()
-            }
-        },
-        paymentIntents: {
-            retrieve: vi.fn()
-        },
-        subscriptions: {
-            retrieve: vi.fn()
-        }
-    }
-}))
+vi.mock("@/lib/clients/stripe/client", () => ({
+  stripe: {
+    products: { retrieve: vi.fn() },
+    prices: { retrieve: vi.fn() },
+    checkout: {
+      sessions: {
+        retrieve: vi.fn(),
+      },
+    },
+    paymentIntents: {
+      retrieve: vi.fn(),
+    },
+    subscriptions: {
+      retrieve: vi.fn(),
+    },
+  },
+}));
 
-vi.mock('@/services/stripe/checkout-actions', () => ({
-    getCheckoutSession: vi.fn()
-}))
+vi.mock("@/services/stripe/checkout-actions", () => ({
+  getCheckoutSession: vi.fn(),
+}));
 
-vi.mock('@/services/order/actions', () => ({
-    createCheckoutOrder: vi.fn(),
-    deleteOrder: vi.fn()
-}))
+vi.mock("@/services/order/actions", () => ({
+  createCheckoutOrder: vi.fn(),
+  deleteOrder: vi.fn(),
+}));
 
-vi.mock('@/services/order-stripe/actions', () => ({
-    createOrderStripe: vi.fn(),
-    deleteOrderStripe: vi.fn()
-}))
+vi.mock("@/services/order-stripe/actions", () => ({
+  createOrderStripe: vi.fn(),
+  deleteOrderStripe: vi.fn(),
+}));
 
-vi.mock('@/services/order-item/actions', () => ({
-    createOrderItems: vi.fn(),
-    deleteAllOrderItem: vi.fn()
-}))
+vi.mock("@/services/order-item/actions", () => ({
+  createOrderItems: vi.fn(),
+  deleteAllOrderItem: vi.fn(),
+}));
 
-vi.mock('@/services/order-item-stripe/actions', () => ({
-    createOrderItemStripes: vi.fn(),
-    deleteOrderItemStripes: vi.fn()
-}))
+vi.mock("@/services/order-item-stripe/actions", () => ({
+  createOrderItemStripes: vi.fn(),
+  deleteOrderItemStripes: vi.fn(),
+}));
 
-vi.mock('@/services/order-item-subscription/actions', () => ({
-    createOrderItemSubscriptions: vi.fn()
-}))
+vi.mock("@/services/order-item-subscription/actions", () => ({
+  createOrderItemSubscriptions: vi.fn(),
+}));
 
-vi.mock('@/services/shipping-address/actions', () => ({
-    getDefaultShippingAddress: vi.fn(),
-    createShippingAddress: vi.fn()
-}))
+vi.mock("@/services/shipping-address/actions", () => ({
+  getDefaultShippingAddress: vi.fn(),
+  createShippingAddress: vi.fn(),
+}));
 
-vi.mock('@/services/stripe/actions', () => ({
-    createStripeProduct: vi.fn(),
-    createStripePrice: vi.fn(),
-    createSubscriptionPrices: vi.fn(),
-    updateCustomerShippingAddress: vi.fn()
-}))
+vi.mock("@/services/stripe/actions", () => ({
+  createStripeProduct: vi.fn(),
+  createStripePrice: vi.fn(),
+  createSubscriptionPrices: vi.fn(),
+  updateCustomerShippingAddress: vi.fn(),
+}));
 
-vi.mock('@/services/email/order/payment-request', () => ({
-    sendPaymentRequestEmail: vi.fn()
-}))
+vi.mock("@/services/email/order/payment-request", () => ({
+  sendPaymentRequestEmail: vi.fn(),
+}));
 
-vi.mock('@/services/subscription-payment/actions', () => ({
-    createSubscriptionPayment: vi.fn(),
-    updateSubscriptionPaymentStatus: vi.fn()
-}))
+vi.mock("@/services/subscription-payment/actions", () => ({
+  createSubscriptionPayment: vi.fn(),
+  updateSubscriptionPaymentStatus: vi.fn(),
+}));
 
-vi.mock('@/services/email/subscription/subscription-payment-request', () => ({
-    sendSubscriptionPaymentRequestEmail: vi.fn()
-}))
+vi.mock("@/services/email/subscription/subscription-payment-request", () => ({
+  sendSubscriptionPaymentRequestEmail: vi.fn(),
+}));
 
-vi.mock('@/services/subscription-payment/format', () => ({
-    formatStripeSubscriptionStatus: vi.fn()
-}))
+vi.mock("@/services/subscription-payment/format", () => ({
+  formatStripeSubscriptionStatus: vi.fn(),
+}));
 
 const getMockStripe = async () => {
-    const { stripe } = await import('@/lib/clients/stripe/client')
-    return vi.mocked(stripe)
-}
+  const { stripe } = await import("@/lib/clients/stripe/client");
+  return vi.mocked(stripe);
+};
 
-/* ==================================== 
+/* ====================================
     Create Product Details Test
 ==================================== */
-describe('createProductDetails', () => {
-    beforeEach(async () => {
-        vi.clearAllMocks()
-        
-        const stripe = await getMockStripe()
+describe("createProductDetails", () => {
+  beforeEach(async () => {
+    vi.clearAllMocks();
 
-        vi.mocked(stripe.products.retrieve).mockResolvedValue({
-            ...mockStripeClient
-        })
-    })
+    const stripe = await getMockStripe();
 
-    // 作成成功（通常商品の場合）
-    it('should create product details successfully for regular products', async () => {
-        const result = await createProductDetails({
-            lineItems: mockLineItems,
-            subscriptionId: 'sub_test_123',
-            isCheckout: true
-        })
+    vi.mocked(stripe.products.retrieve).mockResolvedValue({
+      ...mockStripeClient,
+    });
+  });
 
-        expect(result.success).toBe(true)
-        expect(Array.isArray(result.data)).toBe(true)
-        
-        const item = result.data?.[0]
-        expect(item).toHaveProperty('product_id', 'product_test_123')
-        expect(item).toHaveProperty('image', 'https://example.com/image.jpg')
-        expect(item).toHaveProperty('unit_price', mockLineItems[0].price?.unit_amount)
-        expect(item).toHaveProperty('amount', mockLineItems[0].amount_total)
-        expect(item).toHaveProperty('quantity', mockLineItems[0].quantity)
-        expect(item).toHaveProperty('stripe_price_id', mockLineItems[0].price?.id)
-        expect(item).toHaveProperty('subscription_id', 'sub_test_123')
-        expect(item).toHaveProperty('subscription_status', null)
-        expect(item).toHaveProperty('subscription_interval', null)
-        expect(item).toHaveProperty('title', 'Test Product')
-    })
+  // 作成成功（通常商品の場合）
+  it("should create product details successfully for regular products", async () => {
+    const result = await createProductDetails({
+      lineItems: mockLineItems,
+      subscriptionId: "sub_test_123",
+      isCheckout: true,
+    });
 
-    // 作成成功（サブスクリプション商品の場合）
-    it('should create product details successfully for subscription products', async () => {
-        const stripe = await getMockStripe()
-        
-        vi.mocked(stripe.products.retrieve).mockResolvedValue({
-            ...mockStripeClient,
-            id: 'prod_subscription_123',
-            description: 'Subscription Product',
-            images: ['https://example.com/subscription.jpg'],
-            metadata: {
-                supabase_id: 'subscription_product_123',
-                subscription_product: 'true'
-            },
-            name: 'Subscription Product'
-        })
+    expect(result.success).toBe(true);
+    expect(Array.isArray(result.data)).toBe(true);
 
-        const result = await createProductDetails({
-            lineItems: mockSubscriptionLineItems.line_items.data,
-            subscriptionId: 'sub_test_123',
-            isCheckout: true
-        })
+    const item = result.data?.[0];
+    expect(item).toHaveProperty("product_id", "product_test_123");
+    expect(item).toHaveProperty("image", "https://example.com/image.jpg");
+    expect(item).toHaveProperty(
+      "unit_price",
+      mockLineItems[0].price?.unit_amount,
+    );
+    expect(item).toHaveProperty("amount", mockLineItems[0].amount_total);
+    expect(item).toHaveProperty("quantity", mockLineItems[0].quantity);
+    expect(item).toHaveProperty("stripe_price_id", mockLineItems[0].price?.id);
+    expect(item).toHaveProperty("subscription_id", "sub_test_123");
+    expect(item).toHaveProperty("subscription_status", null);
+    expect(item).toHaveProperty("subscription_interval", null);
+    expect(item).toHaveProperty("title", "Test Product");
+  });
 
-        expect(result.success).toBe(true)
-        expect(Array.isArray(result.data)).toBe(true)
-        
-        const item = result.data?.[0]
-        expect(item).toHaveProperty('product_id', 'subscription_product_123')
-        expect(item).toHaveProperty('image', 'https://example.com/subscription.jpg')
-        expect(item).toHaveProperty('unit_price', 2000)
-        expect(item).toHaveProperty('amount', 2000)
-        expect(item).toHaveProperty('quantity', 1)
-        expect(item).toHaveProperty('stripe_price_id', 'price_subscription_123')
-        expect(item).toHaveProperty('subscription_id', 'sub_test_123')
-        expect(item).toHaveProperty('subscription_status', 'active')
-        expect(item).toHaveProperty('subscription_interval', '1month')
-        expect(item).toHaveProperty('subscription_product', true)
-        expect(item).toHaveProperty('title', 'Subscription Product')
-    })
+  // 作成成功（サブスクリプション商品の場合）
+  it("should create product details successfully for subscription products", async () => {
+    const stripe = await getMockStripe();
 
-    // 作成成功（画像なしの場合）
-    it('should create product details successfully for products without images', async () => {
-        const stripe = await getMockStripe()
-        
-        // 画像なし商品のモック
-        vi.mocked(stripe.products.retrieve).mockResolvedValue({
-            ...mockStripeClient,
-            images: [],
-        })
-    
-        const result = await createProductDetails({
-            lineItems: mockLineItems,
-            subscriptionId: 'sub_test_123',
-            isCheckout: true
-        })
-    
-        expect(result.success).toBe(true)
-        expect(Array.isArray(result.data)).toBe(true)
-        
-        const item = result.data?.[0]
-        expect(item).toHaveProperty('image', 'https://example.com/assets/products/no-image.png')
-    })
+    vi.mocked(stripe.products.retrieve).mockResolvedValue({
+      ...mockStripeClient,
+      id: "prod_subscription_123",
+      description: "Subscription Product",
+      images: ["https://example.com/subscription.jpg"],
+      metadata: {
+        supabase_id: "subscription_product_123",
+        subscription_product: "true",
+      },
+      name: "Subscription Product",
+    });
 
-    // 作成成功（isCheckout = false）
-    it('should create product details successfully when isCheckout is false', async () => {
-        const result = await createProductDetails({
-            lineItems: mockLineItems,
-            subscriptionId: 'sub_test_123',
-            isCheckout: false
-        })
+    const result = await createProductDetails({
+      lineItems: mockSubscriptionLineItems.line_items.data,
+      subscriptionId: "sub_test_123",
+      isCheckout: true,
+    });
 
-        expect(result.success).toBe(true)
-        expect(Array.isArray(result.data)).toBe(true)
-        
-        const item = result.data?.[0]
-        expect(item).toHaveProperty('amount', mockLineItems[0].price?.unit_amount)
-    })
+    expect(result.success).toBe(true);
+    expect(Array.isArray(result.data)).toBe(true);
 
-    // 作成失敗（lineItems のデータ無し）
-    it('should create product details successfully when lineItems is empty', async () => {
-        const stripe = await getMockStripe()
-        
-        vi.mocked(stripe.products.retrieve).mockResolvedValue({
-            ...mockStripeClient
-        })
+    const item = result.data?.[0];
+    expect(item).toHaveProperty("product_id", "subscription_product_123");
+    expect(item).toHaveProperty(
+      "image",
+      "https://example.com/subscription.jpg",
+    );
+    expect(item).toHaveProperty("unit_price", 2000);
+    expect(item).toHaveProperty("amount", 2000);
+    expect(item).toHaveProperty("quantity", 1);
+    expect(item).toHaveProperty("stripe_price_id", "price_subscription_123");
+    expect(item).toHaveProperty("subscription_id", "sub_test_123");
+    expect(item).toHaveProperty("subscription_status", "active");
+    expect(item).toHaveProperty("subscription_interval", "1month");
+    expect(item).toHaveProperty("subscription_product", true);
+    expect(item).toHaveProperty("title", "Subscription Product");
+  });
 
-        const result = await createProductDetails({
-            lineItems: [],
-            subscriptionId: 'sub_test_123',
-            isCheckout: true
-        })
+  // 作成成功（画像なしの場合）
+  it("should create product details successfully for products without images", async () => {
+    const stripe = await getMockStripe();
 
-        expect(result.success).toBe(false)
-        expect(result.data).toBeNull()
-        expect(result.error).toBe(CHECKOUT_ERROR.NO_LINE_ITEMS)
-    })
+    // 画像なし商品のモック
+    vi.mocked(stripe.products.retrieve).mockResolvedValue({
+      ...mockStripeClient,
+      images: [],
+    });
 
-    // 作成失敗（product のデータ無し）
-    it('should create product details successfully when product is not found', async () => {
-        const stripe = await getMockStripe()
-        
-        vi.mocked(stripe.products.retrieve).mockRejectedValue(
-            new Error('Stripe API Error')
-        )
+    const result = await createProductDetails({
+      lineItems: mockLineItems,
+      subscriptionId: "sub_test_123",
+      isCheckout: true,
+    });
 
-        const result = await createProductDetails({
-            lineItems: mockLineItems,
-            subscriptionId: 'sub_test_123',
-            isCheckout: true
-        })
+    expect(result.success).toBe(true);
+    expect(Array.isArray(result.data)).toBe(true);
 
-        expect(result.success).toBe(false)
-        expect(result.data).toBeNull()
-        expect(result.error).toBe(CHECKOUT_PRODUCT_CREATE_FAILED)
-    })
-})
+    const item = result.data?.[0];
+    expect(item).toHaveProperty(
+      "image",
+      "https://example.com/assets/products/no-image.png",
+    );
+  });
 
-/* ==================================== 
+  // 作成成功（isCheckout = false）
+  it("should create product details successfully when isCheckout is false", async () => {
+    const result = await createProductDetails({
+      lineItems: mockLineItems,
+      subscriptionId: "sub_test_123",
+      isCheckout: false,
+    });
+
+    expect(result.success).toBe(true);
+    expect(Array.isArray(result.data)).toBe(true);
+
+    const item = result.data?.[0];
+    expect(item).toHaveProperty("amount", mockLineItems[0].price?.unit_amount);
+  });
+
+  // 作成失敗（lineItems のデータ無し）
+  it("should create product details successfully when lineItems is empty", async () => {
+    const stripe = await getMockStripe();
+
+    vi.mocked(stripe.products.retrieve).mockResolvedValue({
+      ...mockStripeClient,
+    });
+
+    const result = await createProductDetails({
+      lineItems: [],
+      subscriptionId: "sub_test_123",
+      isCheckout: true,
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.data).toBeNull();
+    expect(result.error).toBe(CHECKOUT_ERROR.NO_LINE_ITEMS);
+  });
+
+  // 作成失敗（product のデータ無し）
+  it("should create product details successfully when product is not found", async () => {
+    const stripe = await getMockStripe();
+
+    vi.mocked(stripe.products.retrieve).mockRejectedValue(
+      new Error("Stripe API Error"),
+    );
+
+    const result = await createProductDetails({
+      lineItems: mockLineItems,
+      subscriptionId: "sub_test_123",
+      isCheckout: true,
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.data).toBeNull();
+    expect(result.error).toBe(CHECKOUT_PRODUCT_CREATE_FAILED);
+  });
+});
+
+/* ====================================
     Process Order Data Test
 ==================================== */
-describe('processOrderData', () => {
-    beforeEach(async () => {
-        vi.clearAllMocks()
-    })
+describe("processOrderData", () => {
+  beforeEach(async () => {
+    vi.clearAllMocks();
+  });
 
-    const mockSubscriptionMetadata = {
-        supabase_id: 'subscription_product_123',
-        subscription_product: 'true'
-    }
+  const mockSubscriptionMetadata = {
+    supabase_id: "subscription_product_123",
+    subscription_product: "true",
+  };
 
-    // 処理成功
-    it('should process order data successfully for regular products', async () => {
-        const stripe = await getMockStripe()
+  // 処理成功
+  it("should process order data successfully for regular products", async () => {
+    const stripe = await getMockStripe();
 
-        const mockGetCheckoutSession = vi.mocked(getCheckoutSession)
-        const mockCreateCheckoutOrder = vi.mocked(createCheckoutOrder)
-        const mockCreateOrderStripe = vi.mocked(createOrderStripe)
-        const mockCreateOrderItems = vi.mocked(createOrderItems)
-        const mockCreateOrderItemStripes = vi.mocked(createOrderItemStripes)
-        const mockCreateOrderItemSubscriptions = vi.mocked(createOrderItemSubscriptions)
+    const mockGetCheckoutSession = vi.mocked(getCheckoutSession);
+    const mockCreateCheckoutOrder = vi.mocked(createCheckoutOrder);
+    const mockCreateOrderStripe = vi.mocked(createOrderStripe);
+    const mockCreateOrderItems = vi.mocked(createOrderItems);
+    const mockCreateOrderItemStripes = vi.mocked(createOrderItemStripes);
+    const mockCreateOrderItemSubscriptions = vi.mocked(
+      createOrderItemSubscriptions,
+    );
 
-        mockGetCheckoutSession.mockResolvedValue({
-            success: true,
-            error: null,
-            data: {
-                ...mockCheckoutSession,
-                ...mockSubscriptionLineItems
-            }
-        })
+    mockGetCheckoutSession.mockResolvedValue({
+      success: true,
+      error: null,
+      data: {
+        ...mockCheckoutSession,
+        ...mockSubscriptionLineItems,
+      },
+    });
 
-        vi.mocked(stripe.products.retrieve).mockResolvedValue({
-            ...mockStripeClient,
-            metadata: mockSubscriptionMetadata
-        })
+    vi.mocked(stripe.products.retrieve).mockResolvedValue({
+      ...mockStripeClient,
+      metadata: mockSubscriptionMetadata,
+    });
 
-        mockCreateCheckoutOrder.mockResolvedValue({
-            success: true,
-            error: null,
-            data: mockOrder
-        })
-        
-        mockCreateOrderStripe.mockResolvedValue({
-            success: true,
-            error: null
-        })
+    mockCreateCheckoutOrder.mockResolvedValue({
+      success: true,
+      error: null,
+      data: mockOrder,
+    });
 
-        mockCreateOrderItems.mockResolvedValue({
-            success: true,
-            error: null,
-            data: mockOrderItems
-        })
+    mockCreateOrderStripe.mockResolvedValue({
+      success: true,
+      error: null,
+    });
 
-        mockCreateOrderItemStripes.mockResolvedValue({
-            success: true,
-            error: null,
-            data: mockOrderItemStripes
-        })
+    mockCreateOrderItems.mockResolvedValue({
+      success: true,
+      error: null,
+      data: mockOrderItems,
+    });
 
-        mockCreateOrderItemSubscriptions.mockResolvedValue({
-            success: true,
-            error: null,
-            data: mockOrderItemSubscriptions
-        })
+    mockCreateOrderItemStripes.mockResolvedValue({
+      success: true,
+      error: null,
+      data: mockOrderItemStripes,
+    });
 
-        const result = await processOrderData({
-            checkoutSessionEvent: mockCheckoutSession
-        })
+    mockCreateOrderItemSubscriptions.mockResolvedValue({
+      success: true,
+      error: null,
+      data: mockOrderItemSubscriptions,
+    });
 
-        expect(result).toBeDefined()
-        expect(result).toHaveProperty('orderData')
-        expect(result).toHaveProperty('productDetailsData')
-        expect(result.orderData).toHaveProperty('order')
-        expect(result.orderData).toHaveProperty('orderShipping')
-        expect(result.orderData).toBeDefined()
-        expect(result.productDetailsData).toBeDefined()
-    })
+    const result = await processOrderData({
+      checkoutSessionEvent: mockCheckoutSession,
+    });
 
-    // 処理失敗(注文データの取得と保存の失敗)
-    it('should return error when retrieveCheckoutSession fails', async () => {
-        const mockGetCheckoutSession = vi.mocked(getCheckoutSession)
+    expect(result).toBeDefined();
+    expect(result).toHaveProperty("orderData");
+    expect(result).toHaveProperty("productDetailsData");
+    expect(result.orderData).toHaveProperty("order");
+    expect(result.orderData).toHaveProperty("orderShipping");
+    expect(result.orderData).toBeDefined();
+    expect(result.productDetailsData).toBeDefined();
+  });
 
-        mockGetCheckoutSession.mockResolvedValue({
-            success: false,
-            error: CHECKOUT_ERROR.SESSION_RETRIEVAL_FAILED,
-            data: null
-        })
+  // 処理失敗(注文データの取得と保存の失敗)
+  it("should return error when retrieveCheckoutSession fails", async () => {
+    const mockGetCheckoutSession = vi.mocked(getCheckoutSession);
 
-        await expect(processOrderData({
-            checkoutSessionEvent: mockCheckoutSession
-        })).rejects.toThrow(CHECKOUT_ERROR.SESSION_RETRIEVAL_FAILED)
-    })
+    mockGetCheckoutSession.mockResolvedValue({
+      success: false,
+      error: CHECKOUT_ERROR.SESSION_RETRIEVAL_FAILED,
+      data: null,
+    });
 
-    // 処理失敗(商品詳細データの作成の失敗)
-    it('should process order data successfully for subscription products', async () => {
-        const stripe = await getMockStripe()
+    await expect(
+      processOrderData({
+        checkoutSessionEvent: mockCheckoutSession,
+      }),
+    ).rejects.toThrow(CHECKOUT_ERROR.SESSION_RETRIEVAL_FAILED);
+  });
 
-        const mockGetCheckoutSession = vi.mocked(getCheckoutSession)
+  // 処理失敗(商品詳細データの作成の失敗)
+  it("should process order data successfully for subscription products", async () => {
+    const stripe = await getMockStripe();
 
-        mockGetCheckoutSession.mockResolvedValue({
-            success: true,
-            error: null,
-            data: {
-                ...mockCheckoutSession,
-                ...mockSubscriptionLineItems
-            }
-        })
+    const mockGetCheckoutSession = vi.mocked(getCheckoutSession);
 
-        vi.mocked(stripe.products.retrieve).mockRejectedValue(
-            new Error('Stripe API Error')
-        )
+    mockGetCheckoutSession.mockResolvedValue({
+      success: true,
+      error: null,
+      data: {
+        ...mockCheckoutSession,
+        ...mockSubscriptionLineItems,
+      },
+    });
 
-        await expect(processOrderData({
-            checkoutSessionEvent: mockCheckoutSession
-        })).rejects.toThrow(CHECKOUT_PRODUCT_CREATE_FAILED)
-    })
+    vi.mocked(stripe.products.retrieve).mockRejectedValue(
+      new Error("Stripe API Error"),
+    );
 
-    // 処理失敗(Order テーブルのデータ作成の失敗)
-    it('should return error when createOrderStripe fails', async () => {
-        const stripe = await getMockStripe()
+    await expect(
+      processOrderData({
+        checkoutSessionEvent: mockCheckoutSession,
+      }),
+    ).rejects.toThrow(CHECKOUT_PRODUCT_CREATE_FAILED);
+  });
 
-        const mockGetCheckoutSession = vi.mocked(getCheckoutSession)
-        const mockCreateCheckoutOrder = vi.mocked(createCheckoutOrder)
+  // 処理失敗(Order テーブルのデータ作成の失敗)
+  it("should return error when createOrderStripe fails", async () => {
+    const stripe = await getMockStripe();
 
-        mockGetCheckoutSession.mockResolvedValue({
-            success: true,
-            error: null,
-            data: {
-                ...mockCheckoutSession,
-                ...mockSubscriptionLineItems
-            }
-        })
+    const mockGetCheckoutSession = vi.mocked(getCheckoutSession);
+    const mockCreateCheckoutOrder = vi.mocked(createCheckoutOrder);
 
-        vi.mocked(stripe.products.retrieve).mockResolvedValue({
-            ...mockStripeClient
-        })
+    mockGetCheckoutSession.mockResolvedValue({
+      success: true,
+      error: null,
+      data: {
+        ...mockCheckoutSession,
+        ...mockSubscriptionLineItems,
+      },
+    });
 
-        mockCreateCheckoutOrder.mockResolvedValue({
-            success: false,
-            error: CREATE_ORDER_FAILED,
-            data: null
-        })
-        
-        await expect(processOrderData({
-            checkoutSessionEvent: mockCheckoutSession
-        })).rejects.toThrow(CREATE_ORDER_FAILED)
-    })
+    vi.mocked(stripe.products.retrieve).mockResolvedValue({
+      ...mockStripeClient,
+    });
 
-    // 処理失敗(OrderStripe テーブルのデータ作成の失敗)
-    it('should process order data successfully for regular products', async () => {
-        const stripe = await getMockStripe()
+    mockCreateCheckoutOrder.mockResolvedValue({
+      success: false,
+      error: CREATE_ORDER_FAILED,
+      data: null,
+    });
 
-        const mockGetCheckoutSession = vi.mocked(getCheckoutSession)
-        const mockCreateCheckoutOrder = vi.mocked(createCheckoutOrder)
-        const mockCreateOrderStripe = vi.mocked(createOrderStripe)
-        const mockDeleteOrder = vi.mocked(deleteOrder)
+    await expect(
+      processOrderData({
+        checkoutSessionEvent: mockCheckoutSession,
+      }),
+    ).rejects.toThrow(CREATE_ORDER_FAILED);
+  });
 
-        mockGetCheckoutSession.mockResolvedValue({
-            success: true,
-            error: null,
-            data: {
-                ...mockCheckoutSession,
-                ...mockSubscriptionLineItems
-            }
-        })
+  // 処理失敗(OrderStripe テーブルのデータ作成の失敗)
+  it("should process order data successfully for regular products", async () => {
+    const stripe = await getMockStripe();
 
-        vi.mocked(stripe.products.retrieve).mockResolvedValue({
-            ...mockStripeClient
-        })
+    const mockGetCheckoutSession = vi.mocked(getCheckoutSession);
+    const mockCreateCheckoutOrder = vi.mocked(createCheckoutOrder);
+    const mockCreateOrderStripe = vi.mocked(createOrderStripe);
+    const mockDeleteOrder = vi.mocked(deleteOrder);
 
-        mockCreateCheckoutOrder.mockResolvedValue({
-            success: true,
-            error: null,
-            data: mockOrder
-        })
-        
-        mockCreateOrderStripe.mockResolvedValue({
-            success: false,
-            error: ORDER_STRIPE_ERROR.CREATE_FAILED
-        })
+    mockGetCheckoutSession.mockResolvedValue({
+      success: true,
+      error: null,
+      data: {
+        ...mockCheckoutSession,
+        ...mockSubscriptionLineItems,
+      },
+    });
 
-        await expect(processOrderData({
-            checkoutSessionEvent: mockCheckoutSession
-        })).rejects.toThrow(ORDER_STRIPE_ERROR.CREATE_FAILED)
-        expect(mockDeleteOrder).toHaveBeenCalledWith({ orderId: mockOrder.order.id })
-    })
-    
-    // 処理失敗(OrderItems テーブルのデータ作成の失敗)
-    it('should return error when createOrderItems fails', async () => {
-        const stripe = await getMockStripe()
+    vi.mocked(stripe.products.retrieve).mockResolvedValue({
+      ...mockStripeClient,
+    });
 
-        const mockGetCheckoutSession = vi.mocked(getCheckoutSession)
-        const mockCreateCheckoutOrder = vi.mocked(createCheckoutOrder)
-        const mockCreateOrderStripe = vi.mocked(createOrderStripe)
-        const mockCreateOrderItems = vi.mocked(createOrderItems)
-        const mockDeleteOrder = vi.mocked(deleteOrder)
-        const mockDeleteOrderStripe = vi.mocked(deleteOrderStripe)
+    mockCreateCheckoutOrder.mockResolvedValue({
+      success: true,
+      error: null,
+      data: mockOrder,
+    });
 
-        mockGetCheckoutSession.mockResolvedValue({
-            success: true,
-            error: null,
-            data: {
-                ...mockCheckoutSession,
-                ...mockSubscriptionLineItems
-            }
-        })
+    mockCreateOrderStripe.mockResolvedValue({
+      success: false,
+      error: ORDER_STRIPE_ERROR.CREATE_FAILED,
+    });
 
-        vi.mocked(stripe.products.retrieve).mockResolvedValue({
-            ...mockStripeClient
-        })
+    await expect(
+      processOrderData({
+        checkoutSessionEvent: mockCheckoutSession,
+      }),
+    ).rejects.toThrow(ORDER_STRIPE_ERROR.CREATE_FAILED);
+    expect(mockDeleteOrder).toHaveBeenCalledWith({
+      orderId: mockOrder.order.id,
+    });
+  });
 
-        mockCreateCheckoutOrder.mockResolvedValue({
-            success: true,
-            error: null,
-            data: mockOrder
-        })
-        
-        mockCreateOrderStripe.mockResolvedValue({
-            success: true,
-            error: null
-        })
+  // 処理失敗(OrderItems テーブルのデータ作成の失敗)
+  it("should return error when createOrderItems fails", async () => {
+    const stripe = await getMockStripe();
 
-        mockCreateOrderItems.mockResolvedValue({
-            success: false,
-            error: ORDER_ITEM_ERROR.CREATE_FAILED,
-            data: null
-        })
+    const mockGetCheckoutSession = vi.mocked(getCheckoutSession);
+    const mockCreateCheckoutOrder = vi.mocked(createCheckoutOrder);
+    const mockCreateOrderStripe = vi.mocked(createOrderStripe);
+    const mockCreateOrderItems = vi.mocked(createOrderItems);
+    const mockDeleteOrder = vi.mocked(deleteOrder);
+    const mockDeleteOrderStripe = vi.mocked(deleteOrderStripe);
 
-        await expect(processOrderData({
-            checkoutSessionEvent: mockCheckoutSession
-        })).rejects.toThrow(ORDER_ITEM_ERROR.CREATE_FAILED)
-        expect(mockDeleteOrder).toHaveBeenCalledWith({ orderId: mockOrder.order.id })
-        expect(mockDeleteOrderStripe).toHaveBeenCalledWith({ orderId: mockOrder.order.id })
-    })
+    mockGetCheckoutSession.mockResolvedValue({
+      success: true,
+      error: null,
+      data: {
+        ...mockCheckoutSession,
+        ...mockSubscriptionLineItems,
+      },
+    });
 
-    // 処理失敗(OrderItemStripes テーブルのデータ作成の失敗)
-    it('should return error when createOrderItemStripes fails', async () => {
-        const stripe = await getMockStripe()
+    vi.mocked(stripe.products.retrieve).mockResolvedValue({
+      ...mockStripeClient,
+    });
 
-        const mockGetCheckoutSession = vi.mocked(getCheckoutSession)
-        const mockCreateCheckoutOrder = vi.mocked(createCheckoutOrder)
-        const mockCreateOrderStripe = vi.mocked(createOrderStripe)
-        const mockCreateOrderItems = vi.mocked(createOrderItems)
-        const mockCreateOrderItemStripes = vi.mocked(createOrderItemStripes)
-        const mockDeleteOrder = vi.mocked(deleteOrder)
-        const mockDeleteOrderStripe = vi.mocked(deleteOrderStripe)
-        const mockDeleteAllOrderItem = vi.mocked(deleteAllOrderItem)
+    mockCreateCheckoutOrder.mockResolvedValue({
+      success: true,
+      error: null,
+      data: mockOrder,
+    });
 
-        mockGetCheckoutSession.mockResolvedValue({
-            success: true,
-            error: null,
-            data: {
-                ...mockCheckoutSession,
-                ...mockSubscriptionLineItems
-            }
-        })
+    mockCreateOrderStripe.mockResolvedValue({
+      success: true,
+      error: null,
+    });
 
-        vi.mocked(stripe.products.retrieve).mockResolvedValue({
-            ...mockStripeClient
-        })
+    mockCreateOrderItems.mockResolvedValue({
+      success: false,
+      error: ORDER_ITEM_ERROR.CREATE_FAILED,
+      data: null,
+    });
 
-        mockCreateCheckoutOrder.mockResolvedValue({
-            success: true,
-            error: null,
-            data: mockOrder
-        })
-        
-        mockCreateOrderStripe.mockResolvedValue({
-            success: true,
-            error: null
-        })
+    await expect(
+      processOrderData({
+        checkoutSessionEvent: mockCheckoutSession,
+      }),
+    ).rejects.toThrow(ORDER_ITEM_ERROR.CREATE_FAILED);
+    expect(mockDeleteOrder).toHaveBeenCalledWith({
+      orderId: mockOrder.order.id,
+    });
+    expect(mockDeleteOrderStripe).toHaveBeenCalledWith({
+      orderId: mockOrder.order.id,
+    });
+  });
 
-        mockCreateOrderItems.mockResolvedValue({
-            success: true,
-            error: null,
-            data: mockOrderItems
-        })
+  // 処理失敗(OrderItemStripes テーブルのデータ作成の失敗)
+  it("should return error when createOrderItemStripes fails", async () => {
+    const stripe = await getMockStripe();
 
-        mockCreateOrderItemStripes.mockResolvedValue({
-            success: false,
-            error: ORDER_ITEM_STRIPE_ERROR.CREATE_FAILED,
-            data: null
-        })
+    const mockGetCheckoutSession = vi.mocked(getCheckoutSession);
+    const mockCreateCheckoutOrder = vi.mocked(createCheckoutOrder);
+    const mockCreateOrderStripe = vi.mocked(createOrderStripe);
+    const mockCreateOrderItems = vi.mocked(createOrderItems);
+    const mockCreateOrderItemStripes = vi.mocked(createOrderItemStripes);
+    const mockDeleteOrder = vi.mocked(deleteOrder);
+    const mockDeleteOrderStripe = vi.mocked(deleteOrderStripe);
+    const mockDeleteAllOrderItem = vi.mocked(deleteAllOrderItem);
 
-        await expect(processOrderData({
-            checkoutSessionEvent: mockCheckoutSession
-        })).rejects.toThrow(ORDER_ITEM_STRIPE_ERROR.CREATE_FAILED)
-        expect(mockDeleteOrder).toHaveBeenCalledWith({ orderId: mockOrder.order.id })
-        expect(mockDeleteOrderStripe).toHaveBeenCalledWith({ orderId: mockOrder.order.id })
-        expect(mockDeleteAllOrderItem).toHaveBeenCalledWith({ orderId: mockOrder.order.id })
-    })
+    mockGetCheckoutSession.mockResolvedValue({
+      success: true,
+      error: null,
+      data: {
+        ...mockCheckoutSession,
+        ...mockSubscriptionLineItems,
+      },
+    });
 
-    // 処理失敗(OrderItemSubscriptions テーブルのデータ作成の失敗)
-    it('should return error when createOrderItemSubscriptions fails', async () => {
-        const stripe = await getMockStripe()
+    vi.mocked(stripe.products.retrieve).mockResolvedValue({
+      ...mockStripeClient,
+    });
 
-        const mockGetCheckoutSession = vi.mocked(getCheckoutSession)
-        const mockCreateCheckoutOrder = vi.mocked(createCheckoutOrder)
-        const mockCreateOrderStripe = vi.mocked(createOrderStripe)
-        const mockCreateOrderItems = vi.mocked(createOrderItems)
-        const mockCreateOrderItemStripes = vi.mocked(createOrderItemStripes)
-        const mockCreateOrderItemSubscriptions = vi.mocked(createOrderItemSubscriptions)
-        const mockDeleteOrder = vi.mocked(deleteOrder)
-        const mockDeleteOrderStripe = vi.mocked(deleteOrderStripe)
-        const mockDeleteAllOrderItem = vi.mocked(deleteAllOrderItem)
-        const mockDeleteOrderItemStripes = vi.mocked(deleteOrderItemStripes)
+    mockCreateCheckoutOrder.mockResolvedValue({
+      success: true,
+      error: null,
+      data: mockOrder,
+    });
 
-        mockGetCheckoutSession.mockResolvedValue({
-            success: true,
-            error: null,
-            data: {
-                ...mockCheckoutSession,
-                ...mockSubscriptionLineItems
-            }
-        })
+    mockCreateOrderStripe.mockResolvedValue({
+      success: true,
+      error: null,
+    });
 
-        vi.mocked(stripe.products.retrieve).mockResolvedValue({
-            ...mockStripeClient,
-            metadata: mockSubscriptionMetadata
-        })
+    mockCreateOrderItems.mockResolvedValue({
+      success: true,
+      error: null,
+      data: mockOrderItems,
+    });
 
-        mockCreateCheckoutOrder.mockResolvedValue({
-            success: true,
-            error: null,
-            data: mockOrder
-        })
-        
-        mockCreateOrderStripe.mockResolvedValue({
-            success: true,
-            error: null
-        })
+    mockCreateOrderItemStripes.mockResolvedValue({
+      success: false,
+      error: ORDER_ITEM_STRIPE_ERROR.CREATE_FAILED,
+      data: null,
+    });
 
-        mockCreateOrderItems.mockResolvedValue({
-            success: true,
-            error: null,
-            data: mockOrderItems
-        })
+    await expect(
+      processOrderData({
+        checkoutSessionEvent: mockCheckoutSession,
+      }),
+    ).rejects.toThrow(ORDER_ITEM_STRIPE_ERROR.CREATE_FAILED);
+    expect(mockDeleteOrder).toHaveBeenCalledWith({
+      orderId: mockOrder.order.id,
+    });
+    expect(mockDeleteOrderStripe).toHaveBeenCalledWith({
+      orderId: mockOrder.order.id,
+    });
+    expect(mockDeleteAllOrderItem).toHaveBeenCalledWith({
+      orderId: mockOrder.order.id,
+    });
+  });
 
-        mockCreateOrderItemStripes.mockResolvedValue({
-            success: true,
-            error: null,
-            data: mockOrderItemStripes
-        })
+  // 処理失敗(OrderItemSubscriptions テーブルのデータ作成の失敗)
+  it("should return error when createOrderItemSubscriptions fails", async () => {
+    const stripe = await getMockStripe();
 
-        mockCreateOrderItemSubscriptions.mockResolvedValue({
-            success: false,
-            error: SUBSCRIPTION_ERROR.CREATE_FAILED,
-            data: null
-        })
+    const mockGetCheckoutSession = vi.mocked(getCheckoutSession);
+    const mockCreateCheckoutOrder = vi.mocked(createCheckoutOrder);
+    const mockCreateOrderStripe = vi.mocked(createOrderStripe);
+    const mockCreateOrderItems = vi.mocked(createOrderItems);
+    const mockCreateOrderItemStripes = vi.mocked(createOrderItemStripes);
+    const mockCreateOrderItemSubscriptions = vi.mocked(
+      createOrderItemSubscriptions,
+    );
+    const mockDeleteOrder = vi.mocked(deleteOrder);
+    const mockDeleteOrderStripe = vi.mocked(deleteOrderStripe);
+    const mockDeleteAllOrderItem = vi.mocked(deleteAllOrderItem);
+    const mockDeleteOrderItemStripes = vi.mocked(deleteOrderItemStripes);
 
-        await expect(processOrderData({
-            checkoutSessionEvent: mockCheckoutSession
-        })).rejects.toThrow(SUBSCRIPTION_ERROR.CREATE_FAILED)
-        expect(mockDeleteOrder).toHaveBeenCalledWith({ orderId: mockOrder.order.id })
-        expect(mockDeleteOrderStripe).toHaveBeenCalledWith({ orderId: mockOrder.order.id })
-        expect(mockDeleteAllOrderItem).toHaveBeenCalledWith({ orderId: mockOrder.order.id })
-        expect(mockDeleteOrderItemStripes).toHaveBeenCalledWith({ orderItemId: mockOrderItems[0].id })
-    })
-})
+    mockGetCheckoutSession.mockResolvedValue({
+      success: true,
+      error: null,
+      data: {
+        ...mockCheckoutSession,
+        ...mockSubscriptionLineItems,
+      },
+    });
 
-/* ==================================== 
+    vi.mocked(stripe.products.retrieve).mockResolvedValue({
+      ...mockStripeClient,
+      metadata: mockSubscriptionMetadata,
+    });
+
+    mockCreateCheckoutOrder.mockResolvedValue({
+      success: true,
+      error: null,
+      data: mockOrder,
+    });
+
+    mockCreateOrderStripe.mockResolvedValue({
+      success: true,
+      error: null,
+    });
+
+    mockCreateOrderItems.mockResolvedValue({
+      success: true,
+      error: null,
+      data: mockOrderItems,
+    });
+
+    mockCreateOrderItemStripes.mockResolvedValue({
+      success: true,
+      error: null,
+      data: mockOrderItemStripes,
+    });
+
+    mockCreateOrderItemSubscriptions.mockResolvedValue({
+      success: false,
+      error: SUBSCRIPTION_ERROR.CREATE_FAILED,
+      data: null,
+    });
+
+    await expect(
+      processOrderData({
+        checkoutSessionEvent: mockCheckoutSession,
+      }),
+    ).rejects.toThrow(SUBSCRIPTION_ERROR.CREATE_FAILED);
+    expect(mockDeleteOrder).toHaveBeenCalledWith({
+      orderId: mockOrder.order.id,
+    });
+    expect(mockDeleteOrderStripe).toHaveBeenCalledWith({
+      orderId: mockOrder.order.id,
+    });
+    expect(mockDeleteAllOrderItem).toHaveBeenCalledWith({
+      orderId: mockOrder.order.id,
+    });
+    expect(mockDeleteOrderItemStripes).toHaveBeenCalledWith({
+      orderItemId: mockOrderItems[0].id,
+    });
+  });
+});
+
+/* ====================================
     Process Shipping Address Test
 ==================================== */
-describe('processShippingAddress', () => {
-    beforeEach(async () => {
-        vi.clearAllMocks()
-    })
+describe("processShippingAddress", () => {
+  beforeEach(async () => {
+    vi.clearAllMocks();
+  });
 
-    const mockCheckoutSessionWithCustomer = {
-        ...mockCheckoutSession,
-        customer: 'cus_test_123',
-        customer_details: {
-            name: 'Test User',
-            address: {
-                line1: 'Test Address',
-                line2: 'Test City',
-                city: 'Test City',
-                state: 'Test State',
-                postal_code: '123-4567'
-            }
-        }
-    }
+  const mockCheckoutSessionWithCustomer = {
+    ...mockCheckoutSession,
+    customer: "cus_test_123",
+    customer_details: {
+      name: "Test User",
+      address: {
+        line1: "Test Address",
+        line2: "Test City",
+        city: "Test City",
+        state: "Test State",
+        postal_code: "123-4567",
+      },
+    },
+  };
 
-    // 処理成功(デフォルト住所有りの場合)
-    it('should process shipping address successfully when default shipping address exists', async () => {
-        const mockGetDefaultShippingAddress = vi.mocked(getDefaultShippingAddress)
+  // 処理成功(デフォルト住所有りの場合)
+  it("should process shipping address successfully when default shipping address exists", async () => {
+    const mockGetDefaultShippingAddress = vi.mocked(getDefaultShippingAddress);
 
-        mockGetDefaultShippingAddress.mockResolvedValue({
-            data: mockShippingAddress
-        })
+    mockGetDefaultShippingAddress.mockResolvedValue({
+      data: mockShippingAddress,
+    });
 
-        await processShippingAddress({
-            checkoutSessionEvent: mockCheckoutSessionWithCustomer as unknown as StripeCheckoutSession,
-            userId: 'user_test_123'
-        })
+    await processShippingAddress({
+      checkoutSessionEvent:
+        mockCheckoutSessionWithCustomer as unknown as StripeCheckoutSession,
+      userId: "user_test_123",
+    });
 
-        expect(createShippingAddress).not.toHaveBeenCalled()
-        expect(updateCustomerShippingAddress).not.toHaveBeenCalled()
-    })
+    expect(createShippingAddress).not.toHaveBeenCalled();
+    expect(updateCustomerShippingAddress).not.toHaveBeenCalled();
+  });
 
-    // 処理成功(デフォルト住所無しの場合)
-    it('should process shipping address successfully when default shipping address does not exist', async () => {
-        const mockGetDefaultShippingAddress = vi.mocked(getDefaultShippingAddress)
-        const mockCreateShippingAddress = vi.mocked(createShippingAddress)
-        const mockUpdateCustomerShippingAddress = vi.mocked(updateCustomerShippingAddress)
+  // 処理成功(デフォルト住所無しの場合)
+  it("should process shipping address successfully when default shipping address does not exist", async () => {
+    const mockGetDefaultShippingAddress = vi.mocked(getDefaultShippingAddress);
+    const mockCreateShippingAddress = vi.mocked(createShippingAddress);
+    const mockUpdateCustomerShippingAddress = vi.mocked(
+      updateCustomerShippingAddress,
+    );
 
-        mockGetDefaultShippingAddress.mockResolvedValue({
-            data: mockShippingAddress
-        })
+    mockGetDefaultShippingAddress.mockResolvedValue({
+      data: mockShippingAddress,
+    });
 
-        mockCreateShippingAddress.mockResolvedValue({
-            success: true,
-            error: null,
-            data: mockShippingAddress
-        })
+    mockCreateShippingAddress.mockResolvedValue({
+      success: true,
+      error: null,
+      data: mockShippingAddress,
+    });
 
-        mockUpdateCustomerShippingAddress.mockResolvedValue({
-            success: true,
-            error: null,
-            data: mockCustomer
-        })
+    mockUpdateCustomerShippingAddress.mockResolvedValue({
+      success: true,
+      error: null,
+      data: mockCustomer,
+    });
 
-        const result = await processShippingAddress({
-            checkoutSessionEvent: mockCheckoutSessionWithCustomer as unknown as StripeCheckoutSession,
-            userId: 'user_test_123'
-        })
+    const result = await processShippingAddress({
+      checkoutSessionEvent:
+        mockCheckoutSessionWithCustomer as unknown as StripeCheckoutSession,
+      userId: "user_test_123",
+    });
 
-        expect(result).toBeUndefined()
-    })
+    expect(result).toBeUndefined();
+  });
 
-    // 処理失敗(ユーザーID無し)
-    it('should return error when userId is null', async () => {
-        await expect(processShippingAddress({
-            checkoutSessionEvent: mockCheckoutSession,
-            userId: null as unknown as UserId
-        })).rejects.toThrow(SHIPPING_ADDRESS_ERROR.NO_USER_ID)
-    })
+  // 処理失敗(ユーザーID無し)
+  it("should return error when userId is null", async () => {
+    await expect(
+      processShippingAddress({
+        checkoutSessionEvent: mockCheckoutSession,
+        userId: null as unknown as UserId,
+      }),
+    ).rejects.toThrow(SHIPPING_ADDRESS_ERROR.NO_USER_ID);
+  });
 
-    // 処理失敗(デフォルト住所の取得失敗)
-    it('should return error when getDefaultShippingAddress fails', async () => {
-        const mockGetDefaultShippingAddress = vi.mocked(getDefaultShippingAddress)
+  // 処理失敗(デフォルト住所の取得失敗)
+  it("should return error when getDefaultShippingAddress fails", async () => {
+    const mockGetDefaultShippingAddress = vi.mocked(getDefaultShippingAddress);
 
-        mockGetDefaultShippingAddress.mockResolvedValue({
-            data: null
-        })
+    mockGetDefaultShippingAddress.mockResolvedValue({
+      data: null,
+    });
 
-        const result = await processShippingAddress({
-            checkoutSessionEvent: mockCheckoutSession,
-            userId: 'user_test_123'
-        })
+    const result = await processShippingAddress({
+      checkoutSessionEvent: mockCheckoutSession,
+      userId: "user_test_123",
+    });
 
-        expect(result).toBeUndefined()
-    })
+    expect(result).toBeUndefined();
+  });
 
-    // 処理失敗(デフォルト住所の作成失敗)
-    it('should return error when createShippingAddress fails', async () => {
-        const mockGetDefaultShippingAddress = vi.mocked(getDefaultShippingAddress)
-        const mockCreateShippingAddress = vi.mocked(createShippingAddress)
-        const mockUpdateCustomerShippingAddress = vi.mocked(updateCustomerShippingAddress)
-    
-        mockGetDefaultShippingAddress.mockResolvedValue({
-            data: null
-        })
-    
-        mockCreateShippingAddress.mockResolvedValue({
-            success: false,
-            error: SHIPPING_ADDRESS_ERROR.CREATE_FAILED,
-            data: null
-        })
-    
-        await expect(processShippingAddress({
-            checkoutSessionEvent: mockCheckoutSessionWithCustomer as unknown as StripeCheckoutSession,
-            userId: 'user_test_123'
-        })).rejects.toThrow(SHIPPING_ADDRESS_ERROR.CREATE_FAILED)
-    
-        expect(mockUpdateCustomerShippingAddress).not.toHaveBeenCalled()
-    })
+  // 処理失敗(デフォルト住所の作成失敗)
+  it("should return error when createShippingAddress fails", async () => {
+    const mockGetDefaultShippingAddress = vi.mocked(getDefaultShippingAddress);
+    const mockCreateShippingAddress = vi.mocked(createShippingAddress);
+    const mockUpdateCustomerShippingAddress = vi.mocked(
+      updateCustomerShippingAddress,
+    );
 
-    // 処理失敗(デフォルト住所の更新失敗)
-    it('should return error when updateCustomerShippingAddress fails', async () => {
-        const mockGetDefaultShippingAddress = vi.mocked(getDefaultShippingAddress)
-        const mockCreateShippingAddress = vi.mocked(createShippingAddress)
-        const mockUpdateCustomerShippingAddress = vi.mocked(updateCustomerShippingAddress)
+    mockGetDefaultShippingAddress.mockResolvedValue({
+      data: null,
+    });
 
-        mockGetDefaultShippingAddress.mockResolvedValue({
-            data: null
-        })
+    mockCreateShippingAddress.mockResolvedValue({
+      success: false,
+      error: SHIPPING_ADDRESS_ERROR.CREATE_FAILED,
+      data: null,
+    });
 
-        mockCreateShippingAddress.mockResolvedValue({
-            success: true,
-            error: null,
-            data: mockShippingAddress
-        })
+    await expect(
+      processShippingAddress({
+        checkoutSessionEvent:
+          mockCheckoutSessionWithCustomer as unknown as StripeCheckoutSession,
+        userId: "user_test_123",
+      }),
+    ).rejects.toThrow(SHIPPING_ADDRESS_ERROR.CREATE_FAILED);
 
-        mockUpdateCustomerShippingAddress.mockResolvedValue({
-            success: false,
-            error: SHIPPING_ADDRESS_ERROR.SET_DEFAULT_FAILED,
-            data: null
-        })
+    expect(mockUpdateCustomerShippingAddress).not.toHaveBeenCalled();
+  });
 
-        await expect(processShippingAddress({
-            checkoutSessionEvent: mockCheckoutSessionWithCustomer as unknown as StripeCheckoutSession,
-            userId: 'user_test_123'
-        })).rejects.toThrow(SHIPPING_ADDRESS_ERROR.SET_DEFAULT_FAILED)
-    })
+  // 処理失敗(デフォルト住所の更新失敗)
+  it("should return error when updateCustomerShippingAddress fails", async () => {
+    const mockGetDefaultShippingAddress = vi.mocked(getDefaultShippingAddress);
+    const mockCreateShippingAddress = vi.mocked(createShippingAddress);
+    const mockUpdateCustomerShippingAddress = vi.mocked(
+      updateCustomerShippingAddress,
+    );
 
-    // 処理失敗(customerDetails 無し)
-    it('should not create shipping address when customerDetails is null', async () => {
-        const mockGetDefaultShippingAddress = vi.mocked(getDefaultShippingAddress)
-        
-        mockGetDefaultShippingAddress.mockResolvedValue({
-            data: null
-        })
-    
-        const checkoutSessionWithoutCustomerDetails = {
-            ...mockCheckoutSessionWithCustomer,
-            customer_details: null
-        }
-    
-        const result = await processShippingAddress({
-            checkoutSessionEvent: checkoutSessionWithoutCustomerDetails as unknown as StripeCheckoutSession,
-            userId: 'user_test_123'
-        })
-    
-        expect(createShippingAddress).not.toHaveBeenCalled()
-        expect(updateCustomerShippingAddress).not.toHaveBeenCalled()
-        expect(result).toBeUndefined()
-    })
+    mockGetDefaultShippingAddress.mockResolvedValue({
+      data: null,
+    });
 
-    // 処理失敗(customerId 無し)
-    it('should not create shipping address when customerId is null', async () => {
-        const mockGetDefaultShippingAddress = vi.mocked(getDefaultShippingAddress)
-        
-        mockGetDefaultShippingAddress.mockResolvedValue({
-            data: null
-        })
-    
-        const checkoutSessionWithoutCustomer = {
-            ...mockCheckoutSessionWithCustomer,
-            customer: null
-        }
-    
-        const result = await processShippingAddress({
-            checkoutSessionEvent: checkoutSessionWithoutCustomer as unknown as StripeCheckoutSession,
-            userId: 'user_test_123'
-        })
-    
-        expect(createShippingAddress).not.toHaveBeenCalled()
-        expect(updateCustomerShippingAddress).not.toHaveBeenCalled()
-        expect(result).toBeUndefined()
-    })
+    mockCreateShippingAddress.mockResolvedValue({
+      success: true,
+      error: null,
+      data: mockShippingAddress,
+    });
 
-    // 処理失敗(address 無し)
-    it('should handle missing address in customerDetails', async () => {
-        const mockGetDefaultShippingAddress = vi.mocked(getDefaultShippingAddress)
-        const mockCreateShippingAddress = vi.mocked(createShippingAddress)
-        const mockUpdateCustomerShippingAddress = vi.mocked(updateCustomerShippingAddress)
-        
-        mockGetDefaultShippingAddress.mockResolvedValue({
-            data: null
-        })
-    
-        const checkoutSessionWithoutAddress = {
-            ...mockCheckoutSessionWithCustomer,
-            customer_details: {
-                name: 'Test User',
-                address: null
-            }
-        }
-    
-        mockCreateShippingAddress.mockResolvedValue({
-            success: true,
-            error: null,
-            data: mockShippingAddress
-        })
-    
-        mockUpdateCustomerShippingAddress.mockResolvedValue({
-            success: true,
-            error: null,
-            data: mockCustomer
-        })
-    
-        await processShippingAddress({
-            checkoutSessionEvent: checkoutSessionWithoutAddress as unknown as StripeCheckoutSession,
-            userId: 'user_test_123'
-        })
-    
-        expect(createShippingAddress).toHaveBeenCalledWith({
-            address: expect.objectContaining({
-                name: 'Test User',
-                postal_code: undefined,
-                state: undefined,
-                city: '',
-                address_line1: undefined,
-                address_line2: '',
-                is_default: true
-            })
-        })
-    })
+    mockUpdateCustomerShippingAddress.mockResolvedValue({
+      success: false,
+      error: SHIPPING_ADDRESS_ERROR.SET_DEFAULT_FAILED,
+      data: null,
+    });
 
-    // 処理失敗(例外発生)
-    it('should return error when createShippingAddress exception occurs', async () => {
-        const mockGetDefaultShippingAddress = vi.mocked(getDefaultShippingAddress)
-        const mockCreateShippingAddress = vi.mocked(createShippingAddress)
-        const mockUpdateCustomerShippingAddress = vi.mocked(updateCustomerShippingAddress)
-    
-        mockGetDefaultShippingAddress.mockResolvedValue({
-            data: null
-        })
-    
-        mockCreateShippingAddress.mockRejectedValue(
-            new Error('Database error')
-        )
-    
-        await expect(processShippingAddress({
-            checkoutSessionEvent: mockCheckoutSessionWithCustomer as unknown as StripeCheckoutSession,
-            userId: 'user_test_123'
-        })).rejects.toThrow('Database error')
-    
-        expect(mockUpdateCustomerShippingAddress).not.toHaveBeenCalled()
-    })
-})
+    await expect(
+      processShippingAddress({
+        checkoutSessionEvent:
+          mockCheckoutSessionWithCustomer as unknown as StripeCheckoutSession,
+        userId: "user_test_123",
+      }),
+    ).rejects.toThrow(SHIPPING_ADDRESS_ERROR.SET_DEFAULT_FAILED);
+  });
 
-/* ==================================== 
+  // 処理失敗(customerDetails 無し)
+  it("should not create shipping address when customerDetails is null", async () => {
+    const mockGetDefaultShippingAddress = vi.mocked(getDefaultShippingAddress);
+
+    mockGetDefaultShippingAddress.mockResolvedValue({
+      data: null,
+    });
+
+    const checkoutSessionWithoutCustomerDetails = {
+      ...mockCheckoutSessionWithCustomer,
+      customer_details: null,
+    };
+
+    const result = await processShippingAddress({
+      checkoutSessionEvent:
+        checkoutSessionWithoutCustomerDetails as unknown as StripeCheckoutSession,
+      userId: "user_test_123",
+    });
+
+    expect(createShippingAddress).not.toHaveBeenCalled();
+    expect(updateCustomerShippingAddress).not.toHaveBeenCalled();
+    expect(result).toBeUndefined();
+  });
+
+  // 処理失敗(customerId 無し)
+  it("should not create shipping address when customerId is null", async () => {
+    const mockGetDefaultShippingAddress = vi.mocked(getDefaultShippingAddress);
+
+    mockGetDefaultShippingAddress.mockResolvedValue({
+      data: null,
+    });
+
+    const checkoutSessionWithoutCustomer = {
+      ...mockCheckoutSessionWithCustomer,
+      customer: null,
+    };
+
+    const result = await processShippingAddress({
+      checkoutSessionEvent:
+        checkoutSessionWithoutCustomer as unknown as StripeCheckoutSession,
+      userId: "user_test_123",
+    });
+
+    expect(createShippingAddress).not.toHaveBeenCalled();
+    expect(updateCustomerShippingAddress).not.toHaveBeenCalled();
+    expect(result).toBeUndefined();
+  });
+
+  // 処理失敗(address 無し)
+  it("should handle missing address in customerDetails", async () => {
+    const mockGetDefaultShippingAddress = vi.mocked(getDefaultShippingAddress);
+    const mockCreateShippingAddress = vi.mocked(createShippingAddress);
+    const mockUpdateCustomerShippingAddress = vi.mocked(
+      updateCustomerShippingAddress,
+    );
+
+    mockGetDefaultShippingAddress.mockResolvedValue({
+      data: null,
+    });
+
+    const checkoutSessionWithoutAddress = {
+      ...mockCheckoutSessionWithCustomer,
+      customer_details: {
+        name: "Test User",
+        address: null,
+      },
+    };
+
+    mockCreateShippingAddress.mockResolvedValue({
+      success: true,
+      error: null,
+      data: mockShippingAddress,
+    });
+
+    mockUpdateCustomerShippingAddress.mockResolvedValue({
+      success: true,
+      error: null,
+      data: mockCustomer,
+    });
+
+    await processShippingAddress({
+      checkoutSessionEvent:
+        checkoutSessionWithoutAddress as unknown as StripeCheckoutSession,
+      userId: "user_test_123",
+    });
+
+    expect(createShippingAddress).toHaveBeenCalledWith({
+      address: expect.objectContaining({
+        name: "Test User",
+        postal_code: undefined,
+        state: undefined,
+        city: "",
+        address_line1: undefined,
+        address_line2: "",
+        is_default: true,
+      }),
+    });
+  });
+
+  // 処理失敗(例外発生)
+  it("should return error when createShippingAddress exception occurs", async () => {
+    const mockGetDefaultShippingAddress = vi.mocked(getDefaultShippingAddress);
+    const mockCreateShippingAddress = vi.mocked(createShippingAddress);
+    const mockUpdateCustomerShippingAddress = vi.mocked(
+      updateCustomerShippingAddress,
+    );
+
+    mockGetDefaultShippingAddress.mockResolvedValue({
+      data: null,
+    });
+
+    mockCreateShippingAddress.mockRejectedValue(new Error("Database error"));
+
+    await expect(
+      processShippingAddress({
+        checkoutSessionEvent:
+          mockCheckoutSessionWithCustomer as unknown as StripeCheckoutSession,
+        userId: "user_test_123",
+      }),
+    ).rejects.toThrow("Database error");
+
+    expect(mockUpdateCustomerShippingAddress).not.toHaveBeenCalled();
+  });
+});
+
+/* ====================================
     Send Order Emails Test
 ==================================== */
-describe('sendOrderEmails', () => {
-    beforeEach(async () => {
-        vi.clearAllMocks()
-    })
-    
-    // 送信成功（payment_intentが文字列の場合）
-    it('should send order emails successfully when payment_intent is a string', async () => {
-        const stripe = await getMockStripe()
+describe("sendOrderEmails", () => {
+  beforeEach(async () => {
+    vi.clearAllMocks();
+  });
 
-        const mockSendPaymentRequestEmail = vi.mocked(sendPaymentRequestEmail)
+  // 送信成功（payment_intentが文字列の場合）
+  it("should send order emails successfully when payment_intent is a string", async () => {
+    const stripe = await getMockStripe();
 
-        const checkoutSessionWithPaymentIntent = {
-            ...mockCheckoutSession,
-            payment_intent: 'pi_test_123'
-        }
+    const mockSendPaymentRequestEmail = vi.mocked(sendPaymentRequestEmail);
 
-        vi.mocked(stripe.paymentIntents.retrieve).mockResolvedValue({
-            ...mockPaymentIntent,
-            last_payment_error: null
-        })
+    const checkoutSessionWithPaymentIntent = {
+      ...mockCheckoutSession,
+      payment_intent: "pi_test_123",
+    };
 
-        mockSendPaymentRequestEmail.mockResolvedValue({
-            success: true,
-            error: null
-        })
+    vi.mocked(stripe.paymentIntents.retrieve).mockResolvedValue({
+      ...mockPaymentIntent,
+      last_payment_error: null,
+    });
 
-        const result = await sendOrderEmails({
-            orderData: mockOrder,
-            productDetails: mockSubscriptionProductDetails,
-            checkoutSessionEvent: checkoutSessionWithPaymentIntent
-        })
+    mockSendPaymentRequestEmail.mockResolvedValue({
+      success: true,
+      error: null,
+    });
 
-        expect(stripe.paymentIntents.retrieve).toHaveBeenCalledWith('pi_test_123')
-        expect(mockSendPaymentRequestEmail).toHaveBeenCalledWith({
-            orderData: checkoutSessionWithPaymentIntent,
-            productDetails: mockSubscriptionProductDetails,
-            orderNumber: mockOrder.order.order_number,
-            paymentIntent: expect.objectContaining({
-                id: 'pi_test_123'
-            }),
-            checkoutSessionEvent: checkoutSessionWithPaymentIntent
-        })
+    const result = await sendOrderEmails({
+      orderData: mockOrder,
+      productDetails: mockSubscriptionProductDetails,
+      checkoutSessionEvent: checkoutSessionWithPaymentIntent,
+    });
 
-        expect(result).toBeUndefined()
-    })
+    expect(stripe.paymentIntents.retrieve).toHaveBeenCalledWith("pi_test_123");
+    expect(mockSendPaymentRequestEmail).toHaveBeenCalledWith({
+      orderData: checkoutSessionWithPaymentIntent,
+      productDetails: mockSubscriptionProductDetails,
+      orderNumber: mockOrder.order.order_number,
+      paymentIntent: expect.objectContaining({
+        id: "pi_test_123",
+      }),
+      checkoutSessionEvent: checkoutSessionWithPaymentIntent,
+    });
 
-    // 送信成功（payment_intent が null）
-    it('should send order emails successfully when payment_intent is null', async () => {
-        const mockSendPaymentRequestEmail = vi.mocked(sendPaymentRequestEmail)
+    expect(result).toBeUndefined();
+  });
 
-        mockSendPaymentRequestEmail.mockResolvedValue({
-            success: true,
-            error: null
-        })
+  // 送信成功（payment_intent が null）
+  it("should send order emails successfully when payment_intent is null", async () => {
+    const mockSendPaymentRequestEmail = vi.mocked(sendPaymentRequestEmail);
 
-        const result = await sendOrderEmails({
-            orderData: mockOrder,
-            productDetails: mockSubscriptionProductDetails,
-            checkoutSessionEvent: mockCheckoutSession
-        })
+    mockSendPaymentRequestEmail.mockResolvedValue({
+      success: true,
+      error: null,
+    });
 
-        expect(mockSendPaymentRequestEmail).toHaveBeenCalledWith({
-            orderData: mockCheckoutSession,
-            productDetails: mockSubscriptionProductDetails,
-            orderNumber: mockOrder.order.order_number,
-            paymentIntent: null,
-            checkoutSessionEvent: mockCheckoutSession
-        })
+    const result = await sendOrderEmails({
+      orderData: mockOrder,
+      productDetails: mockSubscriptionProductDetails,
+      checkoutSessionEvent: mockCheckoutSession,
+    });
 
-        expect(result).toBeUndefined()
-    })
+    expect(mockSendPaymentRequestEmail).toHaveBeenCalledWith({
+      orderData: mockCheckoutSession,
+      productDetails: mockSubscriptionProductDetails,
+      orderNumber: mockOrder.order.order_number,
+      paymentIntent: null,
+      checkoutSessionEvent: mockCheckoutSession,
+    });
 
-    // 送信失敗
-    it('should throw error when sendPaymentRequestEmail fails', async () => {
-        const mockSendPaymentRequestEmail = vi.mocked(sendPaymentRequestEmail)
+    expect(result).toBeUndefined();
+  });
 
-        mockSendPaymentRequestEmail.mockResolvedValue({
-            success: false,
-            error: PAYMENT_REQUEST_SEND_FAILED
-        })
+  // 送信失敗
+  it("should throw error when sendPaymentRequestEmail fails", async () => {
+    const mockSendPaymentRequestEmail = vi.mocked(sendPaymentRequestEmail);
 
-        await expect(sendOrderEmails({
-            orderData: mockOrder,
-            productDetails: mockSubscriptionProductDetails,
-            checkoutSessionEvent: mockCheckoutSession
-        })).rejects.toThrow(PAYMENT_REQUEST_SEND_FAILED)
-    })
-    
-    // 送信失敗（例外発生）
-    it('should handle stripe paymentIntents retrieve error', async () => {
-        const stripe = await getMockStripe()
+    mockSendPaymentRequestEmail.mockResolvedValue({
+      success: false,
+      error: PAYMENT_REQUEST_SEND_FAILED,
+    });
 
-        const checkoutSessionWithPaymentIntent = {
-            ...mockCheckoutSession,
-            payment_intent: 'pi_test_123'
-        }
+    await expect(
+      sendOrderEmails({
+        orderData: mockOrder,
+        productDetails: mockSubscriptionProductDetails,
+        checkoutSessionEvent: mockCheckoutSession,
+      }),
+    ).rejects.toThrow(PAYMENT_REQUEST_SEND_FAILED);
+  });
 
-        vi.mocked(stripe.paymentIntents.retrieve).mockRejectedValue(
-            new Error('Stripe API Error')
-        )
+  // 送信失敗（例外発生）
+  it("should handle stripe paymentIntents retrieve error", async () => {
+    const stripe = await getMockStripe();
 
-        await expect(sendOrderEmails({
-            orderData: mockOrder,
-            productDetails: mockSubscriptionProductDetails,
-            checkoutSessionEvent: checkoutSessionWithPaymentIntent
-        })).rejects.toThrow('Stripe API Error')
-    })
-})
+    const checkoutSessionWithPaymentIntent = {
+      ...mockCheckoutSession,
+      payment_intent: "pi_test_123",
+    };
 
-/* ==================================== 
+    vi.mocked(stripe.paymentIntents.retrieve).mockRejectedValue(
+      new Error("Stripe API Error"),
+    );
+
+    await expect(
+      sendOrderEmails({
+        orderData: mockOrder,
+        productDetails: mockSubscriptionProductDetails,
+        checkoutSessionEvent: checkoutSessionWithPaymentIntent,
+      }),
+    ).rejects.toThrow("Stripe API Error");
+  });
+});
+
+/* ====================================
     Handle Subscription Event Test
 ==================================== */
-describe('handleSubscriptionEvent', () => {
-    beforeEach(async () => {
-        vi.clearAllMocks()
-    })
+describe("handleSubscriptionEvent", () => {
+  beforeEach(async () => {
+    vi.clearAllMocks();
+  });
 
-    const mockSubscriptionProductDetails = {
-        ...mockStripeClient,
-        id: 'prod_subscription_123',
-        description: 'Subscription Product',
-        images: ['https://example.com/subscription.jpg'],
-        metadata: {
-            supabase_id: 'subscription_product_123',
-            subscription_product: 'true'
-        },
-        name: 'Subscription Product'
-    }
-    
-    // 処理成功(ステータスが active)
-    it('should handle subscription event successfully for active status', async () => {
-        const stripe = await getMockStripe()
-        const mockCreateSubscriptionPayment = vi.mocked(createSubscriptionPayment)
-        const mockFormatStripeSubscriptionStatus = vi.mocked(formatStripeSubscriptionStatus)
+  const mockSubscriptionProductDetails = {
+    ...mockStripeClient,
+    id: "prod_subscription_123",
+    description: "Subscription Product",
+    images: ["https://example.com/subscription.jpg"],
+    metadata: {
+      supabase_id: "subscription_product_123",
+      subscription_product: "true",
+    },
+    name: "Subscription Product",
+  };
 
-        const mockSubscriptionEvent = {
-            ...mockSubscription,
-            status: 'active',
-            metadata: {
-                userID: 'user_test_123'
-            }
-        }
+  // 処理成功(ステータスが active)
+  it("should handle subscription event successfully for active status", async () => {
+    const stripe = await getMockStripe();
+    const mockCreateSubscriptionPayment = vi.mocked(createSubscriptionPayment);
+    const mockFormatStripeSubscriptionStatus = vi.mocked(
+      formatStripeSubscriptionStatus,
+    );
 
-        mockFormatStripeSubscriptionStatus.mockReturnValue('succeeded')
-        mockCreateSubscriptionPayment.mockResolvedValue({
-            success: true,
-            error: null,
-            data: { 
-                ...mockSubscriptionPayment,
-                status: 'succeeded', 
-            }
-        })
+    const mockSubscriptionEvent = {
+      ...mockSubscription,
+      status: "active",
+      metadata: {
+        userID: "user_test_123",
+      },
+    };
 
-        const result = await handleSubscriptionEvent({
-            subscriptionEvent: mockSubscriptionEvent as unknown as StripeSubscription
-        })
+    mockFormatStripeSubscriptionStatus.mockReturnValue("succeeded");
+    mockCreateSubscriptionPayment.mockResolvedValue({
+      success: true,
+      error: null,
+      data: {
+        ...mockSubscriptionPayment,
+        status: "succeeded",
+      },
+    });
 
-        expect(mockFormatStripeSubscriptionStatus).toHaveBeenCalledWith('active')
-        expect(mockCreateSubscriptionPayment).toHaveBeenCalledWith({
-            subscriptionPaymentData: expect.objectContaining({
-                user_id: 'user_test_123',
-                subscription_id: mockSubscriptionEvent.id,
-                status: 'succeeded'
-            })
-        })
-        expect(stripe.subscriptions.retrieve).not.toHaveBeenCalled()
-        expect(result).toBeUndefined()
-    })
+    const result = await handleSubscriptionEvent({
+      subscriptionEvent: mockSubscriptionEvent as unknown as StripeSubscription,
+    });
 
-    // 処理成功(ステータスが 非active)
-    it('should handle subscription event successfully for non-active status', async () => {
-        const stripe = await getMockStripe()
+    expect(mockFormatStripeSubscriptionStatus).toHaveBeenCalledWith("active");
+    expect(mockCreateSubscriptionPayment).toHaveBeenCalledWith({
+      subscriptionPaymentData: expect.objectContaining({
+        user_id: "user_test_123",
+        subscription_id: mockSubscriptionEvent.id,
+        status: "succeeded",
+      }),
+    });
+    expect(stripe.subscriptions.retrieve).not.toHaveBeenCalled();
+    expect(result).toBeUndefined();
+  });
 
-        const mockCreateSubscriptionPayment = vi.mocked(createSubscriptionPayment)
-        const mockFormatStripeSubscriptionStatus = vi.mocked(formatStripeSubscriptionStatus)
-        const mockSendSubscriptionPaymentRequestEmail = vi.mocked(sendSubscriptionPaymentRequestEmail)
+  // 処理成功(ステータスが 非active)
+  it("should handle subscription event successfully for non-active status", async () => {
+    const stripe = await getMockStripe();
 
-        const mockSubscriptionEvent = {
-            ...mockSubscription,
-            status: 'past_due',
-            metadata: {
-                userID: 'user_test_123'
-            }
-        }
+    const mockCreateSubscriptionPayment = vi.mocked(createSubscriptionPayment);
+    const mockFormatStripeSubscriptionStatus = vi.mocked(
+      formatStripeSubscriptionStatus,
+    );
+    const mockSendSubscriptionPaymentRequestEmail = vi.mocked(
+      sendSubscriptionPaymentRequestEmail,
+    );
 
-        mockFormatStripeSubscriptionStatus.mockReturnValue('failed')
-        mockCreateSubscriptionPayment.mockResolvedValue({
-            success: true,
-            error: null,
-            data: { 
-                ...mockSubscriptionPayment,
-                status: 'failed', 
-            }
-        })
+    const mockSubscriptionEvent = {
+      ...mockSubscription,
+      status: "past_due",
+      metadata: {
+        userID: "user_test_123",
+      },
+    };
 
-        vi.mocked(stripe.subscriptions.retrieve).mockResolvedValue({
-            ...mockSubscription,
-            items: {
-                object: 'list' as const,
-                data: mockSubscriptionItems,
-                has_more: false,
-                url: '/v1/subscriptions/sub_test_123/items'
-            }
-        })
+    mockFormatStripeSubscriptionStatus.mockReturnValue("failed");
+    mockCreateSubscriptionPayment.mockResolvedValue({
+      success: true,
+      error: null,
+      data: {
+        ...mockSubscriptionPayment,
+        status: "failed",
+      },
+    });
 
-        vi.mocked(stripe.products.retrieve).mockResolvedValue({
-            ...mockSubscriptionProductDetails
-        })
+    vi.mocked(stripe.subscriptions.retrieve).mockResolvedValue({
+      ...mockSubscription,
+      items: {
+        object: "list" as const,
+        data: mockSubscriptionItems,
+        has_more: false,
+        url: "/v1/subscriptions/sub_test_123/items",
+      },
+    });
 
-        mockSendSubscriptionPaymentRequestEmail.mockResolvedValue({
-            success: true,
-            error: null
-        })
+    vi.mocked(stripe.products.retrieve).mockResolvedValue({
+      ...mockSubscriptionProductDetails,
+    });
 
-        const result = await handleSubscriptionEvent({
-            subscriptionEvent: mockSubscriptionEvent as unknown as StripeSubscription
-        })
+    mockSendSubscriptionPaymentRequestEmail.mockResolvedValue({
+      success: true,
+      error: null,
+    });
 
-        expect(stripe.subscriptions.retrieve).toHaveBeenCalledWith(mockSubscriptionEvent.id)
-        expect(mockSendSubscriptionPaymentRequestEmail).toHaveBeenCalledWith({
-            orderData: mockSubscriptionEvent,
-            productDetails: expect.arrayContaining([
-                expect.objectContaining({
-                    product_id: 'subscription_product_123',
-                    image: 'https://example.com/subscription.jpg',
-                    title: 'Subscription Product',
-                    unit_price: 2000,
-                    amount: 2000,
-                    quantity: 1,
-                    stripe_price_id: 'price_subscription_123',
-                    subscription_id: 'sub_test_123',
-                    subscription_status: 'active',
-                    subscription_interval: '1month',
-                    subscription_product: true
-                })
-            ])
-        })
-        expect(result).toBeUndefined()
-    })
+    const result = await handleSubscriptionEvent({
+      subscriptionEvent: mockSubscriptionEvent as unknown as StripeSubscription,
+    });
 
-    // 処理失敗(サブスクリプションの支払いデータの作成失敗)
-    it('should throw error when createSubscriptionPayment fails', async () => {
-        const mockCreateSubscriptionPayment = vi.mocked(createSubscriptionPayment)
-        const mockFormatStripeSubscriptionStatus = vi.mocked(formatStripeSubscriptionStatus)
+    expect(stripe.subscriptions.retrieve).toHaveBeenCalledWith(
+      mockSubscriptionEvent.id,
+    );
+    expect(mockSendSubscriptionPaymentRequestEmail).toHaveBeenCalledWith({
+      orderData: mockSubscriptionEvent,
+      productDetails: expect.arrayContaining([
+        expect.objectContaining({
+          product_id: "subscription_product_123",
+          image: "https://example.com/subscription.jpg",
+          title: "Subscription Product",
+          unit_price: 2000,
+          amount: 2000,
+          quantity: 1,
+          stripe_price_id: "price_subscription_123",
+          subscription_id: "sub_test_123",
+          subscription_status: "active",
+          subscription_interval: "1month",
+          subscription_product: true,
+        }),
+      ]),
+    });
+    expect(result).toBeUndefined();
+  });
 
-        const mockSubscriptionEvent = {
-            ...mockSubscription,
-            status: 'active',
-            metadata: {
-                userID: 'user_test_123'
-            }
-        }
+  // 処理失敗(サブスクリプションの支払いデータの作成失敗)
+  it("should throw error when createSubscriptionPayment fails", async () => {
+    const mockCreateSubscriptionPayment = vi.mocked(createSubscriptionPayment);
+    const mockFormatStripeSubscriptionStatus = vi.mocked(
+      formatStripeSubscriptionStatus,
+    );
 
-        mockFormatStripeSubscriptionStatus.mockReturnValue('succeeded')
-        mockCreateSubscriptionPayment.mockResolvedValue({
-            success: false,
-            error: SUBSCRIPTION_PAYMENT_ERROR.CREATE_FAILED,
-            data: null
-        })
+    const mockSubscriptionEvent = {
+      ...mockSubscription,
+      status: "active",
+      metadata: {
+        userID: "user_test_123",
+      },
+    };
 
-        await expect(handleSubscriptionEvent({
-            subscriptionEvent: mockSubscriptionEvent as unknown as StripeSubscription
-        })).rejects.toThrow(SUBSCRIPTION_PAYMENT_ERROR.CREATE_FAILED)
-    })
+    mockFormatStripeSubscriptionStatus.mockReturnValue("succeeded");
+    mockCreateSubscriptionPayment.mockResolvedValue({
+      success: false,
+      error: SUBSCRIPTION_PAYMENT_ERROR.CREATE_FAILED,
+      data: null,
+    });
 
-    // 処理失敗(サブスクリプションの支払いデータの作成の例外発生)
-    it('should throw error when createSubscriptionPayment fails', async () => {
-        const mockCreateSubscriptionPayment = vi.mocked(createSubscriptionPayment)
-        const mockFormatStripeSubscriptionStatus = vi.mocked(formatStripeSubscriptionStatus)
+    await expect(
+      handleSubscriptionEvent({
+        subscriptionEvent:
+          mockSubscriptionEvent as unknown as StripeSubscription,
+      }),
+    ).rejects.toThrow(SUBSCRIPTION_PAYMENT_ERROR.CREATE_FAILED);
+  });
 
-        const mockSubscriptionEvent = {
-            ...mockSubscription,
-            status: 'active',
-            metadata: {
-                userID: 'user_test_123'
-            }
-        }
+  // 処理失敗(サブスクリプションの支払いデータの作成の例外発生)
+  it("should throw error when createSubscriptionPayment fails", async () => {
+    const mockCreateSubscriptionPayment = vi.mocked(createSubscriptionPayment);
+    const mockFormatStripeSubscriptionStatus = vi.mocked(
+      formatStripeSubscriptionStatus,
+    );
 
-        mockFormatStripeSubscriptionStatus.mockReturnValue('succeeded')
-        mockCreateSubscriptionPayment.mockRejectedValue(
-            new Error('Database error')
-        )
+    const mockSubscriptionEvent = {
+      ...mockSubscription,
+      status: "active",
+      metadata: {
+        userID: "user_test_123",
+      },
+    };
 
-        await expect(handleSubscriptionEvent({
-            subscriptionEvent: mockSubscriptionEvent as unknown as StripeSubscription
-        })).rejects.toThrow('Database error')
-    })
+    mockFormatStripeSubscriptionStatus.mockReturnValue("succeeded");
+    mockCreateSubscriptionPayment.mockRejectedValue(
+      new Error("Database error"),
+    );
 
-    // 処理失敗(未払い通知メールの送信失敗)
-    it('should throw error when sendSubscriptionPaymentRequestEmail fails', async () => {
-        const stripe = await getMockStripe()
+    await expect(
+      handleSubscriptionEvent({
+        subscriptionEvent:
+          mockSubscriptionEvent as unknown as StripeSubscription,
+      }),
+    ).rejects.toThrow("Database error");
+  });
 
-        const mockCreateSubscriptionPayment = vi.mocked(createSubscriptionPayment)
-        const mockFormatStripeSubscriptionStatus = vi.mocked(formatStripeSubscriptionStatus)
-        const mockSendSubscriptionPaymentRequestEmail = vi.mocked(sendSubscriptionPaymentRequestEmail)
+  // 処理失敗(未払い通知メールの送信失敗)
+  it("should throw error when sendSubscriptionPaymentRequestEmail fails", async () => {
+    const stripe = await getMockStripe();
 
-        const mockSubscriptionEvent = {
-            ...mockSubscription,
-            status: 'past_due',
-            metadata: {
-                userID: 'user_test_123'
-            }
-        }
+    const mockCreateSubscriptionPayment = vi.mocked(createSubscriptionPayment);
+    const mockFormatStripeSubscriptionStatus = vi.mocked(
+      formatStripeSubscriptionStatus,
+    );
+    const mockSendSubscriptionPaymentRequestEmail = vi.mocked(
+      sendSubscriptionPaymentRequestEmail,
+    );
 
-        mockFormatStripeSubscriptionStatus.mockReturnValue('failed')
-        mockCreateSubscriptionPayment.mockResolvedValue({
-            success: true,
-            error: null,
-            data: { 
-                ...mockSubscriptionPayment,
-                status: 'failed', 
-            }
-        })
+    const mockSubscriptionEvent = {
+      ...mockSubscription,
+      status: "past_due",
+      metadata: {
+        userID: "user_test_123",
+      },
+    };
 
-        vi.mocked(stripe.subscriptions.retrieve).mockResolvedValue({
-            ...mockSubscription,
-            items: {
-                object: 'list' as const,
-                data: mockSubscriptionItems,
-                has_more: false,
-                url: '/v1/subscriptions/sub_test_123/items'
-            }
-        })
+    mockFormatStripeSubscriptionStatus.mockReturnValue("failed");
+    mockCreateSubscriptionPayment.mockResolvedValue({
+      success: true,
+      error: null,
+      data: {
+        ...mockSubscriptionPayment,
+        status: "failed",
+      },
+    });
 
-        vi.mocked(stripe.products.retrieve).mockResolvedValue({
-            ...mockSubscriptionProductDetails
-        })
+    vi.mocked(stripe.subscriptions.retrieve).mockResolvedValue({
+      ...mockSubscription,
+      items: {
+        object: "list" as const,
+        data: mockSubscriptionItems,
+        has_more: false,
+        url: "/v1/subscriptions/sub_test_123/items",
+      },
+    });
 
-        mockSendSubscriptionPaymentRequestEmail.mockResolvedValue({
-            success: false,
-            error: SUBSCRIPTION_PAYMENT_REQUEST_SEND_FAILED
-        })
+    vi.mocked(stripe.products.retrieve).mockResolvedValue({
+      ...mockSubscriptionProductDetails,
+    });
 
-        await expect(handleSubscriptionEvent({
-            subscriptionEvent: mockSubscriptionEvent as unknown as StripeSubscription
-        })).rejects.toThrow(SUBSCRIPTION_PAYMENT_REQUEST_SEND_FAILED)
-    })
+    mockSendSubscriptionPaymentRequestEmail.mockResolvedValue({
+      success: false,
+      error: SUBSCRIPTION_PAYMENT_REQUEST_SEND_FAILED,
+    });
 
-    // 処理失敗(例外発生)
-    it('should handle stripe subscriptions retrieve error', async () => {
-        const stripe = await getMockStripe()
+    await expect(
+      handleSubscriptionEvent({
+        subscriptionEvent:
+          mockSubscriptionEvent as unknown as StripeSubscription,
+      }),
+    ).rejects.toThrow(SUBSCRIPTION_PAYMENT_REQUEST_SEND_FAILED);
+  });
 
-        const mockCreateSubscriptionPayment = vi.mocked(createSubscriptionPayment)
-        const mockFormatStripeSubscriptionStatus = vi.mocked(formatStripeSubscriptionStatus)
+  // 処理失敗(例外発生)
+  it("should handle stripe subscriptions retrieve error", async () => {
+    const stripe = await getMockStripe();
 
-        const mockSubscriptionEvent = {
-            ...mockSubscription,
-            status: 'past_due',
-            metadata: {
-                userID: 'user_test_123'
-            }
-        }
+    const mockCreateSubscriptionPayment = vi.mocked(createSubscriptionPayment);
+    const mockFormatStripeSubscriptionStatus = vi.mocked(
+      formatStripeSubscriptionStatus,
+    );
 
-        mockFormatStripeSubscriptionStatus.mockReturnValue('failed')
-        mockCreateSubscriptionPayment.mockResolvedValue({
-            success: true,
-            error: null,
-            data: { 
-                ...mockSubscriptionPayment,
-                status: 'failed', 
-            }
-        })
+    const mockSubscriptionEvent = {
+      ...mockSubscription,
+      status: "past_due",
+      metadata: {
+        userID: "user_test_123",
+      },
+    };
 
-        vi.mocked(stripe.subscriptions.retrieve).mockRejectedValue(
-            new Error('Stripe API Error')
-        )
+    mockFormatStripeSubscriptionStatus.mockReturnValue("failed");
+    mockCreateSubscriptionPayment.mockResolvedValue({
+      success: true,
+      error: null,
+      data: {
+        ...mockSubscriptionPayment,
+        status: "failed",
+      },
+    });
 
-        await expect(handleSubscriptionEvent({
-            subscriptionEvent: mockSubscriptionEvent as unknown as StripeSubscription
-        })).rejects.toThrow('Stripe API Error')
-    })
-})
+    vi.mocked(stripe.subscriptions.retrieve).mockRejectedValue(
+      new Error("Stripe API Error"),
+    );
 
-/* ==================================== 
+    await expect(
+      handleSubscriptionEvent({
+        subscriptionEvent:
+          mockSubscriptionEvent as unknown as StripeSubscription,
+      }),
+    ).rejects.toThrow("Stripe API Error");
+  });
+});
+
+/* ====================================
     Handle Subscription Update Test
 ==================================== */
-describe('handleSubscriptionUpdate', () => {
-    beforeEach(async () => {
-        vi.clearAllMocks()
-    })
+describe("handleSubscriptionUpdate", () => {
+  beforeEach(async () => {
+    vi.clearAllMocks();
+  });
 
-    // 更新成功（previousAttributes が null & currentStatus が active）
-    it('should return early when previousAttributes is null and currentStatus is active', async () => {
-        const mockUpdateSubscriptionPaymentStatus = vi.mocked(updateSubscriptionPaymentStatus)
-        
-        const mockSubscriptionEvent = {
-            ...mockSubscription,
-            status: 'active'
-        }
+  // 更新成功（previousAttributes が null & currentStatus が active）
+  it("should return early when previousAttributes is null and currentStatus is active", async () => {
+    const mockUpdateSubscriptionPaymentStatus = vi.mocked(
+      updateSubscriptionPaymentStatus,
+    );
 
-        const result = await handleSubscriptionUpdate({
-            subscriptionEvent: mockSubscriptionEvent as unknown as StripeSubscription,
-            previousAttributes: null
-        })
+    const mockSubscriptionEvent = {
+      ...mockSubscription,
+      status: "active",
+    };
 
-        expect(mockUpdateSubscriptionPaymentStatus).not.toHaveBeenCalled()
-        expect(result).toBeUndefined()
-    })
+    const result = await handleSubscriptionUpdate({
+      subscriptionEvent: mockSubscriptionEvent as unknown as StripeSubscription,
+      previousAttributes: null,
+    });
 
-    // 更新成功（previousStatus と currentStatus が異なる場合）
-    it('should update subscription payment status when status changes', async () => {
-        const mockUpdateSubscriptionPaymentStatus = vi.mocked(updateSubscriptionPaymentStatus)
-        const mockFormatStripeSubscriptionStatus = vi.mocked(formatStripeSubscriptionStatus)
+    expect(mockUpdateSubscriptionPaymentStatus).not.toHaveBeenCalled();
+    expect(result).toBeUndefined();
+  });
 
-        const mockSubscriptionEvent = {
-            ...mockSubscription,
-            status: 'past_due'
-        }
+  // 更新成功（previousStatus と currentStatus が異なる場合）
+  it("should update subscription payment status when status changes", async () => {
+    const mockUpdateSubscriptionPaymentStatus = vi.mocked(
+      updateSubscriptionPaymentStatus,
+    );
+    const mockFormatStripeSubscriptionStatus = vi.mocked(
+      formatStripeSubscriptionStatus,
+    );
 
-        const mockPreviousAttributes = {
-            status: 'active'
-        }
+    const mockSubscriptionEvent = {
+      ...mockSubscription,
+      status: "past_due",
+    };
 
-        mockFormatStripeSubscriptionStatus.mockReturnValue('failed')
-        mockUpdateSubscriptionPaymentStatus.mockResolvedValue({
-            success: true,
-            data: { 
-                ...mockSubscriptionPayment,
-                status: 'failed'
-            },
-            error: null
-        })
+    const mockPreviousAttributes = {
+      status: "active",
+    };
 
-        const result = await handleSubscriptionUpdate({
-            subscriptionEvent: mockSubscriptionEvent as unknown as StripeSubscription,
-            previousAttributes: mockPreviousAttributes as unknown as Partial<StripeSubscription>
-        })
+    mockFormatStripeSubscriptionStatus.mockReturnValue("failed");
+    mockUpdateSubscriptionPaymentStatus.mockResolvedValue({
+      success: true,
+      data: {
+        ...mockSubscriptionPayment,
+        status: "failed",
+      },
+      error: null,
+    });
 
-        expect(mockFormatStripeSubscriptionStatus).toHaveBeenCalledWith('past_due')
-        expect(mockUpdateSubscriptionPaymentStatus).toHaveBeenCalledWith({
-            subscriptionId: mockSubscriptionEvent.id,
-            status: 'failed'
-        })
-        expect(result).toBeUndefined()
-    })
+    const result = await handleSubscriptionUpdate({
+      subscriptionEvent: mockSubscriptionEvent as unknown as StripeSubscription,
+      previousAttributes:
+        mockPreviousAttributes as unknown as Partial<StripeSubscription>,
+    });
 
-    // 更新成功（previousStatus と currentStatus が同じ場合）
-    it('should not update when previousStatus and currentStatus are the same', async () => {
-        const mockUpdateSubscriptionPaymentStatus = vi.mocked(updateSubscriptionPaymentStatus)
+    expect(mockFormatStripeSubscriptionStatus).toHaveBeenCalledWith("past_due");
+    expect(mockUpdateSubscriptionPaymentStatus).toHaveBeenCalledWith({
+      subscriptionId: mockSubscriptionEvent.id,
+      status: "failed",
+    });
+    expect(result).toBeUndefined();
+  });
 
-        const mockSubscriptionEvent = {
-            ...mockSubscription,
-            status: 'active'
-        }
+  // 更新成功（previousStatus と currentStatus が同じ場合）
+  it("should not update when previousStatus and currentStatus are the same", async () => {
+    const mockUpdateSubscriptionPaymentStatus = vi.mocked(
+      updateSubscriptionPaymentStatus,
+    );
 
-        const mockPreviousAttributes = {
-            status: 'active'
-        }
+    const mockSubscriptionEvent = {
+      ...mockSubscription,
+      status: "active",
+    };
 
-        const result = await handleSubscriptionUpdate({
-            subscriptionEvent: mockSubscriptionEvent as unknown as StripeSubscription,
-            previousAttributes: mockPreviousAttributes as unknown as Partial<StripeSubscription>
-        })
+    const mockPreviousAttributes = {
+      status: "active",
+    };
 
-        expect(mockUpdateSubscriptionPaymentStatus).not.toHaveBeenCalled()
-        expect(result).toBeUndefined()
-    })
+    const result = await handleSubscriptionUpdate({
+      subscriptionEvent: mockSubscriptionEvent as unknown as StripeSubscription,
+      previousAttributes:
+        mockPreviousAttributes as unknown as Partial<StripeSubscription>,
+    });
 
-    // 更新成功（previousStatus が undefined の場合）
-    it('should not update when previousStatus is undefined', async () => {
-        const mockUpdateSubscriptionPaymentStatus = vi.mocked(updateSubscriptionPaymentStatus)
+    expect(mockUpdateSubscriptionPaymentStatus).not.toHaveBeenCalled();
+    expect(result).toBeUndefined();
+  });
 
-        const mockSubscriptionEvent = {
-            ...mockSubscription,
-            status: 'past_due'
-        }
+  // 更新成功（previousStatus が undefined の場合）
+  it("should not update when previousStatus is undefined", async () => {
+    const mockUpdateSubscriptionPaymentStatus = vi.mocked(
+      updateSubscriptionPaymentStatus,
+    );
 
-        const mockPreviousAttributes = {}
+    const mockSubscriptionEvent = {
+      ...mockSubscription,
+      status: "past_due",
+    };
 
-        const result = await handleSubscriptionUpdate({
-            subscriptionEvent: mockSubscriptionEvent as unknown as StripeSubscription,
-            previousAttributes: mockPreviousAttributes
-        })
+    const mockPreviousAttributes = {};
 
-        expect(mockUpdateSubscriptionPaymentStatus).not.toHaveBeenCalled()
-        expect(result).toBeUndefined()
-    })
+    const result = await handleSubscriptionUpdate({
+      subscriptionEvent: mockSubscriptionEvent as unknown as StripeSubscription,
+      previousAttributes: mockPreviousAttributes,
+    });
 
-    // 更新成功（currentStatus が undefined の場合）
-    it('should not update when currentStatus is undefined', async () => {
-        const mockUpdateSubscriptionPaymentStatus = vi.mocked(updateSubscriptionPaymentStatus)
+    expect(mockUpdateSubscriptionPaymentStatus).not.toHaveBeenCalled();
+    expect(result).toBeUndefined();
+  });
 
-        const mockSubscriptionEvent = {
-            ...mockSubscription,
-        }
+  // 更新成功（currentStatus が undefined の場合）
+  it("should not update when currentStatus is undefined", async () => {
+    const mockUpdateSubscriptionPaymentStatus = vi.mocked(
+      updateSubscriptionPaymentStatus,
+    );
 
-        const mockPreviousAttributes = {
-            status: 'active'
-        }
+    const mockSubscriptionEvent = {
+      ...mockSubscription,
+    };
 
-        const result = await handleSubscriptionUpdate({
-            subscriptionEvent: mockSubscriptionEvent as unknown as StripeSubscription,
-            previousAttributes: mockPreviousAttributes as unknown as Partial<StripeSubscription>
-        })
+    const mockPreviousAttributes = {
+      status: "active",
+    };
 
-        expect(mockUpdateSubscriptionPaymentStatus).not.toHaveBeenCalled()
-        expect(result).toBeUndefined()
-    })
+    const result = await handleSubscriptionUpdate({
+      subscriptionEvent: mockSubscriptionEvent as unknown as StripeSubscription,
+      previousAttributes:
+        mockPreviousAttributes as unknown as Partial<StripeSubscription>,
+    });
 
-    // 更新失敗
-    it('should throw error when updateSubscriptionPaymentStatus fails', async () => {
-        const mockUpdateSubscriptionPaymentStatus = vi.mocked(updateSubscriptionPaymentStatus)
-        const mockFormatStripeSubscriptionStatus = vi.mocked(formatStripeSubscriptionStatus)
+    expect(mockUpdateSubscriptionPaymentStatus).not.toHaveBeenCalled();
+    expect(result).toBeUndefined();
+  });
 
-        const mockSubscriptionEvent = {
-            ...mockSubscription,
-            status: 'past_due'
-        }
+  // 更新失敗
+  it("should throw error when updateSubscriptionPaymentStatus fails", async () => {
+    const mockUpdateSubscriptionPaymentStatus = vi.mocked(
+      updateSubscriptionPaymentStatus,
+    );
+    const mockFormatStripeSubscriptionStatus = vi.mocked(
+      formatStripeSubscriptionStatus,
+    );
 
-        const mockPreviousAttributes = {
-            status: 'active'
-        }
+    const mockSubscriptionEvent = {
+      ...mockSubscription,
+      status: "past_due",
+    };
 
-        mockFormatStripeSubscriptionStatus.mockReturnValue('failed')
-        mockUpdateSubscriptionPaymentStatus.mockResolvedValue({
-            success: false,
-            data: null,
-            error: SUBSCRIPTION_PAYMENT_ERROR.UPDATE_FAILED
-        })
+    const mockPreviousAttributes = {
+      status: "active",
+    };
 
-        await expect(handleSubscriptionUpdate({
-            subscriptionEvent: mockSubscriptionEvent as unknown as StripeSubscription,
-            previousAttributes: mockPreviousAttributes as unknown as Partial<StripeSubscription>
-        })).rejects.toThrow(SUBSCRIPTION_PAYMENT_ERROR.UPDATE_FAILED)
-    })
+    mockFormatStripeSubscriptionStatus.mockReturnValue("failed");
+    mockUpdateSubscriptionPaymentStatus.mockResolvedValue({
+      success: false,
+      data: null,
+      error: SUBSCRIPTION_PAYMENT_ERROR.UPDATE_FAILED,
+    });
 
-    // 更新失敗(例外発生)
-    it('should handle updateSubscriptionPaymentStatus exception', async () => {
-        const mockUpdateSubscriptionPaymentStatus = vi.mocked(updateSubscriptionPaymentStatus)
-        const mockFormatStripeSubscriptionStatus = vi.mocked(formatStripeSubscriptionStatus)
+    await expect(
+      handleSubscriptionUpdate({
+        subscriptionEvent:
+          mockSubscriptionEvent as unknown as StripeSubscription,
+        previousAttributes:
+          mockPreviousAttributes as unknown as Partial<StripeSubscription>,
+      }),
+    ).rejects.toThrow(SUBSCRIPTION_PAYMENT_ERROR.UPDATE_FAILED);
+  });
 
-        const mockSubscriptionEvent = {
-            ...mockSubscription,
-            status: 'past_due'
-        }
+  // 更新失敗(例外発生)
+  it("should handle updateSubscriptionPaymentStatus exception", async () => {
+    const mockUpdateSubscriptionPaymentStatus = vi.mocked(
+      updateSubscriptionPaymentStatus,
+    );
+    const mockFormatStripeSubscriptionStatus = vi.mocked(
+      formatStripeSubscriptionStatus,
+    );
 
-        const mockPreviousAttributes = {
-            status: 'active'
-        }
+    const mockSubscriptionEvent = {
+      ...mockSubscription,
+      status: "past_due",
+    };
 
-        mockFormatStripeSubscriptionStatus.mockReturnValue('failed')
-        mockUpdateSubscriptionPaymentStatus.mockRejectedValue(
-            new Error('Database error')
-        )
+    const mockPreviousAttributes = {
+      status: "active",
+    };
 
-        await expect(handleSubscriptionUpdate({
-            subscriptionEvent: mockSubscriptionEvent as unknown as StripeSubscription,
-            previousAttributes: mockPreviousAttributes as unknown as Partial<StripeSubscription>
-        })).rejects.toThrow('Database error')
-    })
-})
+    mockFormatStripeSubscriptionStatus.mockReturnValue("failed");
+    mockUpdateSubscriptionPaymentStatus.mockRejectedValue(
+      new Error("Database error"),
+    );
 
-/* ==================================== 
+    await expect(
+      handleSubscriptionUpdate({
+        subscriptionEvent:
+          mockSubscriptionEvent as unknown as StripeSubscription,
+        previousAttributes:
+          mockPreviousAttributes as unknown as Partial<StripeSubscription>,
+      }),
+    ).rejects.toThrow("Database error");
+  });
+});
+
+/* ====================================
     Create Stripe Product Data Test
 ==================================== */
-describe('createStripeProductData', () => {
-    beforeEach(async () => {
-        vi.clearAllMocks()
-    })
+describe("createStripeProductData", () => {
+  beforeEach(async () => {
+    vi.clearAllMocks();
+  });
 
-    const mockProductData = {
-        ...mockStripeClient, 
-        id: 'prod_test_123',
-        name: 'Test Product',
-        metadata: {
-            supabase_id: 'product_test_123'
-        }
-    }
+  const mockProductData = {
+    ...mockStripeClient,
+    id: "prod_test_123",
+    name: "Test Product",
+    metadata: {
+      supabase_id: "product_test_123",
+    },
+  };
 
-    // 作成成功（通常商品の場合）
-    it('should create stripe product data successfully for regular product', async () => {
-        const mockCreateStripeProduct = vi.mocked(createStripeProduct)
-        const mockCreateStripePrice = vi.mocked(createStripePrice)
-        const mockCreateSubscriptionPrices = vi.mocked(createSubscriptionPrices)
+  // 作成成功（通常商品の場合）
+  it("should create stripe product data successfully for regular product", async () => {
+    const mockCreateStripeProduct = vi.mocked(createStripeProduct);
+    const mockCreateStripePrice = vi.mocked(createStripePrice);
+    const mockCreateSubscriptionPrices = vi.mocked(createSubscriptionPrices);
 
-        mockCreateStripeProduct.mockResolvedValue({
-            success: true,
-            data: mockProductData,
-            error: null
-        })
+    mockCreateStripeProduct.mockResolvedValue({
+      success: true,
+      data: mockProductData,
+      error: null,
+    });
 
-        mockCreateStripePrice.mockResolvedValue({
-            success: true,
-            data: mockPrice,
-            error: null
-        })
+    mockCreateStripePrice.mockResolvedValue({
+      success: true,
+      data: mockPrice,
+      error: null,
+    });
 
-        mockCreateSubscriptionPrices.mockResolvedValue(null)
+    mockCreateSubscriptionPrices.mockResolvedValue(null);
 
-        const result = await createStripeProductData({
-            ...mockStripeProduct
-        })
+    const result = await createStripeProductData({
+      ...mockStripeProduct,
+    });
 
-        expect(mockCreateStripeProduct).toHaveBeenCalledWith({
-            name: 'Test Product',
-            metadata: {
-                supabase_id: 'product_test_123'
-            }
-        })
+    expect(mockCreateStripeProduct).toHaveBeenCalledWith({
+      name: "Test Product",
+      metadata: {
+        supabase_id: "product_test_123",
+      },
+    });
 
-        expect(mockCreateStripePrice).toHaveBeenCalledWith({
-            product: 'prod_test_123',
-            unit_amount: 1000,
-            currency: 'jpy'
-        })
+    expect(mockCreateStripePrice).toHaveBeenCalledWith({
+      product: "prod_test_123",
+      unit_amount: 1000,
+      currency: "jpy",
+    });
 
-        expect(mockCreateSubscriptionPrices).toHaveBeenCalledWith({
-            productData: mockProductData,
-            subscriptionPriceIds: null
-        })
+    expect(mockCreateSubscriptionPrices).toHaveBeenCalledWith({
+      productData: mockProductData,
+      subscriptionPriceIds: null,
+    });
 
-        expect(result).toEqual({
-            productData: mockProductData,
-            priceData: mockPrice,
-            stripeSalePriceId: null,
-            updatedSubscriptionPriceIds: null
-        })
-    })
+    expect(result).toEqual({
+      productData: mockProductData,
+      priceData: mockPrice,
+      stripeSalePriceId: null,
+      updatedSubscriptionPriceIds: null,
+    });
+  });
 
-    // 作成成功（セール価格の場合）
-    it('should create stripe product data successfully with sale price', async () => {
-        const mockCreateStripeProduct = vi.mocked(createStripeProduct)
-        const mockCreateStripePrice = vi.mocked(createStripePrice)
-        const mockCreateSubscriptionPrices = vi.mocked(createSubscriptionPrices)
+  // 作成成功（セール価格の場合）
+  it("should create stripe product data successfully with sale price", async () => {
+    const mockCreateStripeProduct = vi.mocked(createStripeProduct);
+    const mockCreateStripePrice = vi.mocked(createStripePrice);
+    const mockCreateSubscriptionPrices = vi.mocked(createSubscriptionPrices);
 
-        mockCreateStripeProduct.mockResolvedValue({
-            success: true,
-            data: mockProductData,
-            error: null
-        })
+    mockCreateStripeProduct.mockResolvedValue({
+      success: true,
+      data: mockProductData,
+      error: null,
+    });
 
-        mockCreateStripePrice
-            .mockResolvedValueOnce({
-                success: true,
-                data: mockPrice,
-                error: null
-            })
-            .mockResolvedValueOnce({
-                success: true,
-                data: mockPrice,
-                error: null
-            })
+    mockCreateStripePrice
+      .mockResolvedValueOnce({
+        success: true,
+        data: mockPrice,
+        error: null,
+      })
+      .mockResolvedValueOnce({
+        success: true,
+        data: mockPrice,
+        error: null,
+      });
 
-        mockCreateSubscriptionPrices.mockResolvedValue(null)
+    mockCreateSubscriptionPrices.mockResolvedValue(null);
 
-        const result = await createStripeProductData({
-            ...mockStripeProduct,
-            salePrice: 800
-        })
+    const result = await createStripeProductData({
+      ...mockStripeProduct,
+      salePrice: 800,
+    });
 
-        expect(mockCreateStripePrice).toHaveBeenCalledTimes(2)
-        expect(mockCreateStripePrice).toHaveBeenNthCalledWith(1, {
-            product: 'prod_test_123',
-            unit_amount: 1000,
-            currency: 'jpy',
-            nickname: '通常価格'
-        })
-        expect(mockCreateStripePrice).toHaveBeenNthCalledWith(2, {
-            product: 'prod_test_123',
-            unit_amount: 800,
-            currency: 'jpy',
-            nickname: 'セール価格'
-        })
+    expect(mockCreateStripePrice).toHaveBeenCalledTimes(2);
+    expect(mockCreateStripePrice).toHaveBeenNthCalledWith(1, {
+      product: "prod_test_123",
+      unit_amount: 1000,
+      currency: "jpy",
+      nickname: "通常価格",
+    });
+    expect(mockCreateStripePrice).toHaveBeenNthCalledWith(2, {
+      product: "prod_test_123",
+      unit_amount: 800,
+      currency: "jpy",
+      nickname: "セール価格",
+    });
 
-        expect(result).toEqual({
-            productData: mockProductData,
-            priceData: mockPrice,
-            stripeSalePriceId: mockPrice.id, 
-            updatedSubscriptionPriceIds: null
-        })
-    })
+    expect(result).toEqual({
+      productData: mockProductData,
+      priceData: mockPrice,
+      stripeSalePriceId: mockPrice.id,
+      updatedSubscriptionPriceIds: null,
+    });
+  });
 
-    // 作成成功（サブスクリプション価格の場合）
-    it('should create stripe product data successfully for subscription product', async () => {
-        const mockCreateStripeProduct = vi.mocked(createStripeProduct)
-        const mockCreateStripePrice = vi.mocked(createStripePrice)
-        const mockCreateSubscriptionPrices = vi.mocked(createSubscriptionPrices)
+  // 作成成功（サブスクリプション価格の場合）
+  it("should create stripe product data successfully for subscription product", async () => {
+    const mockCreateStripeProduct = vi.mocked(createStripeProduct);
+    const mockCreateStripePrice = vi.mocked(createStripePrice);
+    const mockCreateSubscriptionPrices = vi.mocked(createSubscriptionPrices);
 
-        const mockSubscriptionPriceIds = 'month_1000\nyear_10000'
+    const mockSubscriptionPriceIds = "month_1000\nyear_10000";
 
-        mockCreateStripeProduct.mockResolvedValue({
-            success: true,
-            data: mockProductData,
-            error: null
-        })
+    mockCreateStripeProduct.mockResolvedValue({
+      success: true,
+      data: mockProductData,
+      error: null,
+    });
 
-        mockCreateStripePrice.mockResolvedValue({
-            success: true,
-            data: mockPrice,
-            error: null
-        })
+    mockCreateStripePrice.mockResolvedValue({
+      success: true,
+      data: mockPrice,
+      error: null,
+    });
 
-        mockCreateSubscriptionPrices.mockResolvedValue(mockSubscriptionPriceIds)
+    mockCreateSubscriptionPrices.mockResolvedValue(mockSubscriptionPriceIds);
 
-        const result = await createStripeProductData({
-            ...mockStripeProduct,
-            subscriptionPriceIds: mockSubscriptionPriceIds
-        })
+    const result = await createStripeProductData({
+      ...mockStripeProduct,
+      subscriptionPriceIds: mockSubscriptionPriceIds,
+    });
 
-        expect(mockCreateStripeProduct).toHaveBeenCalledWith({
-            name: 'Test Product',
-            metadata: {
-                supabase_id: 'product_test_123',
-                subscription_product: true
-            }
-        })
+    expect(mockCreateStripeProduct).toHaveBeenCalledWith({
+      name: "Test Product",
+      metadata: {
+        supabase_id: "product_test_123",
+        subscription_product: true,
+      },
+    });
 
-        expect(mockCreateSubscriptionPrices).toHaveBeenCalledWith({
-            productData: mockProductData,
-            subscriptionPriceIds: mockSubscriptionPriceIds
-        })
+    expect(mockCreateSubscriptionPrices).toHaveBeenCalledWith({
+      productData: mockProductData,
+      subscriptionPriceIds: mockSubscriptionPriceIds,
+    });
 
-        expect(result).toEqual({
-            productData: mockProductData,
-            priceData: mockPrice,
-            stripeSalePriceId: null,
-            updatedSubscriptionPriceIds: mockSubscriptionPriceIds
-        })
-    })
+    expect(result).toEqual({
+      productData: mockProductData,
+      priceData: mockPrice,
+      stripeSalePriceId: null,
+      updatedSubscriptionPriceIds: mockSubscriptionPriceIds,
+    });
+  });
 
-    // 作成失敗（Stripe 商品の作成失敗）
-    it('should throw error when createStripeProduct fails', async () => {
-        const mockCreateStripeProduct = vi.mocked(createStripeProduct)
+  // 作成失敗（Stripe 商品の作成失敗）
+  it("should throw error when createStripeProduct fails", async () => {
+    const mockCreateStripeProduct = vi.mocked(createStripeProduct);
 
-        mockCreateStripeProduct.mockResolvedValue({
-            success: false,
-            data: null,
-            error: STRIPE_ERROR.PRODUCT_CREATE_FAILED
-        })
+    mockCreateStripeProduct.mockResolvedValue({
+      success: false,
+      data: null,
+      error: STRIPE_ERROR.PRODUCT_CREATE_FAILED,
+    });
 
-        await expect(createStripeProductData({
-            ...mockStripeProduct
-        })).rejects.toThrow(STRIPE_ERROR.PRODUCT_CREATE_FAILED)
-    })
+    await expect(
+      createStripeProductData({
+        ...mockStripeProduct,
+      }),
+    ).rejects.toThrow(STRIPE_ERROR.PRODUCT_CREATE_FAILED);
+  });
 
-    // 作成失敗（Stripe 価格の作成失敗）
-    it('should throw error when createStripePrice fails', async () => {
-        const mockCreateStripeProduct = vi.mocked(createStripeProduct)
-        const mockCreateStripePrice = vi.mocked(createStripePrice)
+  // 作成失敗（Stripe 価格の作成失敗）
+  it("should throw error when createStripePrice fails", async () => {
+    const mockCreateStripeProduct = vi.mocked(createStripeProduct);
+    const mockCreateStripePrice = vi.mocked(createStripePrice);
 
-        mockCreateStripeProduct.mockResolvedValue({
-            success: true,
-            data: mockProductData,
-            error: null
-        })
+    mockCreateStripeProduct.mockResolvedValue({
+      success: true,
+      data: mockProductData,
+      error: null,
+    });
 
-        mockCreateStripePrice.mockResolvedValue({
-            success: false,
-            data: null,
-            error: PRICE_CREATE_FAILED
-        })
+    mockCreateStripePrice.mockResolvedValue({
+      success: false,
+      data: null,
+      error: PRICE_CREATE_FAILED,
+    });
 
-        await expect(createStripeProductData({
-            ...mockStripeProduct
-        })).rejects.toThrow(PRICE_CREATE_FAILED)
-    })
+    await expect(
+      createStripeProductData({
+        ...mockStripeProduct,
+      }),
+    ).rejects.toThrow(PRICE_CREATE_FAILED);
+  });
 
-    // 作成失敗（Stripe セール価格の作成失敗）
-    it('should throw error when creating sale price fails', async () => {
-        const mockCreateStripeProduct = vi.mocked(createStripeProduct)
-        const mockCreateStripePrice = vi.mocked(createStripePrice)
+  // 作成失敗（Stripe セール価格の作成失敗）
+  it("should throw error when creating sale price fails", async () => {
+    const mockCreateStripeProduct = vi.mocked(createStripeProduct);
+    const mockCreateStripePrice = vi.mocked(createStripePrice);
 
-        mockCreateStripeProduct.mockResolvedValue({
-            success: true,
-            data: mockProductData,
-            error: null
-        })
+    mockCreateStripeProduct.mockResolvedValue({
+      success: true,
+      data: mockProductData,
+      error: null,
+    });
 
-        mockCreateStripePrice
-            .mockResolvedValueOnce({
-                success: true,
-                data: mockPrice,
-                error: null
-            })
-            .mockResolvedValueOnce({
-                success: false,
-                data: null,
-                error: PRICE_CREATE_FAILED
-            })
+    mockCreateStripePrice
+      .mockResolvedValueOnce({
+        success: true,
+        data: mockPrice,
+        error: null,
+      })
+      .mockResolvedValueOnce({
+        success: false,
+        data: null,
+        error: PRICE_CREATE_FAILED,
+      });
 
-        await expect(createStripeProductData({
-            ...mockStripeProduct,
-            salePrice: 800
-        })).rejects.toThrow(PRICE_CREATE_FAILED)
-    })
+    await expect(
+      createStripeProductData({
+        ...mockStripeProduct,
+        salePrice: 800,
+      }),
+    ).rejects.toThrow(PRICE_CREATE_FAILED);
+  });
 
-    // 作成失敗（Stripe サブスクリプション価格の作成失敗）
-    it('should handle createSubscriptionPrices exception', async () => {
-        const mockCreateStripeProduct = vi.mocked(createStripeProduct)
-        const mockCreateStripePrice = vi.mocked(createStripePrice)
-        const mockCreateSubscriptionPrices = vi.mocked(createSubscriptionPrices)
+  // 作成失敗（Stripe サブスクリプション価格の作成失敗）
+  it("should handle createSubscriptionPrices exception", async () => {
+    const mockCreateStripeProduct = vi.mocked(createStripeProduct);
+    const mockCreateStripePrice = vi.mocked(createStripePrice);
+    const mockCreateSubscriptionPrices = vi.mocked(createSubscriptionPrices);
 
-        mockCreateStripeProduct.mockResolvedValue({
-            success: true,
-            data: mockProductData,
-            error: null
-        })
+    mockCreateStripeProduct.mockResolvedValue({
+      success: true,
+      data: mockProductData,
+      error: null,
+    });
 
-        mockCreateStripePrice.mockResolvedValue({
-            success: true,
-            data: mockPrice,
-            error: null
-        })
+    mockCreateStripePrice.mockResolvedValue({
+      success: true,
+      data: mockPrice,
+      error: null,
+    });
 
-        mockCreateSubscriptionPrices.mockRejectedValue(
-            new Error('Subscription prices creation failed')
-        )
+    mockCreateSubscriptionPrices.mockRejectedValue(
+      new Error("Subscription prices creation failed"),
+    );
 
-        await expect(createStripeProductData({
-            ...mockStripeProduct,
-            subscriptionPriceIds: 'month_1000'
-        })).rejects.toThrow('Subscription prices creation failed')
-    })
-})
+    await expect(
+      createStripeProductData({
+        ...mockStripeProduct,
+        subscriptionPriceIds: "month_1000",
+      }),
+    ).rejects.toThrow("Subscription prices creation failed");
+  });
+});
 
-/* ==================================== 
+/* ====================================
     Process Subscription Webhook Test
 ==================================== */
-describe('processSubscriptionWebhook', () => {
-    beforeEach(async () => {
-        vi.clearAllMocks()
-    })
+describe("processSubscriptionWebhook", () => {
+  beforeEach(async () => {
+    vi.clearAllMocks();
+  });
+
+  const mockInvoiceEvent = {
+    ...mockInvoice,
+    billing_reason: "subscription_cycle",
+    parent: {
+      subscription_details: {
+        subscription: "sub_test_123",
+      },
+    },
+  };
+
+  // 処理成功（event.type が invoice.payment_succeeded の場合）
+  it("should handle invoice.payment_succeeded event with subscription_cycle", async () => {
+    const stripe = await getMockStripe();
+
+    const mockCreateSubscriptionPayment = vi.mocked(createSubscriptionPayment);
+    const mockFormatStripeSubscriptionStatus = vi.mocked(
+      formatStripeSubscriptionStatus,
+    );
 
     const mockInvoiceEvent = {
-        ...mockInvoice,
-        billing_reason: 'subscription_cycle',
-        parent: {
-            subscription_details: {
-                subscription: 'sub_test_123'
-            }
-        }
-    }
+      ...mockInvoice,
+      billing_reason: "subscription_cycle",
+      parent: {
+        subscription_details: {
+          subscription: "sub_test_123",
+        },
+      },
+    };
 
-    // 処理成功（event.type が invoice.payment_succeeded の場合）
-    it('should handle invoice.payment_succeeded event with subscription_cycle', async () => {
-        const stripe = await getMockStripe()
-        
-        const mockCreateSubscriptionPayment = vi.mocked(createSubscriptionPayment)
-        const mockFormatStripeSubscriptionStatus = vi.mocked(formatStripeSubscriptionStatus)
+    const mockStripeEvent = {
+      type: "invoice.payment_succeeded",
+      data: {
+        object: mockInvoiceEvent,
+      },
+    };
 
-        const mockInvoiceEvent = {
-            ...mockInvoice,
-            billing_reason: 'subscription_cycle',
-            parent: {
-                subscription_details: {
-                    subscription: 'sub_test_123'
-                }
-            }
-        }
+    vi.mocked(stripe.subscriptions.retrieve).mockResolvedValue({
+      ...mockSubscription,
+      metadata: {
+        userID: "user_test_123",
+      },
+    });
 
-        const mockStripeEvent = {
-            type: 'invoice.payment_succeeded',
-            data: {
-                object: mockInvoiceEvent
-            }
-        }
+    mockFormatStripeSubscriptionStatus.mockReturnValue("succeeded");
+    mockCreateSubscriptionPayment.mockResolvedValue({
+      success: true,
+      error: null,
+      data: {
+        ...mockSubscriptionPayment,
+        status: "succeeded",
+      },
+    });
 
-        vi.mocked(stripe.subscriptions.retrieve).mockResolvedValue({
-            ...mockSubscription,
-            metadata: {
-                userID: 'user_test_123'
-            }
-        })
+    const result = await processSubscriptionWebhook({
+      event: mockStripeEvent as unknown as StripeEvent,
+    });
 
-        mockFormatStripeSubscriptionStatus.mockReturnValue('succeeded')
-        mockCreateSubscriptionPayment.mockResolvedValue({
-            success: true,
-            error: null,
-            data: {
-                ...mockSubscriptionPayment,
-                status: 'succeeded'
-            },
-        })
+    expect(stripe.subscriptions.retrieve).toHaveBeenCalledWith("sub_test_123");
+    expect(mockFormatStripeSubscriptionStatus).toHaveBeenCalledWith("active");
+    expect(mockCreateSubscriptionPayment).toHaveBeenCalledWith({
+      subscriptionPaymentData: expect.objectContaining({
+        user_id: "user_test_123",
+        subscription_id: "sub_test_123",
+        status: "succeeded",
+      }),
+    });
+    expect(result).toEqual({
+      success: true,
+      error: null,
+    });
+  });
 
-        const result = await processSubscriptionWebhook({
-            event: mockStripeEvent as unknown as StripeEvent
-        })
+  // 処理成功（event.type が invoice.payment_failed の場合）
+  it("should handle invoice.payment_failed event with subscription_cycle", async () => {
+    const stripe = await getMockStripe();
 
-        expect(stripe.subscriptions.retrieve).toHaveBeenCalledWith('sub_test_123')
-        expect(mockFormatStripeSubscriptionStatus).toHaveBeenCalledWith('active')
-        expect(mockCreateSubscriptionPayment).toHaveBeenCalledWith({
-            subscriptionPaymentData: expect.objectContaining({
-                user_id: 'user_test_123',
-                subscription_id: 'sub_test_123',
-                status: 'succeeded'
-            })
-        })
-        expect(result).toEqual({
-            success: true,
-            error: null
-        })
-    })
+    const mockCreateSubscriptionPayment = vi.mocked(createSubscriptionPayment);
+    const mockFormatStripeSubscriptionStatus = vi.mocked(
+      formatStripeSubscriptionStatus,
+    );
 
-    // 処理成功（event.type が invoice.payment_failed の場合）
-    it('should handle invoice.payment_failed event with subscription_cycle', async () => {
-        const stripe = await getMockStripe()
-        
-        const mockCreateSubscriptionPayment = vi.mocked(createSubscriptionPayment)
-        const mockFormatStripeSubscriptionStatus = vi.mocked(formatStripeSubscriptionStatus)
+    const mockInvoiceEvent = {
+      ...mockInvoice,
+      billing_reason: "subscription_cycle",
+      parent: {
+        subscription_details: {
+          subscription: "sub_test_123",
+        },
+      },
+    };
 
-        const mockInvoiceEvent = {
-            ...mockInvoice,
-            billing_reason: 'subscription_cycle',
-            parent: {
-                subscription_details: {
-                    subscription: 'sub_test_123'
-                }
-            }
-        }
+    const mockStripeEvent = {
+      type: "invoice.payment_failed",
+      data: {
+        object: mockInvoiceEvent,
+      },
+    };
 
-        const mockStripeEvent = {
-            type: 'invoice.payment_failed',
-            data: {
-                object: mockInvoiceEvent
-            }
-        }
+    vi.mocked(stripe.subscriptions.retrieve).mockResolvedValue({
+      ...mockSubscription,
+      metadata: {
+        userID: "user_test_123",
+      },
+    });
 
-        vi.mocked(stripe.subscriptions.retrieve).mockResolvedValue({
-            ...mockSubscription,
-            metadata: {
-                userID: 'user_test_123'
-            }
-        })
+    mockFormatStripeSubscriptionStatus.mockReturnValue("failed");
+    mockCreateSubscriptionPayment.mockResolvedValue({
+      success: true,
+      error: null,
+      data: {
+        ...mockSubscriptionPayment,
+        status: "failed",
+      },
+    });
 
-        mockFormatStripeSubscriptionStatus.mockReturnValue('failed')
-        mockCreateSubscriptionPayment.mockResolvedValue({
-            success: true,
-            error: null,
-            data: {
-                ...mockSubscriptionPayment,
-                status: 'failed'
-            },
-        })
+    const result = await processSubscriptionWebhook({
+      event: mockStripeEvent as unknown as StripeEvent,
+    });
 
-        const result = await processSubscriptionWebhook({
-            event: mockStripeEvent as unknown as StripeEvent
-        })
+    expect(stripe.subscriptions.retrieve).toHaveBeenCalledWith("sub_test_123");
+    expect(mockFormatStripeSubscriptionStatus).toHaveBeenCalledWith("active");
+    expect(mockCreateSubscriptionPayment).toHaveBeenCalledWith({
+      subscriptionPaymentData: expect.objectContaining({
+        user_id: "user_test_123",
+        subscription_id: "sub_test_123",
+        status: "failed",
+      }),
+    });
+    expect(result).toEqual({
+      success: true,
+      error: null,
+    });
+  });
 
-        expect(stripe.subscriptions.retrieve).toHaveBeenCalledWith('sub_test_123')
-        expect(mockFormatStripeSubscriptionStatus).toHaveBeenCalledWith('active')
-        expect(mockCreateSubscriptionPayment).toHaveBeenCalledWith({
-            subscriptionPaymentData: expect.objectContaining({
-                user_id: 'user_test_123',
-                subscription_id: 'sub_test_123',
-                status: 'failed'
-            })
-        })
-        expect(result).toEqual({
-            success: true,
-            error: null
-        })
-    })
+  // 処理成功（event.type が customer.subscription.updated の場合）
+  it("should handle customer.subscription.updated event with past_due status", async () => {
+    const mockUpdateSubscriptionPaymentStatus = vi.mocked(
+      updateSubscriptionPaymentStatus,
+    );
+    const mockFormatStripeSubscriptionStatus = vi.mocked(
+      formatStripeSubscriptionStatus,
+    );
 
-    // 処理成功（event.type が customer.subscription.updated の場合）
-    it('should handle customer.subscription.updated event with past_due status', async () => {
-        const mockUpdateSubscriptionPaymentStatus = vi.mocked(updateSubscriptionPaymentStatus)
-        const mockFormatStripeSubscriptionStatus = vi.mocked(formatStripeSubscriptionStatus)
+    const mockPreviousAttributes = {
+      status: "active",
+    };
 
-        const mockPreviousAttributes = {
-            status: 'active'
-        }
+    const mockSubscriptionEvent = {
+      ...mockSubscription,
+      status: "past_due",
+    };
 
-        const mockSubscriptionEvent = {
-            ...mockSubscription,
-            status: 'past_due'
-        }
+    const mockStripeEvent = {
+      type: "customer.subscription.updated",
+      data: {
+        object: mockSubscriptionEvent,
+        previous_attributes: mockPreviousAttributes,
+      },
+    };
 
-        const mockStripeEvent = {
-            type: 'customer.subscription.updated',
-            data: {
-                object: mockSubscriptionEvent,
-                previous_attributes: mockPreviousAttributes
-            }
-        }
+    mockFormatStripeSubscriptionStatus.mockReturnValue("failed");
+    mockUpdateSubscriptionPaymentStatus.mockResolvedValue({
+      success: true,
+      data: {
+        ...mockSubscriptionPayment,
+        status: "failed",
+      },
+      error: null,
+    });
 
-        mockFormatStripeSubscriptionStatus.mockReturnValue('failed')
-        mockUpdateSubscriptionPaymentStatus.mockResolvedValue({
-            success: true,
-            data: {
-                ...mockSubscriptionPayment,
-                status: 'failed'
-            },
-            error: null
-        })
+    const result = await processSubscriptionWebhook({
+      event: mockStripeEvent as unknown as StripeEvent,
+    });
 
-        const result = await processSubscriptionWebhook({
-            event: mockStripeEvent as unknown as StripeEvent
-        })
+    expect(mockFormatStripeSubscriptionStatus).toHaveBeenCalledWith("past_due");
+    expect(mockUpdateSubscriptionPaymentStatus).toHaveBeenCalledWith({
+      subscriptionId: mockSubscriptionEvent.id,
+      status: "failed",
+    });
+    expect(result).toEqual({
+      success: true,
+      error: null,
+    });
+  });
 
-        expect(mockFormatStripeSubscriptionStatus).toHaveBeenCalledWith('past_due')
-        expect(mockUpdateSubscriptionPaymentStatus).toHaveBeenCalledWith({
-            subscriptionId: mockSubscriptionEvent.id,
-            status: 'failed'
-        })
-        expect(result).toEqual({
-            success: true,
-            error: null
-        })
-    })
+  // 処理成功（未対応のイベントタイプ）
+  it("should handle unsupported event types", async () => {
+    const mockStripeEvent = {
+      type: "customer.created",
+      data: {
+        object: {},
+      },
+    };
 
-    // 処理成功（未対応のイベントタイプ）
-    it('should handle unsupported event types', async () => {
-        const mockStripeEvent = {
-            type: 'customer.created',
-            data: {
-                object: {}
-            }
-        }
+    const result = await processSubscriptionWebhook({
+      event: mockStripeEvent as unknown as StripeEvent,
+    });
 
-        const result = await processSubscriptionWebhook({
-            event: mockStripeEvent as unknown as StripeEvent
-        })
+    expect(result).toEqual({
+      success: true,
+      error: null,
+    });
+  });
 
-        expect(result).toEqual({
-            success: true,
-            error: null
-        })
-    })
+  // 処理成功（billing_reason が subscription_cycle 以外の場合）
+  it("should handle invoice.payment_succeeded with manual billing_reason", async () => {
+    const stripe = await getMockStripe();
 
-    // 処理成功（billing_reason が subscription_cycle 以外の場合）
-    it('should handle invoice.payment_succeeded with manual billing_reason', async () => {
-        const stripe = await getMockStripe()
+    const mockStripeEvent = {
+      type: "invoice.payment_succeeded",
+      data: {
+        object: {
+          ...mockInvoice,
+          billing_reason: "manual",
+        },
+      },
+    };
 
-        const mockStripeEvent = {
-            type: 'invoice.payment_succeeded',
-            data: {
-                object: {
-                    ...mockInvoice,
-                    billing_reason: 'manual'
-                }
-            }
-        }
+    const result = await processSubscriptionWebhook({
+      event: mockStripeEvent as unknown as StripeEvent,
+    });
 
-        const result = await processSubscriptionWebhook({
-            event: mockStripeEvent as unknown as StripeEvent
-        })
+    expect(result).toEqual({
+      success: true,
+      error: null,
+    });
+    expect(stripe.subscriptions.retrieve).not.toHaveBeenCalled();
+  });
 
-        expect(result).toEqual({
-            success: true,
-            error: null
-        })
-        expect(stripe.subscriptions.retrieve).not.toHaveBeenCalled()
-    })
+  // 処理成功（customer.subscription.updated で previousAttributes が null の場合）
+  it("should handle customer.subscription.updated with null previousAttributes", async () => {
+    const mockStripeEvent = {
+      type: "customer.subscription.updated",
+      data: {
+        object: mockSubscription,
+        previous_attributes: null,
+      },
+    };
 
-    // 処理成功（customer.subscription.updated で previousAttributes が null の場合）
-    it('should handle customer.subscription.updated with null previousAttributes', async () => {
-        const mockStripeEvent = {
-            type: 'customer.subscription.updated',
-            data: {
-                object: mockSubscription,
-                previous_attributes: null
-            }
-        }
+    const result = await processSubscriptionWebhook({
+      event: mockStripeEvent as unknown as StripeEvent,
+    });
 
-        const result = await processSubscriptionWebhook({
-            event: mockStripeEvent as unknown as StripeEvent
-        })
+    expect(result).toEqual({
+      success: true,
+      error: null,
+    });
+    expect(updateSubscriptionPaymentStatus).not.toHaveBeenCalled();
+  });
 
-        expect(result).toEqual({
-            success: true,
-            error: null
-        })
-        expect(updateSubscriptionPaymentStatus).not.toHaveBeenCalled()
-    })
+  // 処理失敗（subscription_id 無し）
+  it("should return error when subscription_id is missing", async () => {
+    const mockInvoiceEvent = {
+      ...mockInvoice,
+      billing_reason: "subscription_cycle",
+      parent: {
+        subscription_details: {
+          subscription: null,
+        },
+      },
+    };
 
-    // 処理失敗（subscription_id 無し）
-    it('should return error when subscription_id is missing', async () => {
-        const mockInvoiceEvent = {
-            ...mockInvoice,
-            billing_reason: 'subscription_cycle',
-            parent: {
-                subscription_details: {
-                    subscription: null
-                }
-            }
-        }
+    const mockStripeEvent = {
+      type: "invoice.payment_succeeded",
+      data: {
+        object: mockInvoiceEvent,
+      },
+    };
 
-        const mockStripeEvent = {
-            type: 'invoice.payment_succeeded',
-            data: {
-                object: mockInvoiceEvent
-            }
-        }
+    const result = await processSubscriptionWebhook({
+      event: mockStripeEvent as unknown as StripeEvent,
+    });
 
-        const result = await processSubscriptionWebhook({
-            event: mockStripeEvent as unknown as StripeEvent
-        })
+    expect(result).toEqual({
+      success: false,
+      error: SUBSCRIPTION_ERROR.NO_SUBSCRIPTION_ID,
+    });
+  });
 
-        expect(result).toEqual({
-            success: false,
-            error: SUBSCRIPTION_ERROR.NO_SUBSCRIPTION_ID
-        })
-    })
+  // 処理失敗（subscription_id が文字列でない）
+  it("should return error when subscription_id is not a string", async () => {
+    const mockInvoiceEvent = {
+      ...mockInvoice,
+      billing_reason: "subscription_cycle",
+      parent: {
+        subscription_details: {
+          subscription: 123,
+        },
+      },
+    };
 
-    // 処理失敗（subscription_id が文字列でない）
-    it('should return error when subscription_id is not a string', async () => {
-        const mockInvoiceEvent = {
-            ...mockInvoice,
-            billing_reason: 'subscription_cycle',
-            parent: {
-                subscription_details: {
-                    subscription: 123
-                }
-            }
-        }
+    const mockStripeEvent = {
+      type: "invoice.payment_succeeded",
+      data: {
+        object: mockInvoiceEvent,
+      },
+    };
 
-        const mockStripeEvent = {
-            type: 'invoice.payment_succeeded',
-            data: {
-                object: mockInvoiceEvent
-            }
-        }
+    const result = await processSubscriptionWebhook({
+      event: mockStripeEvent as unknown as StripeEvent,
+    });
 
-        const result = await processSubscriptionWebhook({
-            event: mockStripeEvent as unknown as StripeEvent
-        })
+    expect(result).toEqual({
+      success: false,
+      error: SUBSCRIPTION_ERROR.NO_SUBSCRIPTION_ID,
+    });
+  });
 
-        expect(result).toEqual({
-            success: false,
-            error: SUBSCRIPTION_ERROR.NO_SUBSCRIPTION_ID
-        })
-    })
+  // 処理失敗（handleSubscriptionEvent の例外発生）
+  it("should handle handleSubscriptionEvent exception", async () => {
+    const stripe = await getMockStripe();
 
-    // 処理失敗（handleSubscriptionEvent の例外発生）
-    it('should handle handleSubscriptionEvent exception', async () => {
-        const stripe = await getMockStripe()
-        
-        vi.mocked(stripe.subscriptions.retrieve).mockRejectedValue(
-            new Error('Subscription retrieve failed')
-        )
+    vi.mocked(stripe.subscriptions.retrieve).mockRejectedValue(
+      new Error("Subscription retrieve failed"),
+    );
 
-        const mockStripeEvent = {
-            type: 'invoice.payment_succeeded',
-            data: {
-                object: mockInvoiceEvent
-            }
-        }
+    const mockStripeEvent = {
+      type: "invoice.payment_succeeded",
+      data: {
+        object: mockInvoiceEvent,
+      },
+    };
 
-        await expect(processSubscriptionWebhook({
-            event: mockStripeEvent as unknown as StripeEvent
-        })).rejects.toThrow('Subscription retrieve failed')
-    })
+    await expect(
+      processSubscriptionWebhook({
+        event: mockStripeEvent as unknown as StripeEvent,
+      }),
+    ).rejects.toThrow("Subscription retrieve failed");
+  });
 
-    // 処理失敗（例外発生）
-    it('should handle processSubscriptionWebhook exception', async () => {
-        const stripe = await getMockStripe()
+  // 処理失敗（例外発生）
+  it("should handle processSubscriptionWebhook exception", async () => {
+    const stripe = await getMockStripe();
 
-        const mockStripeEvent = {
-            type: 'invoice.payment_succeeded',
-            data: {
-                object: mockInvoiceEvent
-            }
-        }
+    const mockStripeEvent = {
+      type: "invoice.payment_succeeded",
+      data: {
+        object: mockInvoiceEvent,
+      },
+    };
 
-        vi.mocked(stripe.subscriptions.retrieve).mockRejectedValue(
-            new Error('Stripe API Error')
-        )
+    vi.mocked(stripe.subscriptions.retrieve).mockRejectedValue(
+      new Error("Stripe API Error"),
+    );
 
-        await expect(processSubscriptionWebhook({
-            event: mockStripeEvent as unknown as StripeEvent
-        })).rejects.toThrow('Stripe API Error')
-    })
-})
+    await expect(
+      processSubscriptionWebhook({
+        event: mockStripeEvent as unknown as StripeEvent,
+      }),
+    ).rejects.toThrow("Stripe API Error");
+  });
+});

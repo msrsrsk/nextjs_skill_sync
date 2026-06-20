@@ -1,23 +1,20 @@
-import { useEffect } from "react"
+import { useEffect } from "react";
 
 interface ResetValueProps {
-    watchValue: boolean;
-    resetFunctions: (() => void)[];
+  watchValue: boolean;
+  resetFunctions: (() => void)[];
 }
 
-const useResetValue = ({
-    watchValue, 
-    resetFunctions, 
-}: ResetValueProps) => {
-    useEffect(() => {
-        return () => {
-            resetFunctions.forEach(resetFn => {
-                if (typeof resetFn === 'function') {
-                    resetFn();
-                }
-            });
-        };
-    }, [watchValue]);
-}
+const useResetValue = ({ watchValue, resetFunctions }: ResetValueProps) => {
+  useEffect(() => {
+    return () => {
+      resetFunctions.forEach((resetFn) => {
+        if (typeof resetFn === "function") {
+          resetFn();
+        }
+      });
+    };
+  }, [watchValue]);
+};
 
-export default useResetValue
+export default useResetValue;

@@ -1,150 +1,154 @@
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
-import { getProductEffectivePrice } from "@/services/product/calculation"
-import { showErrorToast } from "@/components/common/display/Toasts"
-import { GET_PRODUCTS_PAGE_TYPES, CHECKOUT_SHOW_TOAST_DELAY, SITE_MAP } from "@/constants/index"
-import { ERROR_MESSAGES } from "@/constants/errorMessages"
+import { getProductEffectivePrice } from "@/services/product/calculation";
+import { showErrorToast } from "@/components/common/display/Toasts";
+import {
+  GET_PRODUCTS_PAGE_TYPES,
+  CHECKOUT_SHOW_TOAST_DELAY,
+  SITE_MAP,
+} from "@/constants/index";
+import { ERROR_MESSAGES } from "@/constants/errorMessages";
 
 const { CART } = GET_PRODUCTS_PAGE_TYPES;
 const { PRODUCTS_API_PATH, CHECKOUT_API_PATH } = SITE_MAP;
 const { CHECKOUT_ERROR } = ERROR_MESSAGES;
 
 const useCheckout = ({ cartItems }: { cartItems: CartItemWithProduct[] }) => {
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-    const router = useRouter();
+  const router = useRouter();
 
-    // 在庫チェック
-    const checkStockAvailability = async () => {
-        try {
-            const ids = cartItems.map(item => item.product.id);
+  // 在庫チェック
+  const checkStockAvailability = async () => {
+    try {
+      const ids = cartItems.map((item) => item.product.id);
 
-            const params = new URLSearchParams();
-            ids.forEach(id => params.append('id', id));
-            params.append('pageType', CART);
+      const params = new URLSearchParams();
+      ids.forEach((id) => params.append("id", id));
+      params.append("pageType", CART);
 
-            const response = await fetch(`
+      const response = await fetch(`
                 ${PRODUCTS_API_PATH}?${params.toString()}
             `);
-            const { success, data } = await response.json();
+      const { success, data } = await response.json();
 
-            if (!success) {
-                return {
-                    success: false,
-                    message: CHECKOUT_ERROR.STOCK_CHECK_FAILED
-                }
-            }
+      if (!success) {
+        return {
+          success: false,
+          message: CHECKOUT_ERROR.STOCK_CHECK_FAILED,
+        };
+      }
 
-            const products = data || [];
-        
-            if (products.length === 0) {
-                return {
-                    success: false,
-                    message: CHECKOUT_ERROR.NO_PRODUCT_DATA
-                }
-            }
+      const products = data || [];
 
-            const insufficientItems = cartItems.filter(cartItem => {
-                const product = data.find((p: Product) => p.id === cartItem.product.id);
-                return product && product.stock < cartItem.quantity;
-            })
+      if (products.length === 0) {
+        return {
+          success: false,
+          message: CHECKOUT_ERROR.NO_PRODUCT_DATA,
+        };
+      }
 
-            if (insufficientItems.length > 0) {
-                const itemNames = insufficientItems.map(item => item.product.title).join('・');
+      const insufficientItems = cartItems.filter((cartItem) => {
+        const product = data.find((p: Product) => p.id === cartItem.product.id);
+        return product && product.stock < cartItem.quantity;
+      });
 
-                return {
-                    success: false,
-                    message: `${itemNames} ${CHECKOUT_ERROR.UPDATE_STOCK}`
-                }
-            }
+      if (insufficientItems.length > 0) {
+        const itemNames = insufficientItems
+          .map((item) => item.product.title)
+          .join("・");
 
-            return { success: true };
-        } catch (error) {
-            console.error('Hook Error - Stock Availability Error:', error);
+        return {
+          success: false,
+          message: `${itemNames} ${CHECKOUT_ERROR.UPDATE_STOCK}`,
+        };
+      }
 
-            return {
-                success: false,
-                message: CHECKOUT_ERROR.FAILED_CHECK_STOCK
-            }
-        }
+      return { success: true };
+    } catch (error) {
+      console.error("Hook Error - Stock Availability Error:", error);
+
+      return {
+        success: false,
+        message: CHECKOUT_ERROR.FAILED_CHECK_STOCK,
+      };
     }
+  };
 
-    // 金額チェック
-    const calculateTotalAmount = () => {
-        return cartItems.reduce((sum, item) => {
-            const itemPrice = getProductEffectivePrice(item.product);
-                return sum + (itemPrice * item.quantity);
-            }, 0);
+  // 金額チェック
+  const calculateTotalAmount = () => {
+    return cartItems.reduce((sum, item) => {
+      const itemPrice = getProductEffectivePrice(item.product);
+      return sum + itemPrice * item.quantity;
+    }, 0);
+  };
+
+  // チェックアウト
+  const initiateCheckout = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const { success: stockCheckSuccess, message: stockCheckMessage } =
+        await checkStockAvailability();
+
+      if (!stockCheckSuccess) {
+        router.refresh();
+
+        setTimeout(() => {
+          showErrorToast(stockCheckMessage as string);
+        }, CHECKOUT_SHOW_TOAST_DELAY);
+
+        return;
+      }
+
+      const clientCalculatedTotal = calculateTotalAmount();
+
+      if (clientCalculatedTotal === undefined) {
+        router.refresh();
+
+        setTimeout(() => {
+          showErrorToast(CHECKOUT_ERROR.AMOUNT_TOTAL_MISMATCH);
+        }, CHECKOUT_SHOW_TOAST_DELAY);
+
+        return;
+      }
+
+      const response = await fetch(CHECKOUT_API_PATH, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ cartItems, clientCalculatedTotal }),
+      });
+
+      const {
+        success: checkoutSuccess,
+        data: checkoutData,
+        message: checkoutMessage,
+      } = await response.json();
+
+      if (checkoutSuccess && checkoutData?.url) {
+        router.push(checkoutData.url);
+      } else {
+        throw new Error(checkoutMessage);
+      }
+    } catch (error) {
+      console.error("Hook Error - Checkout error:", error);
+
+      setError(CHECKOUT_ERROR.NOT_PROCEED_CHECKOUT);
+    } finally {
+      setLoading(false);
     }
+  };
 
-    // チェックアウト
-    const initiateCheckout = async () => {
-        setLoading(true);
-        setError(null);
+  return {
+    loading,
+    error,
+    initiateCheckout,
+  };
+};
 
-        try {
-            const { 
-                success: stockCheckSuccess, 
-                message: stockCheckMessage 
-            } = await checkStockAvailability();
-
-            if (!stockCheckSuccess) {
-                router.refresh();
-                
-                setTimeout(() => {
-                    showErrorToast(stockCheckMessage as string);
-                }, CHECKOUT_SHOW_TOAST_DELAY);
-
-                return;
-            }
-
-            const clientCalculatedTotal = calculateTotalAmount();
-
-            if (clientCalculatedTotal === undefined) {
-                router.refresh();
-                
-                setTimeout(() => {
-                    showErrorToast(CHECKOUT_ERROR.AMOUNT_TOTAL_MISMATCH);
-                }, CHECKOUT_SHOW_TOAST_DELAY);
-
-                return;
-            }
-
-            const response = await fetch(CHECKOUT_API_PATH, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ cartItems, clientCalculatedTotal })
-            });
-
-            const { 
-                success: checkoutSuccess, 
-                data: checkoutData,
-                message: checkoutMessage
-            } = await response.json();
-
-            if (checkoutSuccess && checkoutData?.url) {
-                router.push(checkoutData.url);
-            } else {
-                throw new Error(checkoutMessage);
-            }
-        } catch (error) {
-            console.error('Hook Error - Checkout error:', error);
-
-            setError(CHECKOUT_ERROR.NOT_PROCEED_CHECKOUT);
-        } finally {
-            setLoading(false);
-        }
-    }
-
-    return {
-        loading,
-        error,
-        initiateCheckout
-    }
-}
-
-export default useCheckout
+export default useCheckout;

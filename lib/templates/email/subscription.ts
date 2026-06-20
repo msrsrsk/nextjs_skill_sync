@@ -1,28 +1,28 @@
-import { formatNumber } from "@/lib/utils/format"
-import { formatPaymentDueDate } from "@/services/order/format"
-import { formatOrderRemarks } from "@/services/order-item-subscription/format"
-import { LOGO_IMAGE_PATH } from "@/constants/index"
+import { formatNumber } from "@/lib/utils/format";
+import { formatPaymentDueDate } from "@/services/order/format";
+import { formatOrderRemarks } from "@/services/order-item-subscription/format";
+import { LOGO_IMAGE_PATH } from "@/constants/index";
 
 interface SubscriptionPaymentRequestEmailProps {
-    subscriptionHistoryUrl: string;
-    subscriptionId: string;
-    formattedOrderDate: string;
-    productDetails: StripeProductDetailsProps[];
-    subtotal: string;
-    shippingFee: string;
-    total: string;
-    createdAt: number;
+  subscriptionHistoryUrl: string;
+  subscriptionId: string;
+  formattedOrderDate: string;
+  productDetails: StripeProductDetailsProps[];
+  subtotal: string;
+  shippingFee: string;
+  total: string;
+  createdAt: number;
 }
 
 export const subscriptionPaymentRequestEmailTemplate = ({
-    subscriptionHistoryUrl,
-    subscriptionId,
-    formattedOrderDate,
-    productDetails,
-    subtotal,
-    shippingFee,
-    total,
-    createdAt,
+  subscriptionHistoryUrl,
+  subscriptionId,
+  formattedOrderDate,
+  productDetails,
+  subtotal,
+  shippingFee,
+  total,
+  createdAt,
 }: SubscriptionPaymentRequestEmailProps) => `
     <!DOCTYPE html>
     <html lang="ja">
@@ -42,49 +42,49 @@ export const subscriptionPaymentRequestEmailTemplate = ({
     </style>
     </head>
     <body>
-        <table 
-            width="100%" 
-            cellpadding="0" 
-            cellspacing="0" 
-            border="0" 
+        <table
+            width="100%"
+            cellpadding="0"
+            cellspacing="0"
+            border="0"
             style="background: #f0f0f0; margin: 0; padding: 20px; font-family: Arial, Helvetica, sans-serif; color: #222222; line-height: 1.6;"
         >
             <tr>
-                <td 
-                    align="center" 
+                <td
+                    align="center"
                 >
-                    <table 
-                        width="100%" 
-                        cellpadding="0" 
-                        cellspacing="0" 
-                        border="0" 
+                    <table
+                        width="100%"
+                        cellpadding="0"
+                        cellspacing="0"
+                        border="0"
                         style="max-width: 600px; margin: 0 auto; background: #fcfdfd; border-radius: 8px; padding: 40px 20px 24px;"
                     >
                         <tr>
-                            <td 
-                                align="center" 
+                            <td
+                                align="center"
                                 style="text-align: center; margin-bottom: 16px; padding-bottom: 24px;"
                             >
-                                <img 
-                                    src="${process.env.NEXT_PUBLIC_BASE_URL}${LOGO_IMAGE_PATH}" 
-                                    alt="Skill Sync" 
+                                <img
+                                    src="${process.env.NEXT_PUBLIC_BASE_URL}${LOGO_IMAGE_PATH}"
+                                    alt="Skill Sync"
                                     style="max-width: 260px; width: 100%; height: auto; margin: 0 auto; display: block;"
                                 >
                             </td>
                         </tr>
-                        
+
                         <tr>
-                            <td 
-                                align="center" 
+                            <td
+                                align="center"
                                 style="text-align: center; font-size: 20px; font-weight: bold; color: #222222; padding-bottom: 12px;"
                             >
                                 ※※※ お支払いのお願い ※※※
                             </td>
                         </tr>
-                        
+
                         <tr>
-                            <td 
-                                align="center" 
+                            <td
+                                align="center"
                                 style="text-align: center; font-size: 14px; line-height: 1.8; color: #222222;"
                             >
                                 この度は Skill Sync をご利用いただき<br>
@@ -96,8 +96,8 @@ export const subscriptionPaymentRequestEmailTemplate = ({
                         </tr>
 
                         <tr>
-                            <td 
-                                align="center" 
+                            <td
+                                align="center"
                                 style="text-align: center; font-size: 16px; line-height: 1.8; color: #222222; padding-top: 20px;"
                             >
                                 <span style="border: 1px solid red; padding: 8px 20px;">
@@ -108,7 +108,7 @@ export const subscriptionPaymentRequestEmailTemplate = ({
 
                         <tr>
                             <td align="center" style="text-align: center; padding-top: 24px;">
-                                <a href="${subscriptionHistoryUrl}" 
+                                <a href="${subscriptionHistoryUrl}"
                                 style="display: inline-block; background-color: #8dc1b8; color: #ffffff !important; font-weight: bold; font-size: 16px; text-decoration: none; padding: 16px 40px; border-radius: 4px; border: none; cursor: pointer; max-width: 90%; box-sizing: border-box; text-align: center;"
                                 target="_blank">
                                     サブスクリプションの<br>
@@ -144,29 +144,31 @@ export const subscriptionPaymentRequestEmailTemplate = ({
 
                         <tr>
                             <td style="padding: 24px 0 8px;">
-                                <table 
-                                    width="100%" 
-                                    cellpadding="0" 
-                                    cellspacing="0" 
+                                <table
+                                    width="100%"
+                                    cellpadding="0"
+                                    cellspacing="0"
                                     border="0"
                                 >
-                                    ${productDetails.map((item) => `
+                                    ${productDetails
+                                      .map(
+                                        (item) => `
                                         <tr>
                                             <td style="padding-bottom: 16px;">
-                                                <table 
-                                                    width="100%" 
-                                                    cellpadding="0" 
-                                                    cellspacing="0" 
+                                                <table
+                                                    width="100%"
+                                                    cellpadding="0"
+                                                    cellspacing="0"
                                                     border="0"
                                                 >
                                                     <tr>
-                                                        <td 
-                                                            width="64" 
+                                                        <td
+                                                            width="64"
                                                             style="width: 64px; vertical-align: center; padding-right: 20px;"
                                                         >
-                                                            <img 
-                                                                src="${item.image}" 
-                                                                alt="" 
+                                                            <img
+                                                                src="${item.image}"
+                                                                alt=""
                                                                 style="width: 64px; height: 64px; border-radius: 8px; object-fit: cover; display: block; aspect-ratio: 1;"
                                                             >
                                                         </td>
@@ -179,17 +181,25 @@ export const subscriptionPaymentRequestEmailTemplate = ({
                                                                 <span>&ensp;/&ensp;</span>
                                                                 <span style="color: #7f7e7e;">数量: ${item.quantity}点</span>
                                                             </div>
-                                                            ${formatOrderRemarks(item) ? `
+                                                            ${
+                                                              formatOrderRemarks(
+                                                                item,
+                                                              )
+                                                                ? `
                                                                 <div style="font-size: 14px;">
                                                                     <span>${formatOrderRemarks(item)}</span>
                                                                 </div>
-                                                            ` : ''}
+                                                            `
+                                                                : ""
+                                                            }
                                                         </td>
                                                     </tr>
                                                 </table>
                                             </td>
                                         </tr>
-                                    `).join('')}
+                                    `,
+                                      )
+                                      .join("")}
                                 </table>
                             </td>
                         </tr>
@@ -200,18 +210,18 @@ export const subscriptionPaymentRequestEmailTemplate = ({
 
                         <tr>
                             <td style="padding: 20px 0;">
-                                <table 
-                                    width="100%" 
-                                    cellpadding="0" 
-                                    cellspacing="0" 
+                                <table
+                                    width="100%"
+                                    cellpadding="0"
+                                    cellspacing="0"
                                     border="0"
                                 >
                                     <tr>
                                         <td style="padding-bottom: 4px;">
-                                            <table 
-                                                width="100%" 
-                                                cellpadding="0" 
-                                                cellspacing="0" 
+                                            <table
+                                                width="100%"
+                                                cellpadding="0"
+                                                cellspacing="0"
                                                 border="0"
                                             >
                                                 <tr style="display: flex; flex-wrap: wrap; align-items: center;">
@@ -223,10 +233,10 @@ export const subscriptionPaymentRequestEmailTemplate = ({
                                     </tr>
                                     <tr>
                                         <td style="padding-bottom: 4px;">
-                                            <table 
-                                                width="100%" 
-                                                cellpadding="0" 
-                                                cellspacing="0" 
+                                            <table
+                                                width="100%"
+                                                cellpadding="0"
+                                                cellspacing="0"
                                                 border="0"
                                             >
                                                 <tr style="display: flex; flex-wrap: wrap; align-items: center;">
@@ -238,9 +248,9 @@ export const subscriptionPaymentRequestEmailTemplate = ({
                                     </tr>
                                     <tr>
                                         <td style="padding-top: 8px;">
-                                            <table 
-                                                width="100%" 
-                                                cellpadding="0" 
+                                            <table
+                                                width="100%"
+                                                cellpadding="0"
                                                 cellspacing="0" border="0"
                                             >
                                                 <tr style="display: flex; flex-wrap: wrap; align-items: center;">
@@ -260,10 +270,10 @@ export const subscriptionPaymentRequestEmailTemplate = ({
 
                         <tr>
                             <td style="padding: 20px 0;">
-                                <table 
-                                    width="100%" 
-                                    cellpadding="0" 
-                                    cellspacing="0" 
+                                <table
+                                    width="100%"
+                                    cellpadding="0"
+                                    cellspacing="0"
                                     border="0"
                                 >
                                     <tr style="display: flex; flex-wrap: wrap; align-items: center;">
@@ -280,10 +290,10 @@ export const subscriptionPaymentRequestEmailTemplate = ({
 
                         <tr>
                             <td style="padding: 20px 0;">
-                                <table 
-                                    width="100%" 
-                                    cellpadding="0" 
-                                    cellspacing="0" 
+                                <table
+                                    width="100%"
+                                    cellpadding="0"
+                                    cellspacing="0"
                                     border="0"
                                 >
                                     <tr style="display: flex; flex-wrap: wrap; align-items: center;">
@@ -305,10 +315,10 @@ export const subscriptionPaymentRequestEmailTemplate = ({
 
                         <tr>
                             <td style="padding: 20px 10px 0;">
-                                <table 
-                                    width="100%" 
-                                    cellpadding="0" 
-                                    cellspacing="0" 
+                                <table
+                                    width="100%"
+                                    cellpadding="0"
+                                    cellspacing="0"
                                     border="0"
                                 >
                                     <tr style="display: flex; flex-wrap: wrap; align-items: center;">
@@ -328,4 +338,4 @@ export const subscriptionPaymentRequestEmailTemplate = ({
         </table>
     </body>
     </html>
-`
+`;

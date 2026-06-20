@@ -1,81 +1,74 @@
-import ReviewListWrapper from "@/components/layout/ReviewListWrapper"
-import Pagination from "@/components/ui/navigation/Pagination"
-import SearchForm from "@/components/common/forms/SearchForm"
-import ErrorMessage from "@/components/common/display/ErrorMessage"
-import NoDataText from "@/components/common/display/NoDataText"
-import { requireUser } from "@/lib/middleware/auth"
-import { getReviewRepository } from "@/repository/review"
-import { REVIEW_DISPLAY_CONFIG, PAGINATION_CONFIG } from "@/constants/index"
-import { ERROR_MESSAGES } from "@/constants/errorMessages"
+import ReviewListWrapper from "@/components/layout/ReviewListWrapper";
+import Pagination from "@/components/ui/navigation/Pagination";
+import SearchForm from "@/components/common/forms/SearchForm";
+import ErrorMessage from "@/components/common/display/ErrorMessage";
+import NoDataText from "@/components/common/display/NoDataText";
+import { requireUser } from "@/lib/middleware/auth";
+import { getReviewRepository } from "@/repository/review";
+import { REVIEW_DISPLAY_CONFIG, PAGINATION_CONFIG } from "@/constants/index";
+import { ERROR_MESSAGES } from "@/constants/errorMessages";
 
 const { PAGE_LIMIT } = REVIEW_DISPLAY_CONFIG;
 const { INITIAL_PAGE } = PAGINATION_CONFIG;
 const { REVIEW_ERROR } = ERROR_MESSAGES;
 
 interface ReviewListPageWrapperProps {
-    page: number;
-    query?: string;
-    isPrivate?: boolean;
+  page: number;
+  query?: string;
+  isPrivate?: boolean;
 }
 
-const ReviewListPageWrapper = async ({ 
-    page, 
-    query = '', 
-    isPrivate = false
+const ReviewListPageWrapper = async ({
+  page,
+  query = "",
+  isPrivate = false,
 }: ReviewListPageWrapperProps) => {
-    const limit = PAGE_LIMIT;
+  const limit = PAGE_LIMIT;
 
-    let userId: UserId | undefined;
-    
-    if (isPrivate) {
-        const { userId: privateUserId } = await requireUser();
-        userId = privateUserId;
-    }
+  let userId: UserId | undefined;
 
-    const repository = getReviewRepository();
+  if (isPrivate) {
+    const { userId: privateUserId } = await requireUser();
+    userId = privateUserId;
+  }
 
-    const { data } = isPrivate 
-        ? await repository.getPaginatedReviews({ page, limit, userId })
-        : await repository.getPaginatedReviews({ page, limit, query });
-    // const { data } = { data: undefined };
+  const repository = getReviewRepository();
 
-    if (!data) return <ErrorMessage message={REVIEW_ERROR.FETCH_FAILED} />
+  const { data } = isPrivate
+    ? await repository.getPaginatedReviews({ page, limit, userId })
+    : await repository.getPaginatedReviews({ page, limit, query });
+  // const { data } = { data: undefined };
 
-    const { 
-        reviews, 
-        totalPages, 
-        currentPage, 
-        hasNextPage, 
-        hasPrevPage 
-    } = data;
+  if (!data) return <ErrorMessage message={REVIEW_ERROR.FETCH_FAILED} />;
 
-    return <>
-        {!isPrivate && (
-            <div className="max-w-[400px] mx-auto mb-10 md:mb-[56px]">
-                <SearchForm 
-                    query={query} 
-                    action="/review"
-                />
-            </div>
-        )}
+  const { reviews, totalPages, currentPage, hasNextPage, hasPrevPage } = data;
 
-        {reviews.length === 0 ? (
-            <NoDataText />
-        ) : (
-            <div className="max-w-4xl mx-auto">
-                <ReviewListWrapper reviews={reviews as ReviewWithUserAndProduct[]} />
+  return (
+    <>
+      {!isPrivate && (
+        <div className="max-w-[400px] mx-auto mb-10 md:mb-[56px]">
+          <SearchForm query={query} action="/review" />
+        </div>
+      )}
 
-                {totalPages > INITIAL_PAGE && (
-                    <Pagination 
-                        totalPages={totalPages}
-                        currentPage={currentPage}
-                        hasNextPage={hasNextPage}
-                        hasPrevPage={hasPrevPage}
-                    />
-                )}
-            </div>
-        )}
+      {reviews.length === 0 ? (
+        <NoDataText />
+      ) : (
+        <div className="max-w-4xl mx-auto">
+          <ReviewListWrapper reviews={reviews as ReviewWithUserAndProduct[]} />
+
+          {totalPages > INITIAL_PAGE && (
+            <Pagination
+              totalPages={totalPages}
+              currentPage={currentPage}
+              hasNextPage={hasNextPage}
+              hasPrevPage={hasPrevPage}
+            />
+          )}
+        </div>
+      )}
     </>
-}
+  );
+};
 
-export default ReviewListPageWrapper
+export default ReviewListPageWrapper;

@@ -1,47 +1,42 @@
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server";
 
-import { verifyWebhookSignature } from "@/lib/utils/webhook"
-import { processSubscriptionWebhook } from "@/services/stripe/webhook-actions"
-import { ERROR_MESSAGES } from "@/constants/errorMessages"
+import { verifyWebhookSignature } from "@/lib/utils/webhook";
+import { processSubscriptionWebhook } from "@/services/stripe/webhook-actions";
+import { ERROR_MESSAGES } from "@/constants/errorMessages";
 
 const { SUBSCRIPTION_ERROR } = ERROR_MESSAGES;
 
-export async function POST(request: NextRequest) {   
-    const endpointSecret = process.env.STRIPE_SUBSCRIPTION_WEBHOOK_SECRET_KEY;
+export async function POST(request: NextRequest) {
+  const endpointSecret = process.env.STRIPE_SUBSCRIPTION_WEBHOOK_SECRET_KEY;
 
-    try {
-        const authResult = await verifyWebhookSignature({
-            request,
-            endpointSecret: endpointSecret as string,
-            errorMessage: SUBSCRIPTION_ERROR.WEBHOOK_PROCESS_FAILED
-        });
+  try {
+    const authResult = await verifyWebhookSignature({
+      request,
+      endpointSecret: endpointSecret as string,
+      errorMessage: SUBSCRIPTION_ERROR.WEBHOOK_PROCESS_FAILED,
+    });
 
-        if (authResult instanceof NextResponse) {
-            return authResult;
-        }
+    if (authResult instanceof NextResponse) {
+      return authResult;
+    }
 
-        const result = await processSubscriptionWebhook({
-            event: authResult
-        });
+    const result = await processSubscriptionWebhook({
+      event: authResult,
+    });
 
-        if (!result.success) {
-            return NextResponse.json(
-                { message: result.error }, 
-                { status: 500 }
-            )
-        }
-        
-        return NextResponse.json({ success: true });
-    } catch (error) {
-        console.error('Webhook Error - Stripe Subscription POST error:', error);
+    if (!result.success) {
+      return NextResponse.json({ message: result.error }, { status: 500 });
+    }
 
-        const errorMessage = error instanceof Error 
-            ? error.message 
-            : SUBSCRIPTION_ERROR.WEBHOOK_PROCESS_FAILED;
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Webhook Error - Stripe Subscription POST error:", error);
 
-        return NextResponse.json(
-            { message: errorMessage }, 
-            { status: 400 }
-        )
-    } 
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : SUBSCRIPTION_ERROR.WEBHOOK_PROCESS_FAILED;
+
+    return NextResponse.json({ message: errorMessage }, { status: 400 });
+  }
 }

@@ -1,5 +1,5 @@
 const TrendPage = () => {
-    return null;
-}
+  return null;
+};
 
-export default TrendPage
+export default TrendPage;

@@ -1,17 +1,17 @@
-import Link from "next/link"
-import Image from "next/image"
-import { Suspense } from "react"
+import Link from "next/link";
+import Image from "next/image";
+import { Suspense } from "react";
 
-import LoadingSpinner from "@/components/common/display/LoadingSpinner"
-import ErrorMessage from "@/components/common/display/ErrorMessage"
-import { getProductRepository } from "@/repository/product"
-import { 
-    NOIMAGE_PRODUCT_IMAGE_URL, 
-    GET_PRODUCTS_PAGE_TYPES, 
-    ERROR_MESSAGE_POSITIONS,
-    SITE_MAP 
-} from "@/constants/index"
-import { ERROR_MESSAGES } from "@/constants/errorMessages"
+import LoadingSpinner from "@/components/common/display/LoadingSpinner";
+import ErrorMessage from "@/components/common/display/ErrorMessage";
+import { getProductRepository } from "@/repository/product";
+import {
+  NOIMAGE_PRODUCT_IMAGE_URL,
+  GET_PRODUCTS_PAGE_TYPES,
+  ERROR_MESSAGE_POSITIONS,
+  SITE_MAP,
+} from "@/constants/index";
+import { ERROR_MESSAGES } from "@/constants/errorMessages";
 
 const { SYNC_CONDITIONS } = GET_PRODUCTS_PAGE_TYPES;
 const { ERROR_LEFT } = ERROR_MESSAGE_POSITIONS;
@@ -19,61 +19,65 @@ const { CATEGORY_PATH } = SITE_MAP;
 const { PRODUCT_ERROR } = ERROR_MESSAGES;
 
 interface ProductSyncConditionsProps {
-    optimalSyncsArray: string[];
+  optimalSyncsArray: string[];
 }
 
-const ProductSyncConditions = async ({ optimalSyncsArray }: ProductSyncConditionsProps) => {
-    const repository = getProductRepository();
-    const productsResult = await repository.getProductsByIds({
-        ids: optimalSyncsArray,
-        pageType: SYNC_CONDITIONS
-    });
+const ProductSyncConditions = async ({
+  optimalSyncsArray,
+}: ProductSyncConditionsProps) => {
+  const repository = getProductRepository();
+  const productsResult = await repository.getProductsByIds({
+    ids: optimalSyncsArray,
+    pageType: SYNC_CONDITIONS,
+  });
 
-    if (!productsResult) {
-        return <ErrorMessage 
-            message={PRODUCT_ERROR.IDS_FETCH_FAILED} 
-            position={ERROR_LEFT} 
-        />
-    }
-
+  if (!productsResult) {
     return (
-        <div className="product-info-box">
-            <div className="product-subtitle">
-                <h3 className="product-info-title">Sync Conditions</h3>
-            </div>
-            <Suspense fallback={<LoadingSpinner />}>
-                {productsResult && (
-                    <div className="flex gap-[18px] flex-wrap">
-                        {productsResult.map((product) => {
-                            const { id, title, image_urls, category, slug } = product;
-                            const imageUrl = image_urls || NOIMAGE_PRODUCT_IMAGE_URL;
+      <ErrorMessage
+        message={PRODUCT_ERROR.IDS_FETCH_FAILED}
+        position={ERROR_LEFT}
+      />
+    );
+  }
 
-                            const titleWithoutSkill = title.replace(/ SKILL$/i, '');
+  return (
+    <div className="product-info-box">
+      <div className="product-subtitle">
+        <h3 className="product-info-title">Sync Conditions</h3>
+      </div>
+      <Suspense fallback={<LoadingSpinner />}>
+        {productsResult && (
+          <div className="flex gap-[18px] flex-wrap">
+            {productsResult.map((product) => {
+              const { id, title, image_urls, category, slug } = product;
+              const imageUrl = image_urls || NOIMAGE_PRODUCT_IMAGE_URL;
 
-                            return (
-                                <Link 
-                                    key={id}
-                                    href={`${CATEGORY_PATH}/${category.toLowerCase()}/${slug}`}
-                                    className="w-[100px] block"
-                                >
-                                    <Image 
-                                        src={imageUrl} 
-                                        alt=""
-                                        width={80} 
-                                        height={80} 
-                                        className="mx-auto mb-2"
-                                    />
-                                    <p className="text-xs font-medium font-poppins leading-[18px] uppercase">
-                                        {titleWithoutSkill}
-                                    </p>
-                                </Link>
-                            )
-                        })}
-                    </div>
-                )}
-            </Suspense>
-        </div>
-    )
-}
+              const titleWithoutSkill = title.replace(/ SKILL$/i, "");
 
-export default ProductSyncConditions
+              return (
+                <Link
+                  key={id}
+                  href={`${CATEGORY_PATH}/${category.toLowerCase()}/${slug}`}
+                  className="w-[100px] block"
+                >
+                  <Image
+                    src={imageUrl}
+                    alt=""
+                    width={80}
+                    height={80}
+                    className="mx-auto mb-2"
+                  />
+                  <p className="text-xs font-medium font-poppins leading-[18px] uppercase">
+                    {titleWithoutSkill}
+                  </p>
+                </Link>
+              );
+            })}
+          </div>
+        )}
+      </Suspense>
+    </div>
+  );
+};
+
+export default ProductSyncConditions;

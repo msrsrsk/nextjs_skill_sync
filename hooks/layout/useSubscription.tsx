@@ -1,66 +1,68 @@
-import { useEffect } from "react"
+import { useEffect } from "react";
 
-import { 
-    useSubscriptionPurchaseTypeStore, 
-    useSelectedSubscriptionOptionStore
-} from "@/app/stores/useStore"
-import { getDiscountRate } from "@/services/subscription-payment/calculation"
-import { SUBSCRIPTION_PURCHASE_TYPES } from "@/constants/index"
+import {
+  useSubscriptionPurchaseTypeStore,
+  useSelectedSubscriptionOptionStore,
+} from "@/app/stores/useStore";
+import { getDiscountRate } from "@/services/subscription-payment/calculation";
+import { SUBSCRIPTION_PURCHASE_TYPES } from "@/constants/index";
 
 const { ONE_TIME, SUBSCRIPTION } = SUBSCRIPTION_PURCHASE_TYPES;
 
 interface UseSubscriptionProps {
-    product: ProductWithRelations;
-    subscriptionOptions?: SubscriptionOption[];
+  product: ProductWithRelations;
+  subscriptionOptions?: SubscriptionOption[];
 }
 
-const useSubscription = ({ 
-    product, 
-    subscriptionOptions 
+const useSubscription = ({
+  product,
+  subscriptionOptions,
 }: UseSubscriptionProps) => {
-    const { subscriptionPurchaseType, setSubscriptionPurchaseType } = useSubscriptionPurchaseTypeStore();
-    const { selectedSubscriptionOption, setSelectedSubscriptionOption } = useSelectedSubscriptionOptionStore();
-    
-    const handlePurchaseTypeChange = (type: SubscriptionPurchaseType) => {
-        if (!subscriptionOptions) return;
+  const { subscriptionPurchaseType, setSubscriptionPurchaseType } =
+    useSubscriptionPurchaseTypeStore();
+  const { selectedSubscriptionOption, setSelectedSubscriptionOption } =
+    useSelectedSubscriptionOptionStore();
 
-        setSubscriptionPurchaseType(type);
+  const handlePurchaseTypeChange = (type: SubscriptionPurchaseType) => {
+    if (!subscriptionOptions) return;
 
-        if (type === ONE_TIME) {
-            setSelectedSubscriptionOption(null);
-        } else {
-            const defaultOption = subscriptionOptions[0];
-            setSelectedSubscriptionOption(defaultOption);
-        }
-    };
+    setSubscriptionPurchaseType(type);
 
-    const handleIntervalChange = (option: SubscriptionOption) => {
-        setSelectedSubscriptionOption(option);
-    };
-
-    const calculateDiscountInfo = (option: SubscriptionOption) => {
-        const discountRate = getDiscountRate(product.price, option.price);
-        const showDiscount = discountRate > 0 && product.price > option.price;
-        
-        return { discountRate, showDiscount };
-    };
-    
-    useEffect(() => {
-        if (!subscriptionOptions) return;
-        
-        if (subscriptionOptions.length > 0) {
-            setSubscriptionPurchaseType(SUBSCRIPTION);
-            setSelectedSubscriptionOption(subscriptionOptions[0]);
-        }
-    }, []);
-
-    return {
-        subscriptionPurchaseType,
-        subscriptionInterval: selectedSubscriptionOption?.interval,
-        handlePurchaseTypeChange,
-        handleIntervalChange,
-        calculateDiscountInfo
+    if (type === ONE_TIME) {
+      setSelectedSubscriptionOption(null);
+    } else {
+      const defaultOption = subscriptionOptions[0];
+      setSelectedSubscriptionOption(defaultOption);
     }
-}
+  };
 
-export default useSubscription
+  const handleIntervalChange = (option: SubscriptionOption) => {
+    setSelectedSubscriptionOption(option);
+  };
+
+  const calculateDiscountInfo = (option: SubscriptionOption) => {
+    const discountRate = getDiscountRate(product.price, option.price);
+    const showDiscount = discountRate > 0 && product.price > option.price;
+
+    return { discountRate, showDiscount };
+  };
+
+  useEffect(() => {
+    if (!subscriptionOptions) return;
+
+    if (subscriptionOptions.length > 0) {
+      setSubscriptionPurchaseType(SUBSCRIPTION);
+      setSelectedSubscriptionOption(subscriptionOptions[0]);
+    }
+  }, []);
+
+  return {
+    subscriptionPurchaseType,
+    subscriptionInterval: selectedSubscriptionOption?.interval,
+    handlePurchaseTypeChange,
+    handleIntervalChange,
+    calculateDiscountInfo,
+  };
+};
+
+export default useSubscription;

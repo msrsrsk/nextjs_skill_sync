@@ -1,46 +1,47 @@
-import { 
-    formatNumber, 
-} from "@/lib/utils/format"
-import { formatOrderNumber } from "@/services/order/format"
-import { formatOrderRemarks } from "@/services/order-item-subscription/format"
-import { formatPaymentDueDate, getPaymentErrorDetails } from "@/services/order/format"
-import { LOGO_IMAGE_PATH } from "@/constants/index"
+import { formatNumber } from "@/lib/utils/format";
+import { formatOrderNumber } from "@/services/order/format";
+import { formatOrderRemarks } from "@/services/order-item-subscription/format";
+import {
+  formatPaymentDueDate,
+  getPaymentErrorDetails,
+} from "@/services/order/format";
+import { LOGO_IMAGE_PATH } from "@/constants/index";
 
 interface CompleteEmailProps {
-    orderHistoryUrl: string;
-    orderNumber: number;
-    formattedOrderDate: string;
-    productDetails: StripeProductDetailsProps[];
-    subtotal: string;
-    shippingFee: string;
-    total: string;
+  orderHistoryUrl: string;
+  orderNumber: number;
+  formattedOrderDate: string;
+  productDetails: StripeProductDetailsProps[];
+  subtotal: string;
+  shippingFee: string;
+  total: string;
 }
 
 interface OrderCompleteEmailProps extends CompleteEmailProps {
-    name: string
-    shippingDetails: StripeAddress
-    cardType: string
-    paid: boolean
+  name: string;
+  shippingDetails: StripeAddress;
+  cardType: string;
+  paid: boolean;
 }
 
 interface PaymentRequestEmailProps extends CompleteEmailProps {
-    paymentIntent: StripePaymentIntent | null;
-    errorType: string;
-    checkoutSessionEvent: StripeCheckoutSession;
+  paymentIntent: StripePaymentIntent | null;
+  errorType: string;
+  checkoutSessionEvent: StripeCheckoutSession;
 }
 
 export const orderCompleteEmailTemplate = ({
-    orderHistoryUrl,
-    orderNumber,
-    formattedOrderDate,
-    productDetails,
-    subtotal,
-    shippingFee,
-    total,
-    paid,
-    cardType,
-    name,
-    shippingDetails
+  orderHistoryUrl,
+  orderNumber,
+  formattedOrderDate,
+  productDetails,
+  subtotal,
+  shippingFee,
+  total,
+  paid,
+  cardType,
+  name,
+  shippingDetails,
 }: OrderCompleteEmailProps) => `
     <!DOCTYPE html>
     <html lang="ja">
@@ -60,49 +61,49 @@ export const orderCompleteEmailTemplate = ({
     </style>
     </head>
     <body>
-        <table 
-            width="100%" 
-            cellpadding="0" 
-            cellspacing="0" 
-            border="0" 
+        <table
+            width="100%"
+            cellpadding="0"
+            cellspacing="0"
+            border="0"
             style="background: #f0f0f0; margin: 0; padding: 20px; font-family: Arial, Helvetica, sans-serif; color: #222222; line-height: 1.6;"
         >
             <tr>
-                <td 
-                    align="center" 
+                <td
+                    align="center"
                 >
-                    <table 
-                        width="100%" 
-                        cellpadding="0" 
-                        cellspacing="0" 
-                        border="0" 
+                    <table
+                        width="100%"
+                        cellpadding="0"
+                        cellspacing="0"
+                        border="0"
                         style="max-width: 600px; margin: 0 auto; background: #fcfdfd; border-radius: 8px; padding: 40px 20px 24px;"
                     >
                         <tr>
-                            <td 
-                                align="center" 
+                            <td
+                                align="center"
                                 style="text-align: center; margin-bottom: 16px; padding-bottom: 24px;"
                             >
-                                <img 
-                                    src="${process.env.NEXT_PUBLIC_BASE_URL}${LOGO_IMAGE_PATH}" 
-                                    alt="Skill Sync" 
+                                <img
+                                    src="${process.env.NEXT_PUBLIC_BASE_URL}${LOGO_IMAGE_PATH}"
+                                    alt="Skill Sync"
                                     style="max-width: 260px; width: 100%; height: auto; margin: 0 auto; display: block;"
                                 >
                             </td>
                         </tr>
-                        
+
                         <tr>
-                            <td 
-                                align="center" 
+                            <td
+                                align="center"
                                 style="text-align: center; font-size: 20px; font-weight: bold; color: #222222; padding-bottom: 12px;"
                             >
                                 ご注文ありがとうございます！
                             </td>
                         </tr>
-                        
+
                         <tr>
-                            <td 
-                                align="center" 
+                            <td
+                                align="center"
                                 style="text-align: center; font-size: 14px; line-height: 1.8; color: #222222;"
                             >
                                 この度は Skill Sync をご利用いただき<br>
@@ -113,7 +114,7 @@ export const orderCompleteEmailTemplate = ({
 
                         <tr>
                             <td align="center" style="text-align: center; padding-top: 24px;">
-                                <a href="${orderHistoryUrl}" 
+                                <a href="${orderHistoryUrl}"
                                 style="display: inline-block; background-color: #8dc1b8; color: #ffffff !important; font-weight: bold; font-size: 16px; text-decoration: none; padding: 16px 40px; border-radius: 4px; border: none; cursor: pointer; max-width: 90%; box-sizing: border-box;"
                                 target="_blank">
                                     注文履歴を確認する
@@ -148,29 +149,31 @@ export const orderCompleteEmailTemplate = ({
 
                         <tr>
                             <td style="padding: 24px 0 8px;">
-                                <table 
-                                    width="100%" 
-                                    cellpadding="0" 
-                                    cellspacing="0" 
+                                <table
+                                    width="100%"
+                                    cellpadding="0"
+                                    cellspacing="0"
                                     border="0"
                                 >
-                                    ${productDetails.map((item) => `
+                                    ${productDetails
+                                      .map(
+                                        (item) => `
                                         <tr>
                                             <td style="padding-bottom: 16px;">
-                                                <table 
-                                                    width="100%" 
-                                                    cellpadding="0" 
-                                                    cellspacing="0" 
+                                                <table
+                                                    width="100%"
+                                                    cellpadding="0"
+                                                    cellspacing="0"
                                                     border="0"
                                                 >
                                                     <tr>
-                                                        <td 
-                                                            width="64" 
+                                                        <td
+                                                            width="64"
                                                             style="width: 64px; vertical-align: center; padding-right: 20px;"
                                                         >
-                                                            <img 
-                                                                src="${item.image}" 
-                                                                alt="" 
+                                                            <img
+                                                                src="${item.image}"
+                                                                alt=""
                                                                 style="width: 64px; height: 64px; border-radius: 8px; object-fit: cover; display: block; aspect-ratio: 1;"
                                                             >
                                                         </td>
@@ -183,17 +186,25 @@ export const orderCompleteEmailTemplate = ({
                                                                 <span>&ensp;/&ensp;</span>
                                                                 <span style="color: #7f7e7e;">数量: ${item.quantity}点</span>
                                                             </div>
-                                                            ${formatOrderRemarks(item) ? `
+                                                            ${
+                                                              formatOrderRemarks(
+                                                                item,
+                                                              )
+                                                                ? `
                                                                 <div style="font-size: 14px;">
                                                                     <span>${formatOrderRemarks(item)}</span>
                                                                 </div>
-                                                            ` : ''}
+                                                            `
+                                                                : ""
+                                                            }
                                                         </td>
                                                     </tr>
                                                 </table>
                                             </td>
                                         </tr>
-                                    `).join('')}
+                                    `,
+                                      )
+                                      .join("")}
                                 </table>
                             </td>
                         </tr>
@@ -204,18 +215,18 @@ export const orderCompleteEmailTemplate = ({
 
                         <tr>
                             <td style="padding: 20px 0;">
-                                <table 
-                                    width="100%" 
-                                    cellpadding="0" 
-                                    cellspacing="0" 
+                                <table
+                                    width="100%"
+                                    cellpadding="0"
+                                    cellspacing="0"
                                     border="0"
                                 >
                                     <tr>
                                         <td style="padding-bottom: 4px;">
-                                            <table 
-                                                width="100%" 
-                                                cellpadding="0" 
-                                                cellspacing="0" 
+                                            <table
+                                                width="100%"
+                                                cellpadding="0"
+                                                cellspacing="0"
                                                 border="0"
                                             >
                                                 <tr style="display: flex; flex-wrap: wrap; align-items: center;">
@@ -227,10 +238,10 @@ export const orderCompleteEmailTemplate = ({
                                     </tr>
                                     <tr>
                                         <td style="padding-bottom: 4px;">
-                                            <table 
-                                                width="100%" 
-                                                cellpadding="0" 
-                                                cellspacing="0" 
+                                            <table
+                                                width="100%"
+                                                cellpadding="0"
+                                                cellspacing="0"
                                                 border="0"
                                             >
                                                 <tr style="display: flex; flex-wrap: wrap; align-items: center;">
@@ -242,9 +253,9 @@ export const orderCompleteEmailTemplate = ({
                                     </tr>
                                     <tr>
                                         <td style="padding-top: 8px;">
-                                            <table 
-                                                width="100%" 
-                                                cellpadding="0" 
+                                            <table
+                                                width="100%"
+                                                cellpadding="0"
                                                 cellspacing="0" border="0"
                                             >
                                                 <tr style="display: flex; flex-wrap: wrap; align-items: center;">
@@ -264,15 +275,15 @@ export const orderCompleteEmailTemplate = ({
 
                         <tr>
                             <td style="padding: 20px 0;">
-                                <table 
-                                    width="100%" 
-                                    cellpadding="0" 
-                                    cellspacing="0" 
+                                <table
+                                    width="100%"
+                                    cellpadding="0"
+                                    cellspacing="0"
                                     border="0"
                                 >
                                     <tr style="display: flex; flex-wrap: wrap; align-items: center;">
                                         <td width="120" style="font-size: 14px;">支払い方法</td>
-                                        <td style="font-size: 14px;">${paid ? cardType : '未払い'}</td>
+                                        <td style="font-size: 14px;">${paid ? cardType : "未払い"}</td>
                                     </tr>
                                 </table>
                             </td>
@@ -284,10 +295,10 @@ export const orderCompleteEmailTemplate = ({
 
                         <tr>
                             <td style="padding: 20px 0;">
-                                <table 
-                                    width="100%" 
-                                    cellpadding="0" 
-                                    cellspacing="0" 
+                                <table
+                                    width="100%"
+                                    cellpadding="0"
+                                    cellspacing="0"
                                     border="0"
                                 >
                                     <tr style="display: flex; flex-wrap: wrap; align-items: center;">
@@ -296,9 +307,9 @@ export const orderCompleteEmailTemplate = ({
                                         </td>
                                         <td style="font-size: 14px;">
                                             〒${shippingDetails?.postal_code}<br>
-                                            ${shippingDetails?.state} ${shippingDetails?.city || ''}<br>
+                                            ${shippingDetails?.state} ${shippingDetails?.city || ""}<br>
                                             ${shippingDetails?.line1}<br>
-                                            ${shippingDetails?.line2 ? `${shippingDetails.line2}<br>` : ''}
+                                            ${shippingDetails?.line2 ? `${shippingDetails.line2}<br>` : ""}
                                             ${name}
                                         </td>
                                     </tr>
@@ -311,17 +322,21 @@ export const orderCompleteEmailTemplate = ({
                         </tr>
 
                         <tr>
-                            <td 
-                                align="center" 
+                            <td
+                                align="center"
                                 style="text-align: center; font-size: 14px; line-height: 1.8; color: #222222; padding-top: 24px;"
                             >
-                                ${paid ? `
+                                ${
+                                  paid
+                                    ? `
                                     商品の発送が完了次第、別途お知らせいたします。<br>
                                     またのご利用をお待ちしております。
-                                ` : `
+                                `
+                                    : `
                                     お支払いの確認がとれなかったため、振込依頼のメールをお送りいたします。<br>
                                     お手数ですが、ご確認の上お支払いをお願いいたします。
-                                `}
+                                `
+                                }
                             </td>
                         </tr>
 
@@ -331,18 +346,18 @@ export const orderCompleteEmailTemplate = ({
         </table>
     </body>
     </html>
-`
+`;
 export const paymentRequestEmailTemplate = ({
-    paymentIntent,
-    orderHistoryUrl,
-    orderNumber,
-    formattedOrderDate,
-    productDetails,
-    subtotal,
-    shippingFee,
-    total,
-    errorType,
-    checkoutSessionEvent
+  paymentIntent,
+  orderHistoryUrl,
+  orderNumber,
+  formattedOrderDate,
+  productDetails,
+  subtotal,
+  shippingFee,
+  total,
+  errorType,
+  checkoutSessionEvent,
 }: PaymentRequestEmailProps) => `
     <!DOCTYPE html>
     <html lang="ja">
@@ -362,49 +377,49 @@ export const paymentRequestEmailTemplate = ({
     </style>
     </head>
     <body>
-        <table 
-            width="100%" 
-            cellpadding="0" 
-            cellspacing="0" 
-            border="0" 
+        <table
+            width="100%"
+            cellpadding="0"
+            cellspacing="0"
+            border="0"
             style="background: #f0f0f0; margin: 0; padding: 20px; font-family: Arial, Helvetica, sans-serif; color: #222222; line-height: 1.6;"
         >
             <tr>
-                <td 
-                    align="center" 
+                <td
+                    align="center"
                 >
-                    <table 
-                        width="100%" 
-                        cellpadding="0" 
-                        cellspacing="0" 
-                        border="0" 
+                    <table
+                        width="100%"
+                        cellpadding="0"
+                        cellspacing="0"
+                        border="0"
                         style="max-width: 600px; margin: 0 auto; background: #fcfdfd; border-radius: 8px; padding: 40px 20px 24px;"
                     >
                         <tr>
-                            <td 
-                                align="center" 
+                            <td
+                                align="center"
                                 style="text-align: center; margin-bottom: 16px; padding-bottom: 24px;"
                             >
-                                <img 
-                                    src="${process.env.NEXT_PUBLIC_BASE_URL}${LOGO_IMAGE_PATH}" 
-                                    alt="Skill Sync" 
+                                <img
+                                    src="${process.env.NEXT_PUBLIC_BASE_URL}${LOGO_IMAGE_PATH}"
+                                    alt="Skill Sync"
                                     style="max-width: 260px; width: 100%; height: auto; margin: 0 auto; display: block;"
                                 >
                             </td>
                         </tr>
-                        
+
                         <tr>
-                            <td 
-                                align="center" 
+                            <td
+                                align="center"
                                 style="text-align: center; font-size: 20px; font-weight: bold; color: #222222; padding-bottom: 12px;"
                             >
                                 ※※※ お支払いのお願い ※※※
                             </td>
                         </tr>
-                        
+
                         <tr>
-                            <td 
-                                align="center" 
+                            <td
+                                align="center"
                                 style="text-align: center; font-size: 14px; line-height: 1.8; color: #222222;"
                             >
                                 この度は Skill Sync をご利用いただき<br>
@@ -415,8 +430,8 @@ export const paymentRequestEmailTemplate = ({
                         </tr>
 
                         <tr>
-                            <td 
-                                align="center" 
+                            <td
+                                align="center"
                                 style="text-align: center; font-size: 16px; line-height: 1.8; color: #222222; padding-top: 20px;"
                             >
                                 <span style="border: 1px solid red; padding: 8px 20px;">
@@ -427,7 +442,7 @@ export const paymentRequestEmailTemplate = ({
 
                         <tr>
                             <td align="center" style="text-align: center; padding-top: 24px;">
-                                <a href="${orderHistoryUrl}" 
+                                <a href="${orderHistoryUrl}"
                                 style="display: inline-block; background-color: #8dc1b8; color: #ffffff !important; font-weight: bold; font-size: 16px; text-decoration: none; padding: 16px 40px; border-radius: 4px; border: none; cursor: pointer; max-width: 90%; box-sizing: border-box;"
                                 target="_blank">
                                     注文履歴を確認する
@@ -462,29 +477,31 @@ export const paymentRequestEmailTemplate = ({
 
                         <tr>
                             <td style="padding: 24px 0 8px;">
-                                <table 
-                                    width="100%" 
-                                    cellpadding="0" 
-                                    cellspacing="0" 
+                                <table
+                                    width="100%"
+                                    cellpadding="0"
+                                    cellspacing="0"
                                     border="0"
                                 >
-                                    ${productDetails.map((item) => `
+                                    ${productDetails
+                                      .map(
+                                        (item) => `
                                         <tr>
                                             <td style="padding-bottom: 16px;">
-                                                <table 
-                                                    width="100%" 
-                                                    cellpadding="0" 
-                                                    cellspacing="0" 
+                                                <table
+                                                    width="100%"
+                                                    cellpadding="0"
+                                                    cellspacing="0"
                                                     border="0"
                                                 >
                                                     <tr>
-                                                        <td 
-                                                            width="64" 
+                                                        <td
+                                                            width="64"
                                                             style="width: 64px; vertical-align: center; padding-right: 20px;"
                                                         >
-                                                            <img 
-                                                                src="${item.image}" 
-                                                                alt="" 
+                                                            <img
+                                                                src="${item.image}"
+                                                                alt=""
                                                                 style="width: 64px; height: 64px; border-radius: 8px; object-fit: cover; display: block; aspect-ratio: 1;"
                                                             >
                                                         </td>
@@ -497,17 +514,25 @@ export const paymentRequestEmailTemplate = ({
                                                                 <span>&ensp;/&ensp;</span>
                                                                 <span style="color: #7f7e7e;">数量: ${item.quantity}点</span>
                                                             </div>
-                                                            ${formatOrderRemarks(item) ? `
+                                                            ${
+                                                              formatOrderRemarks(
+                                                                item,
+                                                              )
+                                                                ? `
                                                                 <div style="font-size: 14px;">
                                                                     <span>${formatOrderRemarks(item)}</span>
                                                                 </div>
-                                                            ` : ''}
+                                                            `
+                                                                : ""
+                                                            }
                                                         </td>
                                                     </tr>
                                                 </table>
                                             </td>
                                         </tr>
-                                    `).join('')}
+                                    `,
+                                      )
+                                      .join("")}
                                 </table>
                             </td>
                         </tr>
@@ -518,18 +543,18 @@ export const paymentRequestEmailTemplate = ({
 
                         <tr>
                             <td style="padding: 20px 0;">
-                                <table 
-                                    width="100%" 
-                                    cellpadding="0" 
-                                    cellspacing="0" 
+                                <table
+                                    width="100%"
+                                    cellpadding="0"
+                                    cellspacing="0"
                                     border="0"
                                 >
                                     <tr>
                                         <td style="padding-bottom: 4px;">
-                                            <table 
-                                                width="100%" 
-                                                cellpadding="0" 
-                                                cellspacing="0" 
+                                            <table
+                                                width="100%"
+                                                cellpadding="0"
+                                                cellspacing="0"
                                                 border="0"
                                             >
                                                 <tr style="display: flex; flex-wrap: wrap; align-items: center;">
@@ -541,10 +566,10 @@ export const paymentRequestEmailTemplate = ({
                                     </tr>
                                     <tr>
                                         <td style="padding-bottom: 4px;">
-                                            <table 
-                                                width="100%" 
-                                                cellpadding="0" 
-                                                cellspacing="0" 
+                                            <table
+                                                width="100%"
+                                                cellpadding="0"
+                                                cellspacing="0"
                                                 border="0"
                                             >
                                                 <tr style="display: flex; flex-wrap: wrap; align-items: center;">
@@ -556,9 +581,9 @@ export const paymentRequestEmailTemplate = ({
                                     </tr>
                                     <tr>
                                         <td style="padding-top: 8px;">
-                                            <table 
-                                                width="100%" 
-                                                cellpadding="0" 
+                                            <table
+                                                width="100%"
+                                                cellpadding="0"
                                                 cellspacing="0" border="0"
                                             >
                                                 <tr style="display: flex; flex-wrap: wrap; align-items: center;">
@@ -578,10 +603,10 @@ export const paymentRequestEmailTemplate = ({
 
                         <tr>
                             <td style="padding: 20px 0;">
-                                <table 
-                                    width="100%" 
-                                    cellpadding="0" 
-                                    cellspacing="0" 
+                                <table
+                                    width="100%"
+                                    cellpadding="0"
+                                    cellspacing="0"
                                     border="0"
                                 >
                                     <tr style="display: flex; flex-wrap: wrap; align-items: center;">
@@ -598,10 +623,10 @@ export const paymentRequestEmailTemplate = ({
 
                         <tr>
                             <td style="padding: 20px 0;">
-                                <table 
-                                    width="100%" 
-                                    cellpadding="0" 
-                                    cellspacing="0" 
+                                <table
+                                    width="100%"
+                                    cellpadding="0"
+                                    cellspacing="0"
                                     border="0"
                                 >
                                     <tr style="display: flex; flex-wrap: wrap; align-items: center;">
@@ -623,10 +648,10 @@ export const paymentRequestEmailTemplate = ({
 
                         <tr>
                             <td style="padding: 20px 10px 0;">
-                                <table 
-                                    width="100%" 
-                                    cellpadding="0" 
-                                    cellspacing="0" 
+                                <table
+                                    width="100%"
+                                    cellpadding="0"
+                                    cellspacing="0"
                                     border="0"
                                 >
                                     <tr style="display: flex; flex-wrap: wrap; align-items: center;">
@@ -646,4 +671,4 @@ export const paymentRequestEmailTemplate = ({
         </table>
     </body>
     </html>
-`
+`;

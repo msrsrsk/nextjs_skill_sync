@@ -1,13 +1,13 @@
-import { useEffect } from "react"
+import { useEffect } from "react";
 
 const usePreventScroll = (isActive: boolean) => {
-    useEffect(() => {
-        document.body.style.overflow = isActive ? 'hidden' : 'unset';
+  useEffect(() => {
+    document.body.style.overflow = isActive ? "hidden" : "unset";
 
-        return () => {
-            document.body.style.overflow = 'unset';
-        };
-    }, [isActive])
-}
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isActive]);
+};
 
-export default usePreventScroll
+export default usePreventScroll;

@@ -1,287 +1,292 @@
-import { describe, it, expect, vi, beforeEach } from "vitest"
+import { describe, it, expect, vi, beforeEach } from "vitest";
 
-import { setDefaultShippingAddressAction } from "@/services/stripe/form-actions"
-import { mockUser, mockShippingAddress } from "@/__tests__/mocks/domain-mocks"
-import { ERROR_MESSAGES } from "@/constants/errorMessages"
+import { setDefaultShippingAddressAction } from "@/services/stripe/form-actions";
+import { mockUser, mockShippingAddress } from "@/__tests__/mocks/domain-mocks";
+import { ERROR_MESSAGES } from "@/constants/errorMessages";
 
 const { SHIPPING_ADDRESS_ERROR, USER_STRIPE_ERROR } = ERROR_MESSAGES;
 
-const { 
-    MISSING_ID, 
-    UPDATE_DEFAULT_UNAUTHORIZED,
-    INDIVIDUAL_FETCH_FAILED,
-    SET_DEFAULT_FAILED,
+const {
+  MISSING_ID,
+  UPDATE_DEFAULT_UNAUTHORIZED,
+  INDIVIDUAL_FETCH_FAILED,
+  SET_DEFAULT_FAILED,
 } = SHIPPING_ADDRESS_ERROR;
 const { CUSTOMER_ID_FETCH_FAILED } = USER_STRIPE_ERROR;
 
-vi.mock('@/lib/middleware/auth', () => ({
-    actionAuth: vi.fn()
-}))
+vi.mock("@/lib/middleware/auth", () => ({
+  actionAuth: vi.fn(),
+}));
 
-vi.mock('@/services/shipping-address/actions', () => ({
-    getShippingAddressById: vi.fn(),
-    updateStripeAndDefaultShippingAddress: vi.fn()
-}))
+vi.mock("@/services/shipping-address/actions", () => ({
+  getShippingAddressById: vi.fn(),
+  updateStripeAndDefaultShippingAddress: vi.fn(),
+}));
 
-vi.mock('@/services/user/actions', () => ({
-    getUser: vi.fn()
-}))
+vi.mock("@/services/user/actions", () => ({
+  getUser: vi.fn(),
+}));
 
 const getMockActionAuth = async () => {
-    const { actionAuth } = await import('@/lib/middleware/auth')
-    return vi.mocked(actionAuth)
-}
+  const { actionAuth } = await import("@/lib/middleware/auth");
+  return vi.mocked(actionAuth);
+};
 
 const getMockGetShippingAddressById = async () => {
-    const { getShippingAddressById } = await import('@/services/shipping-address/actions')
-    return vi.mocked(getShippingAddressById)
-}
+  const { getShippingAddressById } =
+    await import("@/services/shipping-address/actions");
+  return vi.mocked(getShippingAddressById);
+};
 
 const getMockGetUser = async () => {
-    const { getUser } = await import('@/services/user/actions')
-    return vi.mocked(getUser)
-}
+  const { getUser } = await import("@/services/user/actions");
+  return vi.mocked(getUser);
+};
 
 const getMockUpdateStripeAndDefaultShippingAddress = async () => {
-    const { updateStripeAndDefaultShippingAddress } = await import('@/services/shipping-address/actions')
-    return vi.mocked(updateStripeAndDefaultShippingAddress)
-}
+  const { updateStripeAndDefaultShippingAddress } =
+    await import("@/services/shipping-address/actions");
+  return vi.mocked(updateStripeAndDefaultShippingAddress);
+};
 
-/* ==================================== 
+/* ====================================
     Set Default Shipping Address Test
 ==================================== */
-describe('setDefaultShippingAddressAction', () => {
-    beforeEach(() => {
-        vi.clearAllMocks()
-    })
+describe("setDefaultShippingAddressAction", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
-    // 設定成功
-    it('should set default shipping address successfully', async () => {
-        const actionAuth = await getMockActionAuth()
-        const getShippingAddressById = await getMockGetShippingAddressById()
-        const getUser = await getMockGetUser()
-        const updateStripeAndDefaultShippingAddress = await getMockUpdateStripeAndDefaultShippingAddress()
+  // 設定成功
+  it("should set default shipping address successfully", async () => {
+    const actionAuth = await getMockActionAuth();
+    const getShippingAddressById = await getMockGetShippingAddressById();
+    const getUser = await getMockGetUser();
+    const updateStripeAndDefaultShippingAddress =
+      await getMockUpdateStripeAndDefaultShippingAddress();
 
-        actionAuth.mockResolvedValue({
-            success: true,
-            userId: 'user_test_123'
-        })
+    actionAuth.mockResolvedValue({
+      success: true,
+      userId: "user_test_123",
+    });
 
-        getShippingAddressById.mockResolvedValue({
-            data: { ...mockShippingAddress }
-        })
+    getShippingAddressById.mockResolvedValue({
+      data: { ...mockShippingAddress },
+    });
 
-        getUser.mockResolvedValue({
-            ...mockUser
-        })
+    getUser.mockResolvedValue({
+      ...mockUser,
+    });
 
-        updateStripeAndDefaultShippingAddress.mockResolvedValue({
-            success: true,
-            error: null,
-        })
+    updateStripeAndDefaultShippingAddress.mockResolvedValue({
+      success: true,
+      error: null,
+    });
 
-        const formData = new FormData()
-        formData.set('newDefaultAddressId', mockShippingAddress.id)
+    const formData = new FormData();
+    formData.set("newDefaultAddressId", mockShippingAddress.id);
 
-        const result = await setDefaultShippingAddressAction(
-            {
-                success: true,
-                error: null,
-            },
-            formData
-        )
+    const result = await setDefaultShippingAddressAction(
+      {
+        success: true,
+        error: null,
+      },
+      formData,
+    );
 
-        expect(result.success).toBe(true)
-        expect(result.error).toBeNull()
-        expect(result.timestamp).toBeDefined()
-    })
+    expect(result.success).toBe(true);
+    expect(result.error).toBeNull();
+    expect(result.timestamp).toBeDefined();
+  });
 
-    // 設定成功（customerId が null）
-    it('should set default shipping address successfully when customerId is null', async () => {
-        const actionAuth = await getMockActionAuth()
-        const getShippingAddressById = await getMockGetShippingAddressById()
-        const getUser = await getMockGetUser()
-        const updateStripeAndDefaultShippingAddress = await getMockUpdateStripeAndDefaultShippingAddress()
+  // 設定成功（customerId が null）
+  it("should set default shipping address successfully when customerId is null", async () => {
+    const actionAuth = await getMockActionAuth();
+    const getShippingAddressById = await getMockGetShippingAddressById();
+    const getUser = await getMockGetUser();
+    const updateStripeAndDefaultShippingAddress =
+      await getMockUpdateStripeAndDefaultShippingAddress();
 
-        actionAuth.mockResolvedValue({
-            success: true,
-            userId: 'user_test_123'
-        })
+    actionAuth.mockResolvedValue({
+      success: true,
+      userId: "user_test_123",
+    });
 
-        getShippingAddressById.mockResolvedValue({
-            data: { ...mockShippingAddress }
-        })
+    getShippingAddressById.mockResolvedValue({
+      data: { ...mockShippingAddress },
+    });
 
-        getUser.mockResolvedValue({
-            ...mockUser,
-            user_stripes: {
-                ...mockUser.user_stripes,
-                customer_id: null as unknown as string,
-            }
-        })
+    getUser.mockResolvedValue({
+      ...mockUser,
+      user_stripes: {
+        ...mockUser.user_stripes,
+        customer_id: null as unknown as string,
+      },
+    });
 
-        const formData = new FormData()
-        formData.set('newDefaultAddressId', mockShippingAddress.id)
+    const formData = new FormData();
+    formData.set("newDefaultAddressId", mockShippingAddress.id);
 
-        const result = await setDefaultShippingAddressAction(
-            {
-                success: true,
-                error: null,
-            },
-            formData
-        )
+    const result = await setDefaultShippingAddressAction(
+      {
+        success: true,
+        error: null,
+      },
+      formData,
+    );
 
-        expect(result.success).toBe(true)
-        expect(result.error).toBeNull()
-        expect(result.timestamp).toBeDefined()
-        
-        expect(updateStripeAndDefaultShippingAddress).not.toHaveBeenCalled()
-    })
+    expect(result.success).toBe(true);
+    expect(result.error).toBeNull();
+    expect(result.timestamp).toBeDefined();
 
-    // 設定失敗(newDefaultAddressId 無し)
-    it('should return error if newDefaultAddressId is not provided', async () => {
-        const formData = new FormData()
-        formData.set('newDefaultAddressId', '')
+    expect(updateStripeAndDefaultShippingAddress).not.toHaveBeenCalled();
+  });
 
-        const result = await setDefaultShippingAddressAction(
-            {
-                success: true,
-                error: null,
-            },
-            formData
-        )
+  // 設定失敗(newDefaultAddressId 無し)
+  it("should return error if newDefaultAddressId is not provided", async () => {
+    const formData = new FormData();
+    formData.set("newDefaultAddressId", "");
 
-        expect(result.success).toBe(false)
-        expect(result.error).toBe(MISSING_ID)
-        expect(result.timestamp).toBeDefined()
-    })
+    const result = await setDefaultShippingAddressAction(
+      {
+        success: true,
+        error: null,
+      },
+      formData,
+    );
 
-    // 設定失敗(ユーザー認証失敗)
-    it('should return error if user authorization fails', async () => {
-        const actionAuth = await getMockActionAuth()
+    expect(result.success).toBe(false);
+    expect(result.error).toBe(MISSING_ID);
+    expect(result.timestamp).toBeDefined();
+  });
 
-        actionAuth.mockResolvedValue({
-            success: false,
-            error: UPDATE_DEFAULT_UNAUTHORIZED,
-        })
+  // 設定失敗(ユーザー認証失敗)
+  it("should return error if user authorization fails", async () => {
+    const actionAuth = await getMockActionAuth();
 
-        const formData = new FormData()
-        formData.set('newDefaultAddressId', mockShippingAddress.id)
+    actionAuth.mockResolvedValue({
+      success: false,
+      error: UPDATE_DEFAULT_UNAUTHORIZED,
+    });
 
-        const result = await setDefaultShippingAddressAction(
-            {
-                success: true,
-                error: null,
-            },
-            formData
-        )
+    const formData = new FormData();
+    formData.set("newDefaultAddressId", mockShippingAddress.id);
 
-        expect(result.success).toBe(false)
-        expect(result.error).toBe(UPDATE_DEFAULT_UNAUTHORIZED)
-        expect(result.timestamp).toBeDefined()
-    })
+    const result = await setDefaultShippingAddressAction(
+      {
+        success: true,
+        error: null,
+      },
+      formData,
+    );
 
-    // 設定失敗(住所の取得失敗)
-    it('should return error if shipping address fetch fails', async () => {
-        const actionAuth = await getMockActionAuth()
-        const getShippingAddressById = await getMockGetShippingAddressById()
+    expect(result.success).toBe(false);
+    expect(result.error).toBe(UPDATE_DEFAULT_UNAUTHORIZED);
+    expect(result.timestamp).toBeDefined();
+  });
 
-        actionAuth.mockResolvedValue({
-            success: true,
-            userId: 'user_test_123'
-        })
+  // 設定失敗(住所の取得失敗)
+  it("should return error if shipping address fetch fails", async () => {
+    const actionAuth = await getMockActionAuth();
+    const getShippingAddressById = await getMockGetShippingAddressById();
 
-        getShippingAddressById.mockResolvedValue({
-            data: null
-        })
+    actionAuth.mockResolvedValue({
+      success: true,
+      userId: "user_test_123",
+    });
 
-        const formData = new FormData()
-        formData.set('newDefaultAddressId', mockShippingAddress.id)
+    getShippingAddressById.mockResolvedValue({
+      data: null,
+    });
 
-        const result = await setDefaultShippingAddressAction(
-            {
-                success: true,
-                error: null,
-            },
-            formData
-        )
+    const formData = new FormData();
+    formData.set("newDefaultAddressId", mockShippingAddress.id);
 
-        expect(result.success).toBe(false)
-        expect(result.error).toBe(INDIVIDUAL_FETCH_FAILED)
-        expect(result.timestamp).toBeDefined()
-    })
+    const result = await setDefaultShippingAddressAction(
+      {
+        success: true,
+        error: null,
+      },
+      formData,
+    );
 
-    // 設定失敗(Stripe 顧客IDの取得失敗)
-    it('should return error if customer ID fetch fails', async () => {
-        const actionAuth = await getMockActionAuth()
-        const getShippingAddressById = await getMockGetShippingAddressById()
-        const getUser = await getMockGetUser()
+    expect(result.success).toBe(false);
+    expect(result.error).toBe(INDIVIDUAL_FETCH_FAILED);
+    expect(result.timestamp).toBeDefined();
+  });
 
-        actionAuth.mockResolvedValue({
-            success: true,
-            userId: 'user_test_123'
-        })
+  // 設定失敗(Stripe 顧客IDの取得失敗)
+  it("should return error if customer ID fetch fails", async () => {
+    const actionAuth = await getMockActionAuth();
+    const getShippingAddressById = await getMockGetShippingAddressById();
+    const getUser = await getMockGetUser();
 
-        getShippingAddressById.mockResolvedValue({
-            data: { ...mockShippingAddress }
-        })
+    actionAuth.mockResolvedValue({
+      success: true,
+      userId: "user_test_123",
+    });
 
-        getUser.mockResolvedValue(null)
+    getShippingAddressById.mockResolvedValue({
+      data: { ...mockShippingAddress },
+    });
 
-        const formData = new FormData()
-        formData.set('newDefaultAddressId', mockShippingAddress.id)
+    getUser.mockResolvedValue(null);
 
-        const result = await setDefaultShippingAddressAction(
-            {
-                success: true,
-                error: null,
-            },
-            formData
-        )
+    const formData = new FormData();
+    formData.set("newDefaultAddressId", mockShippingAddress.id);
 
-        expect(result.success).toBe(false)
-        expect(result.error).toBe(CUSTOMER_ID_FETCH_FAILED)
-        expect(result.timestamp).toBeDefined()
-    })
+    const result = await setDefaultShippingAddressAction(
+      {
+        success: true,
+        error: null,
+      },
+      formData,
+    );
 
-    // 設定失敗(デフォルト住所の更新失敗)
-    it('should return error if updateStripeAndDefaultShippingAddress fails', async () => {
-        const actionAuth = await getMockActionAuth()
-        const getShippingAddressById = await getMockGetShippingAddressById()
-        const getUser = await getMockGetUser()
-        const updateStripeAndDefaultShippingAddress = await getMockUpdateStripeAndDefaultShippingAddress()
+    expect(result.success).toBe(false);
+    expect(result.error).toBe(CUSTOMER_ID_FETCH_FAILED);
+    expect(result.timestamp).toBeDefined();
+  });
 
-        actionAuth.mockResolvedValue({
-            success: true,
-            userId: 'user_test_123'
-        })
+  // 設定失敗(デフォルト住所の更新失敗)
+  it("should return error if updateStripeAndDefaultShippingAddress fails", async () => {
+    const actionAuth = await getMockActionAuth();
+    const getShippingAddressById = await getMockGetShippingAddressById();
+    const getUser = await getMockGetUser();
+    const updateStripeAndDefaultShippingAddress =
+      await getMockUpdateStripeAndDefaultShippingAddress();
 
-        getShippingAddressById.mockResolvedValue({
-            data: { ...mockShippingAddress }
-        })
+    actionAuth.mockResolvedValue({
+      success: true,
+      userId: "user_test_123",
+    });
 
-        getUser.mockResolvedValue({
-            ...mockUser
-        })
+    getShippingAddressById.mockResolvedValue({
+      data: { ...mockShippingAddress },
+    });
 
-        updateStripeAndDefaultShippingAddress.mockRejectedValue({
-            success: false,
-            error: 'test_error',
-        })
+    getUser.mockResolvedValue({
+      ...mockUser,
+    });
 
-        const formData = new FormData()
-        formData.set('newDefaultAddressId', mockShippingAddress.id)
+    updateStripeAndDefaultShippingAddress.mockRejectedValue({
+      success: false,
+      error: "test_error",
+    });
 
-        const result = await setDefaultShippingAddressAction(
-            {
-                success: true,
-                error: null,
-            },
-            formData
-        )
+    const formData = new FormData();
+    formData.set("newDefaultAddressId", mockShippingAddress.id);
 
-        expect(result.success).toBe(false)
-        expect(result.error).toBe(SET_DEFAULT_FAILED)
-        expect(result.timestamp).toBeDefined()
-    })
-})
+    const result = await setDefaultShippingAddressAction(
+      {
+        success: true,
+        error: null,
+      },
+      formData,
+    );
+
+    expect(result.success).toBe(false);
+    expect(result.error).toBe(SET_DEFAULT_FAILED);
+    expect(result.timestamp).toBeDefined();
+  });
+});

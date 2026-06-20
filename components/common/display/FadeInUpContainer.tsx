@@ -1,27 +1,27 @@
-import { motion } from "framer-motion"
+import { motion } from "framer-motion";
 
-import { fadeInUp } from "@/lib/utils/motion"
+import { fadeInUp } from "@/lib/utils/motion";
 
 interface FadeInUpContainerProps {
-    children: React.ReactNode
-    animationKey: string
+  children: React.ReactNode;
+  animationKey: string;
 }
 
-const FadeInUpContainer = ({ 
-    children,
-    animationKey 
+const FadeInUpContainer = ({
+  children,
+  animationKey,
 }: FadeInUpContainerProps) => {
-    return (
-        <motion.div 
-            key={animationKey}
-            initial="hidden"
-            animate="show"
-            exit="hidden"
-            variants={fadeInUp()}
-        >
-            {children}
-        </motion.div>
-    )
-}
+  return (
+    <motion.div
+      key={animationKey}
+      initial="hidden"
+      animate="show"
+      exit="hidden"
+      variants={fadeInUp()}
+    >
+      {children}
+    </motion.div>
+  );
+};
 
-export default FadeInUpContainer
+export default FadeInUpContainer;
